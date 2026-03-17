@@ -443,7 +443,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bdc95b10f6b614348a73078d8ec6d166, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.39945176
+      value: 0.3994516
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bdc95b10f6b614348a73078d8ec6d166, type: 3}
       propertyPath: m_LocalScale.z
@@ -451,15 +451,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bdc95b10f6b614348a73078d8ec6d166, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.38179022
+      value: -0.011209786
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bdc95b10f6b614348a73078d8ec6d166, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.27577436
+      value: -0.25522533
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bdc95b10f6b614348a73078d8ec6d166, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.14698198
+      value: -1.246982
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bdc95b10f6b614348a73078d8ec6d166, type: 3}
       propertyPath: m_LocalRotation.w
@@ -716,8 +716,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 502739761}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.756, z: 0.337}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.7559997, z: 0.337}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1076,6 +1076,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1396589457}
+  - component: {fileID: 1396589458}
   m_Layer: 0
   m_Name: WeaponHolder
   m_TagString: Untagged
@@ -1092,13 +1093,32 @@ Transform:
   m_GameObject: {fileID: 1396589456}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.756, z: -0.337}
+  m_LocalPosition: {x: 0.393, y: -0.225, z: 0.763}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 24934773}
   m_Father: {fileID: 502739762}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1396589458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1396589456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b49719e03e199543bcda357f2e69064, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponSway
+  input: {fileID: 576031179}
+  positionSwayAmount: 0.02
+  maxPositionSway: 0.06
+  rotationSwayAmount: 4
+  maxRotationSway: 6
+  positionSmooth: 5
+  rotationSmooth: 6
 --- !u!1 &1980046425
 GameObject:
   m_ObjectHideFlags: 0
