@@ -710,6 +710,7 @@ MonoBehaviour:
   moveAction: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   lookAction: {fileID: -5630151704836100654, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   jumpAction: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  jumpBufferTime: 0.15
 --- !u!114 &576031180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -725,18 +726,20 @@ MonoBehaviour:
   orientation: {fileID: 1980046426}
   input: {fileID: 576031179}
   look: {fileID: 196436220}
-  walkSpeed: 15
-  jumpForce: 550
+  walkSpeed: 30
+  jumpForce: 500
   gravity: 100000
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
   maxSlopeAngle: 35
   groundAcceleration: 5000
-  airAcceleration: 100
-  airControl: 1
-  maxAirSpeed: 50
-  conserveHorizontalMomentum: 1
+  airAcceleration: 300
+  airControl: 0.5
+  maxAirSpeed: 300
+  conserveHorizontalMomentum: 0
+  jumpCooldown: 0.25
+  autoBHop: 1
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0

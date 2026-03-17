@@ -26,12 +26,16 @@ public class FPSController : MonoBehaviour
     public float maxAirSpeed = 12f;
     public bool conserveHorizontalMomentum = true;
 
+    [Header("Jump")]
+    public float jumpCooldown = 0.05f;
+    public bool autoBHop = true;
+
     Rigidbody rb;
 
     bool grounded;
     bool readyToJump = true;
-    float jumpCooldown = 0.25f;
     Vector3 normalVector = Vector3.up;
+    bool cancellingGrounded;
 
     void Start()
     {
@@ -58,7 +62,6 @@ public class FPSController : MonoBehaviour
         float currentMaxSpeed = canLook ? walkSpeed : 0f;
 
         Vector3 wishDir = (fwd * input.Move.y) + (side * input.Move.x);
-        if (wishDir.sqrMagnitude > 1f) wishDir.Normalize();
 
         Vector3 v0 = rb.linearVelocity;
         Vector3 horiz0 = new Vector3(v0.x, 0f, v0.z);
@@ -91,7 +94,9 @@ public class FPSController : MonoBehaviour
 
         rb.linearVelocity = new Vector3(horiz0.x, v0.y, horiz0.z);
 
-        if (readyToJump && input.JumpPressed && grounded)
+        bool wantsJump = autoBHop ? input.JumpHeld || input.JumpBuffered : input.JumpBuffered;
+
+        if (readyToJump && wantsJump && grounded)
         {
             readyToJump = false;
 
@@ -101,15 +106,12 @@ public class FPSController : MonoBehaviour
 
             rb.AddForce(Vector3.up * jumpForce);
 
+            input.ConsumeJump();
             Invoke(nameof(ResetJump), jumpCooldown);
         }
-
-        input.ConsumeJump();
     }
 
     void ResetJump() => readyToJump = true;
-
-    bool cancellingGrounded;
 
     void OnCollisionStay(Collision other)
     {

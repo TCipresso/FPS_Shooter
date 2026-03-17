@@ -8,9 +8,15 @@ public class FPSInput : MonoBehaviour
     public InputActionReference lookAction;
     public InputActionReference jumpAction;
 
+    [Header("Jump Buffer")]
+    public float jumpBufferTime = 0.15f;
+
     public Vector2 Move { get; private set; }
     public Vector2 Look { get; private set; }
-    public bool JumpPressed { get; private set; }
+    public bool JumpHeld { get; private set; }
+
+    float jumpBufferCounter;
+    public bool JumpBuffered => jumpBufferCounter > 0f;
 
     void OnEnable()
     {
@@ -30,13 +36,19 @@ public class FPSInput : MonoBehaviour
     {
         Move = moveAction ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
         Look = lookAction ? lookAction.action.ReadValue<Vector2>() : Vector2.zero;
+        JumpHeld = jumpAction && jumpAction.action.IsPressed();
 
         if (jumpAction && jumpAction.action.WasPressedThisFrame())
-            JumpPressed = true;
+            jumpBufferCounter = jumpBufferTime;
+        else if (jumpBufferCounter > 0f)
+            jumpBufferCounter -= Time.deltaTime;
+
+        if (jumpBufferCounter < 0f)
+            jumpBufferCounter = 0f;
     }
 
     public void ConsumeJump()
     {
-        JumpPressed = false;
+        jumpBufferCounter = 0f;
     }
 }
