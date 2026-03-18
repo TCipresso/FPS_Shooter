@@ -842,6 +842,7 @@ GameObject:
   - component: {fileID: 576031178}
   - component: {fileID: 576031180}
   - component: {fileID: 576031179}
+  - component: {fileID: 576031181}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1005,7 +1006,7 @@ MonoBehaviour:
   input: {fileID: 576031179}
   look: {fileID: 196436220}
   walkSpeed: 30
-  jumpForce: 500
+  jumpForce: 550
   gravity: 100000
   groundLayer:
     serializedVersion: 2
@@ -1018,6 +1019,26 @@ MonoBehaviour:
   conserveHorizontalMomentum: 0
   jumpCooldown: 0.25
   autoBHop: 1
+--- !u!114 &576031181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 576031171}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 416f56929ff998c47b02c815a73c698c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
+  controller: {fileID: 576031180}
+  look: {fileID: 196436220}
+  moveSpeed: 30
+  jumpForce: 550
+  reloadSpeed: 1
+  maxHealth: 100
+  currentHealth: 100
+  points: 99999999
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
