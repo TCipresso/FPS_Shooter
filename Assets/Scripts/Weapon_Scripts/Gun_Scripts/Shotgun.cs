@@ -17,10 +17,10 @@ public class Shotgun : WeaponBase
     {
         if (!CanShoot()) return;
 
-        nextFireTime = Time.time + fireRate;
         currentMag--;
 
         PlayFireSound();
+        TriggerCockAnimation();
 
         Debug.Log($"[Shotgun] Fired! Ammo: {currentMag}/{maxMag} | Reserve: {reserveAmmo}");
 

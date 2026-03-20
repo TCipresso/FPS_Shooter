@@ -9,7 +9,6 @@ public abstract class WeaponBase : MonoBehaviour
     public int maxReserve;
 
     [Header("Timing")]
-    public float fireRate = 0.5f;
     public float reloadTime = 2f;
 
     [Header("Muzzle")]
@@ -23,8 +22,11 @@ public abstract class WeaponBase : MonoBehaviour
     public AudioClip fireSound;
     public AudioClip reloadSound;
 
+    [Header("Animation")]
+    public Animator animator;
+
     protected bool isReloading = false;
-    protected float nextFireTime = 0f;
+    protected bool isCocking = false;
 
     public abstract void Shoot();
     public abstract void Reload();
@@ -37,14 +39,16 @@ public abstract class WeaponBase : MonoBehaviour
 
     public bool CanShoot()
     {
-        return !isReloading && currentMag > 0 && Time.time >= nextFireTime;
+        if (isReloading) return false;
+        if (isCocking) return false;
+        if (currentMag <= 0) return false;
+        return true;
     }
 
-    protected void SpawnTrail(Vector3 start, Vector3 end)
+    // Called by Animation Event at the END of the cock animation
+    public void OnCockComplete()
     {
-        if (trailPrefab == null) return;
-        BulletTrail trail = Instantiate(trailPrefab, start, Quaternion.identity);
-        trail.Fire(start, end);
+        isCocking = false;
     }
 
     protected void PlayFireSound()
@@ -57,5 +61,19 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (audioSource == null || reloadSound == null) return;
         audioSource.PlayOneShot(reloadSound);
+    }
+
+    protected void TriggerCockAnimation()
+    {
+        if (animator == null) return;
+        isCocking = true;
+        animator.SetTrigger("Cock");
+    }
+
+    protected void SpawnTrail(Vector3 start, Vector3 end)
+    {
+        if (trailPrefab == null) return;
+        BulletTrail trail = Instantiate(trailPrefab, start, Quaternion.identity);
+        trail.Fire(start, end);
     }
 }
