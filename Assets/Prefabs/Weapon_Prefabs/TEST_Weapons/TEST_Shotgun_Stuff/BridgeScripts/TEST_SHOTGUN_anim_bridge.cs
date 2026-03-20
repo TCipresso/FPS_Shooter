@@ -9,4 +9,11 @@ public class TEST_SHOTGUN_anim_bridge : MonoBehaviour
         if (weapon != null)
             weapon.OnCockComplete();
     }
+
+    public void OnReloadComplete()
+    {
+        if (weapon != null)
+            weapon.OnReloadComplete();
+    }
 }
+

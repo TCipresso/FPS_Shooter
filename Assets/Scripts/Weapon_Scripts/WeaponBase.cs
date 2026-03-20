@@ -8,9 +8,6 @@ public abstract class WeaponBase : MonoBehaviour
     public int reserveAmmo;
     public int maxReserve;
 
-    [Header("Timing")]
-    public float reloadTime = 2f;
-
     [Header("Muzzle")]
     public Transform muzzlePoint;
 
@@ -45,10 +42,24 @@ public abstract class WeaponBase : MonoBehaviour
         return true;
     }
 
-    // Called by Animation Event at the END of the cock animation
     public void OnCockComplete()
     {
         isCocking = false;
+    }
+
+    public void OnReloadComplete()
+    {
+        int needed = maxMag - currentMag;
+        int given = Mathf.Min(needed, reserveAmmo);
+        currentMag += given;
+        reserveAmmo -= given;
+        isReloading = false;
+
+        // Tell animator reload is done — unlocks the state
+        if (animator != null)
+            animator.SetBool("IsReloading", false);
+
+        Debug.Log($"[{gameObject.name}] Reloaded. Ammo: {currentMag}/{maxMag} | Reserve: {reserveAmmo}");
     }
 
     protected void PlayFireSound()
@@ -68,6 +79,14 @@ public abstract class WeaponBase : MonoBehaviour
         if (animator == null) return;
         isCocking = true;
         animator.SetTrigger("Cock");
+    }
+
+    protected void TriggerReloadAnimation()
+    {
+        if (animator == null) return;
+        isReloading = true;
+        isCocking = false;
+        animator.SetBool("IsReloading", true);
     }
 
     protected void SpawnTrail(Vector3 start, Vector3 end)

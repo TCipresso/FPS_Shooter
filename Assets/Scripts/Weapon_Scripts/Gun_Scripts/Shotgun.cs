@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 
 public class Shotgun : WeaponBase
 {
@@ -28,7 +27,7 @@ public class Shotgun : WeaponBase
             FirePellet();
 
         if (currentMag <= 0 && reserveAmmo > 0)
-            StartCoroutine(DoReload());
+            Reload();
     }
 
     void FirePellet()
@@ -56,23 +55,12 @@ public class Shotgun : WeaponBase
     public override void Reload()
     {
         if (isReloading || currentMag == maxMag || reserveAmmo <= 0) return;
-        StartCoroutine(DoReload());
-    }
 
-    IEnumerator DoReload()
-    {
-        isReloading = true;
+        // Clear cocking state since reload takes over
+        isCocking = false;
+
         PlayReloadSound();
+        TriggerReloadAnimation();
         Debug.Log($"[Shotgun] Reloading...");
-
-        yield return new WaitForSeconds(reloadTime);
-
-        int needed = maxMag - currentMag;
-        int given = Mathf.Min(needed, reserveAmmo);
-        currentMag += given;
-        reserveAmmo -= given;
-
-        isReloading = false;
-        Debug.Log($"[Shotgun] Reloaded. Ammo: {currentMag}/{maxMag} | Reserve: {reserveAmmo}");
     }
 }
