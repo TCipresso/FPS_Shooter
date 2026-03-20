@@ -1,18 +1,69 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class WeaponInventory : MonoBehaviour
 {
     [Header("References")]
     public Transform weaponHolder;
 
+
     [Header("Inventory Settings")]
     public int maxSlots = 2;
 
-    // Currently equipped weapon instances
+    [Header("Input")]
+    public InputActionReference fireAction;
+    public InputActionReference reloadAction;
+
     private List<GameObject> equippedWeapons = new List<GameObject>();
     private List<WeaponData> equippedData = new List<WeaponData>();
     private int activeSlot = 0;
+
+    void OnEnable()
+    {
+        if (fireAction != null) fireAction.action.Enable();
+        if (reloadAction != null) reloadAction.action.Enable();
+    }
+
+    void OnDisable()
+    {
+        if (fireAction != null) fireAction.action.Disable();
+        if (reloadAction != null) reloadAction.action.Disable();
+    }
+
+    void Update()
+    {
+        if (fireAction != null && fireAction.action.WasPressedThisFrame())
+            FireActiveWeapon();
+
+        if (reloadAction != null && reloadAction.action.WasPressedThisFrame())
+            ReloadActiveWeapon();
+    }
+
+    void FireActiveWeapon()
+    {
+        WeaponBase weapon = GetActiveWeaponBase();
+        if (weapon == null) return;
+        weapon.Shoot();
+    }
+
+    void ReloadActiveWeapon()
+    {
+        WeaponBase weapon = GetActiveWeaponBase();
+        if (weapon == null) return;
+        weapon.Reload();
+    }
+
+    public void MaxAmmo()
+    {
+        foreach (GameObject w in equippedWeapons)
+        {
+            WeaponBase wb = w.GetComponent<WeaponBase>();
+            if (wb != null) wb.Refill();
+        }
+
+        Debug.Log("[WeaponInventory] Max ammo applied to all weapons.");
+    }
 
     public bool TryAddWeapon(WeaponData data)
     {
@@ -22,21 +73,18 @@ public class WeaponInventory : MonoBehaviour
             return false;
         }
 
-        // Check if already carrying this weapon
         if (equippedData.Contains(data))
         {
             Debug.Log($"[WeaponInventory] Already carrying {data.weaponName}.");
             return false;
         }
 
-        // Open slot available
         if (equippedWeapons.Count < maxSlots)
         {
             AddWeaponToSlot(data);
             return true;
         }
 
-        // Full — swap with currently active slot
         Debug.Log($"[WeaponInventory] Inventory full. Swapping slot {activeSlot} with {data.weaponName}.");
         SwapWeapon(data, activeSlot);
         return true;
@@ -48,7 +96,6 @@ public class WeaponInventory : MonoBehaviour
         equippedWeapons.Add(instance);
         equippedData.Add(data);
 
-        // Equip the new slot, deactivate others
         int newSlot = equippedWeapons.Count - 1;
         SetActiveSlot(newSlot);
 
@@ -57,12 +104,10 @@ public class WeaponInventory : MonoBehaviour
 
     void SwapWeapon(WeaponData data, int slot)
     {
-        // Destroy old weapon in slot
         Destroy(equippedWeapons[slot]);
         equippedWeapons.RemoveAt(slot);
         equippedData.RemoveAt(slot);
 
-        // Instantiate new one
         GameObject instance = InstantiateWeapon(data);
         equippedWeapons.Insert(slot, instance);
         equippedData.Insert(slot, data);
@@ -75,11 +120,8 @@ public class WeaponInventory : MonoBehaviour
     GameObject InstantiateWeapon(WeaponData data)
     {
         GameObject instance = Instantiate(data.prefab, weaponHolder);
-
-        // Apply offset from WeaponData
         instance.transform.localPosition = data.positionOffset;
         instance.transform.localRotation = Quaternion.Euler(data.rotationOffset);
-
         instance.SetActive(false);
         return instance;
     }
@@ -88,11 +130,9 @@ public class WeaponInventory : MonoBehaviour
     {
         if (slot < 0 || slot >= equippedWeapons.Count) return;
 
-        // Deactivate all
         for (int i = 0; i < equippedWeapons.Count; i++)
             equippedWeapons[i].SetActive(false);
 
-        // Activate selected
         equippedWeapons[slot].SetActive(true);
         activeSlot = slot;
 
@@ -100,6 +140,12 @@ public class WeaponInventory : MonoBehaviour
     }
 
     public void SwitchToSlot(int slot) => SetActiveSlot(slot);
+
+    WeaponBase GetActiveWeaponBase()
+    {
+        if (equippedWeapons.Count == 0) return null;
+        return equippedWeapons[activeSlot].GetComponent<WeaponBase>();
+    }
 
     public WeaponData GetActiveWeaponData()
     {

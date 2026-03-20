@@ -495,7 +495,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WallBuy
   cost: 500
   itemName: Shotgun
-  weaponData: {fileID: 0}
+  weaponData: {fileID: 11400000, guid: 00ecc54791dbe124b9a4cc6352b82add, type: 2}
 --- !u!1 &196436218
 GameObject:
   m_ObjectHideFlags: 0
@@ -1237,7 +1237,7 @@ MonoBehaviour:
   orientation: {fileID: 1980046426}
   input: {fileID: 576031179}
   look: {fileID: 196436220}
-  walkSpeed: 30
+  walkSpeed: 20
   jumpForce: 550
   gravity: 100000
   groundLayer:
@@ -1265,7 +1265,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   controller: {fileID: 576031180}
   look: {fileID: 196436220}
-  moveSpeed: 30
+  moveSpeed: 20
   jumpForce: 550
   reloadSpeed: 1
   maxHealth: 100
@@ -1304,6 +1304,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponInventory
   weaponHolder: {fileID: 1396589457}
   maxSlots: 2
+  fireAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  reloadAction: {fileID: -6994043773312852012, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
