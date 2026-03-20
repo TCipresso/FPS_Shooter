@@ -15,5 +15,10 @@ public class TEST_SHOTGUN_anim_bridge : MonoBehaviour
         if (weapon != null)
             weapon.OnReloadComplete();
     }
-}
 
+    public void PlayWeaponSound(AnimationEvent evt)
+    {
+        if (weapon == null) return;
+        weapon.PlaySoundByName(evt.stringParameter);
+    }
+}

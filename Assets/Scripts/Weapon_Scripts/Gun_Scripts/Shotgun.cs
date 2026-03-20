@@ -55,11 +55,7 @@ public class Shotgun : WeaponBase
     public override void Reload()
     {
         if (isReloading || currentMag == maxMag || reserveAmmo <= 0) return;
-
-        // Clear cocking state since reload takes over
         isCocking = false;
-
-        PlayReloadSound();
         TriggerReloadAnimation();
         Debug.Log($"[Shotgun] Reloading...");
     }

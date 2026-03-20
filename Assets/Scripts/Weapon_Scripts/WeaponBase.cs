@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public abstract class WeaponBase : MonoBehaviour
 {
@@ -17,7 +18,7 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Audio")]
     public AudioSource audioSource;
     public AudioClip fireSound;
-    public AudioClip reloadSound;
+    public List<WeaponSound> sounds = new List<WeaponSound>();
 
     [Header("Animation")]
     public Animator animator;
@@ -55,23 +56,28 @@ public abstract class WeaponBase : MonoBehaviour
         reserveAmmo -= given;
         isReloading = false;
 
-        // Tell animator reload is done — unlocks the state
         if (animator != null)
             animator.SetBool("IsReloading", false);
 
         Debug.Log($"[{gameObject.name}] Reloaded. Ammo: {currentMag}/{maxMag} | Reserve: {reserveAmmo}");
     }
 
+    // Called by Animation Events via AnimatorBridge
+    public void PlaySoundByName(string soundName)
+    {
+        if (audioSource == null) return;
+
+        WeaponSound ws = sounds.Find(s => s.name == soundName);
+        if (ws != null && ws.clip != null)
+            audioSource.PlayOneShot(ws.clip);
+        else
+            Debug.LogWarning($"[{gameObject.name}] Sound not found: {soundName}");
+    }
+
     protected void PlayFireSound()
     {
         if (audioSource == null || fireSound == null) return;
         audioSource.PlayOneShot(fireSound);
-    }
-
-    protected void PlayReloadSound()
-    {
-        if (audioSource == null || reloadSound == null) return;
-        audioSource.PlayOneShot(reloadSound);
     }
 
     protected void TriggerCockAnimation()
@@ -95,4 +101,11 @@ public abstract class WeaponBase : MonoBehaviour
         BulletTrail trail = Instantiate(trailPrefab, start, Quaternion.identity);
         trail.Fire(start, end);
     }
+}
+
+[System.Serializable]
+public class WeaponSound
+{
+    public string name;
+    public AudioClip clip;
 }
