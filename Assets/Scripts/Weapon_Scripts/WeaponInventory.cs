@@ -141,7 +141,7 @@ public class WeaponInventory : MonoBehaviour
 
     public void SwitchToSlot(int slot) => SetActiveSlot(slot);
 
-    WeaponBase GetActiveWeaponBase()
+    public WeaponBase GetActiveWeaponBase()
     {
         if (equippedWeapons.Count == 0) return null;
         return equippedWeapons[activeSlot].GetComponent<WeaponBase>();
