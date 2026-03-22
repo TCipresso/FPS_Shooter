@@ -17,8 +17,15 @@ public class FPSLook : MonoBehaviour
     public float maxTiltZ = 5f;
     public float tiltSpeed = 8f;
 
+    [Header("Recoil")]
+    public float recoilSnapSpeed = 20f;
+    public float recoilReturnSpeed = 6f;
+
     float rotationX = 0f;
     float currentTiltZ = 0f;
+
+    Vector3 currentRecoil = Vector3.zero;
+    Vector3 targetRecoil = Vector3.zero;
 
     void Start()
     {
@@ -32,6 +39,7 @@ public class FPSLook : MonoBehaviour
     {
         HandleRotation();
         HandleStrafeTilt();
+        HandleRecoil();
         SyncOverlayFOV();
     }
 
@@ -58,7 +66,23 @@ public class FPSLook : MonoBehaviour
         float targetTiltZ = -input.Move.x * maxTiltZ;
         currentTiltZ = Mathf.Lerp(currentTiltZ, targetTiltZ, tiltSpeed * Time.deltaTime);
 
-        playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0f, currentTiltZ);
+        // Apply look rotation + recoil offset together
+        playerCamera.transform.localRotation = Quaternion.Euler(
+            rotationX + currentRecoil.x,
+            currentRecoil.y,
+            currentTiltZ
+        );
+    }
+
+    void HandleRecoil()
+    {
+        currentRecoil = Vector3.Lerp(currentRecoil, targetRecoil, recoilSnapSpeed * Time.deltaTime);
+        targetRecoil = Vector3.Lerp(targetRecoil, Vector3.zero, recoilReturnSpeed * Time.deltaTime);
+    }
+
+    public void ApplyRecoil(float up, float side)
+    {
+        targetRecoil += new Vector3(-up, Random.Range(-side, side), 0f);
     }
 
     void SyncOverlayFOV()

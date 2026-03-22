@@ -20,11 +20,24 @@ public abstract class WeaponBase : MonoBehaviour
     public AudioClip fireSound;
     public List<WeaponSound> sounds = new List<WeaponSound>();
 
+    [Header("Recoil")]
+    public float recoilUp = 2f;
+    public float recoilSideRange = 0.5f;
+
     [Header("Animation")]
     public Animator animator;
 
     protected bool isReloading = false;
     protected bool isCocking = false;
+    protected FPSLook fpsLook;
+
+    protected virtual void Awake()
+    {
+        fpsLook = FindFirstObjectByType<FPSLook>();
+
+        if (fpsLook == null)
+            Debug.LogWarning($"[{gameObject.name}] FPSLook not found in scene.");
+    }
 
     public abstract void Shoot();
     public abstract void Reload();
@@ -62,7 +75,6 @@ public abstract class WeaponBase : MonoBehaviour
         Debug.Log($"[{gameObject.name}] Reloaded. Ammo: {currentMag}/{maxMag} | Reserve: {reserveAmmo}");
     }
 
-    // Called by Animation Events via AnimatorBridge
     public void PlaySoundByName(string soundName)
     {
         if (audioSource == null) return;
@@ -78,6 +90,12 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (audioSource == null || fireSound == null) return;
         audioSource.PlayOneShot(fireSound);
+    }
+
+    protected void ApplyRecoil()
+    {
+        if (fpsLook == null) return;
+        fpsLook.ApplyRecoil(recoilUp, recoilSideRange);
     }
 
     protected void TriggerCockAnimation()

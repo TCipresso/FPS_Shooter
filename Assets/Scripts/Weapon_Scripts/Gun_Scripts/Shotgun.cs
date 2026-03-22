@@ -7,8 +7,9 @@ public class Shotgun : WeaponBase
     public float spreadAngle = 10f;
     public float range = 50f;
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         currentMag = maxMag;
     }
 
@@ -20,6 +21,7 @@ public class Shotgun : WeaponBase
 
         PlayFireSound();
         TriggerCockAnimation();
+        ApplyRecoil();
 
         Debug.Log($"[Shotgun] Fired! Ammo: {currentMag}/{maxMag} | Reserve: {reserveAmmo}");
 
