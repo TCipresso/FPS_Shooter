@@ -38,7 +38,7 @@ public class Shotgun : WeaponBase
         float x = Random.Range(-spreadAngle, spreadAngle);
         float y = Random.Range(-spreadAngle, spreadAngle);
 
-        Vector3 direction = GetAimDirection(new Vector3(x, y, 0f));
+        Vector3 direction = GetAimDirection(x, y);
         Vector3 origin = GetAimOrigin();
 
         Ray ray = new Ray(origin, direction);
@@ -51,6 +51,8 @@ public class Shotgun : WeaponBase
             ZombieBase zombie = hit.collider.GetComponent<ZombieBase>();
             if (zombie != null)
                 zombie.TakeDamage(damagePerPellet);
+
+            SpawnImpactEffect(hit);
         }
         else
         {

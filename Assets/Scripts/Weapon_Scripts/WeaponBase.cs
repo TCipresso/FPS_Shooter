@@ -15,6 +15,10 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Trail")]
     public BulletTrail trailPrefab;
 
+    [Header("Impact Effects")]
+    public ParticleSystem impactEffect;
+    public ParticleSystem zombieImpactEffect;
+
     [Header("Audio")]
     public AudioSource audioSource;
     public AudioClip fireSound;
@@ -102,14 +106,36 @@ public abstract class WeaponBase : MonoBehaviour
         fpsLook.ApplyRecoil(recoilUp, recoilSideRange);
     }
 
-    // Returns the correct aim direction from the main camera
-    protected Vector3 GetAimDirection(Vector3 spreadEuler)
+    protected void SpawnImpactEffect(RaycastHit hit)
     {
-        if (mainCamera == null) return muzzlePoint.forward;
-        return Quaternion.Euler(spreadEuler) * mainCamera.transform.forward;
+        bool isZombie = hit.collider.GetComponent<ZombieBase>() != null;
+        ParticleSystem effectPrefab = isZombie ? zombieImpactEffect : impactEffect;
+
+        if (effectPrefab == null) return;
+
+        // Spawn at hit point, rotated to face the surface normal
+        ParticleSystem effect = Instantiate(
+            effectPrefab,
+            hit.point,
+            Quaternion.LookRotation(hit.normal)
+        );
+
+        // Auto destroy after the effect finishes
+        Destroy(effect.gameObject, effect.main.duration + effect.main.startLifetime.constantMax);
     }
 
-    // Returns the correct aim origin from the main camera
+    protected Vector3 GetAimDirection(float spreadX, float spreadY)
+    {
+        if (mainCamera == null) return muzzlePoint.forward;
+
+        // Apply spread as rotations around camera local axes
+        // This keeps spread consistent regardless of which direction you face
+        Quaternion spreadRotation = Quaternion.AngleAxis(spreadY, mainCamera.transform.up)
+                                  * Quaternion.AngleAxis(spreadX, mainCamera.transform.right);
+
+        return spreadRotation * mainCamera.transform.forward;
+    }
+
     protected Vector3 GetAimOrigin()
     {
         if (mainCamera == null) return muzzlePoint.position;

@@ -672,6 +672,8 @@ MonoBehaviour:
   maxReserve: 42
   muzzlePoint: {fileID: 4872537855400070226}
   trailPrefab: {fileID: 7533938775617344793, guid: 5fdbe00ae02ad624bb45ad9bdb2038fe, type: 3}
+  impactEffect: {fileID: 198175801688348628, guid: 25c7aa9ad705fe143a4d71c1c8deb7d4, type: 3}
+  zombieImpactEffect: {fileID: 198175801688348628, guid: 25c7aa9ad705fe143a4d71c1c8deb7d4, type: 3}
   audioSource: {fileID: 4324082303458896543}
   fireSound: {fileID: 8300000, guid: c4e1baa2339585a458d71e43f933c3a3, type: 3}
   sounds:
@@ -685,6 +687,7 @@ MonoBehaviour:
   pelletsPerShot: 8
   spreadAngle: 10
   range: 50
+  damagePerPellet: 15
 --- !u!1 &8709129924495491330
 GameObject:
   m_ObjectHideFlags: 0
