@@ -1,43 +1,41 @@
 using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(LineRenderer))]
+[RequireComponent(typeof(TrailRenderer))]
 public class BulletTrail : MonoBehaviour
 {
     [Header("Trail Settings")]
-    public float fadeTime = 0.08f;
+    public float travelTime = 0.06f;
 
-    LineRenderer lr;
+    TrailRenderer tr;
 
     void Awake()
     {
-        lr = GetComponent<LineRenderer>();
+        tr = GetComponent<TrailRenderer>();
     }
 
     public void Fire(Vector3 start, Vector3 end)
     {
-        lr.SetPosition(0, start);
-        lr.SetPosition(1, end);
-        StartCoroutine(Fade());
+        transform.position = start;
+        StartCoroutine(Travel(start, end));
     }
 
-    IEnumerator Fade()
+    IEnumerator Travel(Vector3 start, Vector3 end)
     {
         float elapsed = 0f;
-        Color startColor = lr.startColor;
-        Color endColor = lr.endColor;
 
-        while (elapsed < fadeTime)
+        while (elapsed < travelTime)
         {
             elapsed += Time.deltaTime;
-            float alpha = Mathf.Lerp(1f, 0f, elapsed / fadeTime);
-
-            lr.startColor = new Color(startColor.r, startColor.g, startColor.b, alpha);
-            lr.endColor = new Color(endColor.r, endColor.g, endColor.b, alpha);
-
+            float t = elapsed / travelTime;
+            transform.position = Vector3.Lerp(start, end, t);
             yield return null;
         }
 
+        transform.position = end;
+
+        // Wait for trail to naturally fade out then destroy
+        yield return new WaitForSeconds(tr.time);
         Destroy(gameObject);
     }
 }
