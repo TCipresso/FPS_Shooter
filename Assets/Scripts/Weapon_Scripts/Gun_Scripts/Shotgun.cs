@@ -36,9 +36,11 @@ public class Shotgun : WeaponBase
     {
         float x = Random.Range(-spreadAngle, spreadAngle);
         float y = Random.Range(-spreadAngle, spreadAngle);
-        Vector3 direction = Quaternion.Euler(x, y, 0f) * muzzlePoint.forward;
 
-        Ray ray = new Ray(muzzlePoint.position, direction);
+        Vector3 direction = GetAimDirection(new Vector3(x, y, 0f));
+        Vector3 origin = GetAimOrigin();
+
+        Ray ray = new Ray(origin, direction);
         Vector3 endPoint;
 
         if (Physics.Raycast(ray, out RaycastHit hit, range))
@@ -48,7 +50,7 @@ public class Shotgun : WeaponBase
         }
         else
         {
-            endPoint = muzzlePoint.position + direction * range;
+            endPoint = origin + direction * range;
         }
 
         SpawnTrail(muzzlePoint.position, endPoint);

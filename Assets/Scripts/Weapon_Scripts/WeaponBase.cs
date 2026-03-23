@@ -30,13 +30,17 @@ public abstract class WeaponBase : MonoBehaviour
     protected bool isReloading = false;
     protected bool isCocking = false;
     protected FPSLook fpsLook;
+    protected Camera mainCamera;
 
     protected virtual void Awake()
     {
         fpsLook = FindFirstObjectByType<FPSLook>();
+        mainCamera = Camera.main;
 
         if (fpsLook == null)
             Debug.LogWarning($"[{gameObject.name}] FPSLook not found in scene.");
+        if (mainCamera == null)
+            Debug.LogWarning($"[{gameObject.name}] Main Camera not found in scene.");
     }
 
     public abstract void Shoot();
@@ -96,6 +100,20 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (fpsLook == null) return;
         fpsLook.ApplyRecoil(recoilUp, recoilSideRange);
+    }
+
+    // Returns the correct aim direction from the main camera
+    protected Vector3 GetAimDirection(Vector3 spreadEuler)
+    {
+        if (mainCamera == null) return muzzlePoint.forward;
+        return Quaternion.Euler(spreadEuler) * mainCamera.transform.forward;
+    }
+
+    // Returns the correct aim origin from the main camera
+    protected Vector3 GetAimOrigin()
+    {
+        if (mainCamera == null) return muzzlePoint.position;
+        return mainCamera.transform.position;
     }
 
     protected void TriggerCockAnimation()
