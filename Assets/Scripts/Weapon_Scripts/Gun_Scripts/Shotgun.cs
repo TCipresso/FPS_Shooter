@@ -6,6 +6,7 @@ public class Shotgun : WeaponBase
     public int pelletsPerShot = 8;
     public float spreadAngle = 10f;
     public float range = 50f;
+    public int damagePerPellet = 15;
 
     protected override void Awake()
     {
@@ -46,7 +47,10 @@ public class Shotgun : WeaponBase
         if (Physics.Raycast(ray, out RaycastHit hit, range))
         {
             endPoint = hit.point;
-            Debug.Log($"[Shotgun] Pellet hit: {hit.collider.gameObject.name}");
+
+            ZombieBase zombie = hit.collider.GetComponent<ZombieBase>();
+            if (zombie != null)
+                zombie.TakeDamage(damagePerPellet);
         }
         else
         {

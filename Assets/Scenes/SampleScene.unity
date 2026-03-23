@@ -958,7 +958,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BasicZombie
   maxHealth: 100
   currentHealth: 0
-  pointsOnHit: 10
   pointsOnKill: 100
   moveSpeed: 8
   attackDamage: 25
@@ -1401,7 +1400,7 @@ GameObject:
   - component: {fileID: 573910597}
   - component: {fileID: 573910596}
   m_Layer: 5
-  m_Name: PlayerUI
+  m_Name: Interact_HUD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1456,10 +1455,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -1704,7 +1703,8 @@ MonoBehaviour:
   reloadSpeed: 1
   maxHealth: 100
   currentHealth: 100
-  points: 99999999
+  points: 2000
+  pointsOnHit: 10
 --- !u!114 &576031182
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2017,6 +2017,7 @@ GameObject:
   - component: {fileID: 1248307179}
   - component: {fileID: 1248307178}
   - component: {fileID: 1248307177}
+  - component: {fileID: 1248307180}
   m_Layer: 5
   m_Name: Points_HUD
   m_TagString: Untagged
@@ -2073,10 +2074,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -2107,6 +2108,20 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &1248307180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1248307175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9c98ccadbacdc64f9391b04ad05ff31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PointsHUD
+  playerStats: {fileID: 576031181}
+  pointsText: {fileID: 443003142}
 --- !u!1 &1312695327
 GameObject:
   m_ObjectHideFlags: 0

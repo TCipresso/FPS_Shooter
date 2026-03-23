@@ -7,7 +7,6 @@ public abstract class ZombieBase : MonoBehaviour
     [Header("Stats")]
     public int maxHealth = 100;
     public int currentHealth;
-    public int pointsOnHit = 10;
     public int pointsOnKill = 100;
 
     [Header("Movement")]
@@ -34,22 +33,22 @@ public abstract class ZombieBase : MonoBehaviour
     {
         currentHealth = maxHealth;
 
-        // Find player
         playerStats = FindFirstObjectByType<PlayerStats>();
         if (playerStats != null)
             player = playerStats.transform;
         else
             Debug.LogWarning($"[{gameObject.name}] PlayerStats not found in scene.");
+
+        if (!agent.isOnNavMesh)
+            Debug.LogError($"[{gameObject.name}] NavMeshAgent is NOT on the NavMesh!");
     }
 
     protected virtual void Update()
     {
         if (isDead) return;
-
         UpdateBehaviour();
     }
 
-    // Override this in each zombie type to define behaviour
     protected abstract void UpdateBehaviour();
 
     public virtual void TakeDamage(int amount)
@@ -58,9 +57,9 @@ public abstract class ZombieBase : MonoBehaviour
 
         currentHealth -= amount;
 
-        // Award hit points to player
+        // Use global hit points from PlayerStats
         if (playerStats != null)
-            playerStats.AddPoints(pointsOnHit);
+            playerStats.AddPoints(playerStats.pointsOnHit);
 
         Debug.Log($"[{gameObject.name}] Took {amount} damage | Health: {currentHealth}/{maxHealth}");
 
@@ -73,7 +72,7 @@ public abstract class ZombieBase : MonoBehaviour
         isDead = true;
         agent.isStopped = true;
 
-        // Award kill points to player
+        // Use this zombie's own kill points value
         if (playerStats != null)
             playerStats.AddPoints(pointsOnKill);
 
@@ -82,7 +81,6 @@ public abstract class ZombieBase : MonoBehaviour
         OnDeath();
     }
 
-    // Override for custom death behaviour per zombie type
     protected virtual void OnDeath()
     {
         Destroy(gameObject, 0.1f);
@@ -96,7 +94,7 @@ public abstract class ZombieBase : MonoBehaviour
 
     protected void ChasePlayer()
     {
-        if (player == null) return;
+        if (player == null || !agent.isOnNavMesh) return;
         agent.SetDestination(player.position);
     }
 }

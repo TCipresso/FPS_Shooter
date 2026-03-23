@@ -19,6 +19,7 @@ public class PlayerStats : MonoBehaviour
 
     [Header("Points")]
     public int points = 500;
+    public int pointsOnHit = 10;
 
     void Awake()
     {
@@ -40,8 +41,6 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    // --- Points Methods ---
-
     public void AddPoints(int amount)
     {
         points += amount;
@@ -60,8 +59,6 @@ public class PlayerStats : MonoBehaviour
         Debug.Log($"[PlayerStats] -{amount} points | Total: {points}");
         return true;
     }
-
-    // --- Health Methods ---
 
     public void TakeDamage(int amount)
     {
@@ -83,6 +80,5 @@ public class PlayerStats : MonoBehaviour
     void OnDeath()
     {
         Debug.Log("[PlayerStats] Player has died.");
-        // Hook your death/respawn logic here later
     }
 }
