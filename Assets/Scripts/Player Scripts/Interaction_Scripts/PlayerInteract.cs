@@ -41,15 +41,31 @@ public class PlayerInteract : MonoBehaviour
     {
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, interactRange) && IsInteractableTag(hit.collider.tag))
+        if (Physics.Raycast(ray, out RaycastHit hit, interactRange))
         {
-            Buyable buyable = hit.collider.GetComponent<Buyable>();
+            Debug.Log("Hit: " + hit.collider.gameObject.name + " Tag: " + hit.collider.tag);
 
+            if (!IsInteractableTag(hit.collider.tag))
+            {
+                ClearPrompt();
+                return;
+            }
+
+            Buyable buyable = hit.collider.GetComponent<Buyable>();
             if (buyable != null)
             {
                 ShowPrompt(buyable.interactPrompt);
                 return;
             }
+
+            Interactable interactable = hit.collider.GetComponent<Interactable>();
+            if (interactable != null)
+            {
+                ShowPrompt(interactable.interactPrompt);
+                return;
+            }
+
+            Debug.Log("Tag matched but no Buyable or Interactable component found on: " + hit.collider.gameObject.name);
         }
 
         ClearPrompt();
@@ -66,11 +82,18 @@ public class PlayerInteract : MonoBehaviour
             return;
 
         Buyable buyable = hit.collider.GetComponent<Buyable>();
-
-        if (buyable == null)
+        if (buyable != null)
+        {
+            buyable.TryPurchase(stats);
             return;
+        }
 
-        buyable.TryPurchase(stats);
+        Interactable interactable = hit.collider.GetComponent<Interactable>();
+        if (interactable != null)
+        {
+            interactable.Interact(stats);
+            return;
+        }
     }
 
     bool IsInteractableTag(string tag)
