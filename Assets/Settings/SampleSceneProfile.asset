@@ -34,6 +34,9 @@ MonoBehaviour:
   highQualityFiltering:
     m_OverrideState: 1
     m_Value: 1
+  filter:
+    m_OverrideState: 0
+    m_Value: 0
   downscale:
     m_OverrideState: 0
     m_Value: 0
@@ -75,6 +78,203 @@ MonoBehaviour:
   rounded:
     m_OverrideState: 0
     m_Value: 0
+--- !u!114 &-2212595749822829842
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a258d3a940c87041bdcfc9bd9324346, type: 3}
+  m_Name: MKEdgeDetection
+  m_EditorClassIdentifier: MKEdgeDetectionUniversalVolumeComponent::MK.EdgeDetection.UniversalVolumeComponents.MKEdgeDetection
+  active: 1
+  _propertiesInitialized: 1
+  precision:
+    m_OverrideState: 1
+    m_Value:
+      _value: 0
+  largeKernel:
+    m_OverrideState: 0
+    m_Value:
+      _value: 0
+  mediumKernel:
+    m_OverrideState: 0
+    m_Value:
+      _value: 0
+  smallKernel:
+    m_OverrideState: 0
+    m_Value:
+      _value: 0
+  inputData:
+    m_OverrideState: 1
+    m_Value:
+      _value: -1
+  lineHardness:
+    m_OverrideState: 0
+    m_Value:
+      _value: 0.5
+      _minValue: 0
+      _maxValue: 1
+  fade:
+    m_OverrideState: 0
+    m_Value:
+      _value: 0
+  lineSizeMatchFactor:
+    m_OverrideState: 0
+    m_Value:
+      _value: 0.5
+      _minValue: 0
+      _maxValue: 1
+  globalLineSize:
+    m_OverrideState: 1
+    m_Value:
+      _value: 1
+      _minValue: 0
+      _maxValue: 3
+  depthLineSize:
+    m_OverrideState: 0
+    m_Value:
+      _value: 1
+      _minValue: 0
+      _maxValue: 2
+  normalLineSize:
+    m_OverrideState: 0
+    m_Value:
+      _value: 1
+      _minValue: 0
+      _maxValue: 2
+  depthFadeLimits:
+    m_OverrideState: 0
+    m_Value:
+      _minValue: 0
+      _maxValue: 1
+      _minLimit: 0
+      _maxLimit: 1
+  normalFadeLimits:
+    m_OverrideState: 0
+    m_Value:
+      _minValue: 0
+      _maxValue: 1
+      _minLimit: 0
+      _maxLimit: 1
+  depthThreshold:
+    m_OverrideState: 0
+    m_Value:
+      _minValue: 0.1
+      _maxValue: 1
+      _minLimit: 0
+      _maxLimit: 1
+  lineColor:
+    m_OverrideState: 0
+    m_Value:
+      _value: {r: 0, g: 0, b: 0, a: 1}
+      _useAlpha: 1
+      _useHDR: 0
+  overlayColor:
+    m_OverrideState: 0
+    m_Value:
+      _value: {r: 1, g: 1, b: 1, a: 0}
+      _useAlpha: 1
+      _useHDR: 0
+  depthNearFade:
+    m_OverrideState: 0
+    m_Value:
+      _value: 10
+  depthFarFade:
+    m_OverrideState: 0
+    m_Value:
+      _value: 30
+  normalNearFade:
+    m_OverrideState: 0
+    m_Value:
+      _value: 5
+  normalsFarFade:
+    m_OverrideState: 0
+    m_Value:
+      _value: 20
+  normalThreshold:
+    m_OverrideState: 0
+    m_Value:
+      _minValue: 0.1
+      _maxValue: 1
+      _minLimit: 0
+      _maxLimit: 1
+  sceneColorThreshold:
+    m_OverrideState: 0
+    m_Value:
+      _minValue: 0.1
+      _maxValue: 1
+      _minLimit: 0
+      _maxLimit: 1
+  sceneColorLineSize:
+    m_OverrideState: 0
+    m_Value:
+      _value: 1
+      _minValue: 0
+      _maxValue: 2
+  sceneColorNearFade:
+    m_OverrideState: 0
+    m_Value:
+      _value: 0
+  sceneColorFarFade:
+    m_OverrideState: 0
+    m_Value:
+      _value: 10
+  sceneColorFadeLimits:
+    m_OverrideState: 0
+    m_Value:
+      _minValue: 0
+      _maxValue: 1
+      _minLimit: 0
+      _maxLimit: 1
+  visualizeEdges:
+    m_OverrideState: 0
+    m_Value:
+      _value: 0
+  enhanceDetails:
+    m_OverrideState: 1
+    m_Value:
+      _value: 1
+  sketch:
+    m_OverrideState: 0
+    m_Value:
+      _value: 0
+  sketchIntensity:
+    m_OverrideState: 0
+    m_Value:
+      _value: 0.333
+      _minValue: 0
+      _maxValue: 1
+  sketchFrequency:
+    m_OverrideState: 0
+    m_Value:
+      _value: 4
+  sketchAdditionalNoiseMap:
+    m_OverrideState: 0
+    m_Value:
+      _value: {fileID: 0}
+  sketchFadeLimits:
+    m_OverrideState: 0
+    m_Value:
+      _minValue: 0
+      _maxValue: 1
+      _minLimit: 0
+      _maxLimit: 1
+  sketchNearFade:
+    m_OverrideState: 0
+    m_Value:
+      _value: 10
+  sketchFarFade:
+    m_OverrideState: 0
+    m_Value:
+      _value: 30
+  workflow:
+    m_OverrideState: 0
+    m_Value:
+      _value: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -92,6 +292,7 @@ MonoBehaviour:
   - {fileID: -7893295128165547882}
   - {fileID: 7391319092446245454}
   - {fileID: -3357603926938260329}
+  - {fileID: -2212595749822829842}
 --- !u!114 &849379129802519247
 MonoBehaviour:
   m_ObjectHideFlags: 3
