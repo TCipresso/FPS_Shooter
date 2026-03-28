@@ -28,6 +28,9 @@ public abstract class WeaponBase : MonoBehaviour
     public float recoilUp = 2f;
     public float recoilSideRange = 0.5f;
 
+    [Header("Fire Mode")]
+    public bool isAutomatic = false;
+
     [Header("Animation")]
     public Animator animator;
 

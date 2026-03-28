@@ -33,8 +33,15 @@ public class WeaponInventory : MonoBehaviour
 
     void Update()
     {
-        if (fireAction != null && fireAction.action.WasPressedThisFrame())
-            FireActiveWeapon();
+        if (fireAction != null)
+        {
+            WeaponBase active = GetActiveWeaponBase();
+            bool shouldFire = active != null && active.isAutomatic
+                ? fireAction.action.IsPressed()
+                : fireAction.action.WasPressedThisFrame();
+
+            if (shouldFire) FireActiveWeapon();
+        }
 
         if (reloadAction != null && reloadAction.action.WasPressedThisFrame())
             ReloadActiveWeapon();
