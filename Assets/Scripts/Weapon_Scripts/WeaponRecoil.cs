@@ -8,6 +8,7 @@ public class WeaponRecoil : MonoBehaviour
     [Header("Position Recoil")]
     public float kickPositionZ = -0.1f;
     public float kickPositionY = 0.05f;
+    public float kickPositionX = 0.02f;
 
     [Header("Feel")]
     public float snapSpeed = 20f;
@@ -42,7 +43,7 @@ public class WeaponRecoil : MonoBehaviour
     public void Kick()
     {
         // Add kick to target position and rotation
-        targetPosition += new Vector3(0f, kickPositionY, kickPositionZ);
+        targetPosition += new Vector3(Random.Range(-kickPositionX, kickPositionX), kickPositionY, kickPositionZ);
         targetRotation *= Quaternion.Euler(0f, 0f, kickRotationZ);
     }
 }

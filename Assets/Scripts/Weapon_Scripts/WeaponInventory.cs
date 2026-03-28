@@ -14,6 +14,9 @@ public class WeaponInventory : MonoBehaviour
     [Header("Input")]
     public InputActionReference fireAction;
     public InputActionReference reloadAction;
+    public InputActionReference scrollAction;
+    public InputActionReference slot1Action;
+    public InputActionReference slot2Action;
 
     private List<GameObject> equippedWeapons = new List<GameObject>();
     private List<WeaponData> equippedData = new List<WeaponData>();
@@ -23,12 +26,18 @@ public class WeaponInventory : MonoBehaviour
     {
         if (fireAction != null) fireAction.action.Enable();
         if (reloadAction != null) reloadAction.action.Enable();
+        if (scrollAction != null) scrollAction.action.Enable();
+        if (slot1Action != null) slot1Action.action.Enable();
+        if (slot2Action != null) slot2Action.action.Enable();
     }
 
     void OnDisable()
     {
         if (fireAction != null) fireAction.action.Disable();
         if (reloadAction != null) reloadAction.action.Disable();
+        if (scrollAction != null) scrollAction.action.Disable();
+        if (slot1Action != null) slot1Action.action.Disable();
+        if (slot2Action != null) slot2Action.action.Disable();
     }
 
     void Update()
@@ -45,6 +54,18 @@ public class WeaponInventory : MonoBehaviour
 
         if (reloadAction != null && reloadAction.action.WasPressedThisFrame())
             ReloadActiveWeapon();
+
+        // Scroll to swap
+        if (scrollAction != null)
+        {
+            float scroll = scrollAction.action.ReadValue<float>();
+            if (scroll > 0f) CycleSlot(-1);
+            else if (scroll < 0f) CycleSlot(1);
+        }
+
+        // Number keys
+        if (slot1Action != null && slot1Action.action.WasPressedThisFrame()) SetActiveSlot(0);
+        if (slot2Action != null && slot2Action.action.WasPressedThisFrame()) SetActiveSlot(1);
     }
 
     void FireActiveWeapon()
@@ -147,6 +168,13 @@ public class WeaponInventory : MonoBehaviour
     }
 
     public void SwitchToSlot(int slot) => SetActiveSlot(slot);
+
+    void CycleSlot(int direction)
+    {
+        if (equippedWeapons.Count <= 1) return;
+        int newSlot = (activeSlot + direction + equippedWeapons.Count) % equippedWeapons.Count;
+        SetActiveSlot(newSlot);
+    }
 
     public WeaponBase GetActiveWeaponBase()
     {
