@@ -93,6 +93,20 @@ public class WeaponInventory : MonoBehaviour
         Debug.Log("[WeaponInventory] Max ammo applied to all weapons.");
     }
 
+    public void PartialAmmoRefill(float percent)
+    {
+        foreach (GameObject w in equippedWeapons)
+        {
+            WeaponBase wb = w.GetComponent<WeaponBase>();
+            if (wb == null) continue;
+
+            int amount = Mathf.RoundToInt(wb.maxReserve * percent);
+            wb.reserveAmmo = Mathf.Min(wb.reserveAmmo + amount, wb.maxReserve);
+        }
+
+        Debug.Log($"[WeaponInventory] Partial refill {percent * 100}% applied to all weapons.");
+    }
+
     public bool TryAddWeapon(WeaponData data)
     {
         if (data == null || data.prefab == null)
