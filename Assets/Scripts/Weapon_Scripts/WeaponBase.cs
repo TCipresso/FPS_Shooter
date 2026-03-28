@@ -30,6 +30,15 @@ public abstract class WeaponBase : MonoBehaviour
 
     [Header("Fire Mode")]
     public bool isAutomatic = false;
+    public float rpm = 300f;
+    public float FireInterval => 60f / rpm;
+
+    [Header("Accuracy")]
+    public float baseAccuracy = 1f;
+    public float bloomPerShot = 0.5f;
+    public float bloomDecaySpeed = 3f;
+    public float maxBloom = 4f;
+    [HideInInspector] public float currentBloom = 0f;
 
     [Header("Animation")]
     public Animator animator;
@@ -38,11 +47,20 @@ public abstract class WeaponBase : MonoBehaviour
     protected bool isCocking = false;
     protected FPSLook fpsLook;
     protected Camera mainCamera;
+    protected WeaponRecoil weaponRecoil;
+
+    protected virtual void Update()
+    {
+        // Decay bloom back to zero when not shooting
+        if (currentBloom > 0f)
+            currentBloom = Mathf.Max(0f, currentBloom - bloomDecaySpeed * Time.deltaTime);
+    }
 
     protected virtual void Awake()
     {
         fpsLook = FindFirstObjectByType<FPSLook>();
         mainCamera = Camera.main;
+        weaponRecoil = GetComponentInChildren<WeaponRecoil>();
 
         if (fpsLook == null)
             Debug.LogWarning($"[{gameObject.name}] FPSLook not found in scene.");
@@ -105,8 +123,11 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected void ApplyRecoil()
     {
-        if (fpsLook == null) return;
-        fpsLook.ApplyRecoil(recoilUp, recoilSideRange);
+        if (fpsLook != null)
+            fpsLook.ApplyRecoil(recoilUp, recoilSideRange);
+
+        if (weaponRecoil != null)
+            weaponRecoil.Kick();
     }
 
     protected void SpawnImpactEffect(RaycastHit hit)
@@ -131,12 +152,19 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (mainCamera == null) return muzzlePoint.forward;
 
-        // Apply spread as rotations around camera local axes
-        // This keeps spread consistent regardless of which direction you face
-        Quaternion spreadRotation = Quaternion.AngleAxis(spreadY, mainCamera.transform.up)
-                                  * Quaternion.AngleAxis(spreadX, mainCamera.transform.right);
+        // Add bloom on top of any passed in spread
+        float totalX = spreadX + Random.Range(-currentBloom, currentBloom);
+        float totalY = spreadY + Random.Range(-currentBloom, currentBloom);
+
+        Quaternion spreadRotation = Quaternion.AngleAxis(totalY, mainCamera.transform.up)
+                                  * Quaternion.AngleAxis(totalX, mainCamera.transform.right);
 
         return spreadRotation * mainCamera.transform.forward;
+    }
+
+    protected void AddBloom()
+    {
+        currentBloom = Mathf.Min(currentBloom + bloomPerShot, maxBloom);
     }
 
     protected Vector3 GetAimOrigin()

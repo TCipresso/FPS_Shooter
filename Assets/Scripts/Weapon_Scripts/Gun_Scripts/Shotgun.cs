@@ -8,6 +8,8 @@ public class Shotgun : WeaponBase
     public float range = 50f;
     public int damagePerPellet = 15;
 
+    float nextFireTime = 0f;
+
     protected override void Awake()
     {
         base.Awake();
@@ -17,14 +19,15 @@ public class Shotgun : WeaponBase
     public override void Shoot()
     {
         if (!CanShoot()) return;
+        if (Time.time < nextFireTime) return;
 
+        nextFireTime = Time.time + FireInterval;
         currentMag--;
 
         PlayFireSound();
         TriggerCockAnimation();
         ApplyRecoil();
-
-        Debug.Log($"[Shotgun] Fired! Ammo: {currentMag}/{maxMag} | Reserve: {reserveAmmo}");
+        AddBloom();
 
         for (int i = 0; i < pelletsPerShot; i++)
             FirePellet();
@@ -67,6 +70,6 @@ public class Shotgun : WeaponBase
         if (isReloading || currentMag == maxMag || reserveAmmo <= 0) return;
         isCocking = false;
         TriggerReloadAnimation();
-        Debug.Log($"[Shotgun] Reloading...");
+        Debug.Log("[Shotgun] Reloading...");
     }
 }

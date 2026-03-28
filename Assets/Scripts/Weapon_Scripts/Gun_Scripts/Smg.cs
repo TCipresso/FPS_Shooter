@@ -1,10 +1,8 @@
 using UnityEngine;
-using System.Collections;
 
 public class SMG : WeaponBase
 {
     [Header("SMG Settings")]
-    public float fireRate = 0.1f;
     public float range = 60f;
     public int damagePerBullet = 20;
 
@@ -21,11 +19,12 @@ public class SMG : WeaponBase
         if (!CanShoot()) return;
         if (Time.time < nextFireTime) return;
 
-        nextFireTime = Time.time + fireRate;
+        nextFireTime = Time.time + FireInterval;
         currentMag--;
 
         PlayFireSound();
         ApplyRecoil();
+        AddBloom();
         FireBullet();
 
         if (currentMag <= 0 && reserveAmmo > 0)
