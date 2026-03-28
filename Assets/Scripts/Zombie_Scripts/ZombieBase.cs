@@ -7,7 +7,6 @@ public abstract class ZombieBase : MonoBehaviour
     [Header("Stats")]
     public int maxHealth = 100;
     public int currentHealth;
-    public int pointsOnKill = 100;
 
     [Header("Movement")]
     public float moveSpeed = 3.5f;
@@ -72,11 +71,11 @@ public abstract class ZombieBase : MonoBehaviour
         isDead = true;
         agent.isStopped = true;
 
-        // Use this zombie's own kill points value
+        // Use global kill points from PlayerStats
         if (playerStats != null)
-            playerStats.AddPoints(pointsOnKill);
+            playerStats.AddPoints(playerStats.pointsOnKill);
 
-        Debug.Log($"[{gameObject.name}] Died. Player awarded {pointsOnKill} points.");
+        Debug.Log($"[{gameObject.name}] Died. Player awarded {playerStats.pointsOnKill} points.");
 
         OnDeath();
     }

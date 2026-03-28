@@ -20,6 +20,7 @@ public class PlayerStats : MonoBehaviour
     [Header("Points")]
     public int points = 500;
     public int pointsOnHit = 10;
+    public int pointsOnKill = 100;
 
     void Awake()
     {
