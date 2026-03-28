@@ -630,6 +630,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8832161441551146002}
   - component: {fileID: -8074707510821622001}
+  - component: {fileID: 9201988070022146488}
   m_Layer: 7
   m_Name: Shotgun
   m_TagString: Untagged
@@ -684,11 +685,34 @@ MonoBehaviour:
   recoilUp: 10
   recoilSideRange: 1
   isAutomatic: 0
+  rpm: 300
+  baseAccuracy: 1
+  bloomPerShot: 0.5
+  bloomDecaySpeed: 3
+  maxBloom: 4
+  currentBloom: 0
   animator: {fileID: 1845103201943723037}
   pelletsPerShot: 8
   spreadAngle: 10
   range: 50
   damagePerPellet: 15
+--- !u!114 &9201988070022146488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8203857189232608936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54067fb056cf73d47922c1225bba5012, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponRecoil
+  kickRotationZ: 5
+  kickPositionZ: -1
+  kickPositionY: 0.05
+  snapSpeed: 20
+  returnSpeed: 8
 --- !u!1 &8709129924495491330
 GameObject:
   m_ObjectHideFlags: 0
