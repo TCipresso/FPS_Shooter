@@ -43,11 +43,21 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Animation")]
     public Animator animator;
 
-    protected bool isReloading = false;
-    protected bool isCocking = false;
+    [HideInInspector] public bool isReloading = false;
+    [HideInInspector] public bool isCocking = false;
     protected FPSLook fpsLook;
     protected Camera mainCamera;
     protected WeaponRecoil weaponRecoil;
+
+    protected virtual void OnEnable()
+    {
+        if (animator != null)
+        {
+            animator.SetBool("IsReloading", false);
+            animator.ResetTrigger("Cock");
+            animator.Play("Idle", 0, 0f);
+        }
+    }
 
     protected virtual void Update()
     {
@@ -85,13 +95,31 @@ public abstract class WeaponBase : MonoBehaviour
         return true;
     }
 
+    public void ResetState()
+    {
+        StopAllCoroutines();
+
+        isReloading = false;
+        isCocking = false;
+        currentBloom = 0f;
+
+        if (animator != null)
+        {
+            animator.SetBool("IsReloading", false);
+            animator.ResetTrigger("Cock");
+            animator.Play("Idle", 0, 0f);
+        }
+    }
+
     public void OnCockComplete()
     {
+        if (!gameObject.activeSelf) return;
         isCocking = false;
     }
 
     public void OnReloadComplete()
     {
+        if (!gameObject.activeSelf) return;
         int needed = maxMag - currentMag;
         int given = Mathf.Min(needed, reserveAmmo);
         currentMag += given;
