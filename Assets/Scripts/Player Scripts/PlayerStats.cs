@@ -26,6 +26,7 @@ public class PlayerStats : MonoBehaviour
     {
         currentHealth = maxHealth;
         ApplyStats();
+        Application.targetFrameRate = 240;
     }
 
     void OnValidate()

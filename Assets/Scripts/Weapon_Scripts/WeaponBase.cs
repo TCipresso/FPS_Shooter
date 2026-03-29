@@ -14,6 +14,8 @@ public abstract class WeaponBase : MonoBehaviour
 
     [Header("Trail")]
     public BulletTrail trailPrefab;
+    public string trailPoolKey = "BulletTrail";
+    public int trailPoolSize = 10;
 
     [Header("Impact Effects")]
     public ParticleSystem impactEffect;
@@ -223,9 +225,11 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected void SpawnTrail(Vector3 start, Vector3 end)
     {
-        if (trailPrefab == null) return;
-        BulletTrail trail = Instantiate(trailPrefab, start, Quaternion.identity);
-        trail.Fire(start, end);
+        if (BulletPool.Instance == null) return;
+        GameObject obj = BulletPool.Instance.Get(trailPoolKey, start, Quaternion.identity);
+        if (obj == null) return;
+        BulletTrail trail = obj.GetComponent<BulletTrail>();
+        if (trail != null) trail.Fire(start, end);
     }
 }
 

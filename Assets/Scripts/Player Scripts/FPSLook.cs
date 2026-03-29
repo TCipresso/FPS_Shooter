@@ -35,7 +35,7 @@ public class FPSLook : MonoBehaviour
         SyncOverlayFOV();
     }
 
-    void Update()
+    void LateUpdate()
     {
         HandleRotation();
         HandleStrafeTilt();

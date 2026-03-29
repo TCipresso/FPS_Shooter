@@ -26,22 +26,19 @@ public class WeaponSway : MonoBehaviour
         initialLocalRotation = transform.localRotation;
     }
 
-    void Update()
+    void LateUpdate()
     {
-        if (input == null)
-            return;
+        if (input == null) return;
 
         Vector2 look = input.Look;
 
         float swayX = Mathf.Clamp(-look.x * positionSwayAmount, -maxPositionSway, maxPositionSway);
         float swayY = Mathf.Clamp(-look.y * positionSwayAmount, -maxPositionSway, maxPositionSway);
-
         Vector3 targetPosition = initialLocalPosition + new Vector3(swayX, swayY, 0f);
 
         float rotX = Mathf.Clamp(-look.y * rotationSwayAmount, -maxRotationSway, maxRotationSway);
         float rotY = Mathf.Clamp(look.x * rotationSwayAmount, -maxRotationSway, maxRotationSway);
         float rotZ = Mathf.Clamp(look.x * rotationSwayAmount, -maxRotationSway, maxRotationSway);
-
         Quaternion targetRotation = initialLocalRotation * Quaternion.Euler(rotX, rotY, rotZ);
 
         transform.localPosition = Vector3.Lerp(transform.localPosition, targetPosition, positionSmooth * Time.deltaTime);

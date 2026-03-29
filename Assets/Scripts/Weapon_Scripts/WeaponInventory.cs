@@ -165,6 +165,12 @@ public class WeaponInventory : MonoBehaviour
         instance.transform.localPosition = data.positionOffset;
         instance.transform.localRotation = Quaternion.Euler(data.rotationOffset);
         instance.SetActive(false);
+
+        // Tell the pool how many trails this weapon needs
+        WeaponBase wb = instance.GetComponent<WeaponBase>();
+        if (wb != null && BulletPool.Instance != null && wb.trailPrefab != null)
+            BulletPool.Instance.EnsurePoolSize(wb.trailPoolKey, wb.trailPrefab.gameObject, wb.trailPoolSize);
+
         return instance;
     }
 
