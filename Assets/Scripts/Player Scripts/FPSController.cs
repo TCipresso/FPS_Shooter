@@ -61,7 +61,7 @@ public class FPSController : MonoBehaviour
         bool canLook = look == null || look.CanLook;
 
         // Sprint only when holding sprint, moving forward and grounded
-        IsSprinting = input.SprintHeld && input.Move.y > 0f && grounded;
+        IsSprinting = input.SprintHeld && input.Move.y > 0f;
 
         float currentMaxSpeed = canLook ? (IsSprinting ? sprintSpeed : walkSpeed) : 0f;
 
