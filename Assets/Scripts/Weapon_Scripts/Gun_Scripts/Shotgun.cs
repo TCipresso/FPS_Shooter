@@ -53,7 +53,7 @@ public class Shotgun : WeaponBase
 
             ZombieBase zombie = hit.collider.GetComponent<ZombieBase>();
             if (zombie != null)
-                zombie.TakeDamage(damagePerPellet);
+                zombie.TakeDamage(damagePerPellet, playerStats, goldMultiplier);
 
             SpawnImpactEffect(hit);
         }

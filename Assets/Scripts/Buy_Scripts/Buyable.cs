@@ -11,7 +11,7 @@ public abstract class Buyable : MonoBehaviour
 
     public bool TryPurchase(PlayerStats stats)
     {
-        bool success = stats.SpendPoints(cost);
+        bool success = stats.SpendGold(cost);
 
         if (success)
         {
@@ -20,7 +20,7 @@ public abstract class Buyable : MonoBehaviour
         }
         else
         {
-            Debug.Log($"[Buyable] Can't afford {gameObject.name}. Need {cost}, have {stats.points}.");
+            Debug.Log($"[Buyable] Can't afford {gameObject.name}. Need {cost}, have {stats.gold}.");
         }
 
         return success;

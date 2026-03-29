@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public abstract class ZombieBase : MonoBehaviour
@@ -7,6 +8,9 @@ public abstract class ZombieBase : MonoBehaviour
     [Header("Stats")]
     public int maxHealth = 100;
     public int currentHealth;
+
+    [Header("Gold")]
+    public int goldBounty = 100;
 
     [Header("Movement")]
     public float moveSpeed = 3.5f;
@@ -21,6 +25,11 @@ public abstract class ZombieBase : MonoBehaviour
     protected PlayerStats playerStats;
     protected float lastAttackTime;
     protected bool isDead = false;
+
+    // Tracks damage dealt per player (ready for multiplayer later)
+    Dictionary<PlayerStats, int> damageContributors = new Dictionary<PlayerStats, int>();
+    Dictionary<PlayerStats, float> goldMultipliers = new Dictionary<PlayerStats, float>();
+    int totalDamageDealt = 0;
 
     protected virtual void Awake()
     {
@@ -50,20 +59,42 @@ public abstract class ZombieBase : MonoBehaviour
 
     protected abstract void UpdateBehaviour();
 
-    public virtual void TakeDamage(int amount)
+    public virtual void TakeDamage(int amount, PlayerStats dealer, float weaponMultiplier = 1f)
     {
         if (isDead) return;
 
-        currentHealth -= amount;
+        int actualDamage = Mathf.Min(amount, currentHealth);
+        currentHealth -= actualDamage;
 
-        // Use global hit points from PlayerStats
-        if (playerStats != null)
-            playerStats.AddPoints(playerStats.pointsOnHit);
+        // Track damage contribution
+        if (dealer != null)
+        {
+            if (damageContributors.ContainsKey(dealer))
+                damageContributors[dealer] += actualDamage;
+            else
+                damageContributors[dealer] = actualDamage;
 
-        Debug.Log($"[{gameObject.name}] Took {amount} damage | Health: {currentHealth}/{maxHealth}");
+            // Store the last weapon multiplier used by this dealer
+            if (weaponMultiplier > 0f)
+                goldMultipliers[dealer] = weaponMultiplier;
+
+            totalDamageDealt += actualDamage;
+        }
+
+        // Gold on hit if active
+        if (dealer != null && dealer.goldOnHit > 0)
+            dealer.AddGold(dealer.goldOnHit);
+
+        Debug.Log($"[{gameObject.name}] Took {actualDamage} damage | Health: {currentHealth}/{maxHealth}");
 
         if (currentHealth <= 0)
             Die();
+    }
+
+    // Overload for backwards compatibility
+    public virtual void TakeDamage(int amount)
+    {
+        TakeDamage(amount, playerStats);
     }
 
     protected virtual void Die()
@@ -71,12 +102,19 @@ public abstract class ZombieBase : MonoBehaviour
         isDead = true;
         agent.isStopped = true;
 
-        // Use global kill points from PlayerStats
-        if (playerStats != null)
-            playerStats.AddPoints(playerStats.pointsOnKill);
+        // Award proportional gold to each contributor with weapon multiplier
+        foreach (var kvp in damageContributors)
+        {
+            PlayerStats contributor = kvp.Key;
+            int damageDealt = kvp.Value;
+            float proportion = (float)damageDealt / maxHealth;
+            float multiplier = goldMultipliers.ContainsKey(contributor) ? goldMultipliers[contributor] : 1f;
+            int goldAwarded = Mathf.RoundToInt(goldBounty * proportion * multiplier);
+            contributor.AddGold(goldAwarded);
+            Debug.Log($"[{gameObject.name}] Awarded {goldAwarded} gold to {contributor.gameObject.name} ({proportion * 100:F0}% damage, x{multiplier} multiplier).");
+        }
 
-        Debug.Log($"[{gameObject.name}] Died. Player awarded {playerStats.pointsOnKill} points.");
-
+        Debug.Log($"[{gameObject.name}] Died.");
         OnDeath();
     }
 

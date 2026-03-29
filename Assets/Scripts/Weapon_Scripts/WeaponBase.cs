@@ -33,6 +33,9 @@ public abstract class WeaponBase : MonoBehaviour
     public float rpm = 300f;
     public float FireInterval => 60f / rpm;
 
+    [Header("Gold")]
+    public float goldMultiplier = 1f;
+
     [Header("Accuracy")]
     public float baseAccuracy = 1f;
     public float bloomPerShot = 0.5f;
@@ -48,6 +51,7 @@ public abstract class WeaponBase : MonoBehaviour
     protected FPSLook fpsLook;
     protected Camera mainCamera;
     protected WeaponRecoil weaponRecoil;
+    protected PlayerStats playerStats;
 
     protected virtual void OnEnable()
     {
@@ -71,6 +75,7 @@ public abstract class WeaponBase : MonoBehaviour
         fpsLook = FindFirstObjectByType<FPSLook>();
         mainCamera = Camera.main;
         weaponRecoil = GetComponentInChildren<WeaponRecoil>();
+        playerStats = FindFirstObjectByType<PlayerStats>();
 
         if (fpsLook == null)
             Debug.LogWarning($"[{gameObject.name}] FPSLook not found in scene.");

@@ -17,10 +17,10 @@ public class PlayerStats : MonoBehaviour
     public int maxHealth = 100;
     public int currentHealth;
 
-    [Header("Points")]
-    public int points = 500;
-    public int pointsOnHit = 10;
-    public int pointsOnKill = 100;
+    [Header("Gold")]
+    public int gold = 500;
+    public int goldOnHit = 0;
+    public int goldOnKill = 100;
 
     void Awake()
     {
@@ -42,22 +42,22 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    public void AddPoints(int amount)
+    public void AddGold(int amount)
     {
-        points += amount;
-        Debug.Log($"[PlayerStats] +{amount} points | Total: {points}");
+        gold += amount;
+        Debug.Log($"[PlayerStats] +{amount} gold | Total: {gold}");
     }
 
-    public bool SpendPoints(int amount)
+    public bool SpendGold(int amount)
     {
-        if (points < amount)
+        if (gold < amount)
         {
-            Debug.Log($"[PlayerStats] Not enough points. Have: {points} | Need: {amount}");
+            Debug.Log($"[PlayerStats] Not enough gold. Have: {gold} | Need: {amount}");
             return false;
         }
 
-        points -= amount;
-        Debug.Log($"[PlayerStats] -{amount} points | Total: {points}");
+        gold -= amount;
+        Debug.Log($"[PlayerStats] -{amount} gold | Total: {gold}");
         return true;
     }
 

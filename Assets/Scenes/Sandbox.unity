@@ -2135,9 +2135,9 @@ MonoBehaviour:
   reloadSpeed: 1
   maxHealth: 100
   currentHealth: 100
-  points: 2000
-  pointsOnHit: 10
-  pointsOnKill: 100
+  gold: 500
+  goldOnHit: 0
+  goldOnKill: 100
 --- !u!114 &576031183
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4501,7 +4501,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PointsHUD
   playerStats: {fileID: 576031181}
-  pointsText: {fileID: 443003142}
+  goldText: {fileID: 443003142}
 --- !u!1 &1255763188
 GameObject:
   m_ObjectHideFlags: 0
@@ -6540,6 +6540,7 @@ MonoBehaviour:
   activation: 0
   duration: 15
   powerUpEvent: {fileID: 11400000, guid: 74d67d0056ecb944096dad3fc829c972, type: 2}
+  goldOnHitAmount: 10
 --- !u!1 &2112415025
 GameObject:
   m_ObjectHideFlags: 0

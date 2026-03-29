@@ -7,11 +7,11 @@ public class PointsHUD : MonoBehaviour
     public PlayerStats playerStats;
 
     [Header("UI")]
-    public TextMeshProUGUI pointsText;
+    public TextMeshProUGUI goldText;
 
     void Update()
     {
-        if (playerStats == null || pointsText == null) return;
-        pointsText.text = playerStats.points.ToString();
+        if (playerStats == null || goldText == null) return;
+        goldText.text = playerStats.gold.ToString();
     }
 }

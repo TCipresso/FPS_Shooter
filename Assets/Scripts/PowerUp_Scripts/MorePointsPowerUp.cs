@@ -2,29 +2,32 @@ using UnityEngine;
 
 public class MorePointsPowerUp : PowerUpBase
 {
-    int originalPointsOnHit;
-    int originalPointsOnKill;
+    [Header("Gold On Hit Settings")]
+    public int goldOnHitAmount = 10;
+
+    int originalGoldOnHit;
+    int originalGoldOnKill;
 
     protected override void ApplyEffect()
     {
         if (playerStats == null) return;
 
-        originalPointsOnHit = playerStats.pointsOnHit;
-        originalPointsOnKill = playerStats.pointsOnKill;
+        originalGoldOnHit = playerStats.goldOnHit;
+        originalGoldOnKill = playerStats.goldOnKill;
 
-        playerStats.pointsOnHit *= 2;
-        playerStats.pointsOnKill *= 2;
+        playerStats.goldOnHit = goldOnHitAmount;
+        playerStats.goldOnKill *= 2;
 
-        Debug.Log($"[MorePointsPowerUp] Points doubled. Hit: {playerStats.pointsOnHit} Kill: {playerStats.pointsOnKill}");
+        Debug.Log($"[MorePointsPowerUp] Gold on hit: {playerStats.goldOnHit} | Gold on kill doubled: {playerStats.goldOnKill}");
     }
 
     protected override void RemoveEffect()
     {
         if (playerStats == null) return;
 
-        playerStats.pointsOnHit = originalPointsOnHit;
-        playerStats.pointsOnKill = originalPointsOnKill;
+        playerStats.goldOnHit = originalGoldOnHit;
+        playerStats.goldOnKill = originalGoldOnKill;
 
-        Debug.Log("[MorePointsPowerUp] Points restored.");
+        Debug.Log("[MorePointsPowerUp] Gold restored.");
     }
 }
