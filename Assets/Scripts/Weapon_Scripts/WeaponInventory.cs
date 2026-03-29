@@ -184,6 +184,10 @@ public class WeaponInventory : MonoBehaviour
         equippedWeapons[slot].SetActive(true);
         activeSlot = slot;
 
+        // Push this weapon's recoil values to WeaponRecoil
+        WeaponBase wb = equippedWeapons[slot].GetComponent<WeaponBase>();
+        if (wb != null) wb.LoadRecoilValues();
+
         Debug.Log($"[WeaponInventory] Equipped slot {slot}: {equippedData[slot].weaponName}.");
     }
 

@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -12,6 +11,7 @@ public class FPSController : MonoBehaviour
 
     [Header("Movement Settings")]
     public float walkSpeed = 6f;
+    public float sprintSpeed = 10f;
     public float jumpForce = 550f;
     public float gravity = 20f;
 
@@ -30,8 +30,9 @@ public class FPSController : MonoBehaviour
     public float jumpCooldown = 0.05f;
     public bool autoBHop = true;
 
-    Rigidbody rb;
+    public bool IsSprinting { get; private set; }
 
+    Rigidbody rb;
     bool grounded;
     bool readyToJump = true;
     Vector3 normalVector = Vector3.up;
@@ -59,7 +60,10 @@ public class FPSController : MonoBehaviour
 
         bool canLook = look == null || look.CanLook;
 
-        float currentMaxSpeed = canLook ? walkSpeed : 0f;
+        // Sprint only when holding sprint, moving forward and grounded
+        IsSprinting = input.SprintHeld && input.Move.y > 0f && grounded;
+
+        float currentMaxSpeed = canLook ? (IsSprinting ? sprintSpeed : walkSpeed) : 0f;
 
         Vector3 wishDir = (fwd * input.Move.y) + (side * input.Move.x);
 

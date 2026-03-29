@@ -26,9 +26,15 @@ public abstract class WeaponBase : MonoBehaviour
     public AudioClip fireSound;
     public List<WeaponSound> sounds = new List<WeaponSound>();
 
-    [Header("Recoil")]
+    [Header("Camera Recoil")]
     public float recoilUp = 2f;
     public float recoilSideRange = 0.5f;
+
+    [Header("Weapon Recoil")]
+    public float kickRotationZ = 5f;
+    public float kickPositionZ = -0.1f;
+    public float kickPositionY = 0.05f;
+    public float kickPositionX = 0.02f;
 
     [Header("Fire Mode")]
     public bool isAutomatic = false;
@@ -54,6 +60,7 @@ public abstract class WeaponBase : MonoBehaviour
     protected Camera mainCamera;
     protected WeaponRecoil weaponRecoil;
     protected PlayerStats playerStats;
+    protected FPSController fpsController;
 
     protected virtual void OnEnable()
     {
@@ -70,14 +77,19 @@ public abstract class WeaponBase : MonoBehaviour
         // Decay bloom back to zero when not shooting
         if (currentBloom > 0f)
             currentBloom = Mathf.Max(0f, currentBloom - bloomDecaySpeed * Time.deltaTime);
+
+        // Update sprint animation
+        if (animator != null && fpsController != null)
+            animator.SetBool("IsSprinting", fpsController.IsSprinting);
     }
 
     protected virtual void Awake()
     {
         fpsLook = FindFirstObjectByType<FPSLook>();
         mainCamera = Camera.main;
-        weaponRecoil = GetComponentInChildren<WeaponRecoil>();
+        // WeaponRecoil is found in Start via WeaponInventory.LoadRecoilValues instead
         playerStats = FindFirstObjectByType<PlayerStats>();
+        fpsController = FindFirstObjectByType<FPSController>();
 
         if (fpsLook == null)
             Debug.LogWarning($"[{gameObject.name}] FPSLook not found in scene.");
@@ -99,6 +111,7 @@ public abstract class WeaponBase : MonoBehaviour
         if (isReloading) return false;
         if (isCocking) return false;
         if (currentMag <= 0) return false;
+        if (fpsController != null && fpsController.IsSprinting) return false;
         return true;
     }
 
@@ -156,13 +169,31 @@ public abstract class WeaponBase : MonoBehaviour
         audioSource.PlayOneShot(fireSound);
     }
 
+    public void LoadRecoilValues()
+    {
+        if (weaponRecoil == null)
+            weaponRecoil = FindFirstObjectByType<WeaponRecoil>();
+
+        if (weaponRecoil != null)
+            weaponRecoil.LoadValues(kickRotationZ, kickPositionZ, kickPositionY, kickPositionX);
+    }
+
     protected void ApplyRecoil()
     {
         if (fpsLook != null)
             fpsLook.ApplyRecoil(recoilUp, recoilSideRange);
 
-        if (weaponRecoil != null)
-            weaponRecoil.Kick();
+        if (weaponRecoil == null)
+            weaponRecoil = FindFirstObjectByType<WeaponRecoil>();
+
+        if (weaponRecoil == null)
+        {
+            Debug.LogError("[WeaponBase] WeaponRecoil not found in scene!");
+            return;
+        }
+
+        Debug.Log("[WeaponBase] Kicking WeaponRecoil on: " + weaponRecoil.gameObject.name);
+        weaponRecoil.Kick();
     }
 
     protected void SpawnImpactEffect(RaycastHit hit)

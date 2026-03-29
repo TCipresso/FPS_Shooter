@@ -7,6 +7,7 @@ public class FPSInput : MonoBehaviour
     public InputActionReference moveAction;
     public InputActionReference lookAction;
     public InputActionReference jumpAction;
+    public InputActionReference sprintAction;
 
     [Header("Jump Buffer")]
     public float jumpBufferTime = 0.15f;
@@ -14,6 +15,7 @@ public class FPSInput : MonoBehaviour
     public Vector2 Move { get; private set; }
     public Vector2 Look { get; private set; }
     public bool JumpHeld { get; private set; }
+    public bool SprintHeld { get; private set; }
 
     float jumpBufferCounter;
     public bool JumpBuffered => jumpBufferCounter > 0f;
@@ -23,6 +25,7 @@ public class FPSInput : MonoBehaviour
         if (moveAction) moveAction.action.Enable();
         if (lookAction) lookAction.action.Enable();
         if (jumpAction) jumpAction.action.Enable();
+        if (sprintAction) sprintAction.action.Enable();
     }
 
     void OnDisable()
@@ -30,6 +33,7 @@ public class FPSInput : MonoBehaviour
         if (moveAction) moveAction.action.Disable();
         if (lookAction) lookAction.action.Disable();
         if (jumpAction) jumpAction.action.Disable();
+        if (sprintAction) sprintAction.action.Disable();
     }
 
     void Update()
@@ -37,6 +41,7 @@ public class FPSInput : MonoBehaviour
         Move = moveAction ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
         Look = lookAction ? lookAction.action.ReadValue<Vector2>() : Vector2.zero;
         JumpHeld = jumpAction && jumpAction.action.IsPressed();
+        SprintHeld = sprintAction && sprintAction.action.IsPressed();
 
         if (jumpAction && jumpAction.action.WasPressedThisFrame())
             jumpBufferCounter = jumpBufferTime;

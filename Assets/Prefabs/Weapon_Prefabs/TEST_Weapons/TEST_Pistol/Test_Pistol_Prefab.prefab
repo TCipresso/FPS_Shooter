@@ -313,7 +313,6 @@ GameObject:
   - component: {fileID: 3254699245581612342}
   - component: {fileID: 6420684355200236290}
   - component: {fileID: 4115125732072298260}
-  - component: {fileID: 8068784335683567915}
   m_Layer: 7
   m_Name: Test_Pistol_Prefab
   m_TagString: Untagged
@@ -369,6 +368,10 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 277d1e280567f7c4cbea4669849def27, type: 3}
   recoilUp: 7
   recoilSideRange: 1.5
+  kickRotationZ: 5
+  kickPositionZ: -0.2
+  kickPositionY: 0.05
+  kickPositionX: 0.02
   isAutomatic: 0
   rpm: 420
   goldMultiplier: 1
@@ -417,24 +420,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TEST_SHOTGUN_anim_bridge
   weapon: {fileID: 3254699245581612342}
---- !u!114 &8068784335683567915
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5282761496190772542}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54067fb056cf73d47922c1225bba5012, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponRecoil
-  kickRotationZ: 5
-  kickPositionZ: -0.2
-  kickPositionY: 0.02
-  kickPositionX: 0.05
-  snapSpeed: 20
-  returnSpeed: 8
 --- !u!1 &7046112773186254786
 GameObject:
   m_ObjectHideFlags: 0
