@@ -699,7 +699,6 @@ GameObject:
   - component: {fileID: 6162105469991669061}
   - component: {fileID: 2435121693937230388}
   - component: {fileID: 5644989850763405496}
-  - component: {fileID: 3996183412847234725}
   m_Layer: 7
   m_Name: Smg
   m_TagString: Untagged
@@ -716,7 +715,7 @@ Transform:
   m_GameObject: {fileID: 6322598379815691067}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -1.17822, y: -1.13175, z: 9.74419}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.32426, y: 0.3004392, z: 0.6307864}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -755,6 +754,10 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 277d1e280567f7c4cbea4669849def27, type: 3}
   recoilUp: 3
   recoilSideRange: 4
+  kickRotationZ: 5
+  kickPositionZ: -0.1
+  kickPositionY: 0.05
+  kickPositionX: 0.02
   isAutomatic: 1
   rpm: 550
   goldMultiplier: 1.1
@@ -803,21 +806,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TEST_SHOTGUN_anim_bridge
   weapon: {fileID: 6162105469991669061}
---- !u!114 &3996183412847234725
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6322598379815691067}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54067fb056cf73d47922c1225bba5012, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponRecoil
-  kickRotationZ: 5
-  kickPositionZ: -0.2
-  kickPositionY: 0.03
-  kickPositionX: 0.06
-  snapSpeed: 20
-  returnSpeed: 8
