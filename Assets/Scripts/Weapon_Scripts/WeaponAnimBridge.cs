@@ -17,6 +17,7 @@ public class WeaponAnimBridge : MonoBehaviour
         {
             animator.SetBool("IsReloading", false);
             animator.ResetTrigger("Cock");
+            animator.ResetTrigger("Swing");
             animator.Play("Idle", 0, 0f);
             animator.Update(0f);
         }
@@ -30,6 +31,7 @@ public class WeaponAnimBridge : MonoBehaviour
 
     public void OnCockComplete()
     {
+        Debug.Log("[WeaponAnimBridge] OnCockComplete fired on: " + gameObject.name);
         if (weapon != null)
             weapon.OnCockComplete();
     }

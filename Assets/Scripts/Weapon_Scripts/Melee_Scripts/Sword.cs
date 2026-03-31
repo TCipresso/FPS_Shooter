@@ -9,10 +9,14 @@ public class Sword : WeaponBase
     [Range(0f, 1f)]
     public float hitAngle = 0.3f;
 
+    [Header("Attack Speed")]
+    public float attackSpeed = 1f;
+
     [Header("Debug")]
     public bool showDebugSphere = true;
 
     float nextSwingTime = 0f;
+    bool swingRight = false;
     HashSet<ZombieBase> hitThisSwing = new HashSet<ZombieBase>();
 
     protected override void Awake()
@@ -20,7 +24,6 @@ public class Sword : WeaponBase
         base.Awake();
         isAutomatic = true;
 
-        // Force infinite ammo regardless of inspector values
         currentMag = int.MaxValue;
         maxMag = int.MaxValue;
         reserveAmmo = int.MaxValue;
@@ -41,11 +44,23 @@ public class Sword : WeaponBase
         if (Time.time < nextSwingTime) return;
 
         nextSwingTime = Time.time + FireInterval;
-        hitThisSwing.Clear();
-        TriggerCockAnimation();
-        ApplyRecoil();
+        swingRight = !swingRight;
 
-        Debug.Log("[Sword] Swing!");
+        hitThisSwing.Clear();
+
+        if (animator != null)
+            animator.SetBool("SwingRight", swingRight);
+
+        ApplyRecoil();
+        isCocking = true;
+
+        if (animator != null)
+        {
+            animator.speed = attackSpeed;
+            animator.SetTrigger("Swing");
+        }
+
+        Debug.Log("[Sword] Swing! SwingRight: " + swingRight);
     }
 
     public void OnHitFrame()
@@ -70,6 +85,14 @@ public class Sword : WeaponBase
     }
 
     public override void Reload() { }
+
+    public override void OnCockComplete()
+    {
+        base.OnCockComplete();
+        // Reset SwingRight so animator can cleanly return to Idle
+        if (animator != null)
+            animator.SetBool("SwingRight", false);
+    }
 
     public new bool CanShoot()
     {
