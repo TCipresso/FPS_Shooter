@@ -9,9 +9,6 @@ public class Sword : WeaponBase
     [Range(0f, 1f)]
     public float hitAngle = 0.3f;
 
-    [Header("Attack Speed")]
-    public float attackSpeed = 1f;
-
     [Header("Debug")]
     public bool showDebugSphere = true;
 
@@ -55,10 +52,7 @@ public class Sword : WeaponBase
         isCocking = true;
 
         if (animator != null)
-        {
-            animator.speed = attackSpeed;
             animator.SetTrigger("Swing");
-        }
 
         Debug.Log("[Sword] Swing! SwingRight: " + swingRight);
     }
@@ -85,14 +79,6 @@ public class Sword : WeaponBase
     }
 
     public override void Reload() { }
-
-    public override void OnCockComplete()
-    {
-        base.OnCockComplete();
-        // Reset SwingRight so animator can cleanly return to Idle
-        if (animator != null)
-            animator.SetBool("SwingRight", false);
-    }
 
     public new bool CanShoot()
     {
