@@ -11,6 +11,9 @@ public class WeaponInventory : MonoBehaviour
     [Header("Inventory Settings")]
     public int maxSlots = 2;
 
+    [Header("IK")]
+    public IKWeaponHandler ikHandler;
+
     [Header("Input")]
     public InputActionReference fireAction;
     public InputActionReference reloadAction;
@@ -187,6 +190,10 @@ public class WeaponInventory : MonoBehaviour
         // Push this weapon's recoil values to WeaponRecoil
         WeaponBase wb = equippedWeapons[slot].GetComponent<WeaponBase>();
         if (wb != null) wb.LoadRecoilValues();
+
+        // Update IK targets to this weapon
+        if (ikHandler != null)
+            ikHandler.UpdateIKTargets(equippedWeapons[slot]);
 
         Debug.Log($"[WeaponInventory] Equipped slot {slot}: {equippedData[slot].weaponName}.");
     }
