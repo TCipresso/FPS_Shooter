@@ -2287,6 +2287,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponInventory
   weaponHolder: {fileID: 210988755}
   maxSlots: 2
+  ikHandler: {fileID: 1812089919}
   fireAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   reloadAction: {fileID: -6994043773312852012, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   scrollAction: {fileID: -8062664436889712257, guid: 052faaac586de48259a63d0c4782560b, type: 3}
@@ -2943,6 +2944,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 94e759bdf25e8bb4f8fc9e7e96123cdc, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1812089917}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 94e759bdf25e8bb4f8fc9e7e96123cdc, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1812089919}
   m_SourcePrefab: {fileID: 100100000, guid: 94e759bdf25e8bb4f8fc9e7e96123cdc, type: 3}
 --- !u!4 &621378990 stripped
 Transform:
@@ -6207,7 +6211,7 @@ MonoBehaviour:
     m_Root: {fileID: 621378992}
     m_Mid: {fileID: 621378991}
     m_Tip: {fileID: 621378990}
-    m_Target: {fileID: 1912876694}
+    m_Target: {fileID: 0}
     m_Hint: {fileID: 175866114}
     m_TargetPositionWeight: 1
     m_TargetRotationWeight: 0
@@ -6928,6 +6932,20 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1812089919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 621378993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d65996d5d97f363449fd9262a75ee323, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::IKWeaponHandler
+  rightHandIK: {fileID: 1561496788}
+  leftHandIK: {fileID: 2014314032}
 --- !u!1 &1830131977
 GameObject:
   m_ObjectHideFlags: 0
@@ -7349,11 +7367,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!4 &1912876694 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2620667364760657169, guid: 422e0ec88e8bc994caeaf08f1bf22329, type: 3}
-  m_PrefabInstance: {fileID: 908911562}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1980046425
 GameObject:
   m_ObjectHideFlags: 0
@@ -7434,18 +7447,13 @@ MonoBehaviour:
     m_Root: {fileID: 1482980185}
     m_Mid: {fileID: 1050469617}
     m_Tip: {fileID: 1514312397}
-    m_Target: {fileID: 2059657012}
+    m_Target: {fileID: 0}
     m_Hint: {fileID: 1475361058}
     m_TargetPositionWeight: 1
     m_TargetRotationWeight: 0
     m_HintWeight: 1
     m_MaintainTargetPositionOffset: 0
     m_MaintainTargetRotationOffset: 0
---- !u!4 &2059657012 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7870846035651321012, guid: 422e0ec88e8bc994caeaf08f1bf22329, type: 3}
-  m_PrefabInstance: {fileID: 908911562}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2077946812
 GameObject:
   m_ObjectHideFlags: 0
