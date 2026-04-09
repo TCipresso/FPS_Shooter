@@ -131,7 +131,7 @@ public abstract class WeaponBase : MonoBehaviour
         }
     }
 
-    public void OnCockComplete()
+    public virtual void OnCockComplete()
     {
         if (!gameObject.activeSelf) return;
         isCocking = false;
@@ -244,6 +244,12 @@ public abstract class WeaponBase : MonoBehaviour
         if (animator == null) return;
         isCocking = true;
         animator.SetTrigger("Cock");
+    }
+
+    protected void TriggerFireAnimation()
+    {
+        if (animator == null) return;
+        animator.Play("Pistol_Fire", 0, 0f);
     }
 
     protected void TriggerReloadAnimation()

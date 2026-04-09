@@ -24,6 +24,7 @@ public class Shotgun : WeaponBase
         nextFireTime = Time.time + FireInterval;
         currentMag--;
 
+        TriggerFireAnimation();
         PlayFireSound();
         TriggerCockAnimation();
         ApplyRecoil();

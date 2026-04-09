@@ -15,10 +15,9 @@ public class TEST_SHOTGUN_anim_bridge : MonoBehaviour
     {
         if (animator != null)
         {
-            animator.enabled = false;
-            animator.enabled = true;
             animator.SetBool("IsReloading", false);
             animator.ResetTrigger("Cock");
+            animator.ResetTrigger("Swing");
             animator.Play("Idle", 0, 0f);
             animator.Update(0f);
         }
@@ -30,8 +29,11 @@ public class TEST_SHOTGUN_anim_bridge : MonoBehaviour
         }
     }
 
+   
+
     public void OnCockComplete()
     {
+        Debug.Log("[WeaponAnimBridge] OnCockComplete fired on: " + gameObject.name);
         if (weapon != null)
             weapon.OnCockComplete();
     }
@@ -40,6 +42,12 @@ public class TEST_SHOTGUN_anim_bridge : MonoBehaviour
     {
         if (weapon != null)
             weapon.OnReloadComplete();
+    }
+
+    public void OnHitFrame()
+    {
+        if (weapon != null && weapon is Sword sword)
+            sword.OnHitFrame();
     }
 
     public void PlayWeaponSound(AnimationEvent evt)
