@@ -22,6 +22,7 @@ public class Pistol : WeaponBase
         nextFireTime = Time.time + FireInterval;
         currentMag--;
 
+        TriggerFireAnimation();
         PlayFireSound();
         ApplyRecoil();
         AddBloom();
