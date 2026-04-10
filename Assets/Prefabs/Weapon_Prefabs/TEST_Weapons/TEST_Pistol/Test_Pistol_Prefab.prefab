@@ -195,7 +195,7 @@ Transform:
   m_GameObject: {fileID: 1571822721513725210}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 1.66, y: -1.24, z: -1.57}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -333,7 +333,7 @@ Transform:
   m_LocalScale: {x: 0.08187905, y: 0.07136705, z: 0.1073736}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2620667364760657169}
+  - {fileID: 595771243785555399}
   - {fileID: 7870846035651321012}
   - {fileID: 87020488139803577}
   - {fileID: 8833679870517621011}
@@ -422,37 +422,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TEST_SHOTGUN_anim_bridge
   weapon: {fileID: 3254699245581612342}
---- !u!1 &6376926686118117722
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2620667364760657169}
-  m_Layer: 7
-  m_Name: RightHandTarget
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2620667364760657169
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6376926686118117722}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 3818074139402426385}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7046112773186254786
 GameObject:
   m_ObjectHideFlags: 0
@@ -676,6 +645,37 @@ Transform:
   - {fileID: 6180901298185026873}
   m_Father: {fileID: 3818074139402426385}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8336280047528541219
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 595771243785555399}
+  m_Layer: 7
+  m_Name: RightHandTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &595771243785555399
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8336280047528541219}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.15016517, y: 0, z: 0, w: 0.98866093}
+  m_LocalPosition: {x: 3.04, y: -0.86, z: 0.32}
+  m_LocalScale: {x: 1.6265453, y: 2.2736306, z: 1.750687}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3818074139402426385}
+  m_LocalEulerAnglesHint: {x: -17.273, y: 0, z: 0}
 --- !u!1001 &6016971666465023044
 PrefabInstance:
   m_ObjectHideFlags: 0
