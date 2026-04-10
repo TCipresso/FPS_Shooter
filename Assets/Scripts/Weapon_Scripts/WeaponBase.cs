@@ -57,6 +57,7 @@ public abstract class WeaponBase : MonoBehaviour
     [HideInInspector] public bool isReloading = false;
     [HideInInspector] public bool isCocking = false;
     [HideInInspector] public bool isFiring = false;
+
     protected FPSLook fpsLook;
     protected Camera mainCamera;
     protected WeaponRecoil weaponRecoil;
@@ -68,6 +69,7 @@ public abstract class WeaponBase : MonoBehaviour
         if (animator != null)
         {
             animator.SetBool("IsReloading", false);
+            animator.SetBool("IsWalking", false);
             animator.ResetTrigger("Cock");
             animator.Play("Idle", 0, 0f);
         }
@@ -79,13 +81,14 @@ public abstract class WeaponBase : MonoBehaviour
         if (currentBloom > 0f)
             currentBloom = Mathf.Max(0f, currentBloom - bloomDecaySpeed * Time.deltaTime);
 
-        // Update sprint and walk animation
+        // Update walk animation
         if (animator != null && fpsController != null)
         {
-            animator.SetBool("IsSprinting", fpsController.IsSprinting);
-            float moveSpeed = (!fpsController.IsSprinting && !isCocking && !isReloading)
-                ? fpsController.input.Move.magnitude : 0f;
-            animator.SetFloat("MoveSpeed", moveSpeed, 0.1f, Time.deltaTime);
+            bool isWalking = !isCocking
+                          && !isReloading
+                          && fpsController.input.Move.sqrMagnitude > 0.01f;
+
+            animator.SetBool("IsWalking", isWalking);
         }
     }
 
@@ -93,7 +96,6 @@ public abstract class WeaponBase : MonoBehaviour
     {
         fpsLook = FindFirstObjectByType<FPSLook>();
         mainCamera = Camera.main;
-        // WeaponRecoil is found in Start via WeaponInventory.LoadRecoilValues instead
         playerStats = FindFirstObjectByType<PlayerStats>();
         fpsController = FindFirstObjectByType<FPSController>();
 
@@ -117,7 +119,6 @@ public abstract class WeaponBase : MonoBehaviour
         if (isReloading) return false;
         if (isCocking) return false;
         if (currentMag <= 0) return false;
-        if (fpsController != null && fpsController.IsSprinting) return false;
         return true;
     }
 
@@ -132,6 +133,7 @@ public abstract class WeaponBase : MonoBehaviour
         if (animator != null)
         {
             animator.SetBool("IsReloading", false);
+            animator.SetBool("IsWalking", false);
             animator.ResetTrigger("Cock");
             animator.Play("Idle", 0, 0f);
         }
@@ -209,14 +211,12 @@ public abstract class WeaponBase : MonoBehaviour
 
         if (effectPrefab == null) return;
 
-        // Spawn at hit point, rotated to face the surface normal
         ParticleSystem effect = Instantiate(
             effectPrefab,
             hit.point,
             Quaternion.LookRotation(hit.normal)
         );
 
-        // Auto destroy after the effect finishes
         Destroy(effect.gameObject, effect.main.duration + effect.main.startLifetime.constantMax);
     }
 
@@ -224,7 +224,6 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (mainCamera == null) return muzzlePoint.forward;
 
-        // Add bloom on top of any passed in spread
         float totalX = spreadX + Random.Range(-currentBloom, currentBloom);
         float totalY = spreadY + Random.Range(-currentBloom, currentBloom);
 

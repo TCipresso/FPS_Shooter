@@ -21,16 +21,26 @@ public class FPSLook : MonoBehaviour
     public float recoilSnapSpeed = 20f;
     public float recoilReturnSpeed = 6f;
 
+    [Header("Sprint FOV")]
+    public FPSController fpsController;
+    [Range(0f, 50f)] public float sprintFOVPercent = 10f;
+    public float fovTransitionSpeed = 6f;
+
     float rotationX = 0f;
     float currentTiltZ = 0f;
 
     Vector3 currentRecoil = Vector3.zero;
     Vector3 targetRecoil = Vector3.zero;
 
+    float baseFOV;
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        if (playerCamera != null)
+            baseFOV = playerCamera.fieldOfView;
 
         SyncOverlayFOV();
     }
@@ -40,6 +50,7 @@ public class FPSLook : MonoBehaviour
         HandleRotation();
         HandleStrafeTilt();
         HandleRecoil();
+        HandleSprintFOV();
         SyncOverlayFOV();
     }
 
@@ -66,7 +77,6 @@ public class FPSLook : MonoBehaviour
         float targetTiltZ = -input.Move.x * maxTiltZ;
         currentTiltZ = Mathf.Lerp(currentTiltZ, targetTiltZ, tiltSpeed * Time.deltaTime);
 
-        // Apply look rotation + recoil offset together
         playerCamera.transform.localRotation = Quaternion.Euler(
             rotationX + currentRecoil.x,
             currentRecoil.y,
@@ -80,6 +90,21 @@ public class FPSLook : MonoBehaviour
         targetRecoil = Vector3.Lerp(targetRecoil, Vector3.zero, recoilReturnSpeed * Time.deltaTime);
     }
 
+    void HandleSprintFOV()
+    {
+        if (playerCamera == null || fpsController == null) return;
+
+        float targetFOV = fpsController.IsSprinting
+            ? baseFOV * (1f + sprintFOVPercent / 100f)
+            : baseFOV;
+
+        playerCamera.fieldOfView = Mathf.Lerp(
+            playerCamera.fieldOfView,
+            targetFOV,
+            fovTransitionSpeed * Time.deltaTime
+        );
+    }
+
     public void ApplyRecoil(float up, float side)
     {
         targetRecoil += new Vector3(-up, Random.Range(-side, side), 0f);
@@ -90,6 +115,6 @@ public class FPSLook : MonoBehaviour
         if (!overlayCamera || !playerCamera) return;
         if (overlayCamera.orthographic) return;
 
-        overlayCamera.fieldOfView = playerCamera.fieldOfView;
+        overlayCamera.fieldOfView = baseFOV;
     }
 }
