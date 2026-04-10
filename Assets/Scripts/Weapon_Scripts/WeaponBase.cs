@@ -56,6 +56,7 @@ public abstract class WeaponBase : MonoBehaviour
 
     [HideInInspector] public bool isReloading = false;
     [HideInInspector] public bool isCocking = false;
+    [HideInInspector] public bool isFiring = false;
     protected FPSLook fpsLook;
     protected Camera mainCamera;
     protected WeaponRecoil weaponRecoil;
@@ -78,9 +79,14 @@ public abstract class WeaponBase : MonoBehaviour
         if (currentBloom > 0f)
             currentBloom = Mathf.Max(0f, currentBloom - bloomDecaySpeed * Time.deltaTime);
 
-        // Update sprint animation
+        // Update sprint and walk animation
         if (animator != null && fpsController != null)
+        {
             animator.SetBool("IsSprinting", fpsController.IsSprinting);
+            float moveSpeed = (!fpsController.IsSprinting && !isCocking && !isReloading)
+                ? fpsController.input.Move.magnitude : 0f;
+            animator.SetFloat("MoveSpeed", moveSpeed, 0.1f, Time.deltaTime);
+        }
     }
 
     protected virtual void Awake()
@@ -249,7 +255,16 @@ public abstract class WeaponBase : MonoBehaviour
     protected void TriggerFireAnimation()
     {
         if (animator == null) return;
-        animator.Play("Pistol_Fire", 0, 0f);
+        isFiring = true;
+        animator.Play("Pistol_Fire", 1, 0f);
+        StartCoroutine(ResetFiring());
+    }
+
+    System.Collections.IEnumerator ResetFiring()
+    {
+        AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(0);
+        yield return new WaitForSeconds(info.length);
+        isFiring = false;
     }
 
     protected void TriggerReloadAnimation()
