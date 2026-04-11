@@ -94,9 +94,16 @@ public class FPSLook : MonoBehaviour
     {
         if (playerCamera == null || fpsController == null) return;
 
-        float targetFOV = (fpsController.IsSprinting || fpsController.IsSliding)
-            ? baseFOV * (1f + sprintFOVPercent / 100f)
-            : baseFOV;
+        WeaponBase weapon = FindFirstObjectByType<WeaponBase>();
+        bool isAiming = weapon != null && weapon.isAiming;
+
+        float targetFOV;
+        if (isAiming)
+            targetFOV = baseFOV - (weapon.adsFOVReduction);
+        else if (fpsController.IsSprinting || fpsController.IsSliding)
+            targetFOV = baseFOV * (1f + sprintFOVPercent / 100f);
+        else
+            targetFOV = baseFOV;
 
         playerCamera.fieldOfView = Mathf.Lerp(
             playerCamera.fieldOfView,

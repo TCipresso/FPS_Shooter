@@ -55,6 +55,12 @@ public abstract class WeaponBase : MonoBehaviour
     public float maxBloom = 4f;
     [HideInInspector] public float currentBloom = 0f;
 
+    [Header("ADS")]
+    public float adsFOVReduction = 15f;
+    public float adsBloomMultiplier = 0.25f;
+    public float adsTransitionSpeed = 10f;
+    [HideInInspector] public bool isAiming = false;
+
     [Header("Animation")]
     public Animator animator;
 
@@ -74,6 +80,7 @@ public abstract class WeaponBase : MonoBehaviour
         {
             animator.SetBool("IsReloading", false);
             animator.SetBool("IsWalking", false);
+            animator.SetBool("IsAiming", false);
             animator.ResetTrigger("Cock");
             animator.Play("Idle", 0, 0f);
         }
@@ -84,14 +91,20 @@ public abstract class WeaponBase : MonoBehaviour
         if (currentBloom > 0f)
             currentBloom = Mathf.Max(0f, currentBloom - bloomDecaySpeed * Time.deltaTime);
 
-        if (animator != null && fpsController != null)
+        if (fpsController != null && animator != null)
         {
             bool isWalking = !isCocking
                           && !isReloading
                           && fpsController.input.Move.sqrMagnitude > 0.01f;
 
             animator.SetBool("IsWalking", isWalking);
+
+            // ADS — hold right click
+            isAiming = fpsController.input.AimHeld;
+            animator.SetBool("IsAiming", isAiming);
         }
+
+        // FOV zoom handled by FPSLook via isAiming — nothing needed here
     }
 
     protected virtual void Awake()
@@ -130,12 +143,14 @@ public abstract class WeaponBase : MonoBehaviour
 
         isReloading = false;
         isCocking = false;
+        isAiming = false;
         currentBloom = 0f;
 
         if (animator != null)
         {
             animator.SetBool("IsReloading", false);
             animator.SetBool("IsWalking", false);
+            animator.SetBool("IsAiming", false);
             animator.ResetTrigger("Cock");
             animator.Play("Idle", 0, 0f);
         }
@@ -238,8 +253,10 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (mainCamera == null) return muzzlePoint.forward;
 
-        float totalX = spreadX + Random.Range(-currentBloom, currentBloom);
-        float totalY = spreadY + Random.Range(-currentBloom, currentBloom);
+        // Tighten bloom when aiming
+        float bloomScale = isAiming ? adsBloomMultiplier : 1f;
+        float totalX = spreadX + Random.Range(-currentBloom, currentBloom) * bloomScale;
+        float totalY = spreadY + Random.Range(-currentBloom, currentBloom) * bloomScale;
 
         Quaternion spreadRotation = Quaternion.AngleAxis(totalY, mainCamera.transform.up)
                                   * Quaternion.AngleAxis(totalX, mainCamera.transform.right);
