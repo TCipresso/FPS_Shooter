@@ -99,7 +99,7 @@ public class FPSLook : MonoBehaviour
 
         float targetFOV;
         if (isAiming)
-            targetFOV = baseFOV - (weapon.adsFOVReduction);
+            targetFOV = baseFOV * (1f - weapon.adsFOVReduction / 100f);
         else if (fpsController.IsSprinting || fpsController.IsSliding)
             targetFOV = baseFOV * (1f + sprintFOVPercent / 100f);
         else
