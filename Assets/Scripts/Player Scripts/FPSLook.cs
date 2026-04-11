@@ -94,7 +94,7 @@ public class FPSLook : MonoBehaviour
     {
         if (playerCamera == null || fpsController == null) return;
 
-        float targetFOV = fpsController.IsSprinting
+        float targetFOV = (fpsController.IsSprinting || fpsController.IsSliding)
             ? baseFOV * (1f + sprintFOVPercent / 100f)
             : baseFOV;
 

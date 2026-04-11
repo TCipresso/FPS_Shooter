@@ -30,25 +30,88 @@ public class FPSController : MonoBehaviour
     public float jumpCooldown = 0.05f;
     public bool autoBHop = true;
 
+    [Header("Slide")]
+    public float slideBoostSpeed = 16f;
+    public float slideFriction = 6f;
+    public float slideMinSpeed = 2f;
+    public float slideCapsuleHeight = 1f;
+    public float slideCapsuleCenter = -0.25f;
+    public float slideJumpBoost = 20f;
+    public float slideJumpForce = 550f;
+    [Range(0f, 1f)] public float slideJumpVertical = 0.6f;
+    [Range(0f, 1f)] public float slideJumpHorizontal = 0.6f;
+
     public bool IsSprinting { get; private set; }
+    public bool IsSliding { get; private set; }
 
     Rigidbody rb;
+    CapsuleCollider col;
+
     bool grounded;
     bool readyToJump = true;
+    bool slideJumped = false;
     Vector3 normalVector = Vector3.up;
     bool cancellingGrounded;
+
+    float defaultCapsuleHeight;
+    float defaultCapsuleCenterY;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        col = GetComponent<CapsuleCollider>();
+
         rb.freezeRotation = true;
         rb.useGravity = true;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
+
+        defaultCapsuleHeight = col.height;
+        defaultCapsuleCenterY = col.center.y;
+    }
+
+    void Update()
+    {
+        if (input.CrouchPressed && IsSprinting && grounded && !IsSliding)
+            StartSlide();
+
+        if (IsSliding)
+        {
+            Vector3 horiz = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+            if (!input.CrouchHeld || horiz.magnitude < slideMinSpeed)
+                EndSlide();
+        }
     }
 
     void FixedUpdate()
     {
         ApplyMovement();
+    }
+
+    void StartSlide()
+    {
+        IsSliding = true;
+
+        col.height = slideCapsuleHeight;
+        col.center = new Vector3(col.center.x, slideCapsuleCenter, col.center.z);
+
+        Vector3 fwd = orientation ? orientation.forward : transform.forward;
+        Vector3 side = orientation ? orientation.right : transform.right;
+
+        Vector2 move = input.Move;
+        move.y = Mathf.Max(0f, move.y);
+
+        Vector3 slideDir = (fwd * move.y + side * move.x).normalized;
+        if (slideDir == Vector3.zero) slideDir = fwd;
+
+        rb.linearVelocity = new Vector3(slideDir.x * slideBoostSpeed, rb.linearVelocity.y, slideDir.z * slideBoostSpeed);
+    }
+
+    void EndSlide()
+    {
+        IsSliding = false;
+
+        col.height = defaultCapsuleHeight;
+        col.center = new Vector3(col.center.x, defaultCapsuleCenterY, col.center.z);
     }
 
     void ApplyMovement()
@@ -60,21 +123,54 @@ public class FPSController : MonoBehaviour
 
         bool canLook = look == null || look.CanLook;
 
-        // Sprint only when holding sprint, moving forward and grounded
-        IsSprinting = input.SprintHeld && input.Move.y > 0f;
+        if (grounded) slideJumped = false;
 
-        float currentMaxSpeed = canLook ? (IsSprinting ? sprintSpeed : walkSpeed) : 0f;
-
-        Vector3 wishDir = (fwd * input.Move.y) + (side * input.Move.x);
+        IsSprinting = input.SprintHeld && input.Move.sqrMagnitude > 0f && input.Move.y >= 0f && !IsSliding;
 
         Vector3 v0 = rb.linearVelocity;
         Vector3 horiz0 = new Vector3(v0.x, 0f, v0.z);
 
-        if (grounded)
+        bool wantsJump = autoBHop ? input.JumpHeld || input.JumpBuffered : input.JumpBuffered;
+        if (readyToJump && wantsJump && grounded)
+        {
+            bool wasSliding = IsSliding;
+            Vector3 slideVelocity = rb.linearVelocity;
+            EndSlide();
+            readyToJump = false;
+
+            if (wasSliding)
+            {
+                Vector3 slideDir = new Vector3(slideVelocity.x, 0f, slideVelocity.z).normalized;
+                rb.linearVelocity = new Vector3(slideDir.x * slideJumpBoost, 0f, slideDir.z * slideJumpBoost);
+                slideJumped = true;
+                rb.AddForce((Vector3.up * slideJumpForce * slideJumpVertical) + (slideDir * slideJumpForce * slideJumpHorizontal));
+            }
+            else
+            {
+                Vector3 v = rb.linearVelocity;
+                v.y = 0f;
+                rb.linearVelocity = v;
+                rb.AddForce(Vector3.up * jumpForce);
+            }
+            input.ConsumeJump();
+            Invoke(nameof(ResetJump), jumpCooldown);
+            return;
+        }
+
+        if (IsSliding && !slideJumped)
+        {
+            horiz0 = Vector3.MoveTowards(horiz0, Vector3.zero, slideFriction * Time.fixedDeltaTime);
+            rb.linearVelocity = new Vector3(horiz0.x, v0.y, horiz0.z);
+            return;
+        }
+
+        float currentMaxSpeed = canLook ? (IsSprinting ? sprintSpeed : walkSpeed) : 0f;
+        Vector3 wishDir = (fwd * input.Move.y) + (side * input.Move.x);
+
+        if (grounded && !slideJumped)
         {
             Vector3 target = wishDir * currentMaxSpeed;
             float ax = groundAcceleration * Time.fixedDeltaTime;
-
             horiz0 = new Vector3(
                 Mathf.MoveTowards(horiz0.x, target.x, ax),
                 0f,
@@ -83,7 +179,11 @@ public class FPSController : MonoBehaviour
         }
         else
         {
-            if (wishDir.sqrMagnitude > 0f)
+            if (slideJumped)
+            {
+                // Don't touch horizontal velocity — preserve full slide jump speed
+            }
+            else if (wishDir.sqrMagnitude > 0f)
             {
                 Vector3 target = wishDir * Mathf.Min(maxAirSpeed, currentMaxSpeed);
                 float ax = airAcceleration * airControl * Time.fixedDeltaTime;
@@ -97,22 +197,6 @@ public class FPSController : MonoBehaviour
         }
 
         rb.linearVelocity = new Vector3(horiz0.x, v0.y, horiz0.z);
-
-        bool wantsJump = autoBHop ? input.JumpHeld || input.JumpBuffered : input.JumpBuffered;
-
-        if (readyToJump && wantsJump && grounded)
-        {
-            readyToJump = false;
-
-            Vector3 v = rb.linearVelocity;
-            if (v.y < 0.5f) v.y = 0f;
-            rb.linearVelocity = v;
-
-            rb.AddForce(Vector3.up * jumpForce);
-
-            input.ConsumeJump();
-            Invoke(nameof(ResetJump), jumpCooldown);
-        }
     }
 
     void ResetJump() => readyToJump = true;
