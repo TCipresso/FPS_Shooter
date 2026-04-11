@@ -24,6 +24,7 @@ public class SMG : WeaponBase
 
         TriggerFireAnimation();
         PlayFireSound();
+        PlayMuzzleFlash();
         ApplyRecoil();
         AddBloom();
         FireBullet();

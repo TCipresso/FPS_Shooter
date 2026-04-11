@@ -24,6 +24,7 @@ public class Pistol : WeaponBase
 
         TriggerFireAnimation();
         PlayFireSound();
+        PlayMuzzleFlash();
         ApplyRecoil();
         AddBloom();
         FireBullet();

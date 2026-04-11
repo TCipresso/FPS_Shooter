@@ -12,6 +12,10 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Muzzle")]
     public Transform muzzlePoint;
 
+    [Header("Muzzle Flash")]
+    public ParticleSystem muzzleFlash;
+    public ParticleSystem casingEject;
+
     [Header("Trail")]
     public BulletTrail trailPrefab;
     public string trailPoolKey = "BulletTrail";
@@ -77,11 +81,9 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected virtual void Update()
     {
-        // Decay bloom back to zero when not shooting
         if (currentBloom > 0f)
             currentBloom = Mathf.Max(0f, currentBloom - bloomDecaySpeed * Time.deltaTime);
 
-        // Update walk animation
         if (animator != null && fpsController != null)
         {
             bool isWalking = !isCocking
@@ -177,6 +179,19 @@ public abstract class WeaponBase : MonoBehaviour
         audioSource.PlayOneShot(fireSound);
     }
 
+    protected void PlayMuzzleFlash()
+    {
+        if (muzzleFlash == null) return;
+        muzzleFlash.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        muzzleFlash.Play();
+    }
+
+    public void EjectCasing()
+    {
+        if (casingEject == null) return;
+        casingEject.Play();
+    }
+
     public void LoadRecoilValues()
     {
         if (weaponRecoil == null)
@@ -200,7 +215,6 @@ public abstract class WeaponBase : MonoBehaviour
             return;
         }
 
-        Debug.Log("[WeaponBase] Kicking WeaponRecoil on: " + weaponRecoil.gameObject.name);
         weaponRecoil.Kick();
     }
 

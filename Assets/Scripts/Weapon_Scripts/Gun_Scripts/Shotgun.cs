@@ -26,6 +26,7 @@ public class Shotgun : WeaponBase
 
         TriggerFireAnimation();
         PlayFireSound();
+        PlayMuzzleFlash();
         TriggerCockAnimation();
         ApplyRecoil();
         AddBloom();
