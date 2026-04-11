@@ -36,6 +36,8 @@ public class FPSController : MonoBehaviour
     public float slideMinSpeed = 2f;
     public float slideCapsuleHeight = 1f;
     public float slideCapsuleCenter = -0.25f;
+    public float slideCrouchSpeed = 10f;
+    public float slideCooldown = 1f;
     public float slideJumpBoost = 20f;
     public float slideJumpForce = 550f;
     [Range(0f, 1f)] public float slideJumpVertical = 0.6f;
@@ -50,6 +52,7 @@ public class FPSController : MonoBehaviour
     bool grounded;
     bool readyToJump = true;
     bool slideJumped = false;
+    float slideCooldownTimer = 0f;
     Vector3 normalVector = Vector3.up;
     bool cancellingGrounded;
 
@@ -71,7 +74,10 @@ public class FPSController : MonoBehaviour
 
     void Update()
     {
-        if (input.CrouchPressed && IsSprinting && grounded && !IsSliding)
+        if (slideCooldownTimer > 0f)
+            slideCooldownTimer -= Time.deltaTime;
+
+        if (input.CrouchPressed && IsSprinting && grounded && !IsSliding && slideCooldownTimer <= 0f)
             StartSlide();
 
         if (IsSliding)
@@ -80,6 +86,14 @@ public class FPSController : MonoBehaviour
             if (!input.CrouchHeld || horiz.magnitude < slideMinSpeed)
                 EndSlide();
         }
+
+        // Smoothly lerp capsule center toward slide or default position
+        float targetCenterY = IsSliding ? slideCapsuleCenter : defaultCapsuleCenterY;
+        col.center = new Vector3(
+            col.center.x,
+            Mathf.Lerp(col.center.y, targetCenterY, slideCrouchSpeed * Time.deltaTime),
+            col.center.z
+        );
     }
 
     void FixedUpdate()
@@ -92,7 +106,6 @@ public class FPSController : MonoBehaviour
         IsSliding = true;
 
         col.height = slideCapsuleHeight;
-        col.center = new Vector3(col.center.x, slideCapsuleCenter, col.center.z);
 
         Vector3 fwd = orientation ? orientation.forward : transform.forward;
         Vector3 side = orientation ? orientation.right : transform.right;
@@ -109,9 +122,8 @@ public class FPSController : MonoBehaviour
     void EndSlide()
     {
         IsSliding = false;
-
+        slideCooldownTimer = slideCooldown;
         col.height = defaultCapsuleHeight;
-        col.center = new Vector3(col.center.x, defaultCapsuleCenterY, col.center.z);
     }
 
     void ApplyMovement()
