@@ -88,14 +88,14 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a4d6dc090689f9f47b9c517e05f900ef, type: 2}
-  - {fileID: 2100000, guid: a4d6dc090689f9f47b9c517e05f900ef, type: 2}
-  - {fileID: 2100000, guid: a4d6dc090689f9f47b9c517e05f900ef, type: 2}
-  - {fileID: 2100000, guid: a4d6dc090689f9f47b9c517e05f900ef, type: 2}
-  - {fileID: 2100000, guid: a4d6dc090689f9f47b9c517e05f900ef, type: 2}
-  - {fileID: 2100000, guid: a4d6dc090689f9f47b9c517e05f900ef, type: 2}
-  - {fileID: 2100000, guid: a4d6dc090689f9f47b9c517e05f900ef, type: 2}
-  - {fileID: 2100000, guid: 70eca155b2b103c49a65e4e262aa4cf0, type: 2}
+  - {fileID: 2100000, guid: 03736d0d58cc88143881ed226fce137e, type: 2}
+  - {fileID: 2100000, guid: 03736d0d58cc88143881ed226fce137e, type: 2}
+  - {fileID: 2100000, guid: 9192534340ea5074ba5a7568ba00c0dd, type: 2}
+  - {fileID: 2100000, guid: 9192534340ea5074ba5a7568ba00c0dd, type: 2}
+  - {fileID: 2100000, guid: 4b28d7dc02c709847b33d512aa1c9e6e, type: 2}
+  - {fileID: 2100000, guid: bda0ee8f849932143b45cd6716725207, type: 2}
+  - {fileID: 2100000, guid: 4b28d7dc02c709847b33d512aa1c9e6e, type: 2}
+  - {fileID: 2100000, guid: 9192534340ea5074ba5a7568ba00c0dd, type: 2}
   - {fileID: -3846018093981099296, guid: 51fb8c643965b1749af20d8f4d674eb3, type: 3}
   - {fileID: 4874126678125670354, guid: 51fb8c643965b1749af20d8f4d674eb3, type: 3}
   - {fileID: -6478536213147159724, guid: 51fb8c643965b1749af20d8f4d674eb3, type: 3}
@@ -362,7 +362,7 @@ MonoBehaviour:
   impactEffect: {fileID: 198175801688348628, guid: 25c7aa9ad705fe143a4d71c1c8deb7d4, type: 3}
   zombieImpactEffect: {fileID: 198175801688348628, guid: 25c7aa9ad705fe143a4d71c1c8deb7d4, type: 3}
   audioSource: {fileID: 7111148883400038204}
-  fireSound: {fileID: 8300000, guid: 1f47ad4d4201ffc479cefa15cb663406, type: 3}
+  fireSound: {fileID: 8300000, guid: f1d018efce553ee41b014ecbb1456d94, type: 3}
   sounds:
   - name: Pistol_Reload
     clip: {fileID: 8300000, guid: 9b1351fa756bcf64c923b1e194121fff, type: 3}
@@ -499,7 +499,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.5
+  m_Volume: 0.3
   m_Pitch: 1
   Loop: 0
   Mute: 0
