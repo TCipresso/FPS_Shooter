@@ -59,6 +59,7 @@ public abstract class WeaponBase : MonoBehaviour
     public float adsFOVReduction = 15f;
     public float adsBloomMultiplier = 0.25f;
     public float adsTransitionSpeed = 10f;
+    public bool adsFadeCrosshair = false;
     [HideInInspector] public bool isAiming = false;
 
     [Header("Animation")]

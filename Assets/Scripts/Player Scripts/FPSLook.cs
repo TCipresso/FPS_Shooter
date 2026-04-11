@@ -21,7 +21,9 @@ public class FPSLook : MonoBehaviour
     public float recoilSnapSpeed = 20f;
     public float recoilReturnSpeed = 6f;
 
-    [Header("Sprint FOV")]
+    [Header("ADS Sensitivity")]
+    public WeaponInventory weaponInventory;
+    [Range(0f, 1f)] public float adsSensitivityMultiplier = 0.6f;
     public FPSController fpsController;
     [Range(0f, 50f)] public float sprintFOVPercent = 10f;
     public float fovTransitionSpeed = 6f;
@@ -58,8 +60,21 @@ public class FPSLook : MonoBehaviour
     {
         if (!CanLook || input == null) return;
 
-        float mouseX = input.Look.x * lookSpeed;
-        float mouseY = input.Look.y * lookSpeed;
+        float sensScale = 1f;
+        if (weaponInventory != null)
+        {
+            WeaponBase weapon = weaponInventory.GetActiveWeaponBase();
+            if (weapon != null && weapon.isAiming)
+            {
+                // Scale sens proportionally to FOV change, then apply additional multiplier
+                float aimFOV = baseFOV * (1f - weapon.adsFOVReduction / 100f);
+                float fovRatio = aimFOV / baseFOV;
+                sensScale = fovRatio * adsSensitivityMultiplier;
+            }
+        }
+
+        float mouseX = input.Look.x * lookSpeed * sensScale;
+        float mouseY = input.Look.y * lookSpeed * sensScale;
 
         rotationX -= mouseY;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
