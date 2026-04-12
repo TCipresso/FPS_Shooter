@@ -43,7 +43,7 @@ public class FPSController : MonoBehaviour
     [Range(0f, 1f)] public float slideJumpVertical = 0.6f;
     [Range(0f, 1f)] public float slideJumpHorizontal = 0.6f;
 
-    public bool IsSprinting { get; private set; }
+    public bool IsSprinting { get; set; }
     public bool IsSliding { get; private set; }
 
     Rigidbody rb;
@@ -87,7 +87,6 @@ public class FPSController : MonoBehaviour
                 EndSlide();
         }
 
-        // Smoothly lerp capsule center toward slide or default position
         float targetCenterY = IsSliding ? slideCapsuleCenter : defaultCapsuleCenterY;
         col.center = new Vector3(
             col.center.x,
@@ -137,7 +136,7 @@ public class FPSController : MonoBehaviour
 
         if (grounded) slideJumped = false;
 
-        IsSprinting = input.SprintHeld && input.Move.sqrMagnitude > 0f && input.Move.y >= 0f && !IsSliding;
+        IsSprinting = input.SprintHeld && input.Move.sqrMagnitude > 0f && input.Move.y >= 0f && !IsSliding && !input.AimHeld;
 
         Vector3 v0 = rb.linearVelocity;
         Vector3 horiz0 = new Vector3(v0.x, 0f, v0.z);

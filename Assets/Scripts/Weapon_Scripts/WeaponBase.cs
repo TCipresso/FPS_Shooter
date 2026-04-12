@@ -25,6 +25,11 @@ public abstract class WeaponBase : MonoBehaviour
     public ParticleSystem impactEffect;
     public ParticleSystem zombieImpactEffect;
 
+    [Header("Hit Marker")]
+    public ParticleSystem hitMarkerPrefab;
+    public string hitMarkerPoolKey = "HitMarker";
+    public int hitMarkerPoolSize = 10;
+
     [Header("Audio")]
     public AudioSource audioSource;
     public AudioClip fireSound;
@@ -75,8 +80,25 @@ public abstract class WeaponBase : MonoBehaviour
     protected PlayerStats playerStats;
     protected FPSController fpsController;
 
+    protected virtual void Awake()
+    {
+        fpsLook = FindFirstObjectByType<FPSLook>();
+        mainCamera = Camera.main;
+        playerStats = FindFirstObjectByType<PlayerStats>();
+        fpsController = FindFirstObjectByType<FPSController>();
+
+        if (fpsLook == null)
+            Debug.LogWarning($"[{gameObject.name}] FPSLook not found in scene.");
+        if (mainCamera == null)
+            Debug.LogWarning($"[{gameObject.name}] Main Camera not found in scene.");
+    }
+
     protected virtual void OnEnable()
     {
+        // Register hit marker pool
+        if (BulletPool.Instance != null && hitMarkerPrefab != null)
+            BulletPool.Instance.EnsurePoolSize(hitMarkerPoolKey, hitMarkerPrefab.gameObject, hitMarkerPoolSize);
+
         if (animator != null)
         {
             animator.SetBool("IsReloading", false);
@@ -102,25 +124,13 @@ public abstract class WeaponBase : MonoBehaviour
             animator.SetBool("IsWalking", isWalking);
             animator.SetBool("IsSprinting", fpsController.IsSprinting);
 
-            // ADS — hold right click, not while sprinting
-            isAiming = fpsController.input.AimHeld && !fpsController.IsSprinting;
+            isAiming = fpsController.input.AimHeld && !isReloading;
+
+            if (isAiming)
+                fpsController.IsSprinting = false;
+
             animator.SetBool("IsAiming", isAiming);
         }
-
-        // FOV zoom handled by FPSLook via isAiming — nothing needed here
-    }
-
-    protected virtual void Awake()
-    {
-        fpsLook = FindFirstObjectByType<FPSLook>();
-        mainCamera = Camera.main;
-        playerStats = FindFirstObjectByType<PlayerStats>();
-        fpsController = FindFirstObjectByType<FPSController>();
-
-        if (fpsLook == null)
-            Debug.LogWarning($"[{gameObject.name}] FPSLook not found in scene.");
-        if (mainCamera == null)
-            Debug.LogWarning($"[{gameObject.name}] Main Camera not found in scene.");
     }
 
     public abstract void Shoot();
@@ -254,11 +264,39 @@ public abstract class WeaponBase : MonoBehaviour
         Destroy(effect.gameObject, effect.main.duration + effect.main.startLifetime.constantMax);
     }
 
+    protected void SpawnHitMarker(RaycastHit hit)
+    {
+        if (BulletPool.Instance == null || hitMarkerPrefab == null) return;
+
+        GameObject obj = BulletPool.Instance.Get(
+            hitMarkerPoolKey,
+            hit.point,
+            Quaternion.LookRotation(hit.normal)
+        );
+
+        if (obj == null) return;
+
+        ParticleSystem ps = obj.GetComponent<ParticleSystem>();
+        if (ps == null) return;
+
+        ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        ps.Play();
+
+        // Return to pool after the particle finishes
+        StartCoroutine(ReturnHitMarkerToPool(obj, ps.main.duration + ps.main.startLifetime.constantMax));
+    }
+
+    System.Collections.IEnumerator ReturnHitMarkerToPool(GameObject obj, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (obj != null)
+            obj.SetActive(false);
+    }
+
     protected Vector3 GetAimDirection(float spreadX, float spreadY)
     {
         if (mainCamera == null) return muzzlePoint.forward;
 
-        // Tighten bloom when aiming
         float bloomScale = isAiming ? adsBloomMultiplier : 1f;
         float totalX = spreadX + Random.Range(-currentBloom, currentBloom) * bloomScale;
         float totalY = spreadY + Random.Range(-currentBloom, currentBloom) * bloomScale;
@@ -291,7 +329,7 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (animator == null) return;
         isFiring = true;
-        animator.Play("Pistol_Fire", 1, 0f);
+        animator.Play("Pistol_Fire", 2, 0f);
         StartCoroutine(ResetFiring());
     }
 

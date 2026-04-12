@@ -365,6 +365,9 @@ MonoBehaviour:
   trailPoolSize: 8
   impactEffect: {fileID: 198175801688348628, guid: 25c7aa9ad705fe143a4d71c1c8deb7d4, type: 3}
   zombieImpactEffect: {fileID: 198175801688348628, guid: 25c7aa9ad705fe143a4d71c1c8deb7d4, type: 3}
+  hitMarkerPrefab: {fileID: 135852800148444717, guid: 442ceafaa01f03e4da4008e7ba8572b4, type: 3}
+  hitMarkerPoolKey: HitMarker
+  hitMarkerPoolSize: 10
   audioSource: {fileID: 7111148883400038204}
   fireSound: {fileID: 8300000, guid: f1d018efce553ee41b014ecbb1456d94, type: 3}
   sounds:
@@ -389,6 +392,7 @@ MonoBehaviour:
   adsFOVReduction: 25
   adsBloomMultiplier: 0.25
   adsTransitionSpeed: 10
+  adsFadeCrosshair: 0
   isAiming: 0
   animator: {fileID: 6420684355200236290}
   isReloading: 0

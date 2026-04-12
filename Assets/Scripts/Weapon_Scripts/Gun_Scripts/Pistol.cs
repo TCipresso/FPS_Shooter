@@ -18,8 +18,8 @@ public class Pistol : WeaponBase
     {
         if (!CanShoot()) return;
         if (Time.time < nextFireTime) return;
-
         nextFireTime = Time.time + FireInterval;
+
         currentMag--;
 
         TriggerFireAnimation();
@@ -37,7 +37,6 @@ public class Pistol : WeaponBase
     {
         Vector3 direction = GetAimDirection(0f, 0f);
         Vector3 origin = GetAimOrigin();
-
         Ray ray = new Ray(origin, direction);
         Vector3 endPoint;
 
@@ -47,7 +46,10 @@ public class Pistol : WeaponBase
 
             ZombieBase zombie = hit.collider.GetComponent<ZombieBase>();
             if (zombie != null)
+            {
                 zombie.TakeDamage(damagePerBullet, playerStats, goldMultiplier);
+                SpawnHitMarker(hit);
+            }
 
             SpawnImpactEffect(hit);
         }
