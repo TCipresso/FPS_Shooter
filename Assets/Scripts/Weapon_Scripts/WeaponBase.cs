@@ -81,6 +81,7 @@ public abstract class WeaponBase : MonoBehaviour
         {
             animator.SetBool("IsReloading", false);
             animator.SetBool("IsWalking", false);
+            animator.SetBool("IsSprinting", false);
             animator.SetBool("IsAiming", false);
             animator.ResetTrigger("Cock");
             animator.Play("Idle", 0, 0f);
@@ -99,9 +100,10 @@ public abstract class WeaponBase : MonoBehaviour
                           && fpsController.input.Move.sqrMagnitude > 0.01f;
 
             animator.SetBool("IsWalking", isWalking);
+            animator.SetBool("IsSprinting", fpsController.IsSprinting);
 
-            // ADS — hold right click
-            isAiming = fpsController.input.AimHeld;
+            // ADS — hold right click, not while sprinting
+            isAiming = fpsController.input.AimHeld && !fpsController.IsSprinting;
             animator.SetBool("IsAiming", isAiming);
         }
 
@@ -135,6 +137,7 @@ public abstract class WeaponBase : MonoBehaviour
         if (isReloading) return false;
         if (isCocking) return false;
         if (currentMag <= 0) return false;
+        if (fpsController != null && fpsController.IsSprinting) return false;
         return true;
     }
 
@@ -151,6 +154,7 @@ public abstract class WeaponBase : MonoBehaviour
         {
             animator.SetBool("IsReloading", false);
             animator.SetBool("IsWalking", false);
+            animator.SetBool("IsSprinting", false);
             animator.SetBool("IsAiming", false);
             animator.ResetTrigger("Cock");
             animator.Play("Idle", 0, 0f);
