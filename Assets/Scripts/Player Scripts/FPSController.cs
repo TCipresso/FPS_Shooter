@@ -8,6 +8,7 @@ public class FPSController : MonoBehaviour
     public Transform orientation;
     public FPSInput input;
     public FPSLook look;
+    public PlayerMovementAudio movementAudio;
 
     [Header("Movement Settings")]
     public float walkSpeed = 6f;
@@ -52,6 +53,7 @@ public class FPSController : MonoBehaviour
     public bool IsSprinting { get; set; }
     public bool IsSliding { get; private set; }
     public bool IsSprintingSuppressed { get; private set; }
+    public bool IsGrounded => grounded;
 
     Rigidbody rb;
     CapsuleCollider col;
@@ -130,6 +132,7 @@ public class FPSController : MonoBehaviour
     void StartSlide()
     {
         IsSliding = true;
+        if (movementAudio != null) movementAudio.PlaySlide();
 
         col.height = slideCapsuleHeight;
 
@@ -150,6 +153,7 @@ public class FPSController : MonoBehaviour
         IsSliding = false;
         slideCooldownTimer = slideCooldown;
         col.height = defaultCapsuleHeight;
+        if (movementAudio != null) movementAudio.StopSlide();
     }
 
     void ApplyMovement()
@@ -182,6 +186,7 @@ public class FPSController : MonoBehaviour
                 Vector3 slideDir = new Vector3(slideVelocity.x, 0f, slideVelocity.z).normalized;
                 rb.linearVelocity = new Vector3(slideDir.x * slideJumpBoost, 0f, slideDir.z * slideJumpBoost);
                 slideJumped = true;
+                if (movementAudio != null) movementAudio.PlayJump();
                 sprintSuppressTimer = 0.8f;
                 rb.AddForce((Vector3.up * slideJumpForce * slideJumpVertical) + (slideDir * slideJumpForce * slideJumpHorizontal));
                 suppressSprint = true;
@@ -192,6 +197,7 @@ public class FPSController : MonoBehaviour
                 v.y = 0f;
                 rb.linearVelocity = v;
                 rb.AddForce(Vector3.up * jumpForce);
+                if (movementAudio != null) movementAudio.PlayJump();
             }
             input.ConsumeJump();
             Invoke(nameof(ResetJump), jumpCooldown);
@@ -215,6 +221,7 @@ public class FPSController : MonoBehaviour
 
             wallJumpCooldownTimer = wallJumpCooldown;
             suppressSprint = true;
+            if (movementAudio != null) movementAudio.PlayJump();
             input.ConsumeJump();
             Invoke(nameof(ResetJump), jumpCooldown);
             return;
