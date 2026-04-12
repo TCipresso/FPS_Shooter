@@ -48,7 +48,9 @@ public class Pistol : WeaponBase
             if (zombie != null)
             {
                 zombie.TakeDamage(damagePerBullet, playerStats, goldMultiplier);
-                SpawnHitMarker(hit);
+
+                if (HitMarkerPool.Instance != null)
+                    HitMarkerPool.Instance.Spawn(hit.point);
             }
 
             SpawnImpactEffect(hit);
