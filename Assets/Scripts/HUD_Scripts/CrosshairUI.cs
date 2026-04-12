@@ -11,6 +11,7 @@ public class CrosshairUI : MonoBehaviour
 
     [Header("Spread Settings")]
     public float baseSpread = 20f;
+    public float minSpread = 5f;
     public float bloomSpreadMultiplier = 10f;
     public float spreadLerpSpeed = 10f;
 
@@ -49,8 +50,8 @@ public class CrosshairUI : MonoBehaviour
         float bloom = activeWeapon.currentBloom;
 
         float targetSpread = isAiming
-            ? adsSpread
-            : baseSpread + bloom * bloomSpreadMultiplier;
+            ? Mathf.Max(adsSpread, minSpread)
+            : Mathf.Max(baseSpread + bloom * bloomSpreadMultiplier, minSpread);
 
         currentSpread = Mathf.Lerp(currentSpread, targetSpread, spreadLerpSpeed * Time.deltaTime);
 
