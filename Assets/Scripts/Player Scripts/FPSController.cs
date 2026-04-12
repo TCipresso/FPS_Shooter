@@ -68,6 +68,7 @@ public class FPSController : MonoBehaviour
     bool slideJumped = false;
     float slideCooldownTimer = 0f;
     float sprintSuppressTimer = 0f;
+    float shootSuppressTimer = 0f;
     Vector3 normalVector = Vector3.up;
     bool cancellingGrounded;
 
@@ -95,7 +96,10 @@ public class FPSController : MonoBehaviour
         if (sprintSuppressTimer > 0f)
             sprintSuppressTimer -= Time.deltaTime;
 
-        IsSprintingSuppressed = sprintSuppressTimer > 0f || suppressSprint;
+        if (shootSuppressTimer > 0f)
+            shootSuppressTimer -= Time.deltaTime;
+
+        IsSprintingSuppressed = sprintSuppressTimer > 0f || suppressSprint || shootSuppressTimer > 0f;
 
         if (wallJumpCooldownTimer > 0f)
             wallJumpCooldownTimer -= Time.deltaTime;
@@ -168,7 +172,7 @@ public class FPSController : MonoBehaviour
         if (grounded && !slideJumped) suppressSprint = false;
         if (grounded) slideJumped = false;
 
-        IsSprinting = !suppressSprint && input.SprintHeld && input.Move.sqrMagnitude > 0f && input.Move.y >= 0f && !IsSliding && !input.AimHeld;
+        IsSprinting = !suppressSprint && shootSuppressTimer <= 0f && input.SprintHeld && input.Move.sqrMagnitude > 0f && input.Move.y >= 0f && !IsSliding && !input.AimHeld;
 
         Vector3 v0 = rb.linearVelocity;
         Vector3 horiz0 = new Vector3(v0.x, 0f, v0.z);
@@ -270,6 +274,11 @@ public class FPSController : MonoBehaviour
     }
 
     void ResetJump() => readyToJump = true;
+
+    public void SuppressSprintOnShoot(float duration)
+    {
+        shootSuppressTimer = duration;
+    }
 
     void OnCollisionStay(Collision other)
     {

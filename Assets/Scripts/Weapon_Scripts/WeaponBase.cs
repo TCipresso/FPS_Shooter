@@ -147,7 +147,6 @@ public abstract class WeaponBase : MonoBehaviour
         if (isReloading) return false;
         if (isCocking) return false;
         if (currentMag <= 0) return false;
-        if (fpsController != null && fpsController.IsSprinting && !fpsController.IsSprintingSuppressed) return false;
         return true;
     }
 
@@ -329,6 +328,11 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (animator == null) return;
         isFiring = true;
+        if (fpsController != null)
+        {
+            fpsController.IsSprinting = false;
+            fpsController.SuppressSprintOnShoot(0.3f);
+        }
         animator.Play("Pistol_Fire", 2, 0f);
         StartCoroutine(ResetFiring());
     }
