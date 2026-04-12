@@ -30,6 +30,12 @@ public class FPSController : MonoBehaviour
     public float jumpCooldown = 0.05f;
     public bool autoBHop = true;
 
+    [Header("Wall Jump")]
+    public float wallJumpUpForce = 400f;
+    public float wallJumpAwayForce = 300f;
+    public float wallJumpWindow = 0.3f;
+    public float wallJumpCooldown = 0.5f;
+
     [Header("Slide")]
     public float slideBoostSpeed = 16f;
     public float slideFriction = 6f;
@@ -50,6 +56,10 @@ public class FPSController : MonoBehaviour
     CapsuleCollider col;
 
     bool grounded;
+    bool onWall;
+    Vector3 wallNormal = Vector3.zero;
+    float wallContactTimer = 0f;
+    float wallJumpCooldownTimer = 0f;
     bool readyToJump = true;
     bool slideJumped = false;
     float slideCooldownTimer = 0f;
@@ -76,6 +86,15 @@ public class FPSController : MonoBehaviour
     {
         if (slideCooldownTimer > 0f)
             slideCooldownTimer -= Time.deltaTime;
+
+        if (wallJumpCooldownTimer > 0f)
+            wallJumpCooldownTimer -= Time.deltaTime;
+
+        // Decay wall contact window each frame; OnCollisionStay refreshes it
+        if (wallContactTimer > 0f)
+            wallContactTimer -= Time.deltaTime;
+        else
+            onWall = false;
 
         if (input.CrouchPressed && IsSprinting && grounded && !IsSliding && slideCooldownTimer <= 0f)
             StartSlide();
@@ -168,6 +187,27 @@ public class FPSController : MonoBehaviour
             return;
         }
 
+        // Wall jump
+        bool wantsWallJump = autoBHop ? input.JumpHeld || input.JumpBuffered : input.JumpBuffered;
+        if (readyToJump && wantsWallJump && !grounded && onWall && wallJumpCooldownTimer <= 0f)
+        {
+            readyToJump = false;
+            onWall = false;
+            wallContactTimer = 0f;
+
+            // Launch up + away from wall surface
+            Vector3 jumpDir = (Vector3.up * wallJumpUpForce) + (wallNormal * wallJumpAwayForce);
+            Vector3 v = rb.linearVelocity;
+            v.y = 0f;
+            rb.linearVelocity = v;
+            rb.AddForce(jumpDir, ForceMode.Impulse);
+
+            wallJumpCooldownTimer = wallJumpCooldown;
+            input.ConsumeJump();
+            Invoke(nameof(ResetJump), jumpCooldown);
+            return;
+        }
+
         if (IsSliding && !slideJumped)
         {
             horiz0 = Vector3.MoveTowards(horiz0, Vector3.zero, slideFriction * Time.fixedDeltaTime);
@@ -220,12 +260,22 @@ public class FPSController : MonoBehaviour
         for (int i = 0; i < other.contactCount; i++)
         {
             Vector3 normal = other.contacts[i].normal;
-            if (Vector3.Angle(Vector3.up, normal) < maxSlopeAngle)
+            float angle = Vector3.Angle(Vector3.up, normal);
+
+            if (angle < maxSlopeAngle)
             {
+                // Ground contact
                 grounded = true;
                 cancellingGrounded = false;
                 normalVector = normal;
                 CancelInvoke(nameof(StopGrounded));
+            }
+            else if (angle > 60f && angle < 120f && !grounded)
+            {
+                // Wall contact — only register when airborne
+                onWall = true;
+                wallNormal = normal;
+                wallContactTimer = wallJumpWindow;
             }
         }
 

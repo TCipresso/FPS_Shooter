@@ -2604,6 +2604,10 @@ MonoBehaviour:
   conserveHorizontalMomentum: 1
   jumpCooldown: 0.25
   autoBHop: 1
+  wallJumpUpForce: 25
+  wallJumpAwayForce: 30
+  wallJumpWindow: 0.3
+  wallJumpCooldown: 0.5
   slideBoostSpeed: 40
   slideFriction: 30
   slideMinSpeed: 3
@@ -3674,7 +3678,7 @@ GameObject:
   - component: {fileID: 794221694}
   - component: {fileID: 794221693}
   - component: {fileID: 794221692}
-  m_Layer: 8
+  m_Layer: 6
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
