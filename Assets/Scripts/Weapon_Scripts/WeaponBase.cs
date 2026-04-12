@@ -75,6 +75,19 @@ public abstract class WeaponBase : MonoBehaviour
     protected PlayerStats playerStats;
     protected FPSController fpsController;
 
+    protected virtual void Awake()
+    {
+        fpsLook = FindFirstObjectByType<FPSLook>();
+        mainCamera = Camera.main;
+        playerStats = FindFirstObjectByType<PlayerStats>();
+        fpsController = FindFirstObjectByType<FPSController>();
+
+        if (fpsLook == null)
+            Debug.LogWarning($"[{gameObject.name}] FPSLook not found in scene.");
+        if (mainCamera == null)
+            Debug.LogWarning($"[{gameObject.name}] Main Camera not found in scene.");
+    }
+
     protected virtual void OnEnable()
     {
         if (animator != null)
@@ -102,25 +115,13 @@ public abstract class WeaponBase : MonoBehaviour
             animator.SetBool("IsWalking", isWalking);
             animator.SetBool("IsSprinting", fpsController.IsSprinting);
 
-            // ADS — hold right click, not while sprinting
-            isAiming = fpsController.input.AimHeld && !fpsController.IsSprinting;
+            isAiming = fpsController.input.AimHeld && !isReloading;
+
+            if (isAiming)
+                fpsController.IsSprinting = false;
+
             animator.SetBool("IsAiming", isAiming);
         }
-
-        // FOV zoom handled by FPSLook via isAiming — nothing needed here
-    }
-
-    protected virtual void Awake()
-    {
-        fpsLook = FindFirstObjectByType<FPSLook>();
-        mainCamera = Camera.main;
-        playerStats = FindFirstObjectByType<PlayerStats>();
-        fpsController = FindFirstObjectByType<FPSController>();
-
-        if (fpsLook == null)
-            Debug.LogWarning($"[{gameObject.name}] FPSLook not found in scene.");
-        if (mainCamera == null)
-            Debug.LogWarning($"[{gameObject.name}] Main Camera not found in scene.");
     }
 
     public abstract void Shoot();
@@ -258,7 +259,6 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (mainCamera == null) return muzzlePoint.forward;
 
-        // Tighten bloom when aiming
         float bloomScale = isAiming ? adsBloomMultiplier : 1f;
         float totalX = spreadX + Random.Range(-currentBloom, currentBloom) * bloomScale;
         float totalY = spreadY + Random.Range(-currentBloom, currentBloom) * bloomScale;
@@ -291,7 +291,7 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (animator == null) return;
         isFiring = true;
-        animator.Play("Pistol_Fire", 1, 0f);
+        animator.Play("Pistol_Fire", 2, 0f);
         StartCoroutine(ResetFiring());
     }
 
