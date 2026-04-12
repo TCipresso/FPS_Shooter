@@ -122,7 +122,7 @@ public abstract class WeaponBase : MonoBehaviour
                           && fpsController.input.Move.sqrMagnitude > 0.01f;
 
             animator.SetBool("IsWalking", isWalking);
-            animator.SetBool("IsSprinting", fpsController.IsSprinting);
+            animator.SetBool("IsSprinting", fpsController.IsSprinting && !fpsController.IsSprintingSuppressed);
 
             isAiming = fpsController.input.AimHeld && !isReloading;
 
@@ -147,7 +147,7 @@ public abstract class WeaponBase : MonoBehaviour
         if (isReloading) return false;
         if (isCocking) return false;
         if (currentMag <= 0) return false;
-        if (fpsController != null && fpsController.IsSprinting) return false;
+        if (fpsController != null && fpsController.IsSprinting && !fpsController.IsSprintingSuppressed) return false;
         return true;
     }
 

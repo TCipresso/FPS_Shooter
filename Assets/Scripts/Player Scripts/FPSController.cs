@@ -51,11 +51,13 @@ public class FPSController : MonoBehaviour
 
     public bool IsSprinting { get; set; }
     public bool IsSliding { get; private set; }
+    public bool IsSprintingSuppressed { get; private set; }
 
     Rigidbody rb;
     CapsuleCollider col;
 
     bool grounded;
+    bool suppressSprint = false;
     bool onWall;
     Vector3 wallNormal = Vector3.zero;
     float wallContactTimer = 0f;
@@ -63,6 +65,7 @@ public class FPSController : MonoBehaviour
     bool readyToJump = true;
     bool slideJumped = false;
     float slideCooldownTimer = 0f;
+    float sprintSuppressTimer = 0f;
     Vector3 normalVector = Vector3.up;
     bool cancellingGrounded;
 
@@ -86,6 +89,11 @@ public class FPSController : MonoBehaviour
     {
         if (slideCooldownTimer > 0f)
             slideCooldownTimer -= Time.deltaTime;
+
+        if (sprintSuppressTimer > 0f)
+            sprintSuppressTimer -= Time.deltaTime;
+
+        IsSprintingSuppressed = sprintSuppressTimer > 0f || suppressSprint;
 
         if (wallJumpCooldownTimer > 0f)
             wallJumpCooldownTimer -= Time.deltaTime;
@@ -153,9 +161,10 @@ public class FPSController : MonoBehaviour
 
         bool canLook = look == null || look.CanLook;
 
+        if (grounded && !slideJumped) suppressSprint = false;
         if (grounded) slideJumped = false;
 
-        IsSprinting = input.SprintHeld && input.Move.sqrMagnitude > 0f && input.Move.y >= 0f && !IsSliding && !input.AimHeld;
+        IsSprinting = !suppressSprint && input.SprintHeld && input.Move.sqrMagnitude > 0f && input.Move.y >= 0f && !IsSliding && !input.AimHeld;
 
         Vector3 v0 = rb.linearVelocity;
         Vector3 horiz0 = new Vector3(v0.x, 0f, v0.z);
@@ -173,7 +182,9 @@ public class FPSController : MonoBehaviour
                 Vector3 slideDir = new Vector3(slideVelocity.x, 0f, slideVelocity.z).normalized;
                 rb.linearVelocity = new Vector3(slideDir.x * slideJumpBoost, 0f, slideDir.z * slideJumpBoost);
                 slideJumped = true;
+                sprintSuppressTimer = 0.8f;
                 rb.AddForce((Vector3.up * slideJumpForce * slideJumpVertical) + (slideDir * slideJumpForce * slideJumpHorizontal));
+                suppressSprint = true;
             }
             else
             {
@@ -203,6 +214,7 @@ public class FPSController : MonoBehaviour
             rb.AddForce(jumpDir, ForceMode.Impulse);
 
             wallJumpCooldownTimer = wallJumpCooldown;
+            suppressSprint = true;
             input.ConsumeJump();
             Invoke(nameof(ResetJump), jumpCooldown);
             return;
