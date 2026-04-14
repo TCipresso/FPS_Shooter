@@ -67,6 +67,9 @@ public abstract class WeaponBase : MonoBehaviour
     public bool adsFadeCrosshair = false;
     [HideInInspector] public bool isAiming = false;
 
+    [Header("Reload")]
+    public bool canReloadWhileSprinting = false;
+
     [Header("Animation")]
     public Animator animator;
 
@@ -95,7 +98,6 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected virtual void OnEnable()
     {
-        // Register hit marker pool
         if (BulletPool.Instance != null && hitMarkerPrefab != null)
             BulletPool.Instance.EnsurePoolSize(hitMarkerPoolKey, hitMarkerPrefab.gameObject, hitMarkerPoolSize);
 
@@ -105,6 +107,7 @@ public abstract class WeaponBase : MonoBehaviour
             animator.SetBool("IsWalking", false);
             animator.SetBool("IsSprinting", false);
             animator.SetBool("IsAiming", false);
+            animator.SetBool("IsIdle", false);
             animator.ResetTrigger("Cock");
             animator.Play("Idle", 0, 0f);
         }
@@ -117,12 +120,21 @@ public abstract class WeaponBase : MonoBehaviour
 
         if (fpsController != null && animator != null)
         {
+            // Sprint cancels reload only if canReloadWhileSprinting is off
+            if (isReloading && fpsController.IsSprinting && !canReloadWhileSprinting)
+                CancelReload();
+
             bool isWalking = !isCocking
                           && !isReloading
                           && fpsController.input.Move.sqrMagnitude > 0.01f;
 
-            animator.SetBool("IsWalking", isWalking);
-            animator.SetBool("IsSprinting", fpsController.IsSprinting && !fpsController.IsSprintingSuppressed);
+            // While sprint-reloading, suppress sprint animation
+            bool showSprinting = fpsController.IsSprinting && !fpsController.IsSprintingSuppressed
+                                 && !(isReloading && canReloadWhileSprinting);
+
+            animator.SetBool("IsWalking", isReloading ? false : isWalking);
+            animator.SetBool("IsSprinting", !isReloading && showSprinting);
+            animator.SetBool("IsIdle", isReloading);
 
             isAiming = fpsController.input.AimHeld && !isReloading;
 
@@ -144,9 +156,13 @@ public abstract class WeaponBase : MonoBehaviour
 
     public bool CanShoot()
     {
-        if (isReloading) return false;
         if (isCocking) return false;
         if (currentMag <= 0) return false;
+        if (isReloading)
+        {
+            CancelReload();
+            return false;
+        }
         return true;
     }
 
@@ -165,6 +181,7 @@ public abstract class WeaponBase : MonoBehaviour
             animator.SetBool("IsWalking", false);
             animator.SetBool("IsSprinting", false);
             animator.SetBool("IsAiming", false);
+            animator.SetBool("IsIdle", false);
             animator.ResetTrigger("Cock");
             animator.Play("Idle", 0, 0f);
         }
@@ -281,7 +298,6 @@ public abstract class WeaponBase : MonoBehaviour
         ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         ps.Play();
 
-        // Return to pool after the particle finishes
         StartCoroutine(ReturnHitMarkerToPool(obj, ps.main.duration + ps.main.startLifetime.constantMax));
     }
 
@@ -327,6 +343,7 @@ public abstract class WeaponBase : MonoBehaviour
     protected void TriggerFireAnimation()
     {
         if (animator == null) return;
+        if (isReloading) return;
         isFiring = true;
         if (fpsController != null)
         {
@@ -347,9 +364,26 @@ public abstract class WeaponBase : MonoBehaviour
     protected void TriggerReloadAnimation()
     {
         if (animator == null) return;
+        isAiming = false;
         isReloading = true;
         isCocking = false;
+        animator.SetBool("IsAiming", false);
+        animator.SetBool("IsWalking", false);
+        animator.SetBool("IsSprinting", false);
         animator.SetBool("IsReloading", true);
+    }
+
+    public void CancelReload()
+    {
+        if (!isReloading) return;
+        isReloading = false;
+        if (animator != null)
+        {
+            animator.SetBool("IsReloading", false);
+            animator.SetBool("IsIdle", false);
+            if (fpsController != null)
+                animator.SetBool("IsSprinting", fpsController.IsSprinting && !fpsController.IsSprintingSuppressed);
+        }
     }
 
     protected void SpawnTrail(Vector3 start, Vector3 end)
