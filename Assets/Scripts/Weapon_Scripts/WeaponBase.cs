@@ -72,10 +72,13 @@ public abstract class WeaponBase : MonoBehaviour
 
     [Header("Animation")]
     public Animator animator;
+    public float walkStopDelay = 0.1f;
 
     [HideInInspector] public bool isReloading = false;
     [HideInInspector] public bool isCocking = false;
     [HideInInspector] public bool isFiring = false;
+
+    float walkStopTimer = 0f;
 
     protected FPSLook fpsLook;
     protected Camera mainCamera;
@@ -128,11 +131,18 @@ public abstract class WeaponBase : MonoBehaviour
                           && !isReloading
                           && fpsController.input.Move.sqrMagnitude > 0.01f;
 
+            if (isWalking)
+                walkStopTimer = walkStopDelay;
+            else if (walkStopTimer > 0f)
+                walkStopTimer -= Time.deltaTime;
+
+            bool showWalking = !isReloading && (isWalking || walkStopTimer > 0f);
+
             // While sprint-reloading, suppress sprint animation
             bool showSprinting = fpsController.IsSprinting && !fpsController.IsSprintingSuppressed
                                  && !(isReloading && canReloadWhileSprinting);
 
-            animator.SetBool("IsWalking", isReloading ? false : isWalking);
+            animator.SetBool("IsWalking", showWalking);
             animator.SetBool("IsSprinting", !isReloading && showSprinting);
             animator.SetBool("IsIdle", isReloading);
 
