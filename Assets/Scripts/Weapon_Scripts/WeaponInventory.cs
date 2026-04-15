@@ -21,8 +21,8 @@ public class WeaponInventory : MonoBehaviour
     public InputActionReference slot1Action;
     public InputActionReference slot2Action;
 
-    private List<GameObject> equippedWeapons = new List<GameObject>();
-    private List<WeaponData> equippedData = new List<WeaponData>();
+    public List<GameObject> equippedWeapons = new List<GameObject>();
+    public List<WeaponData> equippedData = new List<WeaponData>();
     private int activeSlot = 0;
 
     void OnEnable()
@@ -89,7 +89,7 @@ public class WeaponInventory : MonoBehaviour
     {
         foreach (GameObject w in equippedWeapons)
         {
-            WeaponBase wb = w.GetComponent<WeaponBase>();
+            WeaponBase wb = w.GetComponentInChildren<WeaponBase>();
             if (wb != null) wb.Refill();
         }
 
@@ -100,7 +100,7 @@ public class WeaponInventory : MonoBehaviour
     {
         foreach (GameObject w in equippedWeapons)
         {
-            WeaponBase wb = w.GetComponent<WeaponBase>();
+            WeaponBase wb = w.GetComponentInChildren<WeaponBase>();
             if (wb == null) continue;
 
             int amount = Mathf.RoundToInt(wb.maxReserve * percent);
@@ -170,7 +170,7 @@ public class WeaponInventory : MonoBehaviour
         instance.SetActive(false);
 
         // Tell the pool how many trails this weapon needs
-        WeaponBase wb = instance.GetComponent<WeaponBase>();
+        WeaponBase wb = instance.GetComponentInChildren<WeaponBase>();
         if (wb != null && BulletPool.Instance != null && wb.trailPrefab != null)
             BulletPool.Instance.EnsurePoolSize(wb.trailPoolKey, wb.trailPrefab.gameObject, wb.trailPoolSize);
 
@@ -188,7 +188,7 @@ public class WeaponInventory : MonoBehaviour
         activeSlot = slot;
 
         // Push this weapon's recoil values to WeaponRecoil
-        WeaponBase wb = equippedWeapons[slot].GetComponent<WeaponBase>();
+        WeaponBase wb = equippedWeapons[slot].GetComponentInChildren<WeaponBase>();
         if (wb != null) wb.LoadRecoilValues();
 
         // Update IK targets to this weapon
@@ -210,7 +210,7 @@ public class WeaponInventory : MonoBehaviour
     public WeaponBase GetActiveWeaponBase()
     {
         if (equippedWeapons.Count == 0) return null;
-        return equippedWeapons[activeSlot].GetComponent<WeaponBase>();
+        return equippedWeapons[activeSlot].GetComponentInChildren<WeaponBase>();
     }
 
     public WeaponData GetActiveWeaponData()
