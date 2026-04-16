@@ -1005,7 +1005,7 @@ MonoBehaviour:
   overlayCamera: {fileID: 502739765}
   orientation: {fileID: 1980046426}
   input: {fileID: 576031179}
-  lookSpeed: 0.15
+  lookSpeed: 0.1
   lookXLimit: 90
   CanLook: 1
   maxTiltZ: 1.5
@@ -1902,10 +1902,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitMarkerPool
   hitMarkerSprite: {fileID: 21300000, guid: 22bdffbbe104378498db100651ecfd96, type: 3}
+  markerColor: {r: 1, g: 1, b: 1, a: 1}
+  critMarkerSprite: {fileID: 21300000, guid: 22bdffbbe104378498db100651ecfd96, type: 3}
+  critMarkerColor: {r: 1, g: 0, b: 0, a: 1}
   poolSize: 10
   fadeTime: 0.25
   markerSize: {x: 32, y: 32}
-  markerColor: {r: 1, g: 1, b: 1, a: 1}
   minRotation: 0
   maxRotation: 65
 --- !u!1 &410087039
@@ -2599,7 +2601,7 @@ MonoBehaviour:
   input: {fileID: 576031179}
   look: {fileID: 196436220}
   movementAudio: {fileID: 576031185}
-  walkSpeed: 20
+  walkSpeed: 15
   sprintSpeed: 30
   jumpForce: 1050
   gravity: 100000
@@ -2643,7 +2645,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   controller: {fileID: 576031180}
   look: {fileID: 196436220}
-  moveSpeed: 20
+  moveSpeed: 15
   jumpForce: 1050
   reloadSpeed: 1
   maxHealth: 100
@@ -7822,6 +7824,8 @@ MonoBehaviour:
   isAutomatic: 0
   rpm: 300
   goldMultiplier: 1
+  critChance: 0.1
+  critMultiplier: 2
   baseAccuracy: 1
   bloomPerShot: 0.5
   bloomDecaySpeed: 3
@@ -8153,8 +8157,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IKWeaponHandler
   rightHandIK: {fileID: 1561496788}
   leftHandIK: {fileID: 2014314032}
-  rightHandTarget: {fileID: 0}
-  leftHandTarget: {fileID: 0}
 --- !u!1 &1830131977
 GameObject:
   m_ObjectHideFlags: 0

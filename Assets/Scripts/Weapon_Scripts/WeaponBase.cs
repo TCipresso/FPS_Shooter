@@ -53,6 +53,10 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Gold")]
     public float goldMultiplier = 1f;
 
+    [Header("Critical Hit")]
+    [Range(0f, 1f)] public float critChance = 0.1f;
+    public float critMultiplier = 2f;
+
     [Header("Accuracy")]
     public float baseAccuracy = 1f;
     public float bloomPerShot = 0.5f;
@@ -330,6 +334,13 @@ public abstract class WeaponBase : MonoBehaviour
                                   * Quaternion.AngleAxis(totalX, mainCamera.transform.right);
 
         return spreadRotation * mainCamera.transform.forward;
+    }
+
+    public int ApplyCrit(int damage)
+    {
+        if (Random.value <= critChance)
+            return Mathf.RoundToInt(damage * critMultiplier);
+        return damage;
     }
 
     protected void AddBloom()

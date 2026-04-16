@@ -138,6 +138,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3806607814327007954}
   - component: {fileID: 6662175396724619990}
+  - component: {fileID: 6171621248985889331}
   m_Layer: 0
   m_Name: LeftArm
   m_TagString: Untagged
@@ -184,6 +185,21 @@ CapsuleCollider:
   m_Height: 0.016789697
   m_Direction: 1
   m_Center: {x: 0.0000000044190247, y: 0.00489181, z: 0.000100054036}
+--- !u!114 &6171621248985889331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1256644862162391201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitBox
+  zombie: {fileID: 2473496486619695436}
+  damageMultiplier: 1
+  isHeadshot: 0
 --- !u!1 &1611787899181827502
 GameObject:
   m_ObjectHideFlags: 0
@@ -289,6 +305,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4325790639078956947}
   - component: {fileID: 1517023475964765286}
+  - component: {fileID: 3675507694299235115}
   m_Layer: 0
   m_Name: LeftForeArm
   m_TagString: Untagged
@@ -335,6 +352,21 @@ CapsuleCollider:
   m_Height: 0.020000001
   m_Direction: 1
   m_Center: {x: -0.000000018201403, y: 0.009049388, z: -0.000440878}
+--- !u!114 &3675507694299235115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2176322945024787983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitBox
+  zombie: {fileID: 2473496486619695436}
+  damageMultiplier: 1
+  isHeadshot: 0
 --- !u!1 &2233584697130291254
 GameObject:
   m_ObjectHideFlags: 0
@@ -377,6 +409,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3165918591944024387}
   - component: {fileID: 4252060534613153376}
+  - component: {fileID: 4947934935895760659}
   m_Layer: 0
   m_Name: RightLeg
   m_TagString: Untagged
@@ -421,6 +454,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.0062481086, y: 0.025615139, z: 0.006324766}
   m_Center: {x: 0.000079455895, y: 0.0078076, z: -0.00046765886}
+--- !u!114 &4947934935895760659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2396477534105857113}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitBox
+  zombie: {fileID: 2473496486619695436}
+  damageMultiplier: 1
+  isHeadshot: 0
 --- !u!1 &2446114784541390273
 GameObject:
   m_ObjectHideFlags: 0
@@ -463,6 +511,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3578421601013114991}
   - component: {fileID: 3740573945577484245}
+  - component: {fileID: 6662143420764010147}
   m_Layer: 0
   m_Name: Spine2
   m_TagString: Untagged
@@ -509,6 +558,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.0111678, y: 0.01161161, z: 0.01}
   m_Center: {x: 0.0004140828, y: 0.00080580026, z: -9.672483e-11}
+--- !u!114 &6662143420764010147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2474478934770418212}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitBox
+  zombie: {fileID: 2473496486619695436}
+  damageMultiplier: 1
+  isHeadshot: 0
 --- !u!1 &2580315908461869449
 GameObject:
   m_ObjectHideFlags: 0
@@ -615,6 +679,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6351159404357384102}
   - component: {fileID: 1029312336732248043}
+  - component: {fileID: 5215121710684349739}
   m_Layer: 0
   m_Name: RightArm
   m_TagString: Untagged
@@ -661,6 +726,21 @@ CapsuleCollider:
   m_Height: 0.0167897
   m_Direction: 1
   m_Center: {x: 0, y: 0.00489181, z: 0}
+--- !u!114 &5215121710684349739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3197250929135744032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitBox
+  zombie: {fileID: 2473496486619695436}
+  damageMultiplier: 1
+  isHeadshot: 0
 --- !u!1 &3476836675391164628
 GameObject:
   m_ObjectHideFlags: 0
@@ -796,6 +876,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3912475817950356616}
   - component: {fileID: 2878381155975755021}
+  - component: {fileID: 5921949414737889801}
   m_Layer: 0
   m_Name: Head
   m_TagString: Untagged
@@ -842,6 +923,21 @@ CapsuleCollider:
   m_Height: 0.012824337
   m_Direction: 1
   m_Center: {x: 3.5112188e-10, y: 0.005047913, z: 0.0000000050355187}
+--- !u!114 &5921949414737889801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4838572318583372037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitBox
+  zombie: {fileID: 2473496486619695436}
+  damageMultiplier: 1.5
+  isHeadshot: 1
 --- !u!1 &5021568271727316049
 GameObject:
   m_ObjectHideFlags: 0
@@ -948,6 +1044,7 @@ GameObject:
   m_Component:
   - component: {fileID: 508065767473870367}
   - component: {fileID: 7368397066029323451}
+  - component: {fileID: 5795479040298364977}
   m_Layer: 0
   m_Name: RightUpLeg
   m_TagString: Untagged
@@ -992,6 +1089,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.006810387, y: 0.010000018, z: 0.007805296}
   m_Center: {x: 0.00058300013, y: 0.010000118, z: -0.00059555814}
+--- !u!114 &5795479040298364977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5366175430112444121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitBox
+  zombie: {fileID: 2473496486619695436}
+  damageMultiplier: 1
+  isHeadshot: 0
 --- !u!1 &5461089128787976077
 GameObject:
   m_ObjectHideFlags: 0
@@ -1002,6 +1114,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3354080168194368276}
   - component: {fileID: 2263998539470197359}
+  - component: {fileID: 298194816940305556}
   m_Layer: 0
   m_Name: RightForeArm
   m_TagString: Untagged
@@ -1048,6 +1161,21 @@ CapsuleCollider:
   m_Height: 0.021432932
   m_Direction: 1
   m_Center: {x: 0.000000008038621, y: 0.0077764485, z: -2.7049785e-10}
+--- !u!114 &298194816940305556
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5461089128787976077}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitBox
+  zombie: {fileID: 2473496486619695436}
+  damageMultiplier: 1
+  isHeadshot: 0
 --- !u!1 &5668055408755769753
 GameObject:
   m_ObjectHideFlags: 0
@@ -1155,6 +1283,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6208390881475544589}
   - component: {fileID: 3215983421578506009}
+  - component: {fileID: 3715713788396313333}
   m_Layer: 0
   m_Name: LeftUpLeg
   m_TagString: Untagged
@@ -1199,6 +1328,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.006248109, y: 0.01332034, z: 0.006248109}
   m_Center: {x: -0.0000000674134, y: 0.014155438, z: -0.00000006703744}
+--- !u!114 &3715713788396313333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6551017552497154389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitBox
+  zombie: {fileID: 2473496486619695436}
+  damageMultiplier: 1
+  isHeadshot: 0
 --- !u!1 &6580836797813235233
 GameObject:
   m_ObjectHideFlags: 0
@@ -1336,6 +1480,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3676638911604314678}
   - component: {fileID: 607502427343518056}
+  - component: {fileID: 4389065951107085859}
+  - component: {fileID: 7584277382964049749}
   m_Layer: 0
   m_Name: Hips
   m_TagString: Untagged
@@ -1382,6 +1528,36 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.012625874, y: 0.015574274, z: 0.01}
   m_Center: {x: 0.000316764, y: -0.0009062803, z: -8.489081e-12}
+--- !u!114 &4389065951107085859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6985050606253805247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitBox
+  zombie: {fileID: 2473496486619695436}
+  damageMultiplier: 1
+  isHeadshot: 0
+--- !u!114 &7584277382964049749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6985050606253805247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitBox
+  zombie: {fileID: 0}
+  damageMultiplier: 1
+  isHeadshot: 0
 --- !u!1 &7473525879760669853
 GameObject:
   m_ObjectHideFlags: 0
@@ -1424,6 +1600,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2752871460930891623}
   - component: {fileID: 7325179346701661891}
+  - component: {fileID: 1399882149447339778}
   m_Layer: 0
   m_Name: LeftLeg
   m_TagString: Untagged
@@ -1468,6 +1645,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.006248109, y: 0.022045141, z: 0.006248109}
   m_Center: {x: 0.000000014679852, y: 0.011463704, z: -0.00000016530211}
+--- !u!114 &1399882149447339778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7529391325806543471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitBox
+  zombie: {fileID: 2473496486619695436}
+  damageMultiplier: 1
+  isHeadshot: 0
 --- !u!1 &7672141109313594397
 GameObject:
   m_ObjectHideFlags: 0

@@ -516,6 +516,8 @@ MonoBehaviour:
   isAutomatic: 0
   rpm: 500
   goldMultiplier: 1
+  critChance: 0.05
+  critMultiplier: 1.5
   baseAccuracy: 3
   bloomPerShot: 1
   bloomDecaySpeed: 3
@@ -528,6 +530,7 @@ MonoBehaviour:
   isAiming: 0
   canReloadWhileSprinting: 0
   animator: {fileID: 6420684355200236290}
+  walkStopDelay: 0.1
   isReloading: 0
   isCocking: 0
   isFiring: 0
