@@ -1556,7 +1556,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0, g: 0.45992422, b: 1, a: 0}
+  m_BackGroundColor: {r: 0, g: 0.75050783, b: 1, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1945,7 +1945,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 10, y: 10}
   m_Shadows:
-    m_Type: 2
+    m_Type: 1
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -2651,7 +2651,7 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 100
   gold: 500
-  goldOnHit: 0
+  goldOnHit: 10
   goldOnKill: 100
 --- !u!114 &576031183
 MonoBehaviour:
@@ -4484,6 +4484,10 @@ PrefabInstance:
       propertyPath: weaponData
       value: 
       objectReference: {fileID: 11400000, guid: 841e8cbdbeee4e147bcff635088d152f, type: 2}
+    - target: {fileID: 7234738490434234346, guid: 31717019efd6bac448eec9dd2904dc4a, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: bda0ee8f849932143b45cd6716725207, type: 2}
     - target: {fileID: 7417487244167542551, guid: 31717019efd6bac448eec9dd2904dc4a, type: 3}
       propertyPath: m_Name
       value: WallBuyPistol_Test
@@ -5597,6 +5601,10 @@ PrefabInstance:
       propertyPath: weaponData
       value: 
       objectReference: {fileID: 11400000, guid: c4d6783da76f1224ebf5f1ddab0afa14, type: 2}
+    - target: {fileID: 7234738490434234346, guid: 31717019efd6bac448eec9dd2904dc4a, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: bda0ee8f849932143b45cd6716725207, type: 2}
     - target: {fileID: 7417487244167542551, guid: 31717019efd6bac448eec9dd2904dc4a, type: 3}
       propertyPath: m_Name
       value: WallBuySMG_Test
@@ -5675,6 +5683,10 @@ PrefabInstance:
       propertyPath: weaponData
       value: 
       objectReference: {fileID: 11400000, guid: e81049724e6017d4ca077aa9cbf9d268, type: 2}
+    - target: {fileID: 7234738490434234346, guid: 31717019efd6bac448eec9dd2904dc4a, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: bda0ee8f849932143b45cd6716725207, type: 2}
     - target: {fileID: 7417487244167542551, guid: 31717019efd6bac448eec9dd2904dc4a, type: 3}
       propertyPath: m_Name
       value: WallBuySword_Test
@@ -6775,7 +6787,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: bda0ee8f849932143b45cd6716725207, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9920,6 +9932,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 777778131}
     m_Modifications:
+    - target: {fileID: 7234738490434234346, guid: 31717019efd6bac448eec9dd2904dc4a, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: bda0ee8f849932143b45cd6716725207, type: 2}
     - target: {fileID: 7417487244167542551, guid: 31717019efd6bac448eec9dd2904dc4a, type: 3}
       propertyPath: m_Name
       value: WallBuyShotgun_Test

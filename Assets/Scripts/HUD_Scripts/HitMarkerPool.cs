@@ -10,15 +10,16 @@ public class HitMarkerPool : MonoBehaviour
     [Header("Normal Hit Marker")]
     public Sprite hitMarkerSprite;
     public Color markerColor = Color.red;
+    public Vector2 markerSize = new Vector2(32f, 32f);
 
     [Header("Crit Hit Marker")]
     public Sprite critMarkerSprite;
     public Color critMarkerColor = Color.yellow;
+    public Vector2 critMarkerSize = new Vector2(48f, 48f);
 
     [Header("Settings")]
     public int poolSize = 10;
     public float fadeTime = 0.4f;
-    public Vector2 markerSize = new Vector2(32f, 32f);
 
     [Header("Rotation")]
     public float minRotation = 0f;
@@ -37,12 +38,12 @@ public class HitMarkerPool : MonoBehaviour
 
         for (int i = 0; i < poolSize; i++)
         {
-            pool.Add(CreateMarker("HitMarker", hitMarkerSprite, markerColor));
-            critPool.Add(CreateMarker("CritMarker", critMarkerSprite, critMarkerColor));
+            pool.Add(CreateMarker("HitMarker", hitMarkerSprite, markerColor, markerSize));
+            critPool.Add(CreateMarker("CritMarker", critMarkerSprite, critMarkerColor, critMarkerSize));
         }
     }
 
-    Image CreateMarker(string name, Sprite sprite, Color color)
+    Image CreateMarker(string name, Sprite sprite, Color color, Vector2 size)
     {
         GameObject go = new GameObject(name, typeof(RectTransform), typeof(Image));
         go.transform.SetParent(transform, false);
@@ -50,7 +51,7 @@ public class HitMarkerPool : MonoBehaviour
         img.sprite = sprite;
         img.color = color;
         RectTransform rt = go.GetComponent<RectTransform>();
-        rt.sizeDelta = markerSize;
+        rt.sizeDelta = size;
         rt.anchoredPosition = Vector2.zero;
         go.SetActive(false);
         return img;
