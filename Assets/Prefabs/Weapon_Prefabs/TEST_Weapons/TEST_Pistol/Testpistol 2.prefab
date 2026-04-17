@@ -5625,6 +5625,7 @@ GameObject:
   - component: {fileID: 2185979144953250012}
   - component: {fileID: 3391888061357065378}
   - component: {fileID: 5163322590777978182}
+  - component: {fileID: 4201123872606697870}
   m_Layer: 0
   m_Name: Testpistol 2
   m_TagString: Untagged
@@ -5705,6 +5706,22 @@ MonoBehaviour:
   - {fileID: 8300000, guid: b928a257e74bc384f995355f13e5e12a, type: 3}
   walkVolume: 0.6
   sprintVolume: 0.85
+--- !u!114 &4201123872606697870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4175318407330368495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fff0960ef4ea6e04eac66b4a7fd2189d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.RigBuilder
+  m_RigLayers:
+  - m_Rig: {fileID: 952471871940717262}
+    m_Active: 1
+  m_Effectors: []
 --- !u!1 &4314307235999409908
 GameObject:
   m_ObjectHideFlags: 0
@@ -5818,8 +5835,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4024429590253089659}
-  - component: {fileID: 5934549647266918961}
-  - component: {fileID: 8028443591037999504}
   - component: {fileID: 6613785046764224775}
   m_Layer: 7
   m_Name: BlockHands
@@ -5846,44 +5861,6 @@ Transform:
   - {fileID: 7070451581776703549}
   m_Father: {fileID: 7538719836603381904}
   m_LocalEulerAnglesHint: {x: -72.727, y: -0.001, z: -81.561}
---- !u!95 &5934549647266918961
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4364680522072025537}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
---- !u!114 &8028443591037999504
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4364680522072025537}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fff0960ef4ea6e04eac66b4a7fd2189d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Animation.Rigging::UnityEngine.Animations.Rigging.RigBuilder
-  m_RigLayers:
-  - m_Rig: {fileID: 952471871940717262}
-    m_Active: 1
-  m_Effectors: []
 --- !u!114 &6613785046764224775
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5923,7 +5900,7 @@ Transform:
   m_GameObject: {fileID: 4490998825057839568}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.66, y: -1.41, z: -2.29}
+  m_LocalPosition: {x: 1.02, y: -1.38, z: -1.87}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -16246,7 +16223,7 @@ Transform:
   m_GameObject: {fileID: 6355543645607626985}
   serializedVersion: 2
   m_LocalRotation: {x: -0.15016517, y: 0, z: 0, w: 0.98866093}
-  m_LocalPosition: {x: 3.68, y: -1.11, z: -0.03}
+  m_LocalPosition: {x: 3.04, y: -1.07, z: 0.36}
   m_LocalScale: {x: 1.6265453, y: 2.2736306, z: 1.750687}
   m_ConstrainProportionsScale: 0
   m_Children: []
