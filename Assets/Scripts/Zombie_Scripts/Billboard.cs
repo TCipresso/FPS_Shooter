@@ -12,6 +12,6 @@ public class Billboard : MonoBehaviour
     void LateUpdate()
     {
         transform.forward = -mainCamera.transform.forward;
-        transform.rotation *= Quaternion.Euler(90f, 0f, 0f);
+        //transform.rotation *= Quaternion.Euler(90f, 0f, 0f);
     }
 }

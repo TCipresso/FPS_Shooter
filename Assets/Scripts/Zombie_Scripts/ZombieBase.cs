@@ -14,6 +14,7 @@ public abstract class ZombieBase : MonoBehaviour
 
     [Header("Drop")]
     public GameObject xpShardPrefab;
+    public float xpShardSpawnHeight = 1f;
 
     [Header("Movement")]
     public float moveSpeed = 3.5f;
@@ -124,7 +125,7 @@ public abstract class ZombieBase : MonoBehaviour
     protected virtual void OnDeath()
     {
         if (xpShardPrefab != null)
-            Instantiate(xpShardPrefab, transform.position, Quaternion.identity);
+            Instantiate(xpShardPrefab, transform.position + Vector3.up * xpShardSpawnHeight, Quaternion.identity);
 
         Destroy(gameObject, 0.1f);
     }
