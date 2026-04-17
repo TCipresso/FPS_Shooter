@@ -6,6 +6,7 @@ public class WeaponInventory : MonoBehaviour
 {
     [Header("References")]
     public Transform weaponHolder;
+    public PlayerStats playerStats;
 
 
     [Header("Inventory Settings")]
@@ -189,7 +190,11 @@ public class WeaponInventory : MonoBehaviour
 
         // Push this weapon's recoil values to WeaponRecoil
         WeaponBase wb = equippedWeapons[slot].GetComponentInChildren<WeaponBase>();
-        if (wb != null) wb.LoadRecoilValues();
+        if (wb != null)
+        {
+            wb.LoadRecoilValues();
+            if (playerStats != null) wb.ApplyAttackSpeed(playerStats.attackSpeed);
+        }
 
         // Update IK targets to this weapon
         if (ikHandler != null)

@@ -5,6 +5,7 @@ public class PlayerStats : MonoBehaviour
     [Header("References")]
     public FPSController controller;
     public FPSLook look;
+    public WeaponInventory weaponInventory;
 
     [Header("Movement Stats")]
     public float baseSprintSpeed = 10f;
@@ -15,6 +16,7 @@ public class PlayerStats : MonoBehaviour
 
     [Header("Combat Stats")]
     public float reloadSpeed = 1f;
+    [Range(0f, 5f)] public float attackSpeed = 1f;
 
     [Header("Health")]
     public int maxHealth = 100;
@@ -55,6 +57,14 @@ public class PlayerStats : MonoBehaviour
         mobilityMultiplier *= (1f + amount);
         ApplyStats();
         Debug.Log($"[PlayerStats] Mobility: {mobilityMultiplier:F2}x | Sprint: {controller.sprintSpeed:F1} | Walk: {controller.walkSpeed:F1}");
+    }
+
+    public void AddAttackSpeed(float amount)
+    {
+        attackSpeed += amount;
+        WeaponBase wb = weaponInventory?.GetActiveWeaponBase();
+        if (wb != null) wb.ApplyAttackSpeed(attackSpeed);
+        Debug.Log($"[PlayerStats] Attack Speed: {attackSpeed * 100:F0}%");
     }
 
     public void AddGold(int amount)

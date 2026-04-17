@@ -48,6 +48,7 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Fire Mode")]
     public bool isAutomatic = false;
     public float rpm = 300f;
+    [HideInInspector] public float baseRpm;
     public float FireInterval => 60f / rpm;
 
     [Header("Gold")]
@@ -92,6 +93,7 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected virtual void Awake()
     {
+        baseRpm = rpm;
         fpsLook = FindFirstObjectByType<FPSLook>();
         mainCamera = Camera.main;
         playerStats = FindFirstObjectByType<PlayerStats>();
@@ -161,6 +163,11 @@ public abstract class WeaponBase : MonoBehaviour
 
     public abstract void Shoot();
     public abstract void Reload();
+
+    public void ApplyAttackSpeed(float attackSpeed)
+    {
+        rpm = baseRpm * attackSpeed;
+    }
 
     public void Refill()
     {

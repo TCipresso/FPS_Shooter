@@ -3,7 +3,6 @@ using UnityEngine;
 public class TEST_SHOTGUN_anim_bridge : MonoBehaviour
 {
     public WeaponBase weapon;
-
     Animator animator;
 
     void Awake()
@@ -21,15 +20,12 @@ public class TEST_SHOTGUN_anim_bridge : MonoBehaviour
             animator.Play("Idle", 0, 0f);
             animator.Update(0f);
         }
-
         if (weapon != null)
         {
             weapon.isReloading = false;
             weapon.isCocking = false;
         }
     }
-
-   
 
     public void OnCockComplete()
     {
@@ -42,6 +38,12 @@ public class TEST_SHOTGUN_anim_bridge : MonoBehaviour
     {
         if (weapon != null)
             weapon.OnReloadComplete();
+    }
+
+    public void EjectCasing()
+    {
+        if (weapon != null)
+            weapon.EjectCasing();
     }
 
     public void OnHitFrame()

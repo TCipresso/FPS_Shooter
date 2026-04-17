@@ -2745,10 +2745,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   controller: {fileID: 576031180}
   look: {fileID: 196436220}
+  weaponInventory: {fileID: 576031183}
   baseSprintSpeed: 25
   jumpForce: 1050
   mobilityMultiplier: 1
   reloadSpeed: 1
+  attackSpeed: 1
   maxHealth: 100
   currentHealth: 100
   gold: 500
@@ -2767,6 +2769,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponInventory
   weaponHolder: {fileID: 210988755}
+  playerStats: {fileID: 576031181}
   maxSlots: 2
   ikHandler: {fileID: 1812089919}
   fireAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
@@ -8027,6 +8030,7 @@ MonoBehaviour:
   kickPositionX: 0.02
   isAutomatic: 0
   rpm: 300
+  baseRpm: 0
   goldMultiplier: 1
   critChance: 0.1
   critMultiplier: 2
