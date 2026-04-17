@@ -7,8 +7,11 @@ public class PlayerStats : MonoBehaviour
     public FPSLook look;
 
     [Header("Movement Stats")]
-    public float moveSpeed = 6f;
+    public float baseSprintSpeed = 10f;
     public float jumpForce = 550f;
+
+    [Header("Mobility")]
+    public float mobilityMultiplier = 1f;
 
     [Header("Combat Stats")]
     public float reloadSpeed = 1f;
@@ -38,9 +41,20 @@ public class PlayerStats : MonoBehaviour
     {
         if (controller != null)
         {
-            controller.walkSpeed = moveSpeed;
+            controller.sprintSpeed = baseSprintSpeed * mobilityMultiplier;
+            controller.walkSpeed = controller.sprintSpeed * 0.5f;
             controller.jumpForce = jumpForce;
+            controller.slideJumpForce = controller.sprintSpeed * (170f / 3f);
+            controller.slideBoostSpeed = controller.sprintSpeed * (4f / 3f);
+            controller.wallJumpAwayForce = controller.sprintSpeed;
         }
+    }
+
+    public void AddMobility(float amount)
+    {
+        mobilityMultiplier *= (1f + amount);
+        ApplyStats();
+        Debug.Log($"[PlayerStats] Mobility: {mobilityMultiplier:F2}x | Sprint: {controller.sprintSpeed:F1} | Walk: {controller.walkSpeed:F1}");
     }
 
     public void AddGold(int amount)

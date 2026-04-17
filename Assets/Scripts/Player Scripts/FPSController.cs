@@ -11,8 +11,8 @@ public class FPSController : MonoBehaviour
     public PlayerMovementAudio movementAudio;
 
     [Header("Movement Settings")]
-    public float walkSpeed = 6f;
-    public float sprintSpeed = 10f;
+    [HideInInspector] public float walkSpeed = 6f;
+    [HideInInspector] public float sprintSpeed = 10f;
     public float jumpForce = 550f;
     public float gravity = 20f;
 

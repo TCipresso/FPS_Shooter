@@ -2701,8 +2701,8 @@ MonoBehaviour:
   input: {fileID: 576031179}
   look: {fileID: 196436220}
   movementAudio: {fileID: 576031185}
-  walkSpeed: 15
-  sprintSpeed: 30
+  walkSpeed: 12.5
+  sprintSpeed: 25
   jumpForce: 1050
   gravity: 100000
   groundLayer:
@@ -2717,10 +2717,10 @@ MonoBehaviour:
   jumpCooldown: 0.25
   autoBHop: 1
   wallJumpUpForce: 25
-  wallJumpAwayForce: 30
+  wallJumpAwayForce: 25
   wallJumpWindow: 0.3
   wallJumpCooldown: 0.5
-  slideBoostSpeed: 40
+  slideBoostSpeed: 33.333336
   slideFriction: 30
   slideMinSpeed: 3
   slideCapsuleHeight: 0
@@ -2728,7 +2728,7 @@ MonoBehaviour:
   slideCrouchSpeed: 500
   slideCooldown: 0.25
   slideJumpBoost: 15
-  slideJumpForce: 1700
+  slideJumpForce: 1416.6667
   slideJumpVertical: 0.755
   slideJumpHorizontal: 1
 --- !u!114 &576031181
@@ -2745,8 +2745,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   controller: {fileID: 576031180}
   look: {fileID: 196436220}
-  moveSpeed: 15
+  baseSprintSpeed: 25
   jumpForce: 1050
+  mobilityMultiplier: 1
   reloadSpeed: 1
   maxHealth: 100
   currentHealth: 100
