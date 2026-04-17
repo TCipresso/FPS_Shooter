@@ -17,7 +17,13 @@ public class HitMarkerPool : MonoBehaviour
     public Color critMarkerColor = Color.yellow;
     public Vector2 critMarkerSize = new Vector2(48f, 48f);
 
-    [Header("Settings")]
+    [Header("Hit Sounds")]
+    public AudioSource hitSoundSource2D;
+    public AudioClip critSound;
+    public AudioClip[] bodyHitSounds;
+    public float bodyHitVolume = 1f;
+
+    Queue<AudioClip> _bodyHitBag = new Queue<AudioClip>();
     public int poolSize = 10;
     public float fadeTime = 0.4f;
 
@@ -59,6 +65,20 @@ public class HitMarkerPool : MonoBehaviour
 
     public void Spawn(Vector3 worldHitPoint, bool isCrit = false)
     {
+        if (isCrit)
+        {
+            if (hitSoundSource2D != null && critSound != null)
+                hitSoundSource2D.PlayOneShot(critSound);
+        }
+        else
+        {
+            if (bodyHitSounds != null && bodyHitSounds.Length > 0)
+            {
+                if (_bodyHitBag.Count == 0) RefillBodyHitBag();
+                AudioSource.PlayClipAtPoint(_bodyHitBag.Dequeue(), worldHitPoint, bodyHitVolume);
+            }
+        }
+
         List<Image> targetPool = isCrit ? critPool : pool;
         Color targetColor = isCrit ? critMarkerColor : markerColor;
 
@@ -83,6 +103,17 @@ public class HitMarkerPool : MonoBehaviour
         marker.color = c;
         marker.gameObject.SetActive(true);
         StartCoroutine(FadeOut(marker, targetColor));
+    }
+
+    void RefillBodyHitBag()
+    {
+        var pool = new List<AudioClip>(bodyHitSounds);
+        while (pool.Count > 0)
+        {
+            int i = Random.Range(0, pool.Count);
+            _bodyHitBag.Enqueue(pool[i]);
+            pool.RemoveAt(i);
+        }
     }
 
     Image GetFromPool(List<Image> targetPool)
