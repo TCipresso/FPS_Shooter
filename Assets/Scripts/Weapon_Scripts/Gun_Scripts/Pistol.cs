@@ -47,12 +47,10 @@ public class Pistol : WeaponBase
             HitBox hitBox = hit.collider.GetComponent<HitBox>();
             if (hitBox != null)
             {
-                // HitBox handles hit marker + crit internally
-                hitBox.TakeDamageWithHitPoint(ApplyCrit(damagePerBullet), playerStats, hit.point, goldMultiplier);
+                hitBox.TakeDamageWithHitPoint(damagePerBullet, playerStats, hit.point, goldMultiplier);
             }
             else
             {
-                // Fallback for zombies without hitboxes
                 ZombieBase zombie = hit.collider.GetComponent<ZombieBase>();
                 if (zombie != null)
                 {

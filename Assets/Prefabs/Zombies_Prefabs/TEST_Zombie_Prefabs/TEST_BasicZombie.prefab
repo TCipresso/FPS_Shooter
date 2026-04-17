@@ -198,7 +198,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
   zombie: {fileID: 2473496486619695436}
-  damageMultiplier: 1
+  limbMultiplier: 1
   isHeadshot: 0
 --- !u!1 &1611787899181827502
 GameObject:
@@ -365,7 +365,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
   zombie: {fileID: 2473496486619695436}
-  damageMultiplier: 1
+  limbMultiplier: 1
   isHeadshot: 0
 --- !u!1 &2233584697130291254
 GameObject:
@@ -467,7 +467,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
   zombie: {fileID: 2473496486619695436}
-  damageMultiplier: 1
+  limbMultiplier: 1
   isHeadshot: 0
 --- !u!1 &2446114784541390273
 GameObject:
@@ -571,7 +571,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
   zombie: {fileID: 2473496486619695436}
-  damageMultiplier: 1
+  limbMultiplier: 1
   isHeadshot: 0
 --- !u!1 &2580315908461869449
 GameObject:
@@ -739,7 +739,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
   zombie: {fileID: 2473496486619695436}
-  damageMultiplier: 1
+  limbMultiplier: 1
   isHeadshot: 0
 --- !u!1 &3476836675391164628
 GameObject:
@@ -936,7 +936,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
   zombie: {fileID: 2473496486619695436}
-  damageMultiplier: 1.5
+  limbMultiplier: 1
   isHeadshot: 1
 --- !u!1 &5021568271727316049
 GameObject:
@@ -1102,7 +1102,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
   zombie: {fileID: 2473496486619695436}
-  damageMultiplier: 1
+  limbMultiplier: 1
   isHeadshot: 0
 --- !u!1 &5461089128787976077
 GameObject:
@@ -1174,7 +1174,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
   zombie: {fileID: 2473496486619695436}
-  damageMultiplier: 1
+  limbMultiplier: 1
   isHeadshot: 0
 --- !u!1 &5668055408755769753
 GameObject:
@@ -1341,7 +1341,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
   zombie: {fileID: 2473496486619695436}
-  damageMultiplier: 1
+  limbMultiplier: 1
   isHeadshot: 0
 --- !u!1 &6580836797813235233
 GameObject:
@@ -1481,7 +1481,6 @@ GameObject:
   - component: {fileID: 3676638911604314678}
   - component: {fileID: 607502427343518056}
   - component: {fileID: 4389065951107085859}
-  - component: {fileID: 7584277382964049749}
   m_Layer: 0
   m_Name: Hips
   m_TagString: Untagged
@@ -1541,22 +1540,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
   zombie: {fileID: 2473496486619695436}
-  damageMultiplier: 1
-  isHeadshot: 0
---- !u!114 &7584277382964049749
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6985050606253805247}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HitBox
-  zombie: {fileID: 0}
-  damageMultiplier: 1
+  limbMultiplier: 1
   isHeadshot: 0
 --- !u!1 &7473525879760669853
 GameObject:
@@ -1658,7 +1642,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
   zombie: {fileID: 2473496486619695436}
-  damageMultiplier: 1
+  limbMultiplier: 1
   isHeadshot: 0
 --- !u!1 &7672141109313594397
 GameObject:
@@ -1800,6 +1784,7 @@ GameObject:
   - component: {fileID: 5586796400560914762}
   - component: {fileID: 314896445272783478}
   - component: {fileID: 2473496486619695436}
+  - component: {fileID: 1778699423586735161}
   m_Layer: 0
   m_Name: TEST_BasicZombie
   m_TagString: Untagged
@@ -1820,8 +1805,8 @@ Transform:
   m_LocalScale: {x: 0.69948, y: 0.69948, z: 0.69948}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7710669047205398048}
   - {fileID: 1230491357326768457}
+  - {fileID: 7710669047205398048}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &5586796400560914762
@@ -1883,10 +1868,29 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   goldBounty: 100
+  xpShardPrefab: {fileID: 4370607016660793976, guid: 2d932e2e236fdb64bb845d2c7428618a, type: 3}
   moveSpeed: 3.5
   attackDamage: 25
   attackRange: 1.5
   attackCooldown: 1.5
+--- !u!114 &1778699423586735161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8278437370199412268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd8cff3bd7aa8b44ab8f0ed5b6cee790, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ZombieHitFlash
+  bodyHitColor: {r: 1, g: 0.95452154, b: 0.4292453, a: 1}
+  bodyHitDuration: 0.08
+  critHitColor: {r: 1, g: 0, b: 0, a: 1}
+  critHitDuration: 0.08
+  renderers:
+  - {fileID: 1425928039516374368}
 --- !u!1 &8373123973166257115
 GameObject:
   m_ObjectHideFlags: 0
@@ -1945,7 +1949,7 @@ Transform:
   m_GameObject: {fileID: 8411439211281280712}
   serializedVersion: 2
   m_LocalRotation: {x: 0.00000008146034, y: 0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 0.01631549}
+  m_LocalPosition: {x: 0, y: 0, z: 0.01631549}
   m_LocalScale: {x: 107.00658, y: 107.00658, z: 107.00658}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1976,7 +1980,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0708bda7c8e85b14d9e263c422e40970, type: 2}
+  - {fileID: 2100000, guid: 257d16ad794b1dc42a1ecf15b4a22907, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

@@ -12,6 +12,9 @@ public abstract class ZombieBase : MonoBehaviour
     [Header("Gold")]
     public int goldBounty = 100;
 
+    [Header("Drop")]
+    public GameObject xpShardPrefab;
+
     [Header("Movement")]
     public float moveSpeed = 3.5f;
 
@@ -120,6 +123,9 @@ public abstract class ZombieBase : MonoBehaviour
 
     protected virtual void OnDeath()
     {
+        if (xpShardPrefab != null)
+            Instantiate(xpShardPrefab, transform.position, Quaternion.identity);
+
         Destroy(gameObject, 0.1f);
     }
 
