@@ -23,15 +23,22 @@ public struct FloatRange
 public static class UpgradeRarityHelper
 {
     // tweak these weights however you want
-    public static UpgradeRarity RollRarity()
+    public static UpgradeRarity RollRarity(float luck = 0f)
     {
         float r = Random.value;
 
-        // example distribution:
-        // 60% Common, 25% Rare, 10% Epic, 5% Extraterrestrial
-        if (r < 0.60f) return UpgradeRarity.Common;
-        if (r < 0.85f) return UpgradeRarity.Rare;
-        if (r < 0.95f) return UpgradeRarity.Epic;
+        // luck is additive percentage — 100 luck = 1.0 bonus multiplier
+        // multiplies down the common threshold so higher luck = fewer commons
+        // no cap — 300% luck is very powerful but commons still possible
+        float luckMult = 1f / (1f + luck / 100f);
+
+        float commonThreshold = 0.60f * luckMult;
+        float rareThreshold = commonThreshold + 0.25f * luckMult;
+        float epicThreshold = rareThreshold + 0.10f * luckMult;
+
+        if (r < commonThreshold) return UpgradeRarity.Common;
+        if (r < rareThreshold) return UpgradeRarity.Rare;
+        if (r < epicThreshold) return UpgradeRarity.Epic;
         return UpgradeRarity.Extraterrestrial;
     }
 

@@ -78,7 +78,8 @@ public class AugmentDraftUI : MonoBehaviour
             card.transform.localScale = Vector3.zero;
             card.transform.SetSiblingIndex(i);
 
-            var rarity = UpgradeRarityHelper.RollRarity();
+            float luck = player.GetComponent<PlayerStats>()?.luck ?? 0f;
+            var rarity = UpgradeRarityHelper.RollRarity(luck);
             var color = UpgradeRarityHelper.GetColor(rarity);
 
             card.Setup(data, rarity, color, OnUpgradeChosen);
