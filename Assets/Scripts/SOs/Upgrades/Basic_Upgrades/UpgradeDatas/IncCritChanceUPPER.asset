@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 357f4be8094743b418e6d0487ff09c55, type: 3}
+  m_Name: IncCritChanceUPPER
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
+  upgradeName: Crit Chance
+  description: Gain {value}% Crit Chance.
+  icon: {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
+  effect: {fileID: 11400000, guid: b2bb8e73034ea214c8e1b1f3f60bc7a8, type: 2}
+  commonRange:
+    min: 0.03
+    max: 0.05
+  rareRange:
+    min: 0.06
+    max: 0.08
+  epicRange:
+    min: 0.09
+    max: 0.12
+  extraterrestrialRange:
+    min: 0.13
+    max: 0.15

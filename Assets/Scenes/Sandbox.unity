@@ -2636,6 +2636,7 @@ Transform:
   - {fileID: 1980046426}
   - {fileID: 196436219}
   - {fileID: 1631188662}
+  - {fileID: 1144473308}
   - {fileID: 732553769}
   - {fileID: 1400894938}
   m_Father: {fileID: 0}
@@ -2717,6 +2718,8 @@ MonoBehaviour:
   conserveHorizontalMomentum: 1
   jumpCooldown: 0.25
   autoBHop: 1
+  canDoubleJump: 0
+  doubleJumpForce: 1050
   wallJumpUpForce: 25
   wallJumpAwayForce: 25
   wallJumpWindow: 0.3
@@ -2748,6 +2751,7 @@ MonoBehaviour:
   look: {fileID: 196436220}
   weaponInventory: {fileID: 576031183}
   pickupZone: {fileID: 1400894940}
+  augmentDraftUI: {fileID: 0}
   baseSprintSpeed: 25
   jumpForce: 1050
   mobilityMultiplier: 1
@@ -5360,6 +5364,130 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &1144473307
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1144473308}
+  - component: {fileID: 1144473312}
+  - component: {fileID: 1144473311}
+  - component: {fileID: 1144473310}
+  - component: {fileID: 1144473309}
+  m_Layer: 5
+  m_Name: AugmentDraft
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1144473308
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1144473307}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -0.21736215}
+  m_LocalScale: {x: 0.6147989, y: 0.40863302, z: 0.6147989}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 576031175}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 589.9896, y: 218.88843}
+  m_SizeDelta: {x: 0, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!225 &1144473309
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1144473307}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
+--- !u!114 &1144473310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1144473307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 2
+  m_VerticalFit: 0
+--- !u!114 &1144473311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1144473307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 3
+  m_Spacing: 508
+  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandHeight: 0
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
+--- !u!114 &1144473312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1144473307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3611d506ce6eb4469cfcb0eb56de648, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 576031171}
+  upgradePool:
+  - {fileID: 11400000, guid: 55a4808dd8533c747b895b4b8376d54a, type: 2}
+  - {fileID: 11400000, guid: 4bf4f4765469cd346ad800b4b8d68a76, type: 2}
+  - {fileID: 11400000, guid: 71a8869fac967494daab60c82341efc8, type: 2}
+  - {fileID: 11400000, guid: 156379e5c5c5c45488dc663fa1dc0362, type: 2}
+  - {fileID: 11400000, guid: 0c16654a47ee69147ae193b7f677c5aa, type: 2}
+  - {fileID: 11400000, guid: eacab69a7daf6b543855485e322f5477, type: 2}
+  - {fileID: 11400000, guid: 5506506affeccfc478da80a4ef23710f, type: 2}
+  - {fileID: 11400000, guid: fcad0a5e5e6400546b42bcbe982cc658, type: 2}
+  - {fileID: 11400000, guid: 17723a7606acf0a4d9328b28bac0a1bf, type: 2}
+  - {fileID: 11400000, guid: 0dac33cac62a5b94f8a1a267f09c3a4c, type: 2}
+  upgradeCardPrefab: {fileID: 7702108711884605917, guid: a48b6fdef0c88dc44be561cb78eb8c13, type: 3}
+  cardParent: {fileID: 1144473308}
+  panelGroup: {fileID: 1144473309}
+  augmentPool: []
+  augmentCardPrefab: {fileID: 302480912768645918, guid: 24311ccf33c8e794bbb51a89f2c39993, type: 3}
+  fadeSpeed: 8
+  spawnScaleTime: 0.25
+  overshootBounce: 1
+  cardsToShow: 3
 --- !u!1 &1167103992
 GameObject:
   m_ObjectHideFlags: 0

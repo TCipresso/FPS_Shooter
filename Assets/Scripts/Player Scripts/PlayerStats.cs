@@ -7,6 +7,7 @@ public class PlayerStats : MonoBehaviour
     public FPSLook look;
     public WeaponInventory weaponInventory;
     public PickupZone pickupZone;
+    public AugmentDraftUI augmentDraftUI;
 
     [Header("Movement Stats")]
     public float baseSprintSpeed = 10f;
@@ -174,6 +175,7 @@ public class PlayerStats : MonoBehaviour
     void OnLevelUp()
     {
         Debug.Log($"[PlayerStats] LEVEL UP! Now level {level} | Next level needs {XPToNextLevel} XP");
+        if (augmentDraftUI != null) augmentDraftUI.OpenAugmentDraft();
     }
 
     public void AddGold(int amount)

@@ -30,6 +30,8 @@ public class FPSController : MonoBehaviour
     [Header("Jump")]
     public float jumpCooldown = 0.05f;
     public bool autoBHop = true;
+    public bool canDoubleJump = false;
+    public float doubleJumpForce = 400f;
 
     [Header("Wall Jump")]
     public float wallJumpUpForce = 400f;
@@ -66,6 +68,7 @@ public class FPSController : MonoBehaviour
     float wallJumpCooldownTimer = 0f;
     bool readyToJump = true;
     bool slideJumped = false;
+    bool doubleJumpUsed = false;
     float slideCooldownTimer = 0f;
     float sprintSuppressTimer = 0f;
     float shootSuppressTimer = 0f;
@@ -170,7 +173,7 @@ public class FPSController : MonoBehaviour
         bool canLook = look == null || look.CanLook;
 
         if (grounded && !slideJumped) suppressSprint = false;
-        if (grounded) slideJumped = false;
+        if (grounded) { slideJumped = false; doubleJumpUsed = false; }
 
         IsSprinting = !suppressSprint && shootSuppressTimer <= 0f && input.SprintHeld && input.Move.sqrMagnitude > 0f && input.Move.y >= 0f && !IsSliding && !input.AimHeld;
 
@@ -225,6 +228,24 @@ public class FPSController : MonoBehaviour
 
             wallJumpCooldownTimer = wallJumpCooldown;
             suppressSprint = true;
+            if (movementAudio != null) movementAudio.PlayJump();
+            input.ConsumeJump();
+            Invoke(nameof(ResetJump), jumpCooldown);
+            return;
+        }
+
+        // Double jump
+        bool wantsDoubleJump = input.JumpBuffered;
+        if (canDoubleJump && !grounded && !doubleJumpUsed && readyToJump && wantsDoubleJump)
+        {
+            doubleJumpUsed = true;
+            readyToJump = false;
+
+            Vector3 v = rb.linearVelocity;
+            v.y = 0f;
+            rb.linearVelocity = v;
+            rb.AddForce(Vector3.up * doubleJumpForce);
+
             if (movementAudio != null) movementAudio.PlayJump();
             input.ConsumeJump();
             Invoke(nameof(ResetJump), jumpCooldown);
