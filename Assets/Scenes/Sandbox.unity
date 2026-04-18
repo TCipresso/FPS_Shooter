@@ -3074,7 +3074,7 @@ MonoBehaviour:
   extraMagazine: 0
   maxHealth: 100
   currentHealth: 100
-  gold: 500
+  gold: 99999999
   baseGoldOnHit: 10
   baseGoldOnKill: 100
   goldGainMultiplier: 1
@@ -5883,6 +5883,16 @@ MonoBehaviour:
   player: {fileID: 576031171}
   menuHelper: {fileID: 2112415030}
   upgradePool:
+  - {fileID: 11400000, guid: 926946f8a3248ce4ab024cded1c5eaf1, type: 2}
+  - {fileID: 11400000, guid: dc8a3efff91786e49b7222ccbfe41264, type: 2}
+  - {fileID: 11400000, guid: d754619e049f2d145ab60af7278c522a, type: 2}
+  - {fileID: 11400000, guid: 0fbf4dd1faba3714397d9888a6636804, type: 2}
+  - {fileID: 11400000, guid: e489aba7f26faaf40b9f5f41cdeffca9, type: 2}
+  - {fileID: 11400000, guid: 7d914869d2a83bd4abbc52c4fab26ce4, type: 2}
+  - {fileID: 11400000, guid: 050b8b2e47c977f4c82960add6a3c592, type: 2}
+  - {fileID: 11400000, guid: 629c91447df32c04db11746c61b98b3c, type: 2}
+  - {fileID: 11400000, guid: ef751bfa2aa4209418e6477088886509, type: 2}
+  - {fileID: 11400000, guid: c8c70fb9363929b409f6eede5fb9d0c6, type: 2}
   - {fileID: 11400000, guid: aea1108b82a49034a832c961b1cf7a6f, type: 2}
   upgradeCardPrefab: {fileID: 7702108711884605917, guid: a48b6fdef0c88dc44be561cb78eb8c13, type: 3}
   cardParent: {fileID: 1144473308}

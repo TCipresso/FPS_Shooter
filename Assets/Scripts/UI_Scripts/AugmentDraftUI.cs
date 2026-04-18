@@ -62,6 +62,7 @@ public class AugmentDraftUI : MonoBehaviour
         isOpen = true;
         previousTimeScale = Time.timeScale;
         Time.timeScale = 0f;
+        if (menuHelper != null) menuHelper.EnterDraftState();
 
         fadingOut = false;
         fadingIn = true;
