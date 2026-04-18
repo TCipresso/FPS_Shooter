@@ -10,6 +10,10 @@ public class XPShard : MonoBehaviour
     public float acceleration = 20f;
     public float collectDistance = 0.5f;
 
+    [Header("Audio")]
+    public AudioClip collectSound;
+    public float collectVolume = 1f;
+
     bool pulling = false;
     float currentSpeed = 0f;
     Transform target;
@@ -34,6 +38,18 @@ public class XPShard : MonoBehaviour
         if (Vector3.Distance(transform.position, target.position) <= collectDistance)
         {
             if (playerStats != null) playerStats.AddXP(xpValue);
+            if (collectSound != null)
+            {
+                GameObject go = new GameObject("XPCollectSound");
+                go.transform.position = transform.position;
+                AudioSource src = go.AddComponent<AudioSource>();
+                src.clip = collectSound;
+                src.volume = collectVolume;
+                src.spatialBlend = 0f;
+                src.dopplerLevel = 0f;
+                src.Play();
+                Destroy(go, collectSound.length);
+            }
             Destroy(gameObject);
         }
     }

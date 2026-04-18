@@ -6,6 +6,7 @@ public class PlayerStats : MonoBehaviour
     public FPSController controller;
     public FPSLook look;
     public WeaponInventory weaponInventory;
+    public PickupZone pickupZone;
 
     [Header("Movement Stats")]
     public float baseSprintSpeed = 10f;
@@ -39,6 +40,11 @@ public class PlayerStats : MonoBehaviour
         currentHealth = maxHealth;
         ApplyStats();
         Application.targetFrameRate = 1000;
+    }
+
+    void Start()
+    {
+        if (pickupZone != null) pickupZone.ApplyRange(pickupRange);
     }
 
     void OnValidate()
@@ -161,8 +167,7 @@ public class PlayerStats : MonoBehaviour
     public void AddPickupRange(float amount)
     {
         pickupRange += amount;
-        PickupZone zone = GetComponentInChildren<PickupZone>();
-        if (zone != null) zone.ApplyRange(pickupRange);
+        if (pickupZone != null) pickupZone.ApplyRange(pickupRange);
         Debug.Log($"[PlayerStats] Pickup Range: {pickupRange * 100:F0}%");
     }
 

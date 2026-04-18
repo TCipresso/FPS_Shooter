@@ -161,6 +161,8 @@ MonoBehaviour:
   pullSpeed: 8
   acceleration: 20
   collectDistance: 0.5
+  collectSound: {fileID: 0}
+  collectVolume: 1
 --- !u!135 &8551607179832153356
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -296,4 +298,6 @@ MonoBehaviour:
   xpValue: 10
   pullSpeed: 8
   acceleration: 20
-  collectDistance: 0.5
+  collectDistance: 3
+  collectSound: {fileID: 8300000, guid: d184346978af7894dbab55932b87e187, type: 3}
+  collectVolume: 0.2

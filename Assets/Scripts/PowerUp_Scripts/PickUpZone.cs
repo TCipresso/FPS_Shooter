@@ -13,8 +13,16 @@ public class PickupZone : MonoBehaviour
         baseRadius = col.radius;
     }
 
+    void OnValidate()
+    {
+        if (col == null) col = GetComponent<SphereCollider>();
+        if (col != null) baseRadius = col.radius;
+    }
+
     public void ApplyRange(float multiplier)
     {
+        if (col == null) col = GetComponent<SphereCollider>();
+        Debug.Log($"[PickupZone] ApplyRange called — multiplier: {multiplier}, baseRadius: {baseRadius}, col: {col}");
         if (col != null)
             col.radius = baseRadius * multiplier;
     }
