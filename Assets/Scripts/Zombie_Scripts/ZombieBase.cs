@@ -30,7 +30,6 @@ public abstract class ZombieBase : MonoBehaviour
     protected float lastAttackTime;
     protected bool isDead = false;
 
-    // Tracks damage dealt per player (ready for multiplayer later)
     Dictionary<PlayerStats, int> damageContributors = new Dictionary<PlayerStats, int>();
     Dictionary<PlayerStats, float> goldMultipliers = new Dictionary<PlayerStats, float>();
     int totalDamageDealt = 0;
@@ -70,7 +69,6 @@ public abstract class ZombieBase : MonoBehaviour
         int actualDamage = Mathf.Min(amount, currentHealth);
         currentHealth -= actualDamage;
 
-        // Track damage contribution
         if (dealer != null)
         {
             if (damageContributors.ContainsKey(dealer))
@@ -78,14 +76,12 @@ public abstract class ZombieBase : MonoBehaviour
             else
                 damageContributors[dealer] = actualDamage;
 
-            // Store the last weapon multiplier used by this dealer
             if (weaponMultiplier > 0f)
                 goldMultipliers[dealer] = weaponMultiplier;
 
             totalDamageDealt += actualDamage;
         }
 
-        // Gold on hit if active
         if (dealer != null && dealer.goldOnHit > 0)
             dealer.AddGold(dealer.goldOnHit);
 
@@ -95,7 +91,6 @@ public abstract class ZombieBase : MonoBehaviour
             Die();
     }
 
-    // Overload for backwards compatibility
     public virtual void TakeDamage(int amount)
     {
         TakeDamage(amount, playerStats);
@@ -106,14 +101,13 @@ public abstract class ZombieBase : MonoBehaviour
         isDead = true;
         agent.isStopped = true;
 
-        // Award proportional gold to each contributor with weapon multiplier
         foreach (var kvp in damageContributors)
         {
             PlayerStats contributor = kvp.Key;
             int damageDealt = kvp.Value;
             float proportion = (float)damageDealt / maxHealth;
             float multiplier = goldMultipliers.ContainsKey(contributor) ? goldMultipliers[contributor] : 1f;
-            int goldAwarded = Mathf.RoundToInt(goldBounty * proportion * multiplier);
+            int goldAwarded = Mathf.RoundToInt(goldBounty * proportion * multiplier * contributor.goldGainMultiplier);
             contributor.AddGold(goldAwarded);
             Debug.Log($"[{gameObject.name}] Awarded {goldAwarded} gold to {contributor.gameObject.name} ({proportion * 100:F0}% damage, x{multiplier} multiplier).");
         }

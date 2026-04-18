@@ -47,14 +47,14 @@ public class Pistol : WeaponBase
             HitBox hitBox = hit.collider.GetComponent<HitBox>();
             if (hitBox != null)
             {
-                hitBox.TakeDamageWithHitPoint(damagePerBullet, playerStats, hit.point, goldMultiplier);
+                hitBox.TakeDamageWithHitPoint(damagePerBullet, playerStats, hit.point, playerStats != null ? playerStats.goldGainMultiplier : 1f);
             }
             else
             {
                 ZombieBase zombie = hit.collider.GetComponent<ZombieBase>();
                 if (zombie != null)
                 {
-                    zombie.TakeDamage(ApplyCrit(damagePerBullet), playerStats, goldMultiplier);
+                    zombie.TakeDamage(ApplyCrit(damagePerBullet), playerStats, playerStats != null ? playerStats.goldGainMultiplier : 1f);
                     if (HitMarkerPool.Instance != null)
                         HitMarkerPool.Instance.Spawn(hit.point, false);
                 }

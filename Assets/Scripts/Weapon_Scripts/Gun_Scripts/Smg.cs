@@ -47,9 +47,9 @@ public class SMG : WeaponBase
 
             ZombieBase zombie = hit.collider.GetComponent<ZombieBase>();
             if (zombie != null)
-                zombie.TakeDamage(damagePerBullet, playerStats, goldMultiplier);
+                //zombie.TakeDamage(damagePerBullet, playerStats, goldMultiplier); //rework with gold mult changes
 
-            SpawnImpactEffect(hit);
+                SpawnImpactEffect(hit);
         }
         else
         {

@@ -55,9 +55,9 @@ public class Shotgun : WeaponBase
 
             ZombieBase zombie = hit.collider.GetComponent<ZombieBase>();
             if (zombie != null)
-                zombie.TakeDamage(damagePerPellet, playerStats, goldMultiplier);
+                // zombie.TakeDamage(damagePerPellet, playerStats, goldMultiplier); //rework with gold mult changes
 
-            SpawnImpactEffect(hit);
+                SpawnImpactEffect(hit);
         }
         else
         {

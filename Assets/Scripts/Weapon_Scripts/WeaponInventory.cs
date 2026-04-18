@@ -175,6 +175,12 @@ public class WeaponInventory : MonoBehaviour
         if (wb != null && BulletPool.Instance != null && wb.trailPrefab != null)
             BulletPool.Instance.EnsurePoolSize(wb.trailPoolKey, wb.trailPrefab.gameObject, wb.trailPoolSize);
 
+        if (wb != null && playerStats != null)
+        {
+            wb.ApplyExtraMagazine(playerStats.extraMagazine);
+            wb.currentMag = wb.maxMag;
+        }
+
         return instance;
     }
 
@@ -193,7 +199,13 @@ public class WeaponInventory : MonoBehaviour
         if (wb != null)
         {
             wb.LoadRecoilValues();
-            if (playerStats != null) wb.ApplyAttackSpeed(playerStats.attackSpeed);
+            if (playerStats != null)
+            {
+                wb.ApplyAttackSpeed(playerStats.attackSpeed);
+                wb.ApplyExtraMagazine(playerStats.extraMagazine);
+                wb.critChance = playerStats.critChance;
+                wb.critMultiplier = playerStats.critMultiplier;
+            }
         }
 
         // Update IK targets to this weapon

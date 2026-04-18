@@ -6,11 +6,13 @@ TagManager:
   tags:
   - Buyable
   - Interactable
+  - XP_Shard
+  - PickUpZone
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
   - Ground
@@ -18,8 +20,8 @@ TagManager:
   - Wall
   - No_Outline
   - NO_HIT
-  - 
-  - 
+  - XP_Shard
+  - PickUpZone
   - 
   - 
   - 

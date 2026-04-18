@@ -13,7 +13,9 @@ GameObject:
   - component: {fileID: 1646819389050752898}
   - component: {fileID: 6341252221392627300}
   - component: {fileID: 339641012643421752}
-  m_Layer: 0
+  - component: {fileID: 5253134612316641912}
+  - component: {fileID: 8551607179832153356}
+  m_Layer: 11
   m_Name: XP_Shard_Art
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -143,6 +145,43 @@ MonoBehaviour:
   minForce: 1.5
   maxForce: 5
   upwardForce: 10
+--- !u!114 &5253134612316641912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2366716243300208606}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0281b0a2fe82cfd43970117e8aa72c36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XPShard
+  xpValue: 10
+  pullSpeed: 8
+  acceleration: 20
+  collectDistance: 0.5
+--- !u!135 &8551607179832153356
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2366716243300208606}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 4104
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 4087
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Radius: 0.15999998
+  m_Center: {x: 0, y: -0.000000029802322, z: 0}
 --- !u!1 &4582582501826474684
 GameObject:
   m_ObjectHideFlags: 0
@@ -155,9 +194,10 @@ GameObject:
   - component: {fileID: 2345979229794999633}
   - component: {fileID: 8470975570231971855}
   - component: {fileID: 3519432061323546894}
-  m_Layer: 0
+  - component: {fileID: 26000866487557033}
+  m_Layer: 11
   m_Name: XP_Shard_Prefab
-  m_TagString: Untagged
+  m_TagString: XP_Shard
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -218,7 +258,7 @@ SphereCollider:
     m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 951
+    m_Bits: 959
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -241,3 +281,19 @@ MonoBehaviour:
   minForce: 1.5
   maxForce: 5
   upwardForce: 10
+--- !u!114 &26000866487557033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4582582501826474684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0281b0a2fe82cfd43970117e8aa72c36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XPShard
+  xpValue: 10
+  pullSpeed: 8
+  acceleration: 20
+  collectDistance: 0.5

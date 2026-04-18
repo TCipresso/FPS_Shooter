@@ -72,7 +72,7 @@ public class Sword : WeaponBase
             if (zombie != null && !hitThisSwing.Contains(zombie))
             {
                 hitThisSwing.Add(zombie);
-                zombie.TakeDamage(attackDamage, playerStats, goldMultiplier);
+                //zombie.TakeDamage(attackDamage, playerStats, goldMultiplier); //rework with gold mult changes
                 Debug.Log("[Sword] Hit: " + hit.gameObject.name);
             }
         }

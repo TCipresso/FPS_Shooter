@@ -6,6 +6,7 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Ammo")]
     public int currentMag;
     public int maxMag;
+    [HideInInspector] public int baseMaxMag;
     public int reserveAmmo;
     public int maxReserve;
 
@@ -51,9 +52,6 @@ public abstract class WeaponBase : MonoBehaviour
     [HideInInspector] public float baseRpm;
     public float FireInterval => 60f / rpm;
 
-    [Header("Gold")]
-    public float goldMultiplier = 1f;
-
     [Header("Critical Hit")]
     [Range(0f, 1f)] public float critChance = 0.1f;
     public float critMultiplier = 2f;
@@ -94,6 +92,7 @@ public abstract class WeaponBase : MonoBehaviour
     protected virtual void Awake()
     {
         baseRpm = rpm;
+        baseMaxMag = maxMag;
         fpsLook = FindFirstObjectByType<FPSLook>();
         mainCamera = Camera.main;
         playerStats = FindFirstObjectByType<PlayerStats>();
@@ -163,6 +162,12 @@ public abstract class WeaponBase : MonoBehaviour
 
     public abstract void Shoot();
     public abstract void Reload();
+
+    public void ApplyExtraMagazine(int extra)
+    {
+        maxMag = baseMaxMag + extra;
+        currentMag = Mathf.Min(currentMag, maxMag);
+    }
 
     public void ApplyAttackSpeed(float attackSpeed)
     {
@@ -398,6 +403,7 @@ public abstract class WeaponBase : MonoBehaviour
         animator.SetBool("IsAiming", false);
         animator.SetBool("IsWalking", false);
         animator.SetBool("IsSprinting", false);
+        animator.SetFloat("ReloadSpeed", playerStats != null ? playerStats.reloadSpeed : 1f);
         animator.SetBool("IsReloading", true);
     }
 
