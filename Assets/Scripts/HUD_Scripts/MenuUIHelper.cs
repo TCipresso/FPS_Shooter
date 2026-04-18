@@ -8,7 +8,6 @@ public class MenuUIHelper : MonoBehaviour
     public GameObject pauseMenuUI;
     public InputActionReference pauseAction;
     public FPSLook fpsLook;
-
     bool isPaused = false;
 
     void OnEnable()
@@ -31,10 +30,8 @@ public class MenuUIHelper : MonoBehaviour
 
     void TogglePause()
     {
-        if (isPaused)
-            Resume();
-        else
-            Pause();
+        if (isPaused) Resume();
+        else Pause();
     }
 
     public void Resume()
@@ -55,6 +52,20 @@ public class MenuUIHelper : MonoBehaviour
         Cursor.visible = true;
         if (fpsLook != null) fpsLook.enabled = false;
         isPaused = true;
+    }
+
+    public void EnterDraftState()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        if (fpsLook != null) fpsLook.enabled = false;
+    }
+
+    public void ExitDraftState()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        if (fpsLook != null) fpsLook.enabled = true;
     }
 
     public void QuitGame()

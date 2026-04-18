@@ -2636,7 +2636,6 @@ Transform:
   - {fileID: 1980046426}
   - {fileID: 196436219}
   - {fileID: 1631188662}
-  - {fileID: 1144473308}
   - {fileID: 732553769}
   - {fileID: 1400894938}
   m_Father: {fileID: 0}
@@ -2751,7 +2750,7 @@ MonoBehaviour:
   look: {fileID: 196436220}
   weaponInventory: {fileID: 576031183}
   pickupZone: {fileID: 1400894940}
-  augmentDraftUI: {fileID: 0}
+  augmentDraftUI: {fileID: 1144473312}
   baseSprintSpeed: 25
   jumpForce: 1050
   mobilityMultiplier: 1
@@ -5364,6 +5363,108 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &1141848796
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1141848800}
+  - component: {fileID: 1141848799}
+  - component: {fileID: 1141848798}
+  - component: {fileID: 1141848797}
+  m_Layer: 5
+  m_Name: AugmentDraftUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1141848797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1141848796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!114 &1141848798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1141848796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
+  m_UiScaleMode: 1
+  m_ReferencePixelsPerUnit: 100
+  m_ScaleFactor: 1
+  m_ReferenceResolution: {x: 1920, y: 1080}
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 0
+  m_PhysicalUnit: 3
+  m_FallbackScreenDPI: 96
+  m_DefaultSpriteDPI: 96
+  m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
+--- !u!223 &1141848799
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1141848796}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!224 &1141848800
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1141848796}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1144473308}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
 --- !u!1 &1144473307
 GameObject:
   m_ObjectHideFlags: 0
@@ -5392,15 +5493,15 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1144473307}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.21736215}
-  m_LocalScale: {x: 0.6147989, y: 0.40863302, z: 0.6147989}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 576031175}
+  m_Father: {fileID: 1141848800}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 589.9896, y: 218.88843}
+  m_AnchoredPosition: {x: 0.00012207031, y: 0.00012207031}
   m_SizeDelta: {x: 0, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &1144473309
@@ -5468,6 +5569,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 576031171}
+  menuHelper: {fileID: 2112415030}
   upgradePool:
   - {fileID: 11400000, guid: 55a4808dd8533c747b895b4b8376d54a, type: 2}
   - {fileID: 11400000, guid: 4bf4f4765469cd346ad800b4b8d68a76, type: 2}
@@ -5482,7 +5584,10 @@ MonoBehaviour:
   upgradeCardPrefab: {fileID: 7702108711884605917, guid: a48b6fdef0c88dc44be561cb78eb8c13, type: 3}
   cardParent: {fileID: 1144473308}
   panelGroup: {fileID: 1144473309}
-  augmentPool: []
+  augmentPool:
+  - {fileID: 11400000, guid: c96274feb83342844b22e9d95b99edb7, type: 2}
+  - {fileID: 11400000, guid: c96274feb83342844b22e9d95b99edb7, type: 2}
+  - {fileID: 11400000, guid: c96274feb83342844b22e9d95b99edb7, type: 2}
   augmentCardPrefab: {fileID: 302480912768645918, guid: 24311ccf33c8e794bbb51a89f2c39993, type: 3}
   fadeSpeed: 8
   spawnScaleTime: 0.25
@@ -10393,6 +10498,7 @@ SceneRoots:
   m_Roots:
   - {fileID: 1878501743}
   - {fileID: 229765648}
+  - {fileID: 1141848800}
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 576031175}

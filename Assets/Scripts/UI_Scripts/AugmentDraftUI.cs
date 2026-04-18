@@ -5,6 +5,7 @@ public class AugmentDraftUI : MonoBehaviour
 {
     [Header("Setup")]
     public GameObject player;
+    public MenuUIHelper menuHelper;
 
     [Header("Upgrade Draft (Level Ups)")]
     public List<UpgradeData> upgradePool;
@@ -98,6 +99,7 @@ public class AugmentDraftUI : MonoBehaviour
     // ============== AUGMENT DRAFT (ON LEVEL UP) ==============
     public void OpenAugmentDraft()
     {
+        Debug.Log($"[AugmentDraftUI] OpenAugmentDraft called. panel={panelGroup}, cardPrefab={augmentCardPrefab}, cardParent={cardParent}, poolCount={augmentPool?.Count}, player={player}, isOpen={isOpen}");
         if (!panelGroup || !augmentCardPrefab || !cardParent || augmentPool == null || augmentPool.Count == 0 || !player)
             return;
         if (isOpen) return;
@@ -105,6 +107,7 @@ public class AugmentDraftUI : MonoBehaviour
         isOpen = true;
         previousTimeScale = Time.timeScale;
         Time.timeScale = 0f;
+        if (menuHelper != null) menuHelper.EnterDraftState();
 
         fadingOut = false;
         fadingIn = true;
@@ -141,6 +144,7 @@ public class AugmentDraftUI : MonoBehaviour
         isOpen = false;
 
         Time.timeScale = previousTimeScale;
+        if (menuHelper != null) menuHelper.ExitDraftState();
 
         fadingIn = false;
         fadingOut = true;
