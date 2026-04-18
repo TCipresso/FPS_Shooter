@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 357f4be8094743b418e6d0487ff09c55, type: 3}
-  m_Name: UpAtkSpdData
+  m_Name: UpCritChanceData
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
-  upgradeName: Attack Speed
-  description: Gain {value}% Attack Speed.
+  upgradeName: Crit Chance
+  description: Gain {value}% Crit Chance.
   icon: {fileID: 0}
-  effect: {fileID: 11400000, guid: b4d208b111c565f4a9aa1d299308e27b, type: 2}
+  effect: {fileID: 11400000, guid: b0a34ada33498504bb4f2b636bea4af5, type: 2}
   commonRange:
     min: 0.02
     max: 0.05
