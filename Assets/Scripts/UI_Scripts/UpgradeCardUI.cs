@@ -26,10 +26,12 @@ public class UpgradeCardUI : MonoBehaviour
 
         // Roll the value once and store it
         float rolledValue = data.GetRandomValueForRarity(rarity);
-        float displayPercent = rolledValue * 100f;
+        string displayValue = upgrade.displayAsInteger
+            ? Mathf.RoundToInt(rolledValue).ToString()
+            : (rolledValue * 100f).ToString("F1");
 
         if (titleText) titleText.text = upgrade.upgradeName;
-        if (descText) descText.text = upgrade.description.Replace("{value}", displayPercent.ToString("F1"));
+        if (descText) descText.text = upgrade.description.Replace("{value}", displayValue);
         if (icon && upgrade.icon) icon.sprite = upgrade.icon;
 
         if (frameImage) frameImage.color = rarityColor;

@@ -13,18 +13,19 @@ MonoBehaviour:
   m_Name: UpMaxHpData
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeData
   upgradeName: Max HP
-  description: Gain {value}% Max Hp.
+  description: Gain {value} Max Hp.
   icon: {fileID: 0}
   effect: {fileID: 11400000, guid: 3e2cd01dba77f3141b462e0c7ac7e612, type: 2}
+  displayAsInteger: 1
   commonRange:
-    min: 0.02
-    max: 0.05
+    min: 10
+    max: 15
   rareRange:
-    min: 0.06
-    max: 0.08
+    min: 16
+    max: 21
   epicRange:
-    min: 0.09
-    max: 0.13
+    min: 22
+    max: 30
   extraterrestrialRange:
-    min: 0.14
-    max: 0.2
+    min: 31
+    max: 50

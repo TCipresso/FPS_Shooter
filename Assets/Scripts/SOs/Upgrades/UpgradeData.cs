@@ -10,6 +10,7 @@ public class UpgradeData : ScriptableObject
 
     [Header("Effect")]
     public UpgradeEffect effect;
+    public bool displayAsInteger = false;
 
     [Header("Per-Rarity Value Ranges")]
     public FloatRange commonRange;            // e.g. 3–5  (percent or flat)
