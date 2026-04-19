@@ -30,8 +30,8 @@ public class FPSController : MonoBehaviour
     [Header("Jump")]
     public float jumpCooldown = 0.05f;
     public bool autoBHop = true;
-    public bool canDoubleJump = false;
     public float doubleJumpForce = 400f;
+    public bool canDoubleJump = false;
 
     [Header("Wall Jump")]
     public float wallJumpUpForce = 400f;
@@ -56,6 +56,7 @@ public class FPSController : MonoBehaviour
     public bool IsSliding { get; private set; }
     public bool IsSprintingSuppressed { get; private set; }
     public bool IsGrounded => grounded;
+    public bool IsSlideJumping => slideJumped;
 
     Rigidbody rb;
     CapsuleCollider col;
@@ -191,7 +192,7 @@ public class FPSController : MonoBehaviour
             if (wasSliding)
             {
                 Vector3 slideDir = new Vector3(slideVelocity.x, 0f, slideVelocity.z).normalized;
-                rb.linearVelocity = new Vector3(slideDir.x * slideJumpBoost, 0f, slideDir.z * slideJumpBoost);
+                rb.linearVelocity = new Vector3(slideVelocity.x, rb.linearVelocity.y, slideVelocity.z);
                 slideJumped = true;
                 if (movementAudio != null) movementAudio.PlayJump();
                 sprintSuppressTimer = 0.8f;

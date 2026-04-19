@@ -66,7 +66,6 @@ public class FPSLook : MonoBehaviour
             WeaponBase weapon = weaponInventory.GetActiveWeaponBase();
             if (weapon != null && weapon.isAiming)
             {
-                // Scale sens proportionally to FOV change, then apply additional multiplier
                 float aimFOV = baseFOV * (1f - weapon.adsFOVReduction / 100f);
                 float fovRatio = aimFOV / baseFOV;
                 sensScale = fovRatio * adsSensitivityMultiplier;
@@ -115,7 +114,7 @@ public class FPSLook : MonoBehaviour
         float targetFOV;
         if (isAiming)
             targetFOV = baseFOV * (1f - weapon.adsFOVReduction / 100f);
-        else if (fpsController.IsSprinting || fpsController.IsSliding)
+        else if (fpsController.IsSprinting || fpsController.IsSliding || fpsController.IsSlideJumping)
             targetFOV = baseFOV * (1f + sprintFOVPercent / 100f);
         else
             targetFOV = baseFOV;
