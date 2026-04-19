@@ -40,7 +40,7 @@ public class PlayerStats : MonoBehaviour
     {
         currentHealth = maxHealth;
         ApplyStats();
-        Application.targetFrameRate = 1000;
+        Application.targetFrameRate = 260;
     }
 
     void Start()

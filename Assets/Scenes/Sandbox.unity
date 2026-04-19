@@ -1556,8 +1556,8 @@ Camera:
   m_GameObject: {fileID: 330585543}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0, g: 0.75050783, b: 1, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0.54046535, b: 1, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1641,7 +1641,7 @@ MonoBehaviour:
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
-  m_Dithering: 0
+  m_Dithering: 1
   m_ClearDepth: 1
   m_AllowXRRendering: 1
   m_AllowHDROutput: 1
@@ -1923,7 +1923,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 5285ca6da0b981c4e909860c78d6fd0e, type: 2}
+  - {fileID: 2100000, guid: 6323b8476c6600f449ce1af4d0ea83ec, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2232,7 +2232,7 @@ Light:
   serializedVersion: 12
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -2275,7 +2275,7 @@ Light:
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
-  m_ColorTemperature: 5000
+  m_ColorTemperature: 6183
   m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
@@ -2294,13 +2294,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 410087039}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalRotation: {x: 0.07578205, y: -0.66324335, z: 0.5254162, w: 0.52754444}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 50.979, y: -80.055, z: 46.123}
 --- !u!114 &410087042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3029,8 +3029,8 @@ MonoBehaviour:
   conserveHorizontalMomentum: 1
   jumpCooldown: 0.25
   autoBHop: 1
-  canDoubleJump: 0
   doubleJumpForce: 1050
+  canDoubleJump: 0
   wallJumpUpForce: 25
   wallJumpAwayForce: 25
   wallJumpWindow: 0.3
@@ -4357,7 +4357,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bbf815c14f0b2d147ae4cb2cbe0821e9, type: 2}
+  - {fileID: 2100000, guid: 47a369453378e044a9c71c8f681943c9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4918,7 +4918,7 @@ PrefabInstance:
     - target: {fileID: 7234738490434234346, guid: 31717019efd6bac448eec9dd2904dc4a, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: bda0ee8f849932143b45cd6716725207, type: 2}
+      objectReference: {fileID: 2100000, guid: 5ba59c9e29058434cbc9b1b3925e995f, type: 2}
     - target: {fileID: 7417487244167542551, guid: 31717019efd6bac448eec9dd2904dc4a, type: 3}
       propertyPath: m_Name
       value: WallBuyPistol_Test
@@ -6003,7 +6003,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bbf815c14f0b2d147ae4cb2cbe0821e9, type: 2}
+  - {fileID: 2100000, guid: 47a369453378e044a9c71c8f681943c9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6266,7 +6266,7 @@ PrefabInstance:
     - target: {fileID: 7234738490434234346, guid: 31717019efd6bac448eec9dd2904dc4a, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: bda0ee8f849932143b45cd6716725207, type: 2}
+      objectReference: {fileID: 2100000, guid: 5ba59c9e29058434cbc9b1b3925e995f, type: 2}
     - target: {fileID: 7417487244167542551, guid: 31717019efd6bac448eec9dd2904dc4a, type: 3}
       propertyPath: m_Name
       value: WallBuySMG_Test
@@ -6348,7 +6348,7 @@ PrefabInstance:
     - target: {fileID: 7234738490434234346, guid: 31717019efd6bac448eec9dd2904dc4a, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: bda0ee8f849932143b45cd6716725207, type: 2}
+      objectReference: {fileID: 2100000, guid: 5ba59c9e29058434cbc9b1b3925e995f, type: 2}
     - target: {fileID: 7417487244167542551, guid: 31717019efd6bac448eec9dd2904dc4a, type: 3}
       propertyPath: m_Name
       value: WallBuySword_Test
@@ -7080,7 +7080,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bbf815c14f0b2d147ae4cb2cbe0821e9, type: 2}
+  - {fileID: 2100000, guid: 47a369453378e044a9c71c8f681943c9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7261,7 +7261,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bbf815c14f0b2d147ae4cb2cbe0821e9, type: 2}
+  - {fileID: 2100000, guid: 47a369453378e044a9c71c8f681943c9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7607,7 +7607,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bda0ee8f849932143b45cd6716725207, type: 2}
+  - {fileID: 2100000, guid: 5ba59c9e29058434cbc9b1b3925e995f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -10755,7 +10755,7 @@ PrefabInstance:
     - target: {fileID: 7234738490434234346, guid: 31717019efd6bac448eec9dd2904dc4a, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: bda0ee8f849932143b45cd6716725207, type: 2}
+      objectReference: {fileID: 2100000, guid: 5ba59c9e29058434cbc9b1b3925e995f, type: 2}
     - target: {fileID: 7417487244167542551, guid: 31717019efd6bac448eec9dd2904dc4a, type: 3}
       propertyPath: m_Name
       value: WallBuyShotgun_Test
