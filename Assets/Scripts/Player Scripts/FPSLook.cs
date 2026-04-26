@@ -7,6 +7,7 @@ public class FPSLook : MonoBehaviour
     public Camera overlayCamera;
     public Transform orientation;
     public FPSInput input;
+    public float weaponCameraFOV = 90f;
 
     [Header("Look Settings")]
     public float lookSpeed = 2f;
@@ -136,6 +137,6 @@ public class FPSLook : MonoBehaviour
         if (!overlayCamera || !playerCamera) return;
         if (overlayCamera.orthographic) return;
 
-        overlayCamera.fieldOfView = baseFOV;
+        overlayCamera.fieldOfView = weaponCameraFOV;
     }
 }
