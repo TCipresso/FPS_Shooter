@@ -76,6 +76,7 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Animation")]
     public Animator animator;
     public float walkStopDelay = 0.1f;
+    public string FireClipName = "Enter Clip name Here";
 
     [HideInInspector] public bool isReloading = false;
     [HideInInspector] public bool isCocking = false;
@@ -383,7 +384,7 @@ public abstract class WeaponBase : MonoBehaviour
             fpsController.IsSprinting = false;
             fpsController.SuppressSprintOnShoot(0.3f);
         }
-        animator.Play("Pistol_Fire", 2, 0f);
+        animator.Play(FireClipName, 2, 0f);
         StartCoroutine(ResetFiring());
     }
 
