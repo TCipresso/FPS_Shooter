@@ -1013,7 +1013,7 @@ Transform:
   m_GameObject: {fileID: 196436218}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7313,10 +7313,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponSway
   input: {fileID: 576031179}
-  positionSwayAmount: 0.02
-  maxPositionSway: 0.06
+  positionSwayAmount: 0.05
+  maxPositionSway: 0.25
   rotationSwayAmount: 4
-  maxRotationSway: 6
+  maxRotationSway: 10
   positionSmooth: 5
   rotationSmooth: 6
 --- !u!1 &1367049789
@@ -7623,7 +7623,7 @@ Transform:
   m_GameObject: {fileID: 1396589456}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.393, y: -0.225, z: 0.763}
+  m_LocalPosition: {x: 0.422, y: -0.262, z: 0.674}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -11050,7 +11050,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7726585373040194033, guid: 913a0cc4c1f6f714bb4aae1293ece8e3, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7750803049236478868, guid: 913a0cc4c1f6f714bb4aae1293ece8e3, type: 3}
       propertyPath: m_LocalPosition.x
