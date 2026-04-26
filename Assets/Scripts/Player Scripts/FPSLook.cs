@@ -92,11 +92,16 @@ public class FPSLook : MonoBehaviour
         float targetTiltZ = -input.Move.x * maxTiltZ;
         currentTiltZ = Mathf.Lerp(currentTiltZ, targetTiltZ, tiltSpeed * Time.deltaTime);
 
-        playerCamera.transform.localRotation = Quaternion.Euler(
+        Quaternion rot = Quaternion.Euler(
             rotationX + currentRecoil.x,
             currentRecoil.y,
             currentTiltZ
         );
+
+        playerCamera.transform.localRotation = rot;
+
+        if (overlayCamera != null)
+            overlayCamera.transform.localRotation = rot;
     }
 
     void HandleRecoil()

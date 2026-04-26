@@ -10446,8 +10446,8 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.5
-  m_Pitch: 0.7
+  m_Volume: 0.25
+  m_Pitch: 1.5
   Loop: 0
   Mute: 0
   Spatialize: 0
@@ -10846,49 +10846,53 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bullet_Shell_Eject_PFX
       objectReference: {fileID: 0}
+    - target: {fileID: 2563575160318211574, guid: 98e79ef0716a1934a8b430f78c44f9d5, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 6915736880077429646, guid: 98e79ef0716a1934a8b430f78c44f9d5, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.039954834
+      value: 0.05584487
       objectReference: {fileID: 0}
     - target: {fileID: 6915736880077429646, guid: 98e79ef0716a1934a8b430f78c44f9d5, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.041917525
+      value: 0.058588125
       objectReference: {fileID: 0}
     - target: {fileID: 6915736880077429646, guid: 98e79ef0716a1934a8b430f78c44f9d5, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.044300783
+      value: 0.0619192
       objectReference: {fileID: 0}
     - target: {fileID: 6915736880077429646, guid: 98e79ef0716a1934a8b430f78c44f9d5, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.55
+      value: 2.29
       objectReference: {fileID: 0}
     - target: {fileID: 6915736880077429646, guid: 98e79ef0716a1934a8b430f78c44f9d5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.94
+      value: 0.62
       objectReference: {fileID: 0}
     - target: {fileID: 6915736880077429646, guid: 98e79ef0716a1934a8b430f78c44f9d5, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.43
+      value: -0.042
       objectReference: {fileID: 0}
     - target: {fileID: 6915736880077429646, guid: 98e79ef0716a1934a8b430f78c44f9d5, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.86602557
+      value: 0.91600955
       objectReference: {fileID: 0}
     - target: {fileID: 6915736880077429646, guid: 98e79ef0716a1934a8b430f78c44f9d5, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.49999976
+      value: -0.40115649
       objectReference: {fileID: 0}
     - target: {fileID: 6915736880077429646, guid: 98e79ef0716a1934a8b430f78c44f9d5, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6915736880077429646, guid: 98e79ef0716a1934a8b430f78c44f9d5, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.00000008568167
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6915736880077429646, guid: 98e79ef0716a1934a8b430f78c44f9d5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: -60
+      value: -47.301
       objectReference: {fileID: 0}
     - target: {fileID: 6915736880077429646, guid: 98e79ef0716a1934a8b430f78c44f9d5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -11131,8 +11135,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3795b3762fab06243b8c4cd3f94deb73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Mac
-  currentMag: 20
-  maxMag: 20
+  currentMag: 23
+  maxMag: 23
   baseMaxMag: 0
   reserveAmmo: 240
   maxReserve: 240
@@ -11148,18 +11152,18 @@ MonoBehaviour:
   hitMarkerPoolKey: HitMarker
   hitMarkerPoolSize: 10
   audioSource: {fileID: 7245284919962529768}
-  fireSound: {fileID: 8300000, guid: 936690e4f1eafb54ca6ee486c9d2cf2b, type: 3}
+  fireSound: {fileID: 8300000, guid: f1d018efce553ee41b014ecbb1456d94, type: 3}
   sounds:
   - name: Pistol_Reload
     clip: {fileID: 8300000, guid: 9b1351fa756bcf64c923b1e194121fff, type: 3}
   - name: Pistol_Cocked
     clip: {fileID: 8300000, guid: 277d1e280567f7c4cbea4669849def27, type: 3}
-  recoilUp: 2
-  recoilSideRange: 0.5
+  recoilUp: 4
+  recoilSideRange: 1.5
   kickRotationZ: 5
-  kickPositionZ: -0.1
-  kickPositionY: 0.05
-  kickPositionX: 0.02
+  kickPositionZ: -0.25
+  kickPositionY: -0.05
+  kickPositionX: 0.15
   isAutomatic: 1
   rpm: 1000
   baseRpm: 0
@@ -11182,7 +11186,7 @@ MonoBehaviour:
   isReloading: 0
   isCocking: 0
   isFiring: 0
-  range: 50
+  range: 80
   damagePerBullet: 15
 --- !u!4 &1957925461208651787 stripped
 Transform:
