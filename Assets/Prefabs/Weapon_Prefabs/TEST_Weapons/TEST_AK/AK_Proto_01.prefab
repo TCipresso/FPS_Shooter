@@ -5128,8 +5128,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3214402284175172921}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.4639757, y: -0.48459864, z: -0.34161654, w: 0.6581709}
-  m_LocalPosition: {x: 0.002381794, y: 0.0141854575, z: -0.0039414763}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.00075, y: 0.0359, z: -0.00319}
   m_LocalScale: {x: 0.26192498, y: 0.23398203, z: 0.33262572}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5148,8 +5148,8 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.3
-  m_Pitch: 1
+  m_Volume: 0.5
+  m_Pitch: 0.7
   Loop: 0
   Mute: 0
   Spatialize: 0
@@ -15876,7 +15876,7 @@ MonoBehaviour:
   hitMarkerPoolKey: HitMarker
   hitMarkerPoolSize: 10
   audioSource: {fileID: 6884254261088575715}
-  fireSound: {fileID: 8300000, guid: f1d018efce553ee41b014ecbb1456d94, type: 3}
+  fireSound: {fileID: 8300000, guid: 91695f118f8d3a341a1ffac46f3ba81c, type: 3}
   sounds:
   - name: Pistol_Reload
     clip: {fileID: 8300000, guid: 9b1351fa756bcf64c923b1e194121fff, type: 3}
