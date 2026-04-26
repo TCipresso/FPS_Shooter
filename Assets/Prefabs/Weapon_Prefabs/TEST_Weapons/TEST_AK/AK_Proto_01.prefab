@@ -15882,12 +15882,12 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 9b1351fa756bcf64c923b1e194121fff, type: 3}
   - name: Pistol_Cocked
     clip: {fileID: 8300000, guid: 277d1e280567f7c4cbea4669849def27, type: 3}
-  recoilUp: 2
-  recoilSideRange: 0.5
+  recoilUp: 6
+  recoilSideRange: 1.4
   kickRotationZ: 5
-  kickPositionZ: -0.1
-  kickPositionY: 0.05
-  kickPositionX: 0.02
+  kickPositionZ: -0.3
+  kickPositionY: 0.15
+  kickPositionX: 0.09
   isAutomatic: 1
   rpm: 500
   baseRpm: 0
@@ -15901,7 +15901,7 @@ MonoBehaviour:
   adsFOVReduction: 15
   adsBloomMultiplier: 0.25
   adsTransitionSpeed: 10
-  adsFadeCrosshair: 0
+  adsFadeCrosshair: 1
   isAiming: 0
   canReloadWhileSprinting: 0
   animator: {fileID: 456371645670102621}
@@ -15910,8 +15910,8 @@ MonoBehaviour:
   isReloading: 0
   isCocking: 0
   isFiring: 0
-  range: 50
-  damagePerBullet: 35
+  range: 120
+  damagePerBullet: 40
 --- !u!4 &6435066494248271922 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ad882c134d80c4d4ba5ae0b2f370dcc4, type: 3}
