@@ -8716,17 +8716,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1634117481}
   m_CullTransparentMesh: 1
---- !u!114 &1640496589 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6160072168082054368, guid: b9db628f683c18e428765dbed20d4e99, type: 3}
-  m_PrefabInstance: {fileID: 9092900670916958647}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3de9152f54bfa9d42b51c4f1e5aaa4ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SMG
 --- !u!1 &1653109300 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -4258411891960909470, guid: 0e2fcd38aa0edb34fbe17f8ac2f05bc5, type: 3}
@@ -8839,6 +8828,7 @@ MonoBehaviour:
   canReloadWhileSprinting: 0
   animator: {fileID: 1653109304}
   walkStopDelay: 0.1
+  FireClipName: Enter Clip name Here
   isReloading: 0
   isCocking: 0
   isFiring: 0
@@ -11071,7 +11061,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7726585373040194033, guid: 913a0cc4c1f6f714bb4aae1293ece8e3, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7750803049236478868, guid: 913a0cc4c1f6f714bb4aae1293ece8e3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -11221,7 +11211,7 @@ PrefabInstance:
     - target: {fileID: 1934720731875141561, guid: b9db628f683c18e428765dbed20d4e99, type: 3}
       propertyPath: weapon
       value: 
-      objectReference: {fileID: 1640496589}
+      objectReference: {fileID: 0}
     - target: {fileID: 6147316705931541446, guid: b9db628f683c18e428765dbed20d4e99, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.561
