@@ -8,7 +8,6 @@ public class WeaponInventory : MonoBehaviour
     public Transform weaponHolder;
     public PlayerStats playerStats;
 
-
     [Header("Inventory Settings")]
     public int maxSlots = 2;
 
@@ -24,6 +23,9 @@ public class WeaponInventory : MonoBehaviour
 
     public List<GameObject> equippedWeapons = new List<GameObject>();
     public List<WeaponData> equippedData = new List<WeaponData>();
+    public List<WeaponUpgradeData> equippedUpgradeData = new List<WeaponUpgradeData>();
+    public List<int> weaponLevels = new List<int>();
+
     private int activeSlot = 0;
 
     void OnEnable()
@@ -59,7 +61,6 @@ public class WeaponInventory : MonoBehaviour
         if (reloadAction != null && reloadAction.action.WasPressedThisFrame())
             ReloadActiveWeapon();
 
-        // Scroll to swap
         if (scrollAction != null)
         {
             float scroll = scrollAction.action.ReadValue<float>();
@@ -67,7 +68,6 @@ public class WeaponInventory : MonoBehaviour
             else if (scroll < 0f) CycleSlot(1);
         }
 
-        // Number keys
         if (slot1Action != null && slot1Action.action.WasPressedThisFrame()) SetActiveSlot(0);
         if (slot2Action != null && slot2Action.action.WasPressedThisFrame()) SetActiveSlot(1);
     }
@@ -93,7 +93,6 @@ public class WeaponInventory : MonoBehaviour
             WeaponBase wb = w.GetComponentInChildren<WeaponBase>();
             if (wb != null) wb.Refill();
         }
-
         Debug.Log("[WeaponInventory] Max ammo applied to all weapons.");
     }
 
@@ -103,15 +102,13 @@ public class WeaponInventory : MonoBehaviour
         {
             WeaponBase wb = w.GetComponentInChildren<WeaponBase>();
             if (wb == null) continue;
-
             int amount = Mathf.RoundToInt(wb.maxReserve * percent);
             wb.reserveAmmo = Mathf.Min(wb.reserveAmmo + amount, wb.maxReserve);
         }
-
         Debug.Log($"[WeaponInventory] Partial refill {percent * 100}% applied to all weapons.");
     }
 
-    public bool TryAddWeapon(WeaponData data)
+    public bool TryAddWeapon(WeaponData data, WeaponUpgradeData upgradeData = null)
     {
         if (data == null || data.prefab == null)
         {
@@ -127,20 +124,22 @@ public class WeaponInventory : MonoBehaviour
 
         if (equippedWeapons.Count < maxSlots)
         {
-            AddWeaponToSlot(data);
+            AddWeaponToSlot(data, upgradeData);
             return true;
         }
 
         Debug.Log($"[WeaponInventory] Inventory full. Swapping slot {activeSlot} with {data.weaponName}.");
-        SwapWeapon(data, activeSlot);
+        SwapWeapon(data, activeSlot, upgradeData);
         return true;
     }
 
-    void AddWeaponToSlot(WeaponData data)
+    void AddWeaponToSlot(WeaponData data, WeaponUpgradeData upgradeData = null)
     {
         GameObject instance = InstantiateWeapon(data);
         equippedWeapons.Add(instance);
         equippedData.Add(data);
+        equippedUpgradeData.Add(upgradeData);
+        weaponLevels.Add(1);
 
         int newSlot = equippedWeapons.Count - 1;
         SetActiveSlot(newSlot);
@@ -148,19 +147,46 @@ public class WeaponInventory : MonoBehaviour
         Debug.Log($"[WeaponInventory] Added {data.weaponName} to slot {newSlot}.");
     }
 
-    void SwapWeapon(WeaponData data, int slot)
+    void SwapWeapon(WeaponData data, int slot, WeaponUpgradeData upgradeData = null)
     {
         Destroy(equippedWeapons[slot]);
         equippedWeapons.RemoveAt(slot);
         equippedData.RemoveAt(slot);
+        equippedUpgradeData.RemoveAt(slot);
+        weaponLevels.RemoveAt(slot);
 
         GameObject instance = InstantiateWeapon(data);
         equippedWeapons.Insert(slot, instance);
         equippedData.Insert(slot, data);
+        equippedUpgradeData.Insert(slot, upgradeData);
+        weaponLevels.Insert(slot, 1);
 
         SetActiveSlot(slot);
 
         Debug.Log($"[WeaponInventory] Swapped slot {slot} to {data.weaponName}.");
+    }
+
+    public void UpgradeWeaponInSlot(int slot, WeaponData newWeaponData)
+    {
+        if (slot < 0 || slot >= equippedWeapons.Count) return;
+        if (weaponLevels[slot] >= 10)
+        {
+            Debug.LogWarning($"[WeaponInventory] Slot {slot} already at max level.");
+            return;
+        }
+
+        weaponLevels[slot]++;
+        int newLevel = weaponLevels[slot];
+
+        Destroy(equippedWeapons[slot]);
+
+        GameObject instance = InstantiateWeapon(newWeaponData);
+        equippedWeapons[slot] = instance;
+        equippedData[slot] = newWeaponData;
+
+        SetActiveSlot(slot);
+
+        Debug.Log($"[WeaponInventory] Upgraded slot {slot} to level {newLevel}.");
     }
 
     GameObject InstantiateWeapon(WeaponData data)
@@ -170,7 +196,6 @@ public class WeaponInventory : MonoBehaviour
         instance.transform.localRotation = Quaternion.Euler(data.rotationOffset);
         instance.SetActive(false);
 
-        // Tell the pool how many trails this weapon needs
         WeaponBase wb = instance.GetComponentInChildren<WeaponBase>();
         if (wb != null && BulletPool.Instance != null && wb.trailPrefab != null)
             BulletPool.Instance.EnsurePoolSize(wb.trailPoolKey, wb.trailPrefab.gameObject, wb.trailPoolSize);
@@ -194,7 +219,6 @@ public class WeaponInventory : MonoBehaviour
         equippedWeapons[slot].SetActive(true);
         activeSlot = slot;
 
-        // Push this weapon's recoil values to WeaponRecoil
         WeaponBase wb = equippedWeapons[slot].GetComponentInChildren<WeaponBase>();
         if (wb != null)
         {
@@ -208,7 +232,6 @@ public class WeaponInventory : MonoBehaviour
             }
         }
 
-        // Update IK targets to this weapon
         if (ikHandler != null)
             ikHandler.UpdateIKTargets(equippedWeapons[slot]);
 
@@ -234,5 +257,17 @@ public class WeaponInventory : MonoBehaviour
     {
         if (equippedData.Count == 0) return null;
         return equippedData[activeSlot];
+    }
+
+    public int GetWeaponLevel(int slot)
+    {
+        if (slot < 0 || slot >= weaponLevels.Count) return 0;
+        return weaponLevels[slot];
+    }
+
+    public WeaponUpgradeData GetWeaponUpgradeData(int slot)
+    {
+        if (slot < 0 || slot >= equippedUpgradeData.Count) return null;
+        return equippedUpgradeData[slot];
     }
 }

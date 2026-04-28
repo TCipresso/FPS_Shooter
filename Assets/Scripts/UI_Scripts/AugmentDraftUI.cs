@@ -6,9 +6,11 @@ public class AugmentDraftUI : MonoBehaviour
     [Header("Setup")]
     public GameObject player;
     public MenuUIHelper menuHelper;
+    public WeaponInventory weaponInventory;
 
     [Header("Upgrade Draft (Level Ups)")]
     public List<UpgradeData> upgradePool;
+    public List<WeaponUpgradeData> weaponUpgradePool;
     public UpgradeCardUI upgradeCardPrefab;
     public Transform cardParent;
     public CanvasGroup panelGroup;
@@ -24,6 +26,15 @@ public class AugmentDraftUI : MonoBehaviour
 
     [Header("Draft")]
     public int cardsToShow = 3;
+
+    // Wrapper to unify upgrade and weapon upgrade picks
+    struct DraftEntry
+    {
+        public UpgradeData upgradeData;
+        public WeaponUpgradeData weaponUpgradeData;
+        public int weaponSlot;
+        public bool IsWeaponUpgrade => weaponUpgradeData != null;
+    }
 
     readonly List<Component> spawned = new();
     bool fadingIn, fadingOut, isOpen;
@@ -55,8 +66,7 @@ public class AugmentDraftUI : MonoBehaviour
     // ============== UPGRADE DRAFT ==============
     public void OpenUpgradeDraft()
     {
-        if (!panelGroup || !upgradeCardPrefab || !cardParent || upgradePool == null || upgradePool.Count == 0 || !player)
-            return;
+        if (!panelGroup || !upgradeCardPrefab || !cardParent || !player) return;
         if (isOpen) return;
 
         isOpen = true;
@@ -71,24 +81,122 @@ public class AugmentDraftUI : MonoBehaviour
 
         ClearCards();
 
-        var picks = PickUniqueUpgrades(upgradePool, cardsToShow);
+        var picks = PickUnifiedDraft(cardsToShow);
         for (int i = 0; i < picks.Count; i++)
         {
-            var data = picks[i];
+            var entry = picks[i];
             var card = Instantiate(upgradeCardPrefab, cardParent);
             card.transform.localScale = Vector3.zero;
             card.transform.SetSiblingIndex(i);
 
-            float luck = player.GetComponent<PlayerStats>()?.luck ?? 0f;
-            var rarity = UpgradeRarityHelper.RollRarity(luck);
-            var color = UpgradeRarityHelper.GetColor(rarity);
+            if (entry.IsWeaponUpgrade)
+            {
+                int slot = entry.weaponSlot;
+                int currentLevel = weaponInventory.GetWeaponLevel(slot);
+                int nextLevel = currentLevel + 1;
+                var upgradeData = entry.weaponUpgradeData;
 
-            card.Setup(data, rarity, color, OnUpgradeChosen);
+                UpgradeRarity rarity = WeaponUpgradeData.GetRarityForLevel(nextLevel);
+                Color color = WeaponUpgradeData.GetColorForLevel(nextLevel);
+
+                // Get the next WeaponData from the upgrade path
+                WeaponData nextWeaponData = GetWeaponDataForUpgrade(upgradeData, nextLevel);
+
+                card.Setup(
+                    upgradeData.weaponName,
+                    $"Upgrade to level {nextLevel}",
+                    upgradeData.icon,
+                    rarity,
+                    color,
+                    () =>
+                    {
+                        if (nextWeaponData != null)
+                            weaponInventory.UpgradeWeaponInSlot(slot, nextWeaponData);
+                        CloseDraft();
+                    }
+                );
+            }
+            else
+            {
+                float luck = player.GetComponent<PlayerStats>()?.luck ?? 0f;
+                var rarity = UpgradeRarityHelper.RollRarity(luck);
+                var color = UpgradeRarityHelper.GetColor(rarity);
+                var data = entry.upgradeData;
+
+                card.Setup(data, rarity, color, OnUpgradeChosen);
+            }
+
             spawned.Add(card);
         }
 
         if (scaleRoutine != null) StopCoroutine(scaleRoutine);
         scaleRoutine = StartCoroutine(ScaleAllCards());
+    }
+
+    // Builds combined pool of stat upgrades + eligible weapon upgrades and picks randomly
+    List<DraftEntry> PickUnifiedDraft(int count)
+    {
+        var pool = new List<DraftEntry>();
+
+        // Add stat upgrades
+        if (upgradePool != null)
+        {
+            foreach (var u in upgradePool)
+            {
+                if (u != null)
+                    pool.Add(new DraftEntry { upgradeData = u });
+            }
+        }
+
+        // Add eligible weapon upgrades (below level 10, has upgrade data assigned)
+        if (weaponInventory != null && weaponUpgradePool != null)
+        {
+            for (int slot = 0; slot < weaponInventory.equippedWeapons.Count; slot++)
+            {
+                WeaponUpgradeData upgradeData = weaponInventory.GetWeaponUpgradeData(slot);
+                if (upgradeData == null) continue;
+
+                // Check this weapon's upgrade data is in the pool
+                if (!weaponUpgradePool.Contains(upgradeData)) continue;
+
+                int level = weaponInventory.GetWeaponLevel(slot);
+                if (level >= 10) continue;
+
+                pool.Add(new DraftEntry
+                {
+                    weaponUpgradeData = upgradeData,
+                    weaponSlot = slot
+                });
+            }
+        }
+
+        // Pick randomly
+        var result = new List<DraftEntry>(count);
+        var temp = new List<DraftEntry>(pool);
+        for (int i = 0; i < count && temp.Count > 0; i++)
+        {
+            int idx = Random.Range(0, temp.Count);
+            result.Add(temp[idx]);
+            temp.RemoveAt(idx);
+        }
+        return result;
+    }
+
+    // Maps WeaponUpgradeData + level to a WeaponData so inventory can instantiate it
+    WeaponData GetWeaponDataForUpgrade(WeaponUpgradeData upgradeData, int level)
+    {
+        GameObject prefab = upgradeData.GetPrefabForLevel(level);
+        if (prefab == null)
+        {
+            Debug.LogWarning($"[AugmentDraftUI] No prefab for {upgradeData.weaponName} level {level}");
+            return null;
+        }
+
+        // Build a transient WeaponData from the prefab
+        WeaponData data = ScriptableObject.CreateInstance<WeaponData>();
+        data.prefab = prefab;
+        data.weaponName = $"{upgradeData.weaponName} Lv{level}";
+        return data;
     }
 
     void OnUpgradeChosen(UpgradeData data, UpgradeRarity rarity, float rolledValue)
@@ -101,7 +209,6 @@ public class AugmentDraftUI : MonoBehaviour
     // ============== AUGMENT DRAFT (ON LEVEL UP) ==============
     public void OpenAugmentDraft()
     {
-        Debug.Log($"[AugmentDraftUI] OpenAugmentDraft called. panel={panelGroup}, cardPrefab={augmentCardPrefab}, cardParent={cardParent}, poolCount={augmentPool?.Count}, player={player}, isOpen={isOpen}");
         if (!panelGroup || !augmentCardPrefab || !cardParent || augmentPool == null || augmentPool.Count == 0 || !player)
             return;
         if (isOpen) return;
@@ -168,19 +275,6 @@ public class AugmentDraftUI : MonoBehaviour
             if (c) Destroy(c.gameObject);
         }
         spawned.Clear();
-    }
-
-    List<UpgradeData> PickUniqueUpgrades(List<UpgradeData> src, int count)
-    {
-        var result = new List<UpgradeData>(count);
-        var temp = new List<UpgradeData>(src);
-        for (int i = 0; i < count && temp.Count > 0; i++)
-        {
-            int idx = Random.Range(0, temp.Count);
-            result.Add(temp[idx]);
-            temp.RemoveAt(idx);
-        }
-        return result;
     }
 
     List<AugmentData> PickUniqueAugments(List<AugmentData> src, int count)

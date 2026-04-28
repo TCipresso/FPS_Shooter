@@ -12,8 +12,8 @@ public class UpgradeCardUI : MonoBehaviour
     public Button pickButton;
 
     [Header("Rarity Visuals")]
-    public Image frameImage; // optional border/background to tint by rarity
-    public TMP_Text rarityText; // optional label to show "Common/Rare/Epic/Extraterrestrial"
+    public Image frameImage;
+    public TMP_Text rarityText;
 
     UpgradeData data;
     UpgradeRarity rarity;
@@ -24,7 +24,6 @@ public class UpgradeCardUI : MonoBehaviour
         data = upgrade;
         rarity = rolledRarity;
 
-        // Roll the value once and store it
         float rolledValue = data.GetRandomValueForRarity(rarity);
         string displayValue = upgrade.displayAsInteger
             ? Mathf.RoundToInt(rolledValue).ToString()
@@ -33,7 +32,6 @@ public class UpgradeCardUI : MonoBehaviour
         if (titleText) titleText.text = upgrade.upgradeName;
         if (descText) descText.text = upgrade.description.Replace("{value}", displayValue);
         if (icon && upgrade.icon) icon.sprite = upgrade.icon;
-
         if (frameImage) frameImage.color = rarityColor;
         if (rarityText) rarityText.text = rolledRarity.ToString();
 
@@ -44,4 +42,18 @@ public class UpgradeCardUI : MonoBehaviour
         }
     }
 
+    public void Setup(string title, string description, Sprite iconSprite, UpgradeRarity rolledRarity, Color rarityColor, Action onPickedCallback)
+    {
+        if (titleText) titleText.text = title;
+        if (descText) descText.text = description;
+        if (icon && iconSprite) icon.sprite = iconSprite;
+        if (frameImage) frameImage.color = rarityColor;
+        if (rarityText) rarityText.text = rolledRarity.ToString();
+
+        if (pickButton)
+        {
+            pickButton.onClick.RemoveAllListeners();
+            pickButton.onClick.AddListener(() => onPickedCallback?.Invoke());
+        }
+    }
 }
