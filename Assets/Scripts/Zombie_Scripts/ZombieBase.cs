@@ -12,10 +12,6 @@ public abstract class ZombieBase : MonoBehaviour
     [Header("Gold")]
     public int goldBounty = 100;
 
-    [Header("Drop")]
-    public GameObject xpShardPrefab;
-    public float xpShardSpawnHeight = 1f;
-
     [Header("Movement")]
     public float moveSpeed = 3.5f;
 
@@ -23,6 +19,8 @@ public abstract class ZombieBase : MonoBehaviour
     public int attackDamage = 25;
     public float attackRange = 1.5f;
     public float attackCooldown = 1.5f;
+
+    public event System.Action OnDeath;
 
     protected NavMeshAgent agent;
     protected Transform player;
@@ -88,7 +86,7 @@ public abstract class ZombieBase : MonoBehaviour
         Debug.Log($"[{gameObject.name}] Took {actualDamage} damage | Health: {currentHealth}/{maxHealth}");
 
         if (currentHealth <= 0)
-            Die();
+            HandleDeath();
     }
 
     public virtual void TakeDamage(int amount)
@@ -96,7 +94,7 @@ public abstract class ZombieBase : MonoBehaviour
         TakeDamage(amount, playerStats);
     }
 
-    protected virtual void Die()
+    void HandleDeath()
     {
         isDead = true;
         agent.isStopped = true;
@@ -113,14 +111,8 @@ public abstract class ZombieBase : MonoBehaviour
         }
 
         Debug.Log($"[{gameObject.name}] Died.");
-        OnDeath();
-    }
 
-    protected virtual void OnDeath()
-    {
-        if (xpShardPrefab != null)
-            Instantiate(xpShardPrefab, transform.position + Vector3.up * xpShardSpawnHeight, Quaternion.identity);
-
+        OnDeath?.Invoke();
         Destroy(gameObject, 0.1f);
     }
 
