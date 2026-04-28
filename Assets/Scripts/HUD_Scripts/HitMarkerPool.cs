@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 using System.Collections.Generic;
 
 public class HitMarkerPool : MonoBehaviour
@@ -23,48 +22,41 @@ public class HitMarkerPool : MonoBehaviour
     public AudioClip[] bodyHitSounds;
     public float bodyHitVolume = 1f;
 
-    Queue<AudioClip> _bodyHitBag = new Queue<AudioClip>();
-    public int poolSize = 10;
+    [Header("Settings")]
     public float fadeTime = 0.4f;
-
-    [Header("Rotation")]
     public float minRotation = 0f;
     public float maxRotation = 65f;
 
-    List<Image> pool = new List<Image>();
-    List<Image> critPool = new List<Image>();
+    Queue<AudioClip> _bodyHitBag = new Queue<AudioClip>();
+
+    Image marker;
     Canvas canvas;
     Camera mainCamera;
+    Color activeColor;
+    float fadeElapsed = -1f; // -1 means inactive
 
     void Awake()
     {
         Instance = this;
         canvas = GetComponentInParent<Canvas>();
         mainCamera = Camera.main;
-
-        for (int i = 0; i < poolSize; i++)
-        {
-            pool.Add(CreateMarker("HitMarker", hitMarkerSprite, markerColor, markerSize));
-            critPool.Add(CreateMarker("CritMarker", critMarkerSprite, critMarkerColor, critMarkerSize));
-        }
+        marker = CreateMarker();
     }
 
-    Image CreateMarker(string name, Sprite sprite, Color color, Vector2 size)
+    Image CreateMarker()
     {
-        GameObject go = new GameObject(name, typeof(RectTransform), typeof(Image));
+        GameObject go = new GameObject("HitMarker", typeof(RectTransform), typeof(Image));
         go.transform.SetParent(transform, false);
         Image img = go.GetComponent<Image>();
-        img.sprite = sprite;
-        img.color = color;
-        RectTransform rt = go.GetComponent<RectTransform>();
-        rt.sizeDelta = size;
-        rt.anchoredPosition = Vector2.zero;
+        img.color = markerColor;
+        go.GetComponent<RectTransform>().sizeDelta = markerSize;
         go.SetActive(false);
         return img;
     }
 
     public void Spawn(Vector3 worldHitPoint, bool isCrit = false)
     {
+        // Audio
         if (isCrit)
         {
             if (hitSoundSource2D != null && critSound != null)
@@ -79,11 +71,12 @@ public class HitMarkerPool : MonoBehaviour
             }
         }
 
-        List<Image> targetPool = isCrit ? critPool : pool;
-        Color targetColor = isCrit ? critMarkerColor : markerColor;
+        // Visuals
+        activeColor = isCrit ? critMarkerColor : markerColor;
+        marker.sprite = isCrit ? critMarkerSprite : hitMarkerSprite;
 
-        Image marker = GetFromPool(targetPool);
-        if (marker == null) return;
+        RectTransform rt = marker.GetComponent<RectTransform>();
+        rt.sizeDelta = isCrit ? critMarkerSize : markerSize;
 
         Vector2 screenPos = mainCamera.WorldToScreenPoint(worldHitPoint);
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -93,47 +86,43 @@ public class HitMarkerPool : MonoBehaviour
             out Vector2 localPoint
         );
 
-        RectTransform rt = marker.GetComponent<RectTransform>();
         rt.SetAsLastSibling();
         rt.anchoredPosition = localPoint;
         rt.localRotation = Quaternion.Euler(0f, 0f, Random.Range(minRotation, maxRotation));
 
-        Color c = targetColor;
+        Color c = activeColor;
         c.a = 1f;
         marker.color = c;
         marker.gameObject.SetActive(true);
-        StartCoroutine(FadeOut(marker, targetColor));
+
+        fadeElapsed = 0f; // reset and start fade
+    }
+
+    void Update()
+    {
+        if (fadeElapsed < 0f) return;
+
+        fadeElapsed += Time.deltaTime;
+
+        Color c = activeColor;
+        c.a = Mathf.Lerp(1f, 0f, fadeElapsed / fadeTime);
+        marker.color = c;
+
+        if (fadeElapsed >= fadeTime)
+        {
+            marker.gameObject.SetActive(false);
+            fadeElapsed = -1f;
+        }
     }
 
     void RefillBodyHitBag()
     {
-        var pool = new List<AudioClip>(bodyHitSounds);
-        while (pool.Count > 0)
+        var list = new List<AudioClip>(bodyHitSounds);
+        while (list.Count > 0)
         {
-            int i = Random.Range(0, pool.Count);
-            _bodyHitBag.Enqueue(pool[i]);
-            pool.RemoveAt(i);
+            int i = Random.Range(0, list.Count);
+            _bodyHitBag.Enqueue(list[i]);
+            list.RemoveAt(i);
         }
-    }
-
-    Image GetFromPool(List<Image> targetPool)
-    {
-        foreach (var m in targetPool)
-            if (!m.gameObject.activeSelf) return m;
-        return null;
-    }
-
-    IEnumerator FadeOut(Image marker, Color baseColor)
-    {
-        float elapsed = 0f;
-        while (elapsed < fadeTime)
-        {
-            elapsed += Time.deltaTime;
-            Color c = baseColor;
-            c.a = Mathf.Lerp(1f, 0f, elapsed / fadeTime);
-            marker.color = c;
-            yield return null;
-        }
-        marker.gameObject.SetActive(false);
     }
 }
