@@ -3588,7 +3588,6 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 0e8cea36b71bfff478bd03bbc21c25b5, type: 3}
   - {fileID: 8300000, guid: 298e34c8349502043990211300caaf52, type: 3}
   bodyHitVolume: 1
-  poolSize: 1
   fadeTime: 0.25
   minRotation: 0
   maxRotation: 65
@@ -13829,10 +13828,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponSway
   input: {fileID: 576031179}
+  weaponInventory: {fileID: 576031183}
   positionSwayAmount: 0.05
   maxPositionSway: 0.25
   rotationSwayAmount: 4
   maxRotationSway: 10
+  adsSwayMultiplier: 0.01
   positionSmooth: 5
   rotationSmooth: 6
 --- !u!1 &1358642328
