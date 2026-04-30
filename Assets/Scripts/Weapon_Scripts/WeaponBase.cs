@@ -36,15 +36,25 @@ public abstract class WeaponBase : MonoBehaviour
     public AudioClip fireSound;
     public List<WeaponSound> sounds = new List<WeaponSound>();
 
-    [Header("Camera Recoil")]
+    [Header("Camera Recoil - Hip Fire")]
     public float recoilUp = 2f;
     public float recoilSideRange = 0.5f;
 
-    [Header("Weapon Recoil")]
+    [Header("Camera Recoil - ADS")]
+    public float adsRecoilUp = 0.5f;
+    public float adsRecoilSideRange = 0.1f;
+
+    [Header("Weapon Recoil - Hip Fire")]
     public float kickRotationZ = 5f;
     public float kickPositionZ = -0.1f;
     public float kickPositionY = 0.05f;
     public float kickPositionX = 0.02f;
+
+    [Header("Weapon Recoil - ADS")]
+    public float adsKickRotationZ = 2f;
+    public float adsKickPositionZ = -0.05f;
+    public float adsKickPositionY = 0.02f;
+    public float adsKickPositionX = 0.01f;
 
     [Header("Fire Mode")]
     public bool isAutomatic = false;
@@ -129,7 +139,6 @@ public abstract class WeaponBase : MonoBehaviour
 
         if (fpsController != null && animator != null)
         {
-            // Sprint cancels reload only if canReloadWhileSprinting is off
             if (isReloading && fpsController.IsSprinting && !canReloadWhileSprinting)
                 CancelReload();
 
@@ -144,7 +153,6 @@ public abstract class WeaponBase : MonoBehaviour
 
             bool showWalking = !isReloading && (isWalking || walkStopTimer > 0f);
 
-            // While sprint-reloading, suppress sprint animation
             bool showSprinting = fpsController.IsSprinting && !fpsController.IsSprintingSuppressed
                                  && !(isReloading && canReloadWhileSprinting);
 
@@ -276,8 +284,11 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected void ApplyRecoil()
     {
+        float up = isAiming ? adsRecoilUp : recoilUp;
+        float side = isAiming ? adsRecoilSideRange : recoilSideRange;
+
         if (fpsLook != null)
-            fpsLook.ApplyRecoil(recoilUp, recoilSideRange);
+            fpsLook.ApplyRecoil(up, side);
 
         if (weaponRecoil == null)
             weaponRecoil = FindFirstObjectByType<WeaponRecoil>();
@@ -287,6 +298,11 @@ public abstract class WeaponBase : MonoBehaviour
             Debug.LogError("[WeaponBase] WeaponRecoil not found in scene!");
             return;
         }
+
+        if (isAiming)
+            weaponRecoil.LoadValues(adsKickRotationZ, adsKickPositionZ, adsKickPositionY, adsKickPositionX);
+        else
+            weaponRecoil.LoadValues(kickRotationZ, kickPositionZ, kickPositionY, kickPositionX);
 
         weaponRecoil.Kick();
     }

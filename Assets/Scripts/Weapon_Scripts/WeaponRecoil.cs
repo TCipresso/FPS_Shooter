@@ -6,7 +6,6 @@ public class WeaponRecoil : MonoBehaviour
     public float snapSpeed = 20f;
     public float returnSpeed = 8f;
 
-    // Loaded from the active weapon
     [HideInInspector] public float kickRotationZ;
     [HideInInspector] public float kickPositionZ;
     [HideInInspector] public float kickPositionY;
@@ -29,7 +28,6 @@ public class WeaponRecoil : MonoBehaviour
     {
         transform.localPosition = Vector3.Lerp(transform.localPosition, targetPosition, snapSpeed * Time.deltaTime);
         transform.localRotation = Quaternion.Lerp(transform.localRotation, targetRotation, snapSpeed * Time.deltaTime);
-
         targetPosition = Vector3.Lerp(targetPosition, originalLocalPosition, returnSpeed * Time.deltaTime);
         targetRotation = Quaternion.Lerp(targetRotation, originalLocalRotation, returnSpeed * Time.deltaTime);
     }
