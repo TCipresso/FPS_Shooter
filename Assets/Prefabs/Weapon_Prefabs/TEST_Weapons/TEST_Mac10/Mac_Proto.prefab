@@ -11161,7 +11161,7 @@ MonoBehaviour:
   recoilUp: 4
   recoilSideRange: 1.5
   adsRecoilUp: 4
-  adsRecoilSideRange: 0.5
+  adsRecoilSideRange: 1.5
   kickRotationZ: 5
   kickPositionZ: -0.25
   kickPositionY: 0.05
@@ -11185,7 +11185,7 @@ MonoBehaviour:
   adsTransitionSpeed: 10
   adsFadeCrosshair: 1
   isAiming: 0
-  canReloadWhileSprinting: 0
+  canReloadWhileSprinting: 1
   animator: {fileID: 3263689914194470688}
   walkStopDelay: 0.1
   FireClipName: Mac_Fire
