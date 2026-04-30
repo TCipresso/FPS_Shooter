@@ -11160,10 +11160,16 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 277d1e280567f7c4cbea4669849def27, type: 3}
   recoilUp: 4
   recoilSideRange: 1.5
+  adsRecoilUp: 4
+  adsRecoilSideRange: 0.5
   kickRotationZ: 5
   kickPositionZ: -0.25
   kickPositionY: 0.05
   kickPositionX: 0.15
+  adsKickRotationZ: 0
+  adsKickPositionZ: -0.2
+  adsKickPositionY: 0
+  adsKickPositionX: 0.01
   isAutomatic: 1
   rpm: 1000
   baseRpm: 0
@@ -11177,7 +11183,7 @@ MonoBehaviour:
   adsFOVReduction: 15
   adsBloomMultiplier: 0.25
   adsTransitionSpeed: 10
-  adsFadeCrosshair: 0
+  adsFadeCrosshair: 1
   isAiming: 0
   canReloadWhileSprinting: 0
   animator: {fileID: 3263689914194470688}

@@ -17586,10 +17586,16 @@ MonoBehaviour:
   sounds: []
   recoilUp: 2
   recoilSideRange: 0.5
+  adsRecoilUp: 0.5
+  adsRecoilSideRange: 0.1
   kickRotationZ: 5
   kickPositionZ: -0.1
   kickPositionY: 0.05
   kickPositionX: 0.02
+  adsKickRotationZ: 2
+  adsKickPositionZ: -0.05
+  adsKickPositionY: 0.02
+  adsKickPositionX: 0.01
   isAutomatic: 0
   rpm: 300
   baseRpm: 0
@@ -21801,7 +21807,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4546993962415953913, guid: a8ba964187b27c3459148d41cf3c0db6, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
