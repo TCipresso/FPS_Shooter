@@ -29,7 +29,7 @@ AnimationClip:
         outWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
       - serializedVersion: 3
         time: 0.25
-        value: {x: 0.592, y: 0.129, z: 1.261}
+        value: {x: 0.576, y: 0.145, z: 1.261}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -39,8 +39,8 @@ AnimationClip:
       - serializedVersion: 3
         time: 0.5
         value: {x: 0.632, y: 0.11, z: 1.261}
-        inSlope: {x: 0.110000014, y: 0, z: 0}
-        outSlope: {x: 0.110000014, y: 0, z: 0}
+        inSlope: {x: 0.119999886, y: 0, z: 0}
+        outSlope: {x: 0.119999886, y: 0, z: 0}
         tangentMode: 0
         weightedMode: 0
         inWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
@@ -123,7 +123,7 @@ AnimationClip:
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 0.25
-        value: 0.592
+        value: 0.576
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -133,8 +133,8 @@ AnimationClip:
       - serializedVersion: 3
         time: 0.5
         value: 0.632
-        inSlope: 0.110000014
-        outSlope: 0.110000014
+        inSlope: 0.119999886
+        outSlope: 0.119999886
         tangentMode: 136
         weightedMode: 0
         inWeight: 0.33333334
@@ -180,7 +180,7 @@ AnimationClip:
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 0.25
-        value: 0.129
+        value: 0.145
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -282,4 +282,18 @@ AnimationClip:
   m_EulerEditorCurves: []
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
-  m_Events: []
+  m_Events:
+  - time: 0.25
+    functionName: PlayWalkFootstep
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.75
+    functionName: PlayWalkFootstep
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
