@@ -26,11 +26,6 @@ public abstract class WeaponBase : MonoBehaviour
     public ParticleSystem impactEffect;
     public ParticleSystem zombieImpactEffect;
 
-    [Header("Hit Marker")]
-    public ParticleSystem hitMarkerPrefab;
-    public string hitMarkerPoolKey = "HitMarker";
-    public int hitMarkerPoolSize = 10;
-
     [Header("Audio")]
     public AudioSource audioSource;
     public AudioClip fireSound;
@@ -117,9 +112,6 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected virtual void OnEnable()
     {
-        if (BulletPool.Instance != null && hitMarkerPrefab != null)
-            BulletPool.Instance.EnsurePoolSize(hitMarkerPoolKey, hitMarkerPrefab.gameObject, hitMarkerPoolSize);
-
         if (animator != null)
         {
             animator.SetBool("IsReloading", false);
@@ -321,34 +313,6 @@ public abstract class WeaponBase : MonoBehaviour
         );
 
         Destroy(effect.gameObject, effect.main.duration + effect.main.startLifetime.constantMax);
-    }
-
-    protected void SpawnHitMarker(RaycastHit hit)
-    {
-        if (BulletPool.Instance == null || hitMarkerPrefab == null) return;
-
-        GameObject obj = BulletPool.Instance.Get(
-            hitMarkerPoolKey,
-            hit.point,
-            Quaternion.LookRotation(hit.normal)
-        );
-
-        if (obj == null) return;
-
-        ParticleSystem ps = obj.GetComponent<ParticleSystem>();
-        if (ps == null) return;
-
-        ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        ps.Play();
-
-        StartCoroutine(ReturnHitMarkerToPool(obj, ps.main.duration + ps.main.startLifetime.constantMax));
-    }
-
-    System.Collections.IEnumerator ReturnHitMarkerToPool(GameObject obj, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (obj != null)
-            obj.SetActive(false);
     }
 
     protected Vector3 GetAimDirection(float spreadX, float spreadY)
