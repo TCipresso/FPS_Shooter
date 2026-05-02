@@ -29,6 +29,7 @@ public class FPSController : MonoBehaviour
 
     [Header("Jump")]
     public float jumpCooldown = 0.05f;
+    public float coyoteTime = 0.12f;
     public bool autoBHop = true;
     public float doubleJumpForce = 400f;
     public bool canDoubleJump = false;
@@ -68,6 +69,8 @@ public class FPSController : MonoBehaviour
     float wallContactTimer = 0f;
     float wallJumpCooldownTimer = 0f;
     bool readyToJump = true;
+    float coyoteTimer = 0f;
+    bool jumpedThisFrame = false;
     bool slideJumped = false;
     bool doubleJumpUsed = false;
     float slideCooldownTimer = 0f;
@@ -113,6 +116,15 @@ public class FPSController : MonoBehaviour
             wallContactTimer -= Time.deltaTime;
         else
             onWall = false;
+
+        // Coyote time
+        if (grounded)
+            coyoteTimer = coyoteTime;
+        else if (coyoteTimer > 0f)
+            coyoteTimer -= Time.deltaTime;
+
+        if (jumpedThisFrame)
+            jumpedThisFrame = false;
 
         if (input.CrouchPressed && IsSprinting && grounded && !IsSliding && slideCooldownTimer <= 0f)
             StartSlide();
@@ -182,12 +194,14 @@ public class FPSController : MonoBehaviour
         Vector3 horiz0 = new Vector3(v0.x, 0f, v0.z);
 
         bool wantsJump = autoBHop ? input.JumpHeld || input.JumpBuffered : input.JumpBuffered;
-        if (readyToJump && wantsJump && grounded)
+        if (readyToJump && wantsJump && (grounded || coyoteTimer > 0f))
         {
             bool wasSliding = IsSliding;
             Vector3 slideVelocity = rb.linearVelocity;
             EndSlide();
             readyToJump = false;
+            coyoteTimer = 0f;
+            jumpedThisFrame = true;
 
             if (wasSliding)
             {
