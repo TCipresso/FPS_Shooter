@@ -7117,9 +7117,9 @@ MonoBehaviour:
   input: {fileID: 576031179}
   look: {fileID: 196436220}
   movementAudio: {fileID: 576031185}
-  walkSpeed: 12.5
-  sprintSpeed: 25
-  jumpForce: 1050
+  walkSpeed: 20
+  sprintSpeed: 35
+  jumpForce: 1200
   gravity: 100000
   groundLayer:
     serializedVersion: 2
@@ -7128,17 +7128,17 @@ MonoBehaviour:
   groundAcceleration: 5000
   airAcceleration: 300
   airControl: 0.65
-  maxAirSpeed: 5000
+  maxAirSpeed: 30
   conserveHorizontalMomentum: 1
   jumpCooldown: 0.25
-  autoBHop: 1
-  doubleJumpForce: 1050
+  autoBHop: 0
+  doubleJumpForce: 1200
   canDoubleJump: 0
   wallJumpUpForce: 25
   wallJumpAwayForce: 25
   wallJumpWindow: 0.3
   wallJumpCooldown: 0.5
-  slideBoostSpeed: 33.333336
+  slideBoostSpeed: 55
   slideFriction: 30
   slideMinSpeed: 3
   slideCapsuleHeight: 0
@@ -7147,7 +7147,7 @@ MonoBehaviour:
   slideCooldown: 0.25
   slideJumpBoost: 33.33334
   slideJumpForce: 1416.6667
-  slideJumpVertical: 0.755
+  slideJumpVertical: 1
   slideJumpHorizontal: 1
 --- !u!114 &576031181
 MonoBehaviour:
@@ -7161,14 +7161,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 416f56929ff998c47b02c815a73c698c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
-  controller: {fileID: 576031180}
   look: {fileID: 196436220}
   weaponInventory: {fileID: 576031183}
   pickupZone: {fileID: 1400894940}
   augmentDraftUI: {fileID: 1144473312}
-  baseSprintSpeed: 25
-  jumpForce: 1050
-  mobilityMultiplier: 1
   reloadSpeed: 1
   attackSpeed: 1
   critChance: 0.05
