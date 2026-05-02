@@ -13,7 +13,8 @@ GameObject:
   - component: {fileID: 8581783608132928191}
   - component: {fileID: 3026363153739344495}
   - component: {fileID: 3470113665768697918}
-  - component: {fileID: 945030180606070191}
+  - component: {fileID: 8538247606578037682}
+  - component: {fileID: 339213203450545114}
   m_Layer: 0
   m_Name: Basic_Zombie
   m_TagString: Untagged
@@ -138,7 +139,34 @@ NavMeshAgent:
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &945030180606070191
+--- !u!54 &8538247606578037682
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7368778499453464052}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &339213203450545114
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -147,13 +175,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 7368778499453464052}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afc689873ea7c794a9940c2db88ca34b, type: 3}
+  m_Script: {fileID: 11500000, guid: 5d8de574267c9f2468e9a81ca60a57cd, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BasicZombie
+  m_EditorClassIdentifier: Assembly-CSharp::BasicGrunt
   maxHealth: 100
   currentHealth: 0
-  pointsOnKill: 100
-  moveSpeed: 8
+  goldBounty: 100
+  moveSpeed: 5
   attackDamage: 25
   attackRange: 1.5
   attackCooldown: 1.5
+  isGrunt: 1
+  canClimb: 1
+  climbSpeed: 5
+  climbCheckDistance: 2.73
