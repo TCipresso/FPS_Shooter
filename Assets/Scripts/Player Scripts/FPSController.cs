@@ -11,8 +11,8 @@ public class FPSController : MonoBehaviour
     public PlayerMovementAudio movementAudio;
 
     [Header("Movement Settings")]
-    public float walkSpeed = 6f;
-    public float sprintSpeed = 10f;
+    [HideInInspector] public float walkSpeed = 6f;
+    [HideInInspector] public float sprintSpeed = 10f;
     public float jumpForce = 550f;
     public float gravity = 20f;
 
@@ -281,7 +281,7 @@ public class FPSController : MonoBehaviour
             }
             else if (wishDir.sqrMagnitude > 0f)
             {
-                Vector3 target = wishDir * maxAirSpeed;
+                Vector3 target = wishDir * Mathf.Min(maxAirSpeed, currentMaxSpeed);
                 float ax = airAcceleration * airControl * Time.fixedDeltaTime;
                 horiz0 = Vector3.MoveTowards(horiz0, target, ax);
             }
