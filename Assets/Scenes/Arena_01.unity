@@ -2855,6 +2855,7 @@ GameObject:
   - component: {fileID: 229765648}
   - component: {fileID: 229765647}
   - component: {fileID: 229765649}
+  - component: {fileID: 229765650}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -2916,6 +2917,22 @@ MonoBehaviour:
   zombiesPerRoundMultiplier: 1.5
   timeBetweenSpawns: 0.5
   timeBetweenRounds: 5
+--- !u!114 &229765650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229765646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be2f73997c10b9a4f8ad73cb002069f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ImpactEffectPool
+  worldImpactPrefab: {fileID: 7698497513819365913, guid: 00df2626230093c478373a5f1dc23aa6, type: 3}
+  worldPoolSize: 20
+  zombieImpactPrefab: {fileID: 7698497513819365913, guid: 00df2626230093c478373a5f1dc23aa6, type: 3}
+  zombiePoolSize: 30
 --- !u!1 &232269428
 GameObject:
   m_ObjectHideFlags: 0
@@ -26224,11 +26241,6 @@ MonoBehaviour:
   trailPrefab: {fileID: 0}
   trailPoolKey: BulletTrail
   trailPoolSize: 10
-  impactEffect: {fileID: 0}
-  zombieImpactEffect: {fileID: 0}
-  hitMarkerPrefab: {fileID: 0}
-  hitMarkerPoolKey: HitMarker
-  hitMarkerPoolSize: 10
   audioSource: {fileID: 0}
   fireSound: {fileID: 0}
   sounds: []

@@ -22,10 +22,6 @@ public abstract class WeaponBase : MonoBehaviour
     public string trailPoolKey = "BulletTrail";
     public int trailPoolSize = 10;
 
-    [Header("Impact Effects")]
-    public ParticleSystem impactEffect;
-    public ParticleSystem zombieImpactEffect;
-
     [Header("Audio")]
     public AudioSource audioSource;
     public AudioClip fireSound;
@@ -301,18 +297,12 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected void SpawnImpactEffect(RaycastHit hit)
     {
+        if (ImpactEffectPool.Instance == null) return;
         bool isZombie = hit.collider.GetComponent<ZombieBase>() != null;
-        ParticleSystem effectPrefab = isZombie ? zombieImpactEffect : impactEffect;
-
-        if (effectPrefab == null) return;
-
-        ParticleSystem effect = Instantiate(
-            effectPrefab,
-            hit.point,
-            Quaternion.LookRotation(hit.normal)
-        );
-
-        Destroy(effect.gameObject, effect.main.duration + effect.main.startLifetime.constantMax);
+        if (isZombie)
+            ImpactEffectPool.Instance.SpawnZombie(hit.point, hit.normal);
+        else
+            ImpactEffectPool.Instance.SpawnWorld(hit.point, hit.normal);
     }
 
     protected Vector3 GetAimDirection(float spreadX, float spreadY)
