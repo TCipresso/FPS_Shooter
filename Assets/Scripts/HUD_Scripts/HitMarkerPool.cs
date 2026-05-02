@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
 
 public class HitMarkerPool : MonoBehaviour
 {
@@ -16,24 +15,27 @@ public class HitMarkerPool : MonoBehaviour
     public Color critMarkerColor = Color.yellow;
     public Vector2 critMarkerSize = new Vector2(48f, 48f);
 
-    [Header("Hit Sounds")]
+    [Header("Hit Sounds (2D)")]
     public AudioSource hitSoundSource2D;
     public AudioClip critSound;
+    [Range(0f, 1f)] public float critVolume = 1f;
     public AudioClip[] bodyHitSounds;
-    public float bodyHitVolume = 1f;
+    [Range(0f, 1f)] public float bodyHitVolume = 1f;
 
     [Header("Settings")]
     public float fadeTime = 0.4f;
     public float minRotation = 0f;
     public float maxRotation = 65f;
 
-    Queue<AudioClip> _bodyHitBag = new Queue<AudioClip>();
+    // Shuffle bag: index into bodyHitSounds, no allocations per refill.
+    int[] bagOrder;
+    int bagIndex = 0;
 
     Image marker;
     Canvas canvas;
     Camera mainCamera;
     Color activeColor;
-    float fadeElapsed = -1f; // -1 means inactive
+    float fadeElapsed = -1f;
 
     void Awake()
     {
@@ -41,6 +43,13 @@ public class HitMarkerPool : MonoBehaviour
         canvas = GetComponentInParent<Canvas>();
         mainCamera = Camera.main;
         marker = CreateMarker();
+
+        if (bodyHitSounds != null && bodyHitSounds.Length > 0)
+        {
+            bagOrder = new int[bodyHitSounds.Length];
+            for (int i = 0; i < bagOrder.Length; i++) bagOrder[i] = i;
+            ShuffleBag();
+        }
     }
 
     Image CreateMarker()
@@ -56,18 +65,25 @@ public class HitMarkerPool : MonoBehaviour
 
     public void Spawn(Vector3 worldHitPoint, bool isCrit = false)
     {
-        // Audio
-        if (isCrit)
+        // Audio — all 2D through one shared source, no allocations.
+        if (hitSoundSource2D != null)
         {
-            if (hitSoundSource2D != null && critSound != null)
-                hitSoundSource2D.PlayOneShot(critSound);
-        }
-        else
-        {
-            if (bodyHitSounds != null && bodyHitSounds.Length > 0)
+            if (isCrit)
             {
-                if (_bodyHitBag.Count == 0) RefillBodyHitBag();
-                AudioSource.PlayClipAtPoint(_bodyHitBag.Dequeue(), worldHitPoint, bodyHitVolume);
+                if (critSound != null)
+                    hitSoundSource2D.PlayOneShot(critSound, critVolume);
+            }
+            else if (bagOrder != null && bagOrder.Length > 0)
+            {
+                AudioClip clip = bodyHitSounds[bagOrder[bagIndex]];
+                bagIndex++;
+                if (bagIndex >= bagOrder.Length)
+                {
+                    ShuffleBag();
+                    bagIndex = 0;
+                }
+                if (clip != null)
+                    hitSoundSource2D.PlayOneShot(clip, bodyHitVolume);
             }
         }
 
@@ -94,20 +110,16 @@ public class HitMarkerPool : MonoBehaviour
         c.a = 1f;
         marker.color = c;
         marker.gameObject.SetActive(true);
-
-        fadeElapsed = 0f; // reset and start fade
+        fadeElapsed = 0f;
     }
 
     void Update()
     {
         if (fadeElapsed < 0f) return;
-
         fadeElapsed += Time.deltaTime;
-
         Color c = activeColor;
         c.a = Mathf.Lerp(1f, 0f, fadeElapsed / fadeTime);
         marker.color = c;
-
         if (fadeElapsed >= fadeTime)
         {
             marker.gameObject.SetActive(false);
@@ -115,14 +127,15 @@ public class HitMarkerPool : MonoBehaviour
         }
     }
 
-    void RefillBodyHitBag()
+    // Fisher-Yates in-place shuffle. No allocations.
+    void ShuffleBag()
     {
-        var list = new List<AudioClip>(bodyHitSounds);
-        while (list.Count > 0)
+        for (int i = bagOrder.Length - 1; i > 0; i--)
         {
-            int i = Random.Range(0, list.Count);
-            _bodyHitBag.Enqueue(list[i]);
-            list.RemoveAt(i);
+            int j = Random.Range(0, i + 1);
+            int tmp = bagOrder[i];
+            bagOrder[i] = bagOrder[j];
+            bagOrder[j] = tmp;
         }
     }
 }

@@ -30,6 +30,11 @@ public abstract class ZombieBase : MonoBehaviour
     public float climbSpeed = 2f;
     public Vector3 rayOffset = new Vector3(0f, -0.9f, 0f);
     public float rayLength = 0.6f;
+    public float launchForce = 8f;
+    bool wasClimbing = false;
+
+    [Header("Debug")]
+    public bool verboseLogging = false;
 
     public event System.Action OnDeath;
 
@@ -125,6 +130,12 @@ public abstract class ZombieBase : MonoBehaviour
         // MovePosition and cause shaking.
         if (hitWall) rb.linearVelocity = Vector3.zero;
 
+        // Just cleared the top of the wall? Launch them forward + up.
+        if (wasClimbing && !hitWall)
+            rb.linearVelocity = (dir + Vector3.up).normalized * launchForce;
+
+        wasClimbing = hitWall;
+
         Vector3 move = hitWall ? Vector3.up * climbSpeed : dir * moveSpeed;
         rb.MovePosition(rb.position + move * Time.fixedDeltaTime);
     }
@@ -173,7 +184,8 @@ public abstract class ZombieBase : MonoBehaviour
         if (dealer != null && dealer.goldOnHit > 0)
             dealer.AddGold(dealer.goldOnHit);
 
-        Debug.Log($"[{gameObject.name}] Took {actualDamage} damage | Health: {currentHealth}/{maxHealth}");
+        if (verboseLogging)
+            Debug.Log($"[{gameObject.name}] Took {actualDamage} damage | Health: {currentHealth}/{maxHealth}");
 
         if (currentHealth <= 0)
             HandleDeath();
@@ -201,10 +213,11 @@ public abstract class ZombieBase : MonoBehaviour
             float multiplier = goldMultipliers.ContainsKey(contributor) ? goldMultipliers[contributor] : 1f;
             int goldAwarded = Mathf.RoundToInt(goldBounty * proportion * multiplier * contributor.goldGainMultiplier);
             contributor.AddGold(goldAwarded);
-            Debug.Log($"[{gameObject.name}] Awarded {goldAwarded} gold to {contributor.gameObject.name} ({proportion * 100:F0}% damage, x{multiplier} multiplier).");
+            if (verboseLogging)
+                Debug.Log($"[{gameObject.name}] Awarded {goldAwarded} gold to {contributor.gameObject.name} ({proportion * 100:F0}% damage, x{multiplier} multiplier).");
         }
 
-        Debug.Log($"[{gameObject.name}] Died.");
+        if (verboseLogging) Debug.Log($"[{gameObject.name}] Died.");
         OnDeath?.Invoke();
         Destroy(gameObject, 0.1f);
     }
