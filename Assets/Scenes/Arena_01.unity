@@ -6993,14 +6993,22 @@ MonoBehaviour:
   input: {fileID: 576031179}
   orientation: {fileID: 1980046426}
   walkSpeed: 20
-  sprintSpeed: 30
+  sprintSpeed: 35
   acceleration: 500
   airAcceleration: 500
   omniDirectionalSprint: 0
+  maxAirSpeed: 100
+  conserveAirMomentum: 1
   jumpHeight: 5
   gravity: -100
   groundedStickForce: -4
   coyoteTime: 0.25
+  wallJumpUpSpeed: 50
+  wallJumpAwaySpeed: 50
+  wallContactBuffer: 0.15
+  wallJumpCooldown: 0.25
+  wallMinAngle: 60
+  wallMaxAngle: 120
 --- !u!143 &576031187
 CharacterController:
   m_ObjectHideFlags: 0
