@@ -16347,19 +16347,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Pistol
   currentMag: 50
   maxMag: 50
+  baseMaxMag: 0
   reserveAmmo: 9999
   maxReserve: 9999
+  punchyRecoilMode: 1
   muzzlePoint: {fileID: 1574458838571787648}
   muzzleFlash: {fileID: 5320555877607327580}
   casingEject: {fileID: 1060872672379917956}
   trailPrefab: {fileID: 7533938775617344793, guid: 5fdbe00ae02ad624bb45ad9bdb2038fe, type: 3}
   trailPoolKey: BulletTrail
   trailPoolSize: 8
-  impactEffect: {fileID: 7698497513819365913, guid: 00df2626230093c478373a5f1dc23aa6, type: 3}
-  zombieImpactEffect: {fileID: 7698497513819365913, guid: 00df2626230093c478373a5f1dc23aa6, type: 3}
-  hitMarkerPrefab: {fileID: 135852800148444717, guid: 442ceafaa01f03e4da4008e7ba8572b4, type: 3}
-  hitMarkerPoolKey: HitMarker
-  hitMarkerPoolSize: 10
   audioSource: {fileID: 5272844312861467638}
   fireSound: {fileID: 8300000, guid: f1d018efce553ee41b014ecbb1456d94, type: 3}
   sounds:
@@ -16369,14 +16366,19 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 277d1e280567f7c4cbea4669849def27, type: 3}
   recoilUp: 7
   recoilSideRange: 1.5
+  adsRecoilUp: 0.5
+  adsRecoilSideRange: 0.1
   kickRotationZ: 5
   kickPositionZ: -0.25
   kickPositionY: 0.05
   kickPositionX: 0.02
+  adsKickRotationZ: 2
+  adsKickPositionZ: -0.05
+  adsKickPositionY: 0.02
+  adsKickPositionX: 0.01
   isAutomatic: 0
   rpm: 500
   baseRpm: 0
-  goldMultiplier: 1
   critChance: 0.25
   critMultiplier: 1.5
   baseAccuracy: 3
@@ -16392,6 +16394,7 @@ MonoBehaviour:
   canReloadWhileSprinting: 0
   animator: {fileID: 2185979144953250012}
   walkStopDelay: 0.1
+  FireClipName: Enter Clip name Here
   isReloading: 0
   isCocking: 0
   isFiring: 0

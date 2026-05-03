@@ -21,6 +21,7 @@ public class FPSLook : MonoBehaviour
     [Header("Recoil")]
     public float recoilSnapSpeed = 20f;
     public float recoilReturnSpeed = 6f;
+    public float maxRecoilRise = 12f;
 
     [Header("ADS Sensitivity")]
     public WeaponInventory weaponInventory;
@@ -34,6 +35,9 @@ public class FPSLook : MonoBehaviour
 
     Vector3 currentRecoil = Vector3.zero;
     Vector3 targetRecoil = Vector3.zero;
+
+    bool isFiring = false;
+    bool currentPunchyRecoilMode = false;
 
     float baseFOV;
 
@@ -62,9 +66,11 @@ public class FPSLook : MonoBehaviour
         if (!CanLook || input == null) return;
 
         float sensScale = 1f;
+
         if (weaponInventory != null)
         {
             WeaponBase weapon = weaponInventory.GetActiveWeaponBase();
+
             if (weapon != null && weapon.isAiming)
             {
                 float aimFOV = baseFOV * (1f - weapon.adsFOVReduction / 100f);
@@ -76,13 +82,65 @@ public class FPSLook : MonoBehaviour
         float mouseX = input.Look.x * lookSpeed * sensScale;
         float mouseY = input.Look.y * lookSpeed * sensScale;
 
-        rotationX -= mouseY;
+        if (currentPunchyRecoilMode)
+        {
+            rotationX -= mouseY;
+        }
+        else
+        {
+            float pitchDelta = -mouseY;
+
+            if (currentRecoil.x < 0f && pitchDelta > 0f)
+            {
+                float consume = Mathf.Min(pitchDelta, -currentRecoil.x);
+
+                currentRecoil.x += consume;
+                targetRecoil.x += consume;
+
+                pitchDelta -= consume;
+            }
+
+            rotationX += pitchDelta;
+        }
+
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
 
         transform.Rotate(0f, mouseX, 0f);
 
         if (orientation)
             orientation.rotation = Quaternion.Euler(0f, transform.eulerAngles.y, 0f);
+    }
+
+    void HandleRecoil()
+    {
+        currentRecoil = Vector3.Lerp(
+            currentRecoil,
+            targetRecoil,
+            recoilSnapSpeed * Time.deltaTime
+        );
+
+        if (currentPunchyRecoilMode)
+        {
+            targetRecoil = Vector3.Lerp(
+                targetRecoil,
+                Vector3.zero,
+                recoilReturnSpeed * Time.deltaTime
+            );
+        }
+        else
+        {
+            if (!isFiring)
+            {
+                targetRecoil = Vector3.Lerp(
+                    targetRecoil,
+                    Vector3.zero,
+                    recoilReturnSpeed * Time.deltaTime
+                );
+
+                if (targetRecoil.sqrMagnitude < 0.0001f)
+                    targetRecoil = Vector3.zero;
+            }
+        }
     }
 
     void HandleStrafeTilt()
@@ -104,12 +162,6 @@ public class FPSLook : MonoBehaviour
             overlayCamera.transform.localRotation = rot;
     }
 
-    void HandleRecoil()
-    {
-        currentRecoil = Vector3.Lerp(currentRecoil, targetRecoil, recoilSnapSpeed * Time.deltaTime);
-        targetRecoil = Vector3.Lerp(targetRecoil, Vector3.zero, recoilReturnSpeed * Time.deltaTime);
-    }
-
     void HandleSprintFOV()
     {
         if (playerCamera == null || fpsController == null) return;
@@ -118,6 +170,7 @@ public class FPSLook : MonoBehaviour
         bool isAiming = weapon != null && weapon.isAiming;
 
         float targetFOV;
+
         if (isAiming)
             targetFOV = baseFOV * (1f - weapon.adsFOVReduction / 100f);
         else if (fpsController.IsSprinting || fpsController.IsSliding || fpsController.IsSlideJumping)
@@ -134,7 +187,24 @@ public class FPSLook : MonoBehaviour
 
     public void ApplyRecoil(float up, float side)
     {
+        ApplyRecoil(up, side, false);
+    }
+
+    public void ApplyRecoil(float up, float side, bool punchyMode)
+    {
+        currentPunchyRecoilMode = punchyMode;
+
         targetRecoil += new Vector3(-up, Random.Range(-side, side), 0f);
+
+        if (!punchyMode)
+            targetRecoil.x = Mathf.Clamp(targetRecoil.x, -maxRecoilRise, 0f);
+
+        isFiring = true;
+    }
+
+    public void StopRecoil()
+    {
+        isFiring = false;
     }
 
     void SyncOverlayFOV()

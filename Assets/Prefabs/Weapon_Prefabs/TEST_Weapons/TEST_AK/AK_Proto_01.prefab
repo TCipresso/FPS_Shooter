@@ -15977,17 +15977,13 @@ MonoBehaviour:
   baseMaxMag: 0
   reserveAmmo: 240
   maxReserve: 240
+  punchyRecoilMode: 1
   muzzlePoint: {fileID: 8416442533073201114}
   muzzleFlash: {fileID: 962013275804413191}
   casingEject: {fileID: 4930754498559021086}
   trailPrefab: {fileID: 7533938775617344793, guid: 5fdbe00ae02ad624bb45ad9bdb2038fe, type: 3}
   trailPoolKey: BulletTrail
   trailPoolSize: 10
-  impactEffect: {fileID: 7698497513819365913, guid: 00df2626230093c478373a5f1dc23aa6, type: 3}
-  zombieImpactEffect: {fileID: 7698497513819365913, guid: 00df2626230093c478373a5f1dc23aa6, type: 3}
-  hitMarkerPrefab: {fileID: 135852800148444717, guid: 442ceafaa01f03e4da4008e7ba8572b4, type: 3}
-  hitMarkerPoolKey: HitMarker
-  hitMarkerPoolSize: 10
   audioSource: {fileID: 6884254261088575715}
   fireSound: {fileID: 8300000, guid: 91695f118f8d3a341a1ffac46f3ba81c, type: 3}
   sounds:

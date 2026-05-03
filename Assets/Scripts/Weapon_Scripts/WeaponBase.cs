@@ -10,6 +10,9 @@ public abstract class WeaponBase : MonoBehaviour
     public int reserveAmmo;
     public int maxReserve;
 
+    [Header("Recoil Mode")]
+    public bool punchyRecoilMode = false;
+
     [Header("Muzzle")]
     public Transform muzzlePoint;
 
@@ -276,7 +279,7 @@ public abstract class WeaponBase : MonoBehaviour
         float side = isAiming ? adsRecoilSideRange : recoilSideRange;
 
         if (fpsLook != null)
-            fpsLook.ApplyRecoil(up, side);
+            fpsLook.ApplyRecoil(up, side, punchyRecoilMode);
 
         if (weaponRecoil == null)
             weaponRecoil = FindFirstObjectByType<WeaponRecoil>();

@@ -30769,6 +30769,7 @@ MonoBehaviour:
   baseMaxMag: 0
   reserveAmmo: 210
   maxReserve: 210
+  punchyRecoilMode: 1
   muzzlePoint: {fileID: 9094410483433557856}
   muzzleFlash: {fileID: 4967003353262220022}
   casingEject: {fileID: 4045892988649485913}
@@ -30785,7 +30786,7 @@ MonoBehaviour:
   recoilUp: 5
   recoilSideRange: 2
   adsRecoilUp: 2
-  adsRecoilSideRange: 2
+  adsRecoilSideRange: 1
   kickRotationZ: 5
   kickPositionZ: -0.3
   kickPositionY: 0.05
@@ -31043,6 +31044,7 @@ MonoBehaviour:
   baseMaxMag: 0
   reserveAmmo: 240
   maxReserve: 240
+  punchyRecoilMode: 0
   muzzlePoint: {fileID: 2736865002254404146}
   muzzleFlash: {fileID: 8367920409718574920}
   casingEject: {fileID: 8759113089441853954}
