@@ -1,6 +1,5 @@
 using UnityEngine;
 
-[RequireComponent(typeof(CapsuleCollider))]
 public class FPSController : MonoBehaviour
 {
     [Header("References")]
