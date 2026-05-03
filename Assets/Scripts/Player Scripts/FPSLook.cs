@@ -52,8 +52,8 @@ public class FPSLook : MonoBehaviour
     void LateUpdate()
     {
         HandleRotation();
-        HandleStrafeTilt();
         HandleRecoil();
+        HandleStrafeTilt();
         HandleSprintFOV();
         SyncOverlayFOV();
     }
@@ -63,9 +63,11 @@ public class FPSLook : MonoBehaviour
         if (!CanLook || input == null) return;
 
         float sensScale = 1f;
+
         if (weaponInventory != null)
         {
             WeaponBase weapon = weaponInventory.GetActiveWeaponBase();
+
             if (weapon != null && weapon.isAiming)
             {
                 float aimFOV = baseFOV * (1f - weapon.adsFOVReduction / 100f);
@@ -77,13 +79,47 @@ public class FPSLook : MonoBehaviour
         float mouseX = input.Look.x * lookSpeed * sensScale;
         float mouseY = input.Look.y * lookSpeed * sensScale;
 
-        rotationX -= mouseY;
+        float pitchDelta = -mouseY;
+
+        // CONSUME RECOIL FIRST INSTEAD OF MOVING CAMERA DOWN
+        if (currentRecoil.x < 0f && pitchDelta > 0f)
+        {
+            float consume = Mathf.Min(pitchDelta, -currentRecoil.x);
+
+            currentRecoil.x += consume;
+            targetRecoil.x += consume;
+
+            pitchDelta -= consume;
+        }
+
+        rotationX += pitchDelta;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
 
         transform.Rotate(0f, mouseX, 0f);
 
         if (orientation)
             orientation.rotation = Quaternion.Euler(0f, transform.eulerAngles.y, 0f);
+    }
+
+    void HandleRecoil()
+    {
+        currentRecoil = Vector3.Lerp(
+            currentRecoil,
+            targetRecoil,
+            recoilSnapSpeed * Time.deltaTime
+        );
+
+        if (!isFiring)
+        {
+            targetRecoil = Vector3.Lerp(
+                targetRecoil,
+                Vector3.zero,
+                recoilReturnSpeed * Time.deltaTime
+            );
+
+            if (targetRecoil.sqrMagnitude < 0.0001f)
+                targetRecoil = Vector3.zero;
+        }
     }
 
     void HandleStrafeTilt()
@@ -105,14 +141,6 @@ public class FPSLook : MonoBehaviour
             overlayCamera.transform.localRotation = rot;
     }
 
-    void HandleRecoil()
-    {
-        currentRecoil = Vector3.Lerp(currentRecoil, targetRecoil, recoilSnapSpeed * Time.deltaTime);
-
-        if (!isFiring)
-            targetRecoil = Vector3.Lerp(targetRecoil, Vector3.zero, recoilReturnSpeed * Time.deltaTime);
-    }
-
     void HandleSprintFOV()
     {
         if (playerCamera == null || fpsController == null) return;
@@ -121,6 +149,7 @@ public class FPSLook : MonoBehaviour
         bool isAiming = weapon != null && weapon.isAiming;
 
         float targetFOV;
+
         if (isAiming)
             targetFOV = baseFOV * (1f - weapon.adsFOVReduction / 100f);
         else if (fpsController.IsSprinting || fpsController.IsSliding || fpsController.IsSlideJumping)
