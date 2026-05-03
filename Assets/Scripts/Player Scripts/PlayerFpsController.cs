@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerFpsController : MonoBehaviour
 {
-    [SerializeField] private FPSInput input;
+    [SerializeField] public FPSInput input;
     [SerializeField] private Transform orientation;
 
     [Header("Movement")]
@@ -19,14 +19,18 @@ public class PlayerFpsController : MonoBehaviour
     [SerializeField] private float groundedStickForce = -4f;
     [SerializeField] private float coyoteTime = 0.12f;
 
-    public bool IsSprinting { get; private set; }
+    // State exposed for animation system
+    public bool IsSprinting { get; set; }
     public bool IsSliding { get; private set; }
     public bool IsSlideJumping { get; private set; }
+    public bool IsSprintingSuppressed => sprintSuppressTimer > 0f;
+    public bool IsGrounded => controller != null && controller.isGrounded;
 
     private CharacterController controller;
     private Vector3 horizontalVelocity;
     private float verticalVelocity;
     private float coyoteCounter;
+    private float sprintSuppressTimer;
 
     void Awake()
     {
@@ -43,6 +47,9 @@ public class PlayerFpsController : MonoBehaviour
     {
         if (input == null) return;
 
+        if (sprintSuppressTimer > 0f)
+            sprintSuppressTimer -= Time.deltaTime;
+
         bool grounded = controller.isGrounded;
         if (grounded && verticalVelocity < 0f)
             verticalVelocity = groundedStickForce;
@@ -52,10 +59,11 @@ public class PlayerFpsController : MonoBehaviour
         else
             coyoteCounter -= Time.deltaTime;
 
+        // Sprint conditions: held + moving (forward-only unless omni), not aiming, not suppressed
         bool moving = input.Move.sqrMagnitude > 0.01f;
         bool forwardEnough = input.Move.y > 0f;
         bool sprintAllowed = omniDirectionalSprint ? moving : forwardEnough;
-        IsSprinting = input.SprintHeld && sprintAllowed;
+        IsSprinting = input.SprintHeld && sprintAllowed && !input.AimHeld && !IsSprintingSuppressed;
 
         float targetSpeed = IsSprinting ? sprintSpeed : walkSpeed;
 
@@ -85,5 +93,11 @@ public class PlayerFpsController : MonoBehaviour
         CollisionFlags flags = controller.Move(finalVelocity * Time.deltaTime);
         if ((flags & CollisionFlags.Above) != 0 && verticalVelocity > 0f)
             verticalVelocity = 0f;
+    }
+
+    public void SuppressSprintOnShoot(float duration)
+    {
+        if (duration > sprintSuppressTimer)
+            sprintSuppressTimer = duration;
     }
 }

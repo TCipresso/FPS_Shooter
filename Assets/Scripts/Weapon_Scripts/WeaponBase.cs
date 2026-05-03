@@ -89,7 +89,7 @@ public abstract class WeaponBase : MonoBehaviour
     protected Camera mainCamera;
     protected WeaponRecoil weaponRecoil;
     protected PlayerStats playerStats;
-    protected FPSController fpsController;
+    protected PlayerFpsController fpsController;
 
     protected virtual void Awake()
     {
@@ -98,7 +98,7 @@ public abstract class WeaponBase : MonoBehaviour
         fpsLook = FindFirstObjectByType<FPSLook>();
         mainCamera = Camera.main;
         playerStats = FindFirstObjectByType<PlayerStats>();
-        fpsController = FindFirstObjectByType<FPSController>();
+        fpsController = FindFirstObjectByType<PlayerFpsController>();
 
         if (fpsLook == null)
             Debug.LogWarning($"[{gameObject.name}] FPSLook not found in scene.");
