@@ -1712,6 +1712,7 @@ GameObject:
   m_Component:
   - component: {fileID: 196436219}
   - component: {fileID: 196436220}
+  - component: {fileID: 196436221}
   m_Layer: 0
   m_Name: CameraHolder
   m_TagString: Untagged
@@ -1762,9 +1763,30 @@ MonoBehaviour:
   recoilReturnSpeed: 6
   weaponInventory: {fileID: 576031183}
   adsSensitivityMultiplier: 0.6
-  fpsController: {fileID: 576031180}
+  fpsController: {fileID: 576031186}
   sprintFOVPercent: 10
   fovTransitionSpeed: 6
+--- !u!114 &196436221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 196436218}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfb935238bae3c24f9cc2a75882f3276, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerFpsLook
+  input: {fileID: 576031179}
+  playerBody: {fileID: 576031175}
+  cam: {fileID: 330585545}
+  mouseSensitivity: 10
+  maxPitch: 90
+  tiltAngle: 1.5
+  tiltSpeed: 8
+  sprintFovMultiplier: 1.15
+  fovLerpSpeed: 8
 --- !u!1 &199359454
 GameObject:
   m_ObjectHideFlags: 0
@@ -6678,13 +6700,14 @@ GameObject:
   - component: {fileID: 576031174}
   - component: {fileID: 576031173}
   - component: {fileID: 576031172}
-  - component: {fileID: 576031178}
   - component: {fileID: 576031180}
   - component: {fileID: 576031179}
   - component: {fileID: 576031181}
   - component: {fileID: 576031183}
   - component: {fileID: 576031184}
   - component: {fileID: 576031185}
+  - component: {fileID: 576031187}
+  - component: {fileID: 576031186}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -6781,7 +6804,7 @@ Transform:
   m_GameObject: {fileID: 576031171}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 38, y: 4.62, z: 0}
+  m_LocalPosition: {x: 52.82, y: 8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6789,37 +6812,9 @@ Transform:
   - {fileID: 196436219}
   - {fileID: 1631188662}
   - {fileID: 732553769}
-  - {fileID: 1400894938}
   - {fileID: 1160338462}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &576031178
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 576031171}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 1
-  m_Constraints: 80
-  m_CollisionDetection: 1
 --- !u!114 &576031179
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6846,7 +6841,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 576031171}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4c51c3b8521944e46954d1914aa27f4f, type: 3}
   m_Name: 
@@ -6902,7 +6897,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   look: {fileID: 196436220}
   weaponInventory: {fileID: 576031183}
-  pickupZone: {fileID: 1400894940}
+  pickupZone: {fileID: 0}
   augmentDraftUI: {fileID: 1144473312}
   reloadSpeed: 1
   attackSpeed: 1
@@ -6983,6 +6978,54 @@ MonoBehaviour:
   slideClip: {fileID: 8300000, guid: d884ac8f093fc2d488be9aa9d2b05ce7, type: 3}
   jumpVolume: 3
   slideVolume: 0.4
+--- !u!114 &576031186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 576031171}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82aa3f30ed6672e449219068cb04b479, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerFpsController
+  input: {fileID: 576031179}
+  orientation: {fileID: 1980046426}
+  walkSpeed: 20
+  sprintSpeed: 30
+  acceleration: 500
+  airAcceleration: 500
+  omniDirectionalSprint: 0
+  jumpHeight: 5
+  gravity: -100
+  groundedStickForce: -4
+  coyoteTime: 0.25
+--- !u!143 &576031187
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 576031171}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 5
+  m_Radius: 0.75
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &578359719
 GameObject:
   m_ObjectHideFlags: 0
@@ -18738,73 +18781,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d6641054caf75dc4581a5372b2aa52f8, type: 3}
---- !u!1 &1400894937
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1400894938}
-  - component: {fileID: 1400894940}
-  - component: {fileID: 1400894939}
-  m_Layer: 12
-  m_Name: PickUpZone
-  m_TagString: PickUpZone
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1400894938
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1400894937}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 576031175}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &1400894939
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1400894937}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 2048
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 2039
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 2.5
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1400894940
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1400894937}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e6add481c648d6643ac5e238aa200434, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PickupZone
-  player: {fileID: 576031175}
 --- !u!1 &1403060914
 GameObject:
   m_ObjectHideFlags: 0

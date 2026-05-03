@@ -25,7 +25,7 @@ public class FPSLook : MonoBehaviour
     [Header("ADS Sensitivity")]
     public WeaponInventory weaponInventory;
     [Range(0f, 1f)] public float adsSensitivityMultiplier = 0.6f;
-    public FPSController fpsController;
+    public PlayerFpsController fpsController;
     [Range(0f, 50f)] public float sprintFOVPercent = 10f;
     public float fovTransitionSpeed = 6f;
 
