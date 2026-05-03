@@ -53,7 +53,7 @@ public class PlayerFpsController : MonoBehaviour
     public bool IsSprinting { get; set; }
     public bool IsSliding { get; private set; }
     public bool IsSlideJumping { get; private set; }
-    public bool IsSprintingSuppressed => sprintSuppressTimer > 0f;
+    public bool IsSprintingSuppressed => sprintSuppressTimer > 0f || (IsSlideJumping && !IsGrounded);
     public bool IsGrounded => controller != null && controller.isGrounded;
 
     private CharacterController controller;
