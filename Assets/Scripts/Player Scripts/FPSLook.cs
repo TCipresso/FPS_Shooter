@@ -21,6 +21,7 @@ public class FPSLook : MonoBehaviour
     [Header("Recoil")]
     public float recoilSnapSpeed = 20f;
     public float recoilReturnSpeed = 6f;
+    public float maxRecoilRise = 12f;
 
     [Header("ADS Sensitivity")]
     public WeaponInventory weaponInventory;
@@ -81,7 +82,6 @@ public class FPSLook : MonoBehaviour
 
         float pitchDelta = -mouseY;
 
-        // CONSUME RECOIL FIRST INSTEAD OF MOVING CAMERA DOWN
         if (currentRecoil.x < 0f && pitchDelta > 0f)
         {
             float consume = Mathf.Min(pitchDelta, -currentRecoil.x);
@@ -167,6 +167,9 @@ public class FPSLook : MonoBehaviour
     public void ApplyRecoil(float up, float side)
     {
         targetRecoil += new Vector3(-up, Random.Range(-side, side), 0f);
+
+        targetRecoil.x = Mathf.Clamp(targetRecoil.x, -maxRecoilRise, 0f);
+
         isFiring = true;
     }
 
