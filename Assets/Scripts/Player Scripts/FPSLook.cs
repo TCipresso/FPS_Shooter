@@ -77,8 +77,17 @@ public class FPSLook : MonoBehaviour
         float mouseX = input.Look.x * lookSpeed * sensScale;
         float mouseY = input.Look.y * lookSpeed * sensScale;
 
-        rotationX -= mouseY;
-        rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
+        if (isFiring)
+        {
+            // Swallow mouse Y into recoil offset so pulling down fights
+            // recoil without moving your true aim point
+            targetRecoil.x -= mouseY; ;
+        }
+        else
+        {
+            rotationX -= mouseY;
+            rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
+        }
 
         transform.Rotate(0f, mouseX, 0f);
 
@@ -109,7 +118,7 @@ public class FPSLook : MonoBehaviour
     {
         currentRecoil = Vector3.Lerp(currentRecoil, targetRecoil, recoilSnapSpeed * Time.deltaTime);
 
-        if (!isFiring)
+        if (!isFiring && targetRecoil.x < 0f)
             targetRecoil = Vector3.Lerp(targetRecoil, Vector3.zero, recoilReturnSpeed * Time.deltaTime);
     }
 
@@ -140,15 +149,10 @@ public class FPSLook : MonoBehaviour
         targetRecoil += new Vector3(-up, Random.Range(-side, side), 0f);
         isFiring = true;
     }
+
     public void StopRecoil()
     {
         isFiring = false;
-        // Bake recoil into actual look rotation so return point is where you're already looking
-        rotationX += currentRecoil.x;
-        rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
-        transform.Rotate(0f, currentRecoil.y, 0f);
-        currentRecoil = Vector3.zero;
-        targetRecoil = Vector3.zero;
     }
 
     void SyncOverlayFOV()
