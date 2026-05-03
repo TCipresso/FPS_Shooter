@@ -31,7 +31,7 @@ public class PlayerStats : MonoBehaviour
     void Awake()
     {
         currentHealth = maxHealth;
-        Application.targetFrameRate = 1000;
+        Application.targetFrameRate = 300;
     }
 
     void Start()
