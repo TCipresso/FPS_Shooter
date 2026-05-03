@@ -51,13 +51,17 @@ public class WeaponInventory : MonoBehaviour
         if (fireAction != null)
         {
             WeaponBase active = GetActiveWeaponBase();
-            bool shouldFire = active != null && active.isAutomatic
-                ? fireAction.action.IsPressed()
-                : fireAction.action.WasPressedThisFrame();
+
+            bool shouldFire = false;
+            if (active != null && !active.isReloading)
+            {
+                shouldFire = active.isAutomatic
+                    ? fireAction.action.IsPressed()
+                    : fireAction.action.WasPressedThisFrame();
+            }
 
             if (shouldFire)
                 FireActiveWeapon();
-
             else
                 active?.fpsLook?.StopRecoil();
         }
