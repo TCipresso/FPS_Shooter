@@ -27,6 +27,7 @@ public class WeaponInventory : MonoBehaviour
     public List<int> weaponLevels = new List<int>();
 
     private int activeSlot = 0;
+    private bool fireHeldLastFrame = false;
 
     void OnEnable()
     {
@@ -51,13 +52,37 @@ public class WeaponInventory : MonoBehaviour
         if (fireAction != null)
         {
             WeaponBase active = GetActiveWeaponBase();
-            bool shouldFire = active != null && active.isAutomatic
-                ? fireAction.action.IsPressed()
-                : fireAction.action.WasPressedThisFrame();
+
+            bool shouldFire = false;
+            if (active != null)
+            {
+                if (active.isReloading)
+                {
+                    // Force a fresh press after reload completes
+                    fireHeldLastFrame = true;
+                    shouldFire = false;
+                }
+                else if (active.isAutomatic)
+                {
+                    bool isPressed = fireAction.action.IsPressed();
+                    // Require releasing and repressing after reload
+                    if (fireHeldLastFrame && isPressed)
+                        shouldFire = false;
+                    else
+                    {
+                        shouldFire = isPressed;
+                        fireHeldLastFrame = false;
+                    }
+                }
+                else
+                {
+                    shouldFire = fireAction.action.WasPressedThisFrame();
+                    fireHeldLastFrame = false;
+                }
+            }
 
             if (shouldFire)
                 FireActiveWeapon();
-
             else
                 active?.fpsLook?.StopRecoil();
         }

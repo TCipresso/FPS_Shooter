@@ -224,6 +224,8 @@ public abstract class WeaponBase : MonoBehaviour
         currentMag += given;
         reserveAmmo -= given;
         isReloading = false;
+        if (fpsLook != null)
+            fpsLook.StopRecoil();
 
         if (animator != null)
             animator.SetBool("IsReloading", false);
@@ -376,6 +378,8 @@ public abstract class WeaponBase : MonoBehaviour
         animator.SetBool("IsSprinting", false);
         animator.SetFloat("ReloadSpeed", playerStats != null ? playerStats.reloadSpeed : 1f);
         animator.SetBool("IsReloading", true);
+        if (fpsLook != null)
+            fpsLook.StopRecoil();
     }
 
     public void CancelReload()
