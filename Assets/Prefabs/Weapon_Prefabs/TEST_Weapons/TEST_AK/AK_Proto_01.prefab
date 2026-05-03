@@ -15983,11 +15983,6 @@ MonoBehaviour:
   trailPrefab: {fileID: 7533938775617344793, guid: 5fdbe00ae02ad624bb45ad9bdb2038fe, type: 3}
   trailPoolKey: BulletTrail
   trailPoolSize: 10
-  impactEffect: {fileID: 7698497513819365913, guid: 00df2626230093c478373a5f1dc23aa6, type: 3}
-  zombieImpactEffect: {fileID: 7698497513819365913, guid: 00df2626230093c478373a5f1dc23aa6, type: 3}
-  hitMarkerPrefab: {fileID: 135852800148444717, guid: 442ceafaa01f03e4da4008e7ba8572b4, type: 3}
-  hitMarkerPoolKey: HitMarker
-  hitMarkerPoolSize: 10
   audioSource: {fileID: 6884254261088575715}
   fireSound: {fileID: 8300000, guid: 91695f118f8d3a341a1ffac46f3ba81c, type: 3}
   sounds:
@@ -15995,9 +15990,9 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 9b1351fa756bcf64c923b1e194121fff, type: 3}
   - name: Pistol_Cocked
     clip: {fileID: 8300000, guid: 277d1e280567f7c4cbea4669849def27, type: 3}
-  recoilUp: 6
+  recoilUp: 1
   recoilSideRange: 1.4
-  adsRecoilUp: 6
+  adsRecoilUp: 1
   adsRecoilSideRange: 2
   kickRotationZ: 5
   kickPositionZ: -0.3
@@ -16029,6 +16024,7 @@ MonoBehaviour:
   isReloading: 0
   isCocking: 0
   isFiring: 0
+  fpsLook: {fileID: 0}
   range: 120
   damagePerBullet: 40
 --- !u!4 &6435066494248271922 stripped

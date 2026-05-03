@@ -34,6 +34,7 @@ public class FPSLook : MonoBehaviour
 
     Vector3 currentRecoil = Vector3.zero;
     Vector3 targetRecoil = Vector3.zero;
+    bool isFiring = false;
 
     float baseFOV;
 
@@ -107,7 +108,9 @@ public class FPSLook : MonoBehaviour
     void HandleRecoil()
     {
         currentRecoil = Vector3.Lerp(currentRecoil, targetRecoil, recoilSnapSpeed * Time.deltaTime);
-        targetRecoil = Vector3.Lerp(targetRecoil, Vector3.zero, recoilReturnSpeed * Time.deltaTime);
+
+        if (!isFiring)
+            targetRecoil = Vector3.Lerp(targetRecoil, Vector3.zero, recoilReturnSpeed * Time.deltaTime);
     }
 
     void HandleSprintFOV()
@@ -135,6 +138,17 @@ public class FPSLook : MonoBehaviour
     public void ApplyRecoil(float up, float side)
     {
         targetRecoil += new Vector3(-up, Random.Range(-side, side), 0f);
+        isFiring = true;
+    }
+    public void StopRecoil()
+    {
+        isFiring = false;
+        // Bake recoil into actual look rotation so return point is where you're already looking
+        rotationX += currentRecoil.x;
+        rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
+        transform.Rotate(0f, currentRecoil.y, 0f);
+        currentRecoil = Vector3.zero;
+        targetRecoil = Vector3.zero;
     }
 
     void SyncOverlayFOV()

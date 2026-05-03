@@ -85,7 +85,7 @@ public abstract class WeaponBase : MonoBehaviour
 
     float walkStopTimer = 0f;
 
-    protected FPSLook fpsLook;
+    public FPSLook fpsLook;
     protected Camera mainCamera;
     protected WeaponRecoil weaponRecoil;
     protected PlayerStats playerStats;
