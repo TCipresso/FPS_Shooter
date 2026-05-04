@@ -48,6 +48,9 @@ public class PlayerFpsController : MonoBehaviour
     [SerializeField] private float slideCameraDrop = 0.8f;
     [SerializeField] private float cameraLerpSpeed = 12f;
 
+    [Header("Audio")]
+    [SerializeField] private PlayerMovementAudio movementAudio;
+
     private Vector3 cameraDefaultLocalPos;
 
     public bool IsSprinting { get; set; }
@@ -213,12 +216,16 @@ public class PlayerFpsController : MonoBehaviour
         float finalSlideSpeed = Mathf.Max(slideBoostSpeed, currentSpeed);
 
         horizontalVelocity = slideDir * finalSlideSpeed;
+
+        movementAudio?.PlaySlide();
     }
 
     void EndSlide()
     {
         IsSliding = false;
         slideCooldownTimer = slideCooldown;
+
+        movementAudio?.StopSlide();
     }
 
     void UpdateCapsuleHeight()
@@ -307,6 +314,7 @@ public class PlayerFpsController : MonoBehaviour
 
             IsSlideJumping = true;
             EndSlide();
+            movementAudio?.PlayJump();
             input.ConsumeJump();
             return;
         }
@@ -319,6 +327,7 @@ public class PlayerFpsController : MonoBehaviour
             onWall = false;
             wallContactTimer = 0f;
             wallJumpCooldownTimer = wallJumpCooldown;
+            movementAudio?.PlayJump();
             input.ConsumeJump();
             return;
         }
@@ -327,6 +336,7 @@ public class PlayerFpsController : MonoBehaviour
         {
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
             coyoteCounter = 0f;
+            movementAudio?.PlayJump();
             input.ConsumeJump();
         }
     }
