@@ -32,7 +32,6 @@ public class PlayerInteract : MonoBehaviour
     void Update()
     {
         CheckForInteractable();
-
         if (interactAction != null && interactAction.action.WasPressedThisFrame())
             TryInteract();
     }
@@ -43,8 +42,13 @@ public class PlayerInteract : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, interactRange))
         {
-            Debug.Log("Hit: " + hit.collider.gameObject.name + " Tag: " + hit.collider.tag);
+            // If we hit a zombie, update the target
+            // If we hit something else, leave the current target alone
+            ZombieBase zombie = hit.collider.GetComponentInParent<ZombieBase>();
+            if (zombie != null)
+                EnemyHealthBarManager.Instance?.SetTarget(zombie);
 
+            // Existing interact logic
             if (!IsInteractableTag(hit.collider.tag))
             {
                 ClearPrompt();
@@ -67,6 +71,11 @@ public class PlayerInteract : MonoBehaviour
 
             Debug.Log("Tag matched but no Buyable or Interactable component found on: " + hit.collider.gameObject.name);
         }
+        else
+        {
+            // Raycast hit nothing at all — now it's safe to clear the health bar
+            EnemyHealthBarManager.Instance?.ClearTarget();
+        }
 
         ClearPrompt();
     }
@@ -74,7 +83,6 @@ public class PlayerInteract : MonoBehaviour
     void TryInteract()
     {
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-
         if (!Physics.Raycast(ray, out RaycastHit hit, interactRange))
             return;
 

@@ -33,10 +33,14 @@ public abstract class ZombieBase : MonoBehaviour
     public float launchForce = 8f;
     bool wasClimbing = false;
 
+    [Header("Health Bar")]
+    public Transform headTransform; // assign the head bone in the prefab inspector
+
     [Header("Debug")]
     public bool verboseLogging = false;
 
     public event System.Action OnDeath;
+    public event System.Action<int, int> OnHealthChanged; // (currentHealth, maxHealth)
 
     protected NavMeshAgent agent;
     protected Rigidbody rb;
@@ -60,8 +64,6 @@ public abstract class ZombieBase : MonoBehaviour
         {
             agent.enabled = false;
 
-            // Non-kinematic so collisions still register, but configured so
-            // MovePosition is authoritative and impulses can't spin/launch us.
             rb.isKinematic = false;
             rb.useGravity = true;
             rb.freezeRotation = true;
@@ -100,10 +102,6 @@ public abstract class ZombieBase : MonoBehaviour
         GruntMove();
     }
 
-    // Megabonk style: MovePosition forward each tick, raycast from the BASE of the
-    // collider to detect obstacles, climb by adding Y when blocked. Collisions
-    // between zombies are preserved — we kill residual velocity so impulses from
-    // bumping into each other don't pinball them around.
     void GruntMove()
     {
         Vector3 dir = player.position - transform.position;
@@ -111,26 +109,19 @@ public abstract class ZombieBase : MonoBehaviour
         if (dir.sqrMagnitude < 0.0001f) return;
         dir.Normalize();
 
-        // Rotate toward player
         Quaternion targetRot = Quaternion.LookRotation(dir);
         rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, 10f * Time.fixedDeltaTime));
 
-        // Kill horizontal impulse velocity from zombie-on-zombie collisions.
-        // Leave Y alone so gravity accumulates and they fall at normal speed.
         Vector3 v = rb.linearVelocity;
         v.x = 0f;
         v.z = 0f;
         rb.linearVelocity = v;
 
-        // Raycast forward from offset point. Hit wall = go up. No wall = go forward.
         Vector3 rayStart = transform.position + transform.TransformVector(rayOffset);
         bool hitWall = Physics.Raycast(rayStart, dir, rayLength, groundLayer);
 
-        // While climbing, kill Y velocity so gravity doesn't fight the upward
-        // MovePosition and cause shaking.
         if (hitWall) rb.linearVelocity = Vector3.zero;
 
-        // Just cleared the top of the wall? Launch them forward + up.
         if (wasClimbing && !hitWall)
             rb.linearVelocity = (dir + Vector3.up).normalized * launchForce;
 
@@ -165,8 +156,12 @@ public abstract class ZombieBase : MonoBehaviour
     public virtual void TakeDamage(int amount, PlayerStats dealer, float weaponMultiplier = 1f)
     {
         if (isDead) return;
+
         int actualDamage = Mathf.Min(amount, currentHealth);
         currentHealth -= actualDamage;
+
+        // Notify health bar
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
 
         if (dealer != null)
         {
@@ -213,6 +208,7 @@ public abstract class ZombieBase : MonoBehaviour
             float multiplier = goldMultipliers.ContainsKey(contributor) ? goldMultipliers[contributor] : 1f;
             int goldAwarded = Mathf.RoundToInt(goldBounty * proportion * multiplier * contributor.goldGainMultiplier);
             contributor.AddGold(goldAwarded);
+
             if (verboseLogging)
                 Debug.Log($"[{gameObject.name}] Awarded {goldAwarded} gold to {contributor.gameObject.name} ({proportion * 100:F0}% damage, x{multiplier} multiplier).");
         }
