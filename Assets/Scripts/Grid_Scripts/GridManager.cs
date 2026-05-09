@@ -8,7 +8,6 @@ public class GridManager : MonoBehaviour
     public int gridWidth = 40;
     public int gridHeight = 40;
     public float tileSize = 5f;
-    public int maxHeight = 5;
     public GameObject tilePrefab;
 
     [Header("Runtime")]
@@ -53,29 +52,21 @@ public class GridManager : MonoBehaviour
                     z * tileSize - offsetZ
                 );
 
-                GameObject tileRoot = new GameObject($"Tile_{x}_{z}");
-                tileRoot.transform.parent = transform;
-                tileRoot.transform.localPosition = pos;
+                GameObject tileGO = Instantiate(tilePrefab, Vector3.zero, Quaternion.identity, transform);
+                tileGO.name = $"Tile_{x}_{z}";
 
-                Tile tile = tileRoot.AddComponent<Tile>();
+                Tile tile = tileGO.GetComponent<Tile>();
+                if (tile == null)
+                    tile = tileGO.AddComponent<Tile>();
+
                 tile.tileSize = tileSize;
                 tile.animationSpeed = 30f;
 
-                // Stack 5 cubes downward, cube 0 is the top
-                List<GameObject> stack = new List<GameObject>();
-                for (int h = 0; h < maxHeight; h++)
-                {
-                    GameObject cube = Instantiate(tilePrefab, tileRoot.transform);
-                    cube.transform.localPosition = new Vector3(0f, -h * tileSize, 0f);
-                    cube.name = $"Cube_{h}";
-                    cube.SetActive(true);
-                    stack.Add(cube);
-                }
+                // Position XZ first
+                tileGO.transform.localPosition = new Vector3(pos.x, 0f, pos.z);
 
-                tile.SetStack(stack);
-
-                // Default all tiles to height 1
-                tile.ApplyHeight(1);
+                // Set default height 1
+                tile.SetHeightImmediate(1);
 
                 tiles[x, z] = tile;
             }

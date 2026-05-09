@@ -1,38 +1,42 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    [Header("Settings")]
-    public float animationSpeed = 30f;
     public float tileSize = 5f;
+    public float animationSpeed = 30f;
+    public float columnHeight = 65f; // 13 cubes * 5 units
 
-    private List<GameObject> stack = new List<GameObject>();
-    private int currentHeight = 1;
+    private float currentY = 0f;
+    private float targetY = 0f;
     private Coroutine currentAnimation;
 
-    public void SetStack(List<GameObject> cubes)
+    public void SetHeightImmediate(int height)
     {
-        stack = cubes;
+        targetY = height * tileSize;
+        currentY = targetY;
+        transform.localPosition = new Vector3(transform.localPosition.x, currentY - columnHeight, transform.localPosition.z);
     }
 
     public void ApplyHeight(int height)
     {
-        currentHeight = height;
-
+        targetY = height * tileSize;
         if (currentAnimation != null) StopCoroutine(currentAnimation);
-        currentAnimation = StartCoroutine(AnimateTo(height * tileSize));
+        currentAnimation = StartCoroutine(AnimateTo(targetY));
     }
 
-    private IEnumerator AnimateTo(float targetY)
+    private IEnumerator AnimateTo(float target)
     {
-        while (!Mathf.Approximately(transform.localPosition.y, targetY))
+        while (!Mathf.Approximately(currentY, target))
         {
-            float newY = Mathf.MoveTowards(transform.localPosition.y, targetY, animationSpeed * Time.deltaTime);
-            transform.localPosition = new Vector3(transform.localPosition.x, newY, transform.localPosition.z);
+            currentY = Mathf.MoveTowards(currentY, target, animationSpeed * Time.deltaTime);
+            transform.localPosition = new Vector3(
+                transform.localPosition.x,
+                currentY - columnHeight,
+                transform.localPosition.z
+            );
             yield return null;
         }
-        transform.localPosition = new Vector3(transform.localPosition.x, targetY, transform.localPosition.z);
+        currentY = target;
     }
 }
