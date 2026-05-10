@@ -5,23 +5,40 @@ public class Tile : MonoBehaviour
 {
     public float tileSize = 5f;
     public float animationSpeed = 30f;
-    public float columnHeight = 65f; // 13 cubes * 5 units
+    public float columnHeight = 65f;
+    public float pitDepth = -30f;
 
     private float currentY = 0f;
     private float targetY = 0f;
     private Coroutine currentAnimation;
 
+    private float GetTargetY(int height)
+    {
+        if (height == 0)
+            return pitDepth - columnHeight;
+
+        return height * tileSize;
+    }
+
     public void SetHeightImmediate(int height)
     {
-        targetY = height * tileSize;
-        currentY = targetY;
-        transform.localPosition = new Vector3(transform.localPosition.x, currentY - columnHeight, transform.localPosition.z);
+        currentY = GetTargetY(height);
+        targetY = currentY;
+
+        transform.localPosition = new Vector3(
+            transform.localPosition.x,
+            currentY - columnHeight,
+            transform.localPosition.z
+        );
     }
 
     public void ApplyHeight(int height)
     {
-        targetY = height * tileSize;
-        if (currentAnimation != null) StopCoroutine(currentAnimation);
+        targetY = GetTargetY(height);
+
+        if (currentAnimation != null)
+            StopCoroutine(currentAnimation);
+
         currentAnimation = StartCoroutine(AnimateTo(targetY));
     }
 
@@ -29,14 +46,21 @@ public class Tile : MonoBehaviour
     {
         while (!Mathf.Approximately(currentY, target))
         {
-            currentY = Mathf.MoveTowards(currentY, target, animationSpeed * Time.deltaTime);
+            currentY = Mathf.MoveTowards(
+                currentY,
+                target,
+                animationSpeed * Time.deltaTime
+            );
+
             transform.localPosition = new Vector3(
                 transform.localPosition.x,
                 currentY - columnHeight,
                 transform.localPosition.z
             );
+
             yield return null;
         }
+
         currentY = target;
     }
 }
