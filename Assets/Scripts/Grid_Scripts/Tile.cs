@@ -16,7 +16,6 @@ public class Tile : MonoBehaviour
     {
         if (height == 0)
             return pitDepth - columnHeight;
-
         return height * tileSize;
     }
 
@@ -24,26 +23,25 @@ public class Tile : MonoBehaviour
     {
         currentY = GetTargetY(height);
         targetY = currentY;
-
         transform.localPosition = new Vector3(
             transform.localPosition.x,
             currentY - columnHeight,
             transform.localPosition.z
         );
+        enabled = false;
     }
 
     public void ApplyHeight(int height)
     {
         targetY = GetTargetY(height);
-
         if (currentAnimation != null)
             StopCoroutine(currentAnimation);
-
         currentAnimation = StartCoroutine(AnimateTo(targetY));
     }
 
     private IEnumerator AnimateTo(float target)
     {
+        enabled = true;
         while (!Mathf.Approximately(currentY, target))
         {
             currentY = Mathf.MoveTowards(
@@ -51,16 +49,14 @@ public class Tile : MonoBehaviour
                 target,
                 animationSpeed * Time.deltaTime
             );
-
             transform.localPosition = new Vector3(
                 transform.localPosition.x,
                 currentY - columnHeight,
                 transform.localPosition.z
             );
-
             yield return null;
         }
-
         currentY = target;
+        enabled = false;
     }
 }

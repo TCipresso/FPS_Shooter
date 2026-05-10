@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using System.Collections.Generic;
 
 public enum PaintTool { PlusOne, MinusOne, SetTo, Paint }
 
@@ -7,20 +8,24 @@ public enum PaintTool { PlusOne, MinusOne, SetTo, Paint }
 public class GridPatternEditor : Editor
 {
     private GridManager gridManager;
+    private GridPrefabSpawner prefabSpawner;
     private Vector2 scrollPos;
+    private Vector2 scrollPosPrefab;
     private PaintTool activeTool = PaintTool.PlusOne;
     private int setToValue = 1;
     private int paintValue = 1;
     private string activeTab = "Heights";
+    private int selectedPrefabIndex = 0;
+    private float selectedRotation = 0f;
 
     private static readonly Color[] heightColors = new Color[]
     {
-        new Color(0.05f, 0.05f, 0.05f), // 0 - black
-        new Color(0.9f, 0.1f, 0.1f),    // 1 - red
-        new Color(1.0f, 0.55f, 0.0f),   // 2 - orange
-        new Color(1.0f, 1.0f, 0.0f),    // 3 - yellow
-        new Color(0.1f, 0.9f, 0.1f),    // 4 - green
-        new Color(0.2f, 0.5f, 1.0f),    // 5 - blue
+        new Color(0.05f, 0.05f, 0.05f),
+        new Color(0.9f, 0.1f, 0.1f),
+        new Color(1.0f, 0.55f, 0.0f),
+        new Color(1.0f, 1.0f, 0.0f),
+        new Color(0.1f, 0.9f, 0.1f),
+        new Color(0.2f, 0.5f, 1.0f),
     };
 
     private GUIStyle labelStyle;
@@ -45,7 +50,7 @@ public class GridPatternEditor : Editor
         if (activeTab == "Heights")
             DrawHeightsTab(pattern);
         else if (activeTab == "Prefabs")
-            EditorGUILayout.HelpBox("Prefabs tab coming soon.", MessageType.Info);
+            DrawPrefabsTab(pattern);
         else if (activeTab == "Export")
             EditorGUILayout.HelpBox("Export tab coming soon.", MessageType.Info);
     }
@@ -128,7 +133,6 @@ public class GridPatternEditor : Editor
 
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos, GUILayout.Height(scrollHeight));
 
-        // Reserve the full grid rect
         float totalWidth = buttonSize * pattern.width;
         float totalHeight = buttonSize * pattern.height;
         Rect gridRect = GUILayoutUtility.GetRect(totalWidth, totalHeight);
@@ -142,8 +146,8 @@ public class GridPatternEditor : Editor
             for (int x = 0; x < pattern.width; x++)
             {
                 int current = pattern.GetTile(x, z);
-
                 int drawZ = pattern.height - 1 - z;
+
                 Rect cellRect = new Rect(
                     gridRect.x + x * buttonSize,
                     gridRect.y + drawZ * buttonSize,
@@ -151,13 +155,9 @@ public class GridPatternEditor : Editor
                     buttonSize - 1
                 );
 
-                // Draw solid color rect
                 EditorGUI.DrawRect(cellRect, heightColors[current]);
-
-                // Draw number label
                 GUI.Label(cellRect, current.ToString(), labelStyle);
 
-                // Mouse interaction
                 if ((e.type == EventType.MouseDown || e.type == EventType.MouseDrag) && cellRect.Contains(e.mousePosition))
                 {
                     int newVal = current;
@@ -176,6 +176,99 @@ public class GridPatternEditor : Editor
                         Repaint();
                     }
 
+                    e.Use();
+                }
+            }
+        }
+
+        EditorGUILayout.EndScrollView();
+    }
+
+    private void DrawPrefabsTab(GridPattern pattern)
+    {
+        prefabSpawner = (GridPrefabSpawner)EditorGUILayout.ObjectField("Prefab Spawner", prefabSpawner, typeof(GridPrefabSpawner), true);
+
+        if (prefabSpawner == null)
+        {
+            EditorGUILayout.HelpBox("Assign a GridPrefabSpawner to place prefabs.", MessageType.Info);
+            return;
+        }
+
+        if (pattern.tiles == null || pattern.tiles.Length == 0)
+        {
+            EditorGUILayout.HelpBox("Init the pattern from the Heights tab first.", MessageType.Info);
+            return;
+        }
+
+        EditorGUILayout.Space();
+
+        EditorGUILayout.LabelField("Selected Prefab", EditorStyles.boldLabel);
+
+        if (prefabSpawner.prefabLibrary.Count == 0)
+        {
+            EditorGUILayout.HelpBox("Add prefabs to the GridPrefabSpawner's Prefab Library.", MessageType.Info);
+        }
+        else
+        {
+            string[] prefabNames = new string[prefabSpawner.prefabLibrary.Count + 1];
+            prefabNames[0] = "Eraser";
+            for (int i = 0; i < prefabSpawner.prefabLibrary.Count; i++)
+                prefabNames[i + 1] = prefabSpawner.prefabLibrary[i] != null ? prefabSpawner.prefabLibrary[i].name : "null";
+
+            selectedPrefabIndex = EditorGUILayout.Popup("Prefab", selectedPrefabIndex, prefabNames);
+            selectedRotation = EditorGUILayout.Slider("Rotation", selectedRotation, 0f, 360f);
+        }
+
+        EditorGUILayout.Space();
+
+        if (GUILayout.Button("Clear All Prefabs"))
+        {
+            pattern.prefabPlacements.Clear();
+            EditorUtility.SetDirty(pattern);
+        }
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField($"Grid: {pattern.width} x {pattern.height}  |  Cyan = has prefab", EditorStyles.miniLabel);
+        EditorGUILayout.Space();
+
+        float inspectorWidth = EditorGUIUtility.currentViewWidth - 20f;
+        float buttonSize = Mathf.Floor(inspectorWidth / pattern.width);
+        buttonSize = Mathf.Clamp(buttonSize, 8f, 32f);
+
+        float totalWidth = buttonSize * pattern.width;
+        float totalHeight = buttonSize * pattern.height;
+
+        scrollPosPrefab = EditorGUILayout.BeginScrollView(scrollPosPrefab, GUILayout.Height(Mathf.Min(totalHeight + 10f, 600f)));
+
+        Rect gridRect = GUILayoutUtility.GetRect(totalWidth, totalHeight);
+        Event e = Event.current;
+        labelStyle.fontSize = Mathf.Max(6, (int)(buttonSize * 0.4f));
+
+        for (int z = pattern.height - 1; z >= 0; z--)
+        {
+            for (int x = 0; x < pattern.width; x++)
+            {
+                int drawZ = pattern.height - 1 - z;
+                Rect cellRect = new Rect(
+                    gridRect.x + x * buttonSize,
+                    gridRect.y + drawZ * buttonSize,
+                    buttonSize - 1,
+                    buttonSize - 1
+                );
+
+                var placement = pattern.GetPrefabAt(x, z);
+                Color cellColor = placement != null ? Color.cyan : new Color(0.15f, 0.15f, 0.15f);
+                EditorGUI.DrawRect(cellRect, cellColor);
+
+                if (placement != null)
+                    GUI.Label(cellRect, placement.prefabIndex.ToString(), labelStyle);
+
+                if ((e.type == EventType.MouseDown || e.type == EventType.MouseDrag) && cellRect.Contains(e.mousePosition))
+                {
+                    int prefabIdx = selectedPrefabIndex == 0 ? -1 : selectedPrefabIndex - 1;
+                    pattern.SetPrefab(x, z, prefabIdx, selectedRotation);
+                    EditorUtility.SetDirty(pattern);
+                    Repaint();
                     e.Use();
                 }
             }

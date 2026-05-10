@@ -19,6 +19,10 @@ public class CrosshairUI : MonoBehaviour
     public float adsSpread = 0f;
     public float adsAlpha = 0f;
 
+    [Header("ADS Crosshair Swap")]
+    public Image adsCrosshair;
+    public float adsSwapFadeSpeed = 10f;
+
     [Header("Color")]
     public Color normalColor = Color.white;
     public Color adsColor = Color.white;
@@ -38,6 +42,13 @@ public class CrosshairUI : MonoBehaviour
             left.GetComponent<Image>(),
             right.GetComponent<Image>()
         };
+
+        if (adsCrosshair != null)
+        {
+            Color c = adsCrosshair.color;
+            c.a = 0f;
+            adsCrosshair.color = c;
+        }
     }
 
     void Update()
@@ -60,11 +71,26 @@ public class CrosshairUI : MonoBehaviour
         left.anchoredPosition = new Vector2(-currentSpread, 0f);
         right.anchoredPosition = new Vector2(currentSpread, 0f);
 
+        // --- Alpha target for crosshair lines ---
+        float targetLineAlpha;
+        if (isAiming)
+            targetLineAlpha = activeWeapon.adsFadeCrosshair ? adsAlpha : 0f;
+        else
+            targetLineAlpha = 1f;
+
         Color targetColor = isAiming ? adsColor : normalColor;
-        float targetAlpha = (isAiming && activeWeapon.adsFadeCrosshair) ? adsAlpha : 1f;
-        targetColor.a = targetAlpha;
+        targetColor.a = targetLineAlpha;
 
         foreach (Image img in images)
             img.color = Color.Lerp(img.color, targetColor, spreadLerpSpeed * Time.deltaTime);
+
+        // --- ADS crosshair swap (only when adsFadeCrosshair is false) ---
+        if (adsCrosshair != null && !activeWeapon.adsFadeCrosshair)
+        {
+            float targetAdsAlpha = isAiming ? 1f : 0f;
+            Color ac = adsCrosshair.color;
+            ac.a = Mathf.Lerp(ac.a, targetAdsAlpha, adsSwapFadeSpeed * Time.deltaTime);
+            adsCrosshair.color = ac;
+        }
     }
 }
