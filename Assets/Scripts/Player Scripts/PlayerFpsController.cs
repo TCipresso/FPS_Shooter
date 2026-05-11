@@ -42,6 +42,8 @@ public class PlayerFpsController : MonoBehaviour
     [SerializeField] private float slideJumpForwardBoost = 4f;
     [SerializeField] private float slideAirgraceTime = 0.2f;
     [SerializeField] private float slideDropForce = -14f;
+    [SerializeField] private float slideGravityScale = 18f;
+    [SerializeField] private float slideSlopeThreshold = 10f;
 
     [Header("Camera Slide Dip")]
     [SerializeField] private Transform cameraHolder;
@@ -72,8 +74,12 @@ public class PlayerFpsController : MonoBehaviour
 
     private float slideCooldownTimer;
     private float slideAirgraceTimer;
+    private float slideGroundedBuffer;
     private float defaultHeight;
     private Vector3 defaultCenter;
+
+    private Vector3 groundNormal = Vector3.up;
+    private bool hasGroundNormal = false;
 
     void Awake()
     {
@@ -115,6 +121,12 @@ public class PlayerFpsController : MonoBehaviour
             coyoteCounter -= Time.deltaTime;
         }
 
+        if (!grounded)
+        {
+            groundNormal = Vector3.up;
+            hasGroundNormal = false;
+        }
+
         UpdateSprintState();
         UpdateSlideState(grounded);
         UpdateCapsuleHeight();
@@ -124,8 +136,21 @@ public class PlayerFpsController : MonoBehaviour
 
         verticalVelocity += gravity * Time.deltaTime;
 
-        Vector3 finalVelocity = horizontalVelocity;
-        finalVelocity.y = verticalVelocity;
+        // build final velocity — on a slope while sliding, project along surface
+        Vector3 finalVelocity;
+
+        if (IsSliding && hasGroundNormal)
+        {
+            Vector3 slopeMoveDir = Vector3.ProjectOnPlane(horizontalVelocity, groundNormal);
+            finalVelocity = slopeMoveDir;
+            // constant press-into-ground so CharacterController doesn't lose contact
+            finalVelocity += -groundNormal * 8f;
+        }
+        else
+        {
+            finalVelocity = horizontalVelocity;
+            finalVelocity.y = verticalVelocity;
+        }
 
         UpdateCameraSlideDip();
 
@@ -140,6 +165,7 @@ public class PlayerFpsController : MonoBehaviour
         if (sprintSuppressTimer > 0f) sprintSuppressTimer -= Time.deltaTime;
         if (wallJumpCooldownTimer > 0f) wallJumpCooldownTimer -= Time.deltaTime;
         if (slideCooldownTimer > 0f) slideCooldownTimer -= Time.deltaTime;
+        if (slideGroundedBuffer > 0f) slideGroundedBuffer -= Time.deltaTime;
     }
 
     void UpdateWallContact()
@@ -165,7 +191,12 @@ public class PlayerFpsController : MonoBehaviour
 
     void UpdateSlideState(bool grounded)
     {
-        if (!IsSliding && input.CrouchPressed && IsSprinting && grounded && slideCooldownTimer <= 0f)
+        if (grounded)
+            slideGroundedBuffer = 0.15f;
+
+        bool canInitiate = slideGroundedBuffer > 0f;
+
+        if (!IsSliding && input.CrouchPressed && IsSprinting && canInitiate && slideCooldownTimer <= 0f)
         {
             StartSlide();
         }
@@ -178,20 +209,27 @@ public class PlayerFpsController : MonoBehaviour
                 slideAirgraceTimer -= Time.deltaTime;
 
             float horizSpeed = horizontalVelocity.magnitude;
+            bool goingDownhill = hasGroundNormal && IsDownhill();
+            bool tooSlow = horizSpeed < slideMinSpeed && !goingDownhill;
 
             if (!input.CrouchHeld)
-            {
                 EndSlide();
-            }
-            else if (horizSpeed < slideMinSpeed)
-            {
+            else if (tooSlow)
                 EndSlide();
-            }
             else if (slideAirgraceTimer <= 0f)
-            {
                 EndSlide();
-            }
         }
+    }
+
+    bool IsDownhill()
+    {
+        if (!hasGroundNormal) return false;
+
+        float slopeAngle = Vector3.Angle(Vector3.up, groundNormal);
+        if (slopeAngle < slideSlopeThreshold) return false;
+
+        Vector3 slopeDir = Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized;
+        return Vector3.Dot(horizontalVelocity.normalized, slopeDir) > 0f;
     }
 
     void StartSlide()
@@ -267,11 +305,26 @@ public class PlayerFpsController : MonoBehaviour
     {
         if (IsSliding)
         {
-            horizontalVelocity = Vector3.MoveTowards(
-                horizontalVelocity,
-                Vector3.zero,
-                slideFriction * Time.deltaTime
-            );
+            // kill vertical accumulation while on slope so it doesn't bounce us
+            if (hasGroundNormal)
+                verticalVelocity = groundedStickForce;
+
+            if (hasGroundNormal)
+            {
+                float slopeAngle = Vector3.Angle(Vector3.up, groundNormal);
+                if (slopeAngle >= slideSlopeThreshold)
+                {
+                    Vector3 slopeDir = Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized;
+                    horizontalVelocity += slopeDir * slideGravityScale * Time.deltaTime;
+                }
+            }
+
+            Vector3 frictionDelta = horizontalVelocity.normalized * slideFriction * Time.deltaTime;
+            if (frictionDelta.magnitude < horizontalVelocity.magnitude)
+                horizontalVelocity -= frictionDelta;
+            else
+                horizontalVelocity = Vector3.zero;
+
             return;
         }
 
@@ -343,11 +396,16 @@ public class PlayerFpsController : MonoBehaviour
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (controller.isGrounded) return;
-
         float angle = Vector3.Angle(Vector3.up, hit.normal);
 
-        if (angle > wallMinAngle && angle < wallMaxAngle)
+        if (angle < wallMinAngle)
+        {
+            groundNormal = hit.normal;
+            hasGroundNormal = true;
+            return;
+        }
+
+        if (!controller.isGrounded && angle >= wallMinAngle && angle < wallMaxAngle)
         {
             onWall = true;
             wallNormal = hit.normal;

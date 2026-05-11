@@ -28,6 +28,7 @@ public class FPSLook : MonoBehaviour
     [Range(0f, 1f)] public float adsSensitivityMultiplier = 0.6f;
     public PlayerFpsController fpsController;
     [Range(0f, 50f)] public float sprintFOVPercent = 10f;
+    [Range(0f, 50f)] public float slideFOVPercent = 15f;
     public float fovTransitionSpeed = 6f;
 
     float rotationX = 0f;
@@ -173,7 +174,9 @@ public class FPSLook : MonoBehaviour
 
         if (isAiming)
             targetFOV = baseFOV * (1f - weapon.adsFOVReduction / 100f);
-        else if (fpsController.IsSprinting || fpsController.IsSliding || fpsController.IsSlideJumping)
+        else if (fpsController.IsSliding || fpsController.IsSlideJumping)
+            targetFOV = baseFOV * (1f + slideFOVPercent / 100f);
+        else if (fpsController.IsSprinting)
             targetFOV = baseFOV * (1f + sprintFOVPercent / 100f);
         else
             targetFOV = baseFOV;
