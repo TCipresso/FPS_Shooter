@@ -12,9 +12,11 @@ public class GridPrefabSpawner : MonoBehaviour
 
     [Header("Animation Settings")]
     public float riseSpeed = 15f;
-    public float riseHeight = 30f; // how far below ground they start
+    public float riseHeight = 30f;
+    public float gridWaitTime = 0.4f;
 
     private List<GameObject> activePrefabs = new List<GameObject>();
+    private bool isTransitioning = false;
 
     void Awake()
     {
@@ -24,17 +26,15 @@ public class GridPrefabSpawner : MonoBehaviour
 
     public IEnumerator TransitionToPattern(GridPattern pattern)
     {
-        // Step 1: despawn existing prefabs
+        if (isTransitioning) yield break;
+        isTransitioning = true;
+
         yield return StartCoroutine(DespawnPrefabs());
-
-        // Step 2: transition grid
         gridManager.ApplyPattern(pattern);
-
-        // Step 3: wait for grid to finish animating
-        yield return new WaitForSeconds(0.8f);
-
-        // Step 4: spawn new prefabs
+        yield return new WaitForSeconds(gridWaitTime);
         yield return StartCoroutine(SpawnPrefabs(pattern));
+
+        isTransitioning = false;
     }
 
     IEnumerator DespawnPrefabs()
@@ -43,12 +43,9 @@ public class GridPrefabSpawner : MonoBehaviour
 
         List<Coroutine> animations = new List<Coroutine>();
         foreach (GameObject go in activePrefabs)
-        {
             if (go != null)
                 animations.Add(StartCoroutine(AnimateDown(go)));
-        }
 
-        // Wait for all to finish
         foreach (Coroutine c in animations)
             yield return c;
 
@@ -64,27 +61,21 @@ public class GridPrefabSpawner : MonoBehaviour
         {
             if (placement.prefabIndex < 0 || placement.prefabIndex >= prefabLibrary.Count) continue;
 
-            // Get tile world position
-            Tile tile = gridManager.tiles[placement.x, placement.z];
-            if (tile == null) continue;
-
-            int tileHeight = pattern.GetTile(placement.x, placement.z);
-            float topY = (tileHeight - 1) * gridManager.tileSize;
-
             Vector3 spawnPos = new Vector3(
-                tile.transform.position.x,
-                topY - riseHeight,
-                tile.transform.position.z
+                placement.position.x,
+                placement.position.y - riseHeight,
+                placement.position.z
             );
 
             GameObject go = Instantiate(
                 prefabLibrary[placement.prefabIndex],
                 spawnPos,
-                Quaternion.Euler(0, placement.rotation, 0)
+                Quaternion.Euler(placement.eulerAngles)
             );
 
+            go.transform.localScale = placement.scale;
             activePrefabs.Add(go);
-            StartCoroutine(AnimateUp(go, topY));
+            StartCoroutine(AnimateUp(go, placement.position.y));
         }
 
         yield return new WaitForSeconds(0.5f);

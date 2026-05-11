@@ -266,7 +266,7 @@ public class GridPatternEditor : Editor
                 if ((e.type == EventType.MouseDown || e.type == EventType.MouseDrag) && cellRect.Contains(e.mousePosition))
                 {
                     int prefabIdx = selectedPrefabIndex == 0 ? -1 : selectedPrefabIndex - 1;
-                    pattern.SetPrefab(x, z, prefabIdx, selectedRotation);
+                    pattern.SetPrefab(x, z, prefabIdx, new Vector3(0, selectedRotation, 0));
                     EditorUtility.SetDirty(pattern);
                     Repaint();
                     e.Use();

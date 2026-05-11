@@ -39,6 +39,13 @@ public class GridManagerEditor : Editor
         {
             SavePattern(gm);
         }
+
+        if (GUILayout.Button("Clear Scene Prefabs", GUILayout.Height(25)))
+        {
+            PatternPrefabMarker[] markers = FindObjectsByType<PatternPrefabMarker>(FindObjectsSortMode.None);
+            foreach (var marker in markers)
+                DestroyImmediate(marker.gameObject);
+        }
     }
 
     void SavePattern(GridManager gm)
@@ -52,7 +59,7 @@ public class GridManagerEditor : Editor
         GridPattern pattern = ScriptableObject.CreateInstance<GridPattern>();
         pattern.Init(gm.gridWidth, gm.gridHeight);
 
-        // Read tile heights
+        // Save tile heights
         for (int x = 0; x < gm.gridWidth; x++)
         {
             for (int z = 0; z < gm.gridHeight; z++)
@@ -60,8 +67,6 @@ public class GridManagerEditor : Editor
                 Tile tile = gm.tiles[x, z];
                 if (tile == null) continue;
 
-                // Reverse the math: localY = (height-1)*tileSize - columnHeight
-                // So height = (localY + columnHeight) / tileSize + 1
                 float localY = tile.transform.localPosition.y;
                 int height = Mathf.RoundToInt((localY + tile.columnHeight) / gm.tileSize);
                 height = Mathf.Clamp(height, 0, 5);
@@ -69,40 +74,23 @@ public class GridManagerEditor : Editor
             }
         }
 
-        // Read prefab markers
+        // Save prefab markers
         PatternPrefabMarker[] markers = FindObjectsByType<PatternPrefabMarker>(FindObjectsSortMode.None);
         foreach (var marker in markers)
         {
-            // Find closest tile
-            float closestDist = float.MaxValue;
-            int bestX = 0, bestZ = 0;
-
-            for (int x = 0; x < gm.gridWidth; x++)
+            pattern.prefabPlacements.Add(new GridPattern.PrefabPlacement
             {
-                for (int z = 0; z < gm.gridHeight; z++)
-                {
-                    Tile tile = gm.tiles[x, z];
-                    if (tile == null) continue;
-
-                    float dist = Vector2.Distance(
-                        new Vector2(marker.transform.position.x, marker.transform.position.z),
-                        new Vector2(tile.transform.position.x, tile.transform.position.z)
-                    );
-
-                    if (dist < closestDist)
-                    {
-                        closestDist = dist;
-                        bestX = x;
-                        bestZ = z;
-                    }
-                }
-            }
-
-            float rotation = marker.transform.eulerAngles.y;
-            pattern.SetPrefab(bestX, bestZ, marker.prefabIndex, rotation);
+                prefabIndex = marker.prefabIndex,
+                position = marker.transform.position,
+                eulerAngles = marker.transform.eulerAngles,
+                scale = marker.transform.localScale
+            });
         }
 
-        // Save as asset
+        // Clean up scene markers after saving
+        foreach (var marker in markers)
+            DestroyImmediate(marker.gameObject);
+
         string path = $"Assets/Patterns/{patternName}.asset";
         System.IO.Directory.CreateDirectory("Assets/Patterns");
         AssetDatabase.CreateAsset(pattern, path);

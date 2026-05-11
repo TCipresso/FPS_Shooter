@@ -11,10 +11,10 @@ public class GridPattern : ScriptableObject
     [System.Serializable]
     public class PrefabPlacement
     {
-        public int x;
-        public int z;
         public int prefabIndex;
-        public float rotation; // Y axis rotation in degrees
+        public Vector3 position;
+        public Vector3 eulerAngles;
+        public Vector3 scale;
     }
 
     public List<PrefabPlacement> prefabPlacements = new List<PrefabPlacement>();
@@ -37,18 +37,27 @@ public class GridPattern : ScriptableObject
         tiles[x + z * width] = Mathf.Clamp(value, 0, 5);
     }
 
-    public void SetPrefab(int x, int z, int prefabIndex, float rotation)
-    {
-        // Remove existing at this position
-        prefabPlacements.RemoveAll(p => p.x == x && p.z == z);
-
-        if (prefabIndex < 0) return; // -1 = erase
-
-        prefabPlacements.Add(new PrefabPlacement { x = x, z = z, prefabIndex = prefabIndex, rotation = rotation });
-    }
-
     public PrefabPlacement GetPrefabAt(int x, int z)
     {
-        return prefabPlacements.Find(p => p.x == x && p.z == z);
+        return prefabPlacements.Find(p =>
+            Mathf.RoundToInt(p.position.x) == x &&
+            Mathf.RoundToInt(p.position.z) == z);
+    }
+
+    public void SetPrefab(int x, int z, int prefabIndex, Vector3 eulerAngles)
+    {
+        prefabPlacements.RemoveAll(p =>
+            Mathf.RoundToInt(p.position.x) == x &&
+            Mathf.RoundToInt(p.position.z) == z);
+
+        if (prefabIndex < 0) return;
+
+        prefabPlacements.Add(new PrefabPlacement
+        {
+            prefabIndex = prefabIndex,
+            position = new Vector3(x, 0, z),
+            eulerAngles = eulerAngles,
+            scale = Vector3.one
+        });
     }
 }
