@@ -16,6 +16,7 @@ public class PlayerFpsController : MonoBehaviour
     [Header("Air Momentum")]
     [SerializeField] private float maxAirSpeed = 12f;
     [SerializeField] private bool conserveAirMomentum = true;
+    public float VerticalVelocity => verticalVelocity;
 
     [Header("Jump")]
     [SerializeField] private float jumpHeight = 1.4f;
