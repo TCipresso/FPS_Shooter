@@ -16,6 +16,7 @@ public class M4 : WeaponBase
 
     public override void Shoot()
     {
+        Debug.Log("StopRecoil called: " + Time.time);
         if (!CanShoot()) return;
         if (Time.time < nextFireTime) return;
         nextFireTime = Time.time + FireInterval;

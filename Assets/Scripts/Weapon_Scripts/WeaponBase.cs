@@ -10,9 +10,6 @@ public abstract class WeaponBase : MonoBehaviour
     public int reserveAmmo;
     public int maxReserve;
 
-    [Header("Recoil Mode")]
-    public bool punchyRecoilMode = false;
-
     [Header("Muzzle")]
     public Transform muzzlePoint;
 
@@ -30,13 +27,19 @@ public abstract class WeaponBase : MonoBehaviour
     public AudioClip fireSound;
     public List<WeaponSound> sounds = new List<WeaponSound>();
 
-    [Header("Camera Recoil - Hip Fire")]
-    public float recoilUp = 2f;
-    public float recoilSideRange = 0.5f;
+    [Header("Camera Recoil")]
+    public float maxRecoilUp = 4f;
+    public float maxRecoilSide = 1.5f;
+    [Tooltip("X = shot index 0-1, Y = 0-1 recoil strength. Controls pitch per shot.")]
+    public AnimationCurve recoilCurve = AnimationCurve.EaseInOut(0f, 0.2f, 1f, 1f);
+    [Tooltip("X = shot index 0-1, Y = 0-1 side kick strength.")]
+    public AnimationCurve recoilSideCurve = AnimationCurve.Linear(0f, 0.5f, 1f, 1f);
+    [Tooltip("How many shots to reach the end of the curve.")]
+    public int recoilMaxShots = 10;
 
-    [Header("Camera Recoil - ADS")]
-    public float adsRecoilUp = 0.5f;
-    public float adsRecoilSideRange = 0.1f;
+    [Header("Camera Recoil - ADS Multipliers")]
+    [Range(0f, 1f)] public float adsRecoilUpMultiplier = 0.4f;
+    [Range(0f, 1f)] public float adsRecoilSideMultiplier = 0.3f;
 
     [Header("Weapon Recoil - Hip Fire")]
     public float kickRotationZ = 5f;
@@ -86,6 +89,9 @@ public abstract class WeaponBase : MonoBehaviour
     [HideInInspector] public bool isCocking = false;
     [HideInInspector] public bool isFiring = false;
 
+    // tracks how many shots fired in current burst for curve sampling
+    int shotsFired = 0;
+
     float walkStopTimer = 0f;
 
     protected FPSLook fpsLook;
@@ -111,6 +117,8 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected virtual void OnEnable()
     {
+        shotsFired = 0;
+
         if (animator != null)
         {
             animator.SetBool("IsReloading", false);
@@ -200,6 +208,7 @@ public abstract class WeaponBase : MonoBehaviour
         isCocking = false;
         isAiming = false;
         currentBloom = 0f;
+        shotsFired = 0;
 
         if (animator != null)
         {
@@ -275,27 +284,49 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected void ApplyRecoil()
     {
-        float up = isAiming ? adsRecoilUp : recoilUp;
-        float side = isAiming ? adsRecoilSideRange : recoilSideRange;
+        // sample the curve based on how many shots fired, normalized to recoilMaxShots
+        float t = recoilMaxShots > 0
+            ? Mathf.Clamp01((float)shotsFired / recoilMaxShots)
+            : 1f;
+
+        float pitchStrength = recoilCurve.Evaluate(t);
+        float sideStrength = recoilSideCurve.Evaluate(t);
+
+        float pitch = pitchStrength * maxRecoilUp;
+        float yaw = sideStrength * maxRecoilSide * (Random.value > 0.5f ? 1f : -1f);
+
+        if (isAiming)
+        {
+            pitch *= adsRecoilUpMultiplier;
+            yaw *= adsRecoilSideMultiplier;
+        }
 
         if (fpsLook != null)
-            fpsLook.ApplyRecoil(up, side, punchyRecoilMode);
+            fpsLook.ApplyRecoil(pitch, yaw);
 
+        // weapon kick
         if (weaponRecoil == null)
             weaponRecoil = FindFirstObjectByType<WeaponRecoil>();
 
-        if (weaponRecoil == null)
+        if (weaponRecoil != null)
         {
-            Debug.LogError("[WeaponBase] WeaponRecoil not found in scene!");
-            return;
+            if (isAiming)
+                weaponRecoil.LoadValues(adsKickRotationZ, adsKickPositionZ, adsKickPositionY, adsKickPositionX);
+            else
+                weaponRecoil.LoadValues(kickRotationZ, kickPositionZ, kickPositionY, kickPositionX);
+
+            weaponRecoil.Kick();
         }
 
-        if (isAiming)
-            weaponRecoil.LoadValues(adsKickRotationZ, adsKickPositionZ, adsKickPositionY, adsKickPositionX);
-        else
-            weaponRecoil.LoadValues(kickRotationZ, kickPositionZ, kickPositionY, kickPositionX);
+        shotsFired++;
+    }
 
-        weaponRecoil.Kick();
+    // call this when the player stops firing (trigger released / stops holding)
+    public void StopRecoil()
+    {
+        shotsFired = 0;
+        if (fpsLook != null)
+            fpsLook.StopRecoil();
     }
 
     protected void SpawnImpactEffect(RaycastHit hit)

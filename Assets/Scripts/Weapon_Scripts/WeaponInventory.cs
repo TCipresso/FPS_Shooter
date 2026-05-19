@@ -55,7 +55,10 @@ public class WeaponInventory : MonoBehaviour
                 ? fireAction.action.IsPressed()
                 : fireAction.action.WasPressedThisFrame();
 
-            if (shouldFire) FireActiveWeapon();
+            if (shouldFire)
+                FireActiveWeapon();
+            else if (fireAction.action.WasReleasedThisFrame())
+                GetActiveWeaponBase()?.StopRecoil();
         }
 
         if (reloadAction != null && reloadAction.action.WasPressedThisFrame())

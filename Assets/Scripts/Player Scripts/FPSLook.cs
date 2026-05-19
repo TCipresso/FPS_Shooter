@@ -19,9 +19,8 @@ public class FPSLook : MonoBehaviour
     public float tiltSpeed = 8f;
 
     [Header("Recoil")]
-    public float recoilSnapSpeed = 20f;
-    public float recoilReturnSpeed = 6f;
-    public float maxRecoilRise = 12f;
+    public float recoilRiseSpeed = 14f;
+    public float recoilRecoverySpeed = 6f;
 
     [Header("ADS Sensitivity")]
     public WeaponInventory weaponInventory;
@@ -34,11 +33,13 @@ public class FPSLook : MonoBehaviour
     float rotationX = 0f;
     float currentTiltZ = 0f;
 
-    Vector3 currentRecoil = Vector3.zero;
-    Vector3 targetRecoil = Vector3.zero;
+    // recoil offset that gets added on top of rotationX
+    float recoilPitch = 0f;     // current smoothed pitch offset
+    float targetPitch = 0f;     // what we're lerping toward
+    float recoilYaw = 0f;
+    float targetYaw = 0f;
 
     bool isFiring = false;
-    bool currentPunchyRecoilMode = false;
 
     float baseFOV;
 
@@ -83,27 +84,7 @@ public class FPSLook : MonoBehaviour
         float mouseX = input.Look.x * lookSpeed * sensScale;
         float mouseY = input.Look.y * lookSpeed * sensScale;
 
-        if (currentPunchyRecoilMode)
-        {
-            rotationX -= mouseY;
-        }
-        else
-        {
-            float pitchDelta = -mouseY;
-
-            if (currentRecoil.x < 0f && pitchDelta > 0f)
-            {
-                float consume = Mathf.Min(pitchDelta, -currentRecoil.x);
-
-                currentRecoil.x += consume;
-                targetRecoil.x += consume;
-
-                pitchDelta -= consume;
-            }
-
-            rotationX += pitchDelta;
-        }
-
+        rotationX -= mouseY;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
 
         transform.Rotate(0f, mouseX, 0f);
@@ -114,33 +95,21 @@ public class FPSLook : MonoBehaviour
 
     void HandleRecoil()
     {
-        currentRecoil = Vector3.Lerp(
-            currentRecoil,
-            targetRecoil,
-            recoilSnapSpeed * Time.deltaTime
-        );
+        recoilPitch = Mathf.Lerp(recoilPitch, targetPitch, recoilRiseSpeed * Time.deltaTime);
+        recoilYaw = Mathf.Lerp(recoilYaw, targetYaw, recoilRiseSpeed * Time.deltaTime);
 
-        if (currentPunchyRecoilMode)
+        if (!isFiring)
         {
-            targetRecoil = Vector3.Lerp(
-                targetRecoil,
-                Vector3.zero,
-                recoilReturnSpeed * Time.deltaTime
-            );
-        }
-        else
-        {
-            if (!isFiring)
-            {
-                targetRecoil = Vector3.Lerp(
-                    targetRecoil,
-                    Vector3.zero,
-                    recoilReturnSpeed * Time.deltaTime
-                );
+            // bleed recoil offset into rotationX so camera stays put, then zero it
+            rotationX += recoilPitch;
+            rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
+            recoilPitch = 0f;
+            targetPitch = 0f;
 
-                if (targetRecoil.sqrMagnitude < 0.0001f)
-                    targetRecoil = Vector3.zero;
-            }
+            targetYaw = Mathf.Lerp(targetYaw, 0f, recoilRecoverySpeed * Time.deltaTime);
+            recoilYaw = Mathf.Lerp(recoilYaw, 0f, recoilRecoverySpeed * Time.deltaTime);
+            if (Mathf.Abs(targetYaw) < 0.001f) targetYaw = 0f;
+            if (Mathf.Abs(recoilYaw) < 0.001f) recoilYaw = 0f;
         }
     }
 
@@ -152,8 +121,8 @@ public class FPSLook : MonoBehaviour
         currentTiltZ = Mathf.Lerp(currentTiltZ, targetTiltZ, tiltSpeed * Time.deltaTime);
 
         Quaternion rot = Quaternion.Euler(
-            rotationX + currentRecoil.x,
-            currentRecoil.y,
+            rotationX + recoilPitch,
+            recoilYaw,
             currentTiltZ
         );
 
@@ -188,20 +157,11 @@ public class FPSLook : MonoBehaviour
         );
     }
 
-    public void ApplyRecoil(float up, float side)
+    // called per shot from WeaponBase
+    public void ApplyRecoil(float pitchDegrees, float yawDegrees)
     {
-        ApplyRecoil(up, side, false);
-    }
-
-    public void ApplyRecoil(float up, float side, bool punchyMode)
-    {
-        currentPunchyRecoilMode = punchyMode;
-
-        targetRecoil += new Vector3(-up, Random.Range(-side, side), 0f);
-
-        if (!punchyMode)
-            targetRecoil.x = Mathf.Clamp(targetRecoil.x, -maxRecoilRise, 0f);
-
+        targetPitch -= pitchDegrees;
+        targetYaw += yawDegrees;
         isFiring = true;
     }
 
