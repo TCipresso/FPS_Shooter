@@ -21,6 +21,9 @@ public class FPSLook : MonoBehaviour
     [Header("Recoil")]
     public float recoilRiseSpeed = 14f;
     public float recoilRecoverySpeed = 6f;
+    public float maxShakeTilt = 2f;
+    public float shakeReturnSpeed = 8f;
+    [Range(0f, 1f)] public float hipFireTiltMultiplier = 0.4f;
 
     [Header("ADS Sensitivity")]
     public WeaponInventory weaponInventory;
@@ -31,13 +34,16 @@ public class FPSLook : MonoBehaviour
     public float fovTransitionSpeed = 6f;
 
     float rotationX = 0f;
+    float targetRotationX = 0f;
     float currentTiltZ = 0f;
 
-    // recoil offset that gets added on top of rotationX
-    float recoilPitch = 0f;     // current smoothed pitch offset
-    float targetPitch = 0f;     // what we're lerping toward
     float recoilYaw = 0f;
-    float targetYaw = 0f;
+    float targetRecoilYaw = 0f;
+    float recoilYawVelocity = 0f;
+
+    float recoilTiltZ = 0f;
+    float targetTiltZ_Recoil = 0f;
+    float recoilTiltVelocity = 0f;
 
     bool isFiring = false;
 
@@ -72,7 +78,6 @@ public class FPSLook : MonoBehaviour
         if (weaponInventory != null)
         {
             WeaponBase weapon = weaponInventory.GetActiveWeaponBase();
-
             if (weapon != null && weapon.isAiming)
             {
                 float aimFOV = baseFOV * (1f - weapon.adsFOVReduction / 100f);
@@ -84,8 +89,13 @@ public class FPSLook : MonoBehaviour
         float mouseX = input.Look.x * lookSpeed * sensScale;
         float mouseY = input.Look.y * lookSpeed * sensScale;
 
-        rotationX -= mouseY;
-        rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
+        targetRotationX -= mouseY;
+        targetRotationX = Mathf.Clamp(targetRotationX, -lookXLimit, lookXLimit);
+
+        if (isFiring)
+            rotationX = Mathf.Lerp(rotationX, targetRotationX, recoilRiseSpeed * Time.deltaTime);
+        else
+            rotationX = targetRotationX;
 
         transform.Rotate(0f, mouseX, 0f);
 
@@ -95,21 +105,17 @@ public class FPSLook : MonoBehaviour
 
     void HandleRecoil()
     {
-        recoilPitch = Mathf.Lerp(recoilPitch, targetPitch, recoilRiseSpeed * Time.deltaTime);
-        recoilYaw = Mathf.Lerp(recoilYaw, targetYaw, recoilRiseSpeed * Time.deltaTime);
+        recoilYaw = Mathf.Lerp(recoilYaw, targetRecoilYaw, recoilRiseSpeed * Time.deltaTime);
+
+        recoilTiltZ = Mathf.SmoothDamp(recoilTiltZ, targetTiltZ_Recoil, ref recoilTiltVelocity, 1f / shakeReturnSpeed);
 
         if (!isFiring)
         {
-            // bleed recoil offset into rotationX so camera stays put, then zero it
-            rotationX += recoilPitch;
-            rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
-            recoilPitch = 0f;
-            targetPitch = 0f;
+            targetRecoilYaw = Mathf.SmoothDamp(targetRecoilYaw, 0f, ref recoilYawVelocity, 1f / recoilRecoverySpeed);
+            if (Mathf.Abs(targetRecoilYaw) < 0.001f) targetRecoilYaw = 0f;
 
-            targetYaw = Mathf.Lerp(targetYaw, 0f, recoilRecoverySpeed * Time.deltaTime);
-            recoilYaw = Mathf.Lerp(recoilYaw, 0f, recoilRecoverySpeed * Time.deltaTime);
-            if (Mathf.Abs(targetYaw) < 0.001f) targetYaw = 0f;
-            if (Mathf.Abs(recoilYaw) < 0.001f) recoilYaw = 0f;
+            targetTiltZ_Recoil = Mathf.SmoothDamp(targetTiltZ_Recoil, 0f, ref recoilTiltVelocity, 1f / shakeReturnSpeed);
+            if (Mathf.Abs(targetTiltZ_Recoil) < 0.001f) targetTiltZ_Recoil = 0f;
         }
     }
 
@@ -121,9 +127,9 @@ public class FPSLook : MonoBehaviour
         currentTiltZ = Mathf.Lerp(currentTiltZ, targetTiltZ, tiltSpeed * Time.deltaTime);
 
         Quaternion rot = Quaternion.Euler(
-            rotationX + recoilPitch,
+            rotationX,
             recoilYaw,
-            currentTiltZ
+            currentTiltZ + recoilTiltZ
         );
 
         playerCamera.transform.localRotation = rot;
@@ -157,17 +163,20 @@ public class FPSLook : MonoBehaviour
         );
     }
 
-    // called per shot from WeaponBase
-    public void ApplyRecoil(float pitchDegrees, float yawDegrees)
+    public void ApplyRecoil(float pitchDegrees, float yawDegrees, bool aiming)
     {
-        targetPitch -= pitchDegrees;
-        targetYaw += yawDegrees;
+        targetRotationX -= pitchDegrees;
+        targetRotationX = Mathf.Clamp(targetRotationX, -lookXLimit, lookXLimit);
+        targetRecoilYaw += yawDegrees;
+        float tiltScale = aiming ? 1f : hipFireTiltMultiplier;
+        targetTiltZ_Recoil = Random.Range(-maxShakeTilt, maxShakeTilt) * tiltScale;
         isFiring = true;
     }
 
     public void StopRecoil()
     {
         isFiring = false;
+        recoilYawVelocity = 0f;
     }
 
     void SyncOverlayFOV()

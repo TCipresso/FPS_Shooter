@@ -5755,7 +5755,6 @@ MonoBehaviour:
   baseMaxMag: 0
   reserveAmmo: 210
   maxReserve: 210
-  punchyRecoilMode: 1
   muzzlePoint: {fileID: 9094410483433557856}
   muzzleFlash: {fileID: 4967003353262220022}
   casingEject: {fileID: 4045892988649485913}
@@ -5769,10 +5768,59 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 277d1e280567f7c4cbea4669849def27, type: 3}
   - name: Pistol_Reload
     clip: {fileID: 8300000, guid: 9b1351fa756bcf64c923b1e194121fff, type: 3}
-  recoilUp: 5
-  recoilSideRange: 2
-  adsRecoilUp: 4
-  adsRecoilSideRange: 1
+  maxRecoilUp: 1
+  maxRecoilSide: 1
+  recoilCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.2
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  recoilSideCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.5
+      inSlope: 0
+      outSlope: 0.5
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0.5
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  recoilMaxShots: 10
+  adsRecoilUpMultiplier: 0.4
+  adsRecoilSideMultiplier: 0.3
   kickRotationZ: 5
   kickPositionZ: -0.3
   kickPositionY: 0.05
@@ -22497,7 +22545,6 @@ MonoBehaviour:
   baseMaxMag: 0
   reserveAmmo: 240
   maxReserve: 240
-  punchyRecoilMode: 0
   muzzlePoint: {fileID: 2736865002254404146}
   muzzleFlash: {fileID: 8367920409718574920}
   casingEject: {fileID: 8759113089441853954}
@@ -22511,10 +22558,59 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 9b1351fa756bcf64c923b1e194121fff, type: 3}
   - name: Pistol_Cocked
     clip: {fileID: 8300000, guid: 277d1e280567f7c4cbea4669849def27, type: 3}
-  recoilUp: 6
-  recoilSideRange: 1.4
-  adsRecoilUp: 6
-  adsRecoilSideRange: 2
+  maxRecoilUp: 4
+  maxRecoilSide: 1.5
+  recoilCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.2
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  recoilSideCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.5
+      inSlope: 0
+      outSlope: 0.5
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0.5
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  recoilMaxShots: 10
+  adsRecoilUpMultiplier: 0.4
+  adsRecoilSideMultiplier: 0.3
   kickRotationZ: 5
   kickPositionZ: -0.3
   kickPositionY: 0.15

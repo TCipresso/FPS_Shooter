@@ -21641,9 +21641,11 @@ MonoBehaviour:
   CanLook: 1
   maxTiltZ: 1.5
   tiltSpeed: 10
-  recoilSnapSpeed: 20
-  recoilReturnSpeed: 6
-  maxRecoilRise: 12
+  recoilRiseSpeed: 14
+  recoilRecoverySpeed: 6
+  maxShakeTilt: 2
+  shakeReturnSpeed: 20
+  hipFireTiltMultiplier: 0.4
   weaponInventory: {fileID: 576031183}
   adsSensitivityMultiplier: 0.6
   fpsController: {fileID: 576031186}
@@ -184511,7 +184513,6 @@ MonoBehaviour:
   baseMaxMag: 0
   reserveAmmo: 2147483647
   maxReserve: 2147483647
-  punchyRecoilMode: 0
   muzzlePoint: {fileID: 0}
   muzzleFlash: {fileID: 0}
   casingEject: {fileID: 0}
@@ -184521,10 +184522,59 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   fireSound: {fileID: 0}
   sounds: []
-  recoilUp: 2
-  recoilSideRange: 0.5
-  adsRecoilUp: 0.5
-  adsRecoilSideRange: 0.1
+  maxRecoilUp: 4
+  maxRecoilSide: 1.5
+  recoilCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.2
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  recoilSideCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.5
+      inSlope: 0
+      outSlope: 0.5
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0.5
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  recoilMaxShots: 10
+  adsRecoilUpMultiplier: 0.4
+  adsRecoilSideMultiplier: 0.3
   kickRotationZ: 5
   kickPositionZ: -0.1
   kickPositionY: 0.05

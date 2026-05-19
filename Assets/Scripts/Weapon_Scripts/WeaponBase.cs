@@ -89,9 +89,7 @@ public abstract class WeaponBase : MonoBehaviour
     [HideInInspector] public bool isCocking = false;
     [HideInInspector] public bool isFiring = false;
 
-    // tracks how many shots fired in current burst for curve sampling
     int shotsFired = 0;
-
     float walkStopTimer = 0f;
 
     protected FPSLook fpsLook;
@@ -284,7 +282,6 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected void ApplyRecoil()
     {
-        // sample the curve based on how many shots fired, normalized to recoilMaxShots
         float t = recoilMaxShots > 0
             ? Mathf.Clamp01((float)shotsFired / recoilMaxShots)
             : 1f;
@@ -302,9 +299,8 @@ public abstract class WeaponBase : MonoBehaviour
         }
 
         if (fpsLook != null)
-            fpsLook.ApplyRecoil(pitch, yaw);
+            fpsLook.ApplyRecoil(pitch, yaw, isAiming);
 
-        // weapon kick
         if (weaponRecoil == null)
             weaponRecoil = FindFirstObjectByType<WeaponRecoil>();
 
@@ -321,7 +317,6 @@ public abstract class WeaponBase : MonoBehaviour
         shotsFired++;
     }
 
-    // call this when the player stops firing (trigger released / stops holding)
     public void StopRecoil()
     {
         shotsFired = 0;
