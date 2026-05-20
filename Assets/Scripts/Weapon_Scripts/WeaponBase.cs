@@ -41,6 +41,13 @@ public abstract class WeaponBase : MonoBehaviour
     [Range(0f, 1f)] public float adsRecoilUpMultiplier = 0.4f;
     [Range(0f, 1f)] public float adsRecoilSideMultiplier = 0.3f;
 
+    [Header("Camera Shake")]
+    public float shakeAmount = 0.3f;
+    public float shakeFrequency = 20f;
+    public float shakeFadeSpeed = 3f;
+    public float adsShakeMultiplier = 0.3f;
+    [Range(0f, 1f)] public float hipFireTiltMultiplier = 0.4f;
+
     [Header("Weapon Recoil - Hip Fire")]
     public float kickRotationZ = 5f;
     public float kickPositionZ = -0.1f;
@@ -298,8 +305,10 @@ public abstract class WeaponBase : MonoBehaviour
             yaw *= adsRecoilSideMultiplier;
         }
 
+        float finalShake = shakeAmount * (isAiming ? adsShakeMultiplier : 1f);
+
         if (fpsLook != null)
-            fpsLook.ApplyRecoil(pitch, yaw, isAiming);
+            fpsLook.ApplyRecoil(pitch, yaw, isAiming, finalShake, shakeFrequency, shakeFadeSpeed, hipFireTiltMultiplier);
 
         if (weaponRecoil == null)
             weaponRecoil = FindFirstObjectByType<WeaponRecoil>();
@@ -400,6 +409,7 @@ public abstract class WeaponBase : MonoBehaviour
         isAiming = false;
         isReloading = true;
         isCocking = false;
+        StopRecoil();
         animator.SetBool("IsAiming", false);
         animator.SetBool("IsWalking", false);
         animator.SetBool("IsSprinting", false);

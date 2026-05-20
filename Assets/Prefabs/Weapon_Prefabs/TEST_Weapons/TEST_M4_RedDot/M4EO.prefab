@@ -5768,8 +5768,8 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 277d1e280567f7c4cbea4669849def27, type: 3}
   - name: Pistol_Reload
     clip: {fileID: 8300000, guid: 9b1351fa756bcf64c923b1e194121fff, type: 3}
-  maxRecoilUp: 1
-  maxRecoilSide: 1
+  maxRecoilUp: 0.5
+  maxRecoilSide: 0.5
   recoilCurve:
     serializedVersion: 2
     m_Curve:
@@ -5819,8 +5819,13 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   recoilMaxShots: 10
-  adsRecoilUpMultiplier: 0.4
-  adsRecoilSideMultiplier: 0.3
+  adsRecoilUpMultiplier: 1
+  adsRecoilSideMultiplier: 1
+  shakeAmount: 5
+  shakeFrequency: 10
+  shakeFadeSpeed: 30
+  adsShakeMultiplier: 0.5
+  hipFireTiltMultiplier: 0.25
   kickRotationZ: 5
   kickPositionZ: -0.3
   kickPositionY: 0.05
@@ -22611,6 +22616,11 @@ MonoBehaviour:
   recoilMaxShots: 10
   adsRecoilUpMultiplier: 0.4
   adsRecoilSideMultiplier: 0.3
+  shakeAmount: 0.3
+  shakeFrequency: 20
+  shakeFadeSpeed: 3
+  adsShakeMultiplier: 0.3
+  hipFireTiltMultiplier: 0.4
   kickRotationZ: 5
   kickPositionZ: -0.3
   kickPositionY: 0.15
