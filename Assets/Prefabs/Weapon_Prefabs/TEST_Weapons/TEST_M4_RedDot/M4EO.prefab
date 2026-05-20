@@ -5821,15 +5821,19 @@ MonoBehaviour:
   recoilMaxShots: 10
   adsRecoilUpMultiplier: 1
   adsRecoilSideMultiplier: 1
-  shakeAmount: 5
-  shakeFrequency: 10
-  shakeFadeSpeed: 30
-  adsShakeMultiplier: 0.5
+  tiltAmount: 7
+  tiltFrequency: 20
+  tiltFadeSpeed: 30
+  adsTiltMultiplier: 0.25
   hipFireTiltMultiplier: 0.25
+  kickRotationX: 2
+  kickRotationY: 2
   kickRotationZ: 5
   kickPositionZ: -0.3
   kickPositionY: 0.05
   kickPositionX: 0.02
+  adsKickRotationX: 1
+  adsKickRotationY: 1
   adsKickRotationZ: 0
   adsKickPositionZ: -0.1
   adsKickPositionY: 0
@@ -22616,15 +22620,19 @@ MonoBehaviour:
   recoilMaxShots: 10
   adsRecoilUpMultiplier: 0.4
   adsRecoilSideMultiplier: 0.3
-  shakeAmount: 0.3
-  shakeFrequency: 20
-  shakeFadeSpeed: 3
-  adsShakeMultiplier: 0.3
+  tiltAmount: 0.3
+  tiltFrequency: 20
+  tiltFadeSpeed: 3
+  adsTiltMultiplier: 0.3
   hipFireTiltMultiplier: 0.4
+  kickRotationX: 2
+  kickRotationY: 2
   kickRotationZ: 5
   kickPositionZ: -0.3
   kickPositionY: 0.15
   kickPositionX: 0.09
+  adsKickRotationX: 1
+  adsKickRotationY: 1
   adsKickRotationZ: 0
   adsKickPositionZ: -0.3
   adsKickPositionY: 0

@@ -11657,15 +11657,19 @@ MonoBehaviour:
   recoilMaxShots: 10
   adsRecoilUpMultiplier: 1
   adsRecoilSideMultiplier: 1
-  shakeAmount: 6
-  shakeFrequency: 20
-  shakeFadeSpeed: 30
-  adsShakeMultiplier: 0.5
-  hipFireTiltMultiplier: 0.25
-  kickRotationZ: 5
+  tiltAmount: 6
+  tiltFrequency: 20
+  tiltFadeSpeed: 30
+  adsTiltMultiplier: 0.5
+  hipFireTiltMultiplier: 0.5
+  kickRotationX: 1
+  kickRotationY: 1
+  kickRotationZ: 12
   kickPositionZ: -0.3
   kickPositionY: 0.15
   kickPositionX: 0.09
+  adsKickRotationX: 1
+  adsKickRotationY: 1
   adsKickRotationZ: 0
   adsKickPositionZ: -0.3
   adsKickPositionY: 0

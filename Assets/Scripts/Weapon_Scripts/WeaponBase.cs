@@ -41,20 +41,24 @@ public abstract class WeaponBase : MonoBehaviour
     [Range(0f, 1f)] public float adsRecoilUpMultiplier = 0.4f;
     [Range(0f, 1f)] public float adsRecoilSideMultiplier = 0.3f;
 
-    [Header("Camera Shake")]
-    public float shakeAmount = 0.3f;
-    public float shakeFrequency = 20f;
-    public float shakeFadeSpeed = 3f;
-    public float adsShakeMultiplier = 0.3f;
+    [Header("Camera Tilt")]
+    public float tiltAmount = 0.3f;
+    public float tiltFrequency = 20f;
+    public float tiltFadeSpeed = 3f;
+    public float adsTiltMultiplier = 0.3f;
     [Range(0f, 1f)] public float hipFireTiltMultiplier = 0.4f;
 
     [Header("Weapon Recoil - Hip Fire")]
+    public float kickRotationX = 2f;
+    public float kickRotationY = 2f;
     public float kickRotationZ = 5f;
     public float kickPositionZ = -0.1f;
     public float kickPositionY = 0.05f;
     public float kickPositionX = 0.02f;
 
     [Header("Weapon Recoil - ADS")]
+    public float adsKickRotationX = 1f;
+    public float adsKickRotationY = 1f;
     public float adsKickRotationZ = 2f;
     public float adsKickPositionZ = -0.05f;
     public float adsKickPositionY = 0.02f;
@@ -284,7 +288,7 @@ public abstract class WeaponBase : MonoBehaviour
             weaponRecoil = FindFirstObjectByType<WeaponRecoil>();
 
         if (weaponRecoil != null)
-            weaponRecoil.LoadValues(kickRotationZ, kickPositionZ, kickPositionY, kickPositionX);
+            weaponRecoil.LoadValues(kickRotationX, kickRotationY, kickRotationZ, kickPositionZ, kickPositionY, kickPositionX);
     }
 
     protected void ApplyRecoil()
@@ -305,10 +309,10 @@ public abstract class WeaponBase : MonoBehaviour
             yaw *= adsRecoilSideMultiplier;
         }
 
-        float finalShake = shakeAmount * (isAiming ? adsShakeMultiplier : 1f);
+        float finalTilt = tiltAmount * (isAiming ? adsTiltMultiplier : 1f);
 
         if (fpsLook != null)
-            fpsLook.ApplyRecoil(pitch, yaw, isAiming, finalShake, shakeFrequency, shakeFadeSpeed, hipFireTiltMultiplier);
+            fpsLook.ApplyRecoil(pitch, yaw, isAiming, finalTilt, tiltFrequency, tiltFadeSpeed, hipFireTiltMultiplier);
 
         if (weaponRecoil == null)
             weaponRecoil = FindFirstObjectByType<WeaponRecoil>();
@@ -316,9 +320,9 @@ public abstract class WeaponBase : MonoBehaviour
         if (weaponRecoil != null)
         {
             if (isAiming)
-                weaponRecoil.LoadValues(adsKickRotationZ, adsKickPositionZ, adsKickPositionY, adsKickPositionX);
+                weaponRecoil.LoadValues(adsKickRotationX, adsKickRotationY, adsKickRotationZ, adsKickPositionZ, adsKickPositionY, adsKickPositionX);
             else
-                weaponRecoil.LoadValues(kickRotationZ, kickPositionZ, kickPositionY, kickPositionX);
+                weaponRecoil.LoadValues(kickRotationX, kickRotationY, kickRotationZ, kickPositionZ, kickPositionY, kickPositionX);
 
             weaponRecoil.Kick();
         }

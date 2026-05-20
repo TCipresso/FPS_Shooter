@@ -21639,13 +21639,10 @@ MonoBehaviour:
   lookSpeed: 0.1
   lookXLimit: 90
   CanLook: 1
-  maxTiltZ: 1.5
+  maxTiltZ: 0
   tiltSpeed: 10
   recoilRiseSpeed: 14
   recoilRecoverySpeed: 6
-  maxShakeTilt: 2
-  shakeReturnSpeed: 20
-  hipFireTiltMultiplier: 0.4
   weaponInventory: {fileID: 576031183}
   adsSensitivityMultiplier: 0.6
   fpsController: {fileID: 576031186}
@@ -23520,6 +23517,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponRecoil
   snapSpeed: 20
   returnSpeed: 8
+  perlinFrequency: 50
+  kickRotationX: 0
+  kickRotationY: 0
   kickRotationZ: 0
   kickPositionZ: 0
   kickPositionY: 0
@@ -104725,7 +104725,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 941503152}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8fa6844499edd1940bb02e4d921678f3, type: 3}
   m_Name: 
@@ -184575,10 +184575,19 @@ MonoBehaviour:
   recoilMaxShots: 10
   adsRecoilUpMultiplier: 0.4
   adsRecoilSideMultiplier: 0.3
+  tiltAmount: 0.3
+  tiltFrequency: 20
+  tiltFadeSpeed: 3
+  adsTiltMultiplier: 0.3
+  hipFireTiltMultiplier: 0.4
+  kickRotationX: 2
+  kickRotationY: 2
   kickRotationZ: 5
   kickPositionZ: -0.1
   kickPositionY: 0.05
   kickPositionX: 0.02
+  adsKickRotationX: 1
+  adsKickRotationY: 1
   adsKickRotationZ: 2
   adsKickPositionZ: -0.05
   adsKickPositionY: 0.02
