@@ -14,10 +14,10 @@ public class WeaponRecoil : MonoBehaviour
     [HideInInspector] public float kickPositionY;
     [HideInInspector] public float kickPositionX;
 
-    Vector3 originalLocalPosition;
-    Quaternion originalLocalRotation;
-    Vector3 targetPosition;
-    Quaternion targetRotation;
+    public Vector3 originalLocalPosition;
+    public Quaternion originalLocalRotation;
+    public Vector3 targetPosition;
+    public Quaternion targetRotation;
 
     float perlinTime = 0f;
     bool isKicking = false;

@@ -30,8 +30,14 @@ public class CrosshairUI : MonoBehaviour
     [Header("Weapon Reference")]
     public WeaponInventory weaponInventory;
 
+    [Header("Weapon Recoil Follow")]
+    public WeaponRecoil weaponRecoil;
+    [Range(0f, 1f)] public float recoilFollowStrength = 0.4f;
+    public float recoilFollowPixelScale = 120f;
+
     float currentSpread;
     Image[] images;
+    Vector2 reticleOffset;
 
     void Start()
     {
@@ -71,7 +77,21 @@ public class CrosshairUI : MonoBehaviour
         left.anchoredPosition = new Vector2(-currentSpread, 0f);
         right.anchoredPosition = new Vector2(currentSpread, 0f);
 
-        // --- Alpha target for crosshair lines ---
+        // --- Weapon recoil follow ---
+        Vector2 targetOffset = Vector2.zero;
+        if (weaponRecoil != null)
+        {
+            Vector3 posKick = weaponRecoil.targetPosition - weaponRecoil.originalLocalPosition;
+
+            targetOffset = new Vector2(
+                posKick.x * recoilFollowPixelScale,
+                posKick.y * recoilFollowPixelScale
+            ) * recoilFollowStrength;
+        }
+
+        reticleOffset = Vector2.Lerp(reticleOffset, targetOffset, spreadLerpSpeed * Time.deltaTime);
+
+        // --- Alpha ---
         float targetLineAlpha;
         if (isAiming)
             targetLineAlpha = activeWeapon.adsFadeCrosshair ? adsAlpha : 0f;
@@ -84,13 +104,14 @@ public class CrosshairUI : MonoBehaviour
         foreach (Image img in images)
             img.color = Color.Lerp(img.color, targetColor, spreadLerpSpeed * Time.deltaTime);
 
-        // --- ADS crosshair swap (only when adsFadeCrosshair is false) ---
         if (adsCrosshair != null && !activeWeapon.adsFadeCrosshair)
         {
             float targetAdsAlpha = isAiming ? 1f : 0f;
             Color ac = adsCrosshair.color;
             ac.a = Mathf.Lerp(ac.a, targetAdsAlpha, adsSwapFadeSpeed * Time.deltaTime);
             adsCrosshair.color = ac;
+
+            adsCrosshair.rectTransform.anchoredPosition = reticleOffset;
         }
     }
 }
