@@ -3,11 +3,9 @@ using UnityEngine.UI;
 
 public class CrosshairUI : MonoBehaviour
 {
-    [Header("Crosshair Lines")]
-    public RectTransform top;
-    public RectTransform bottom;
-    public RectTransform left;
-    public RectTransform right;
+    [Header("Crosshair Shape")]
+    public float armLength = 10f;
+    public float lineThickness = 2f;
 
     [Header("Spread Settings")]
     public float baseSpread = 20f;
@@ -35,25 +33,38 @@ public class CrosshairUI : MonoBehaviour
     [Range(0f, 1f)] public float recoilFollowStrength = 0.4f;
     public float recoilFollowPixelScale = 120f;
 
-    float currentSpread;
-    Image[] images;
-    Vector2 reticleOffset;
+    // Runtime
+    float _currentSpread;
+    Vector2 _reticleOffset;
 
-    void Start()
+    // Generated lines: 0=top 1=bottom 2=left 3=right
+    RectTransform[] _lineRTs = new RectTransform[4];
+    Image[] _lineImgs = new Image[4];
+
+    void Awake()
     {
-        images = new Image[]
-        {
-            top.GetComponent<Image>(),
-            bottom.GetComponent<Image>(),
-            left.GetComponent<Image>(),
-            right.GetComponent<Image>()
-        };
+        BuildLines();
 
         if (adsCrosshair != null)
         {
             Color c = adsCrosshair.color;
             c.a = 0f;
             adsCrosshair.color = c;
+        }
+    }
+
+    void BuildLines()
+    {
+        // pos and size are set every frame in ApplyLayout, just need the objects
+        for (int i = 0; i < 4; i++)
+        {
+            GameObject go = new GameObject("CrosshairLine_" + i, typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(transform, false);
+            RectTransform rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
+            _lineRTs[i] = rt;
+            _lineImgs[i] = go.GetComponent<Image>();
+            _lineImgs[i].color = normalColor;
         }
     }
 
@@ -70,28 +81,23 @@ public class CrosshairUI : MonoBehaviour
             ? Mathf.Max(adsSpread, minSpread)
             : Mathf.Max(baseSpread + bloom * bloomSpreadMultiplier, minSpread);
 
-        currentSpread = Mathf.Lerp(currentSpread, targetSpread, spreadLerpSpeed * Time.deltaTime);
+        _currentSpread = Mathf.Lerp(_currentSpread, targetSpread, spreadLerpSpeed * Time.deltaTime);
 
-        top.anchoredPosition = new Vector2(0f, currentSpread);
-        bottom.anchoredPosition = new Vector2(0f, -currentSpread);
-        left.anchoredPosition = new Vector2(-currentSpread, 0f);
-        right.anchoredPosition = new Vector2(currentSpread, 0f);
+        ApplyLayout(_currentSpread);
 
-        // --- Weapon recoil follow ---
+        // Recoil follow
         Vector2 targetOffset = Vector2.zero;
         if (weaponRecoil != null)
         {
             Vector3 posKick = weaponRecoil.targetPosition - weaponRecoil.originalLocalPosition;
-
             targetOffset = new Vector2(
                 posKick.x * recoilFollowPixelScale,
                 posKick.y * recoilFollowPixelScale
             ) * recoilFollowStrength;
         }
+        _reticleOffset = Vector2.Lerp(_reticleOffset, targetOffset, spreadLerpSpeed * Time.deltaTime);
 
-        reticleOffset = Vector2.Lerp(reticleOffset, targetOffset, spreadLerpSpeed * Time.deltaTime);
-
-        // --- Alpha ---
+        // Alpha
         float targetLineAlpha;
         if (isAiming)
             targetLineAlpha = activeWeapon.adsFadeCrosshair ? adsAlpha : 0f;
@@ -101,7 +107,7 @@ public class CrosshairUI : MonoBehaviour
         Color targetColor = isAiming ? adsColor : normalColor;
         targetColor.a = targetLineAlpha;
 
-        foreach (Image img in images)
+        foreach (Image img in _lineImgs)
             img.color = Color.Lerp(img.color, targetColor, spreadLerpSpeed * Time.deltaTime);
 
         if (adsCrosshair != null && !activeWeapon.adsFadeCrosshair)
@@ -110,8 +116,25 @@ public class CrosshairUI : MonoBehaviour
             Color ac = adsCrosshair.color;
             ac.a = Mathf.Lerp(ac.a, targetAdsAlpha, adsSwapFadeSpeed * Time.deltaTime);
             adsCrosshair.color = ac;
+            adsCrosshair.rectTransform.anchoredPosition = _reticleOffset;
+        }
+    }
 
-            adsCrosshair.rectTransform.anchoredPosition = reticleOffset;
+    void ApplyLayout(float spread)
+    {
+        // top, bottom, left, right
+        (Vector2 pos, Vector2 size)[] configs =
+        {
+            (new Vector2(0f,  spread + armLength * 0.5f), new Vector2(lineThickness, armLength)),
+            (new Vector2(0f, -spread - armLength * 0.5f), new Vector2(lineThickness, armLength)),
+            (new Vector2(-spread - armLength * 0.5f, 0f), new Vector2(armLength, lineThickness)),
+            (new Vector2( spread + armLength * 0.5f, 0f), new Vector2(armLength, lineThickness)),
+        };
+
+        for (int i = 0; i < 4; i++)
+        {
+            _lineRTs[i].anchoredPosition = configs[i].pos;
+            _lineRTs[i].sizeDelta = configs[i].size;
         }
     }
 }
