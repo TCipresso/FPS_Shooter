@@ -5821,7 +5821,7 @@ MonoBehaviour:
   recoilMaxShots: 10
   adsRecoilUpMultiplier: 1
   adsRecoilSideMultiplier: 1
-  tiltAmount: 3
+  tiltAmount: 6
   tiltFrequency: 20
   tiltFadeSpeed: 30
   adsTiltMultiplier: 0.25
@@ -5832,12 +5832,12 @@ MonoBehaviour:
   kickPositionZ: -0.3
   kickPositionY: 0.05
   kickPositionX: 0.02
-  adsKickRotationX: 1
-  adsKickRotationY: 1
+  adsKickRotationX: -1
+  adsKickRotationY: 3
   adsKickRotationZ: 0
-  adsKickPositionZ: -0.1
+  adsKickPositionZ: -0.2
   adsKickPositionY: 0
-  adsKickPositionX: 0.02
+  adsKickPositionX: 0.04
   isAutomatic: 1
   rpm: 750
   baseRpm: 0
