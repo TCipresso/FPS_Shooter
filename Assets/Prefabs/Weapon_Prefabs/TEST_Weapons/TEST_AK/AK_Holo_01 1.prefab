@@ -11604,8 +11604,8 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 9b1351fa756bcf64c923b1e194121fff, type: 3}
   - name: Pistol_Cocked
     clip: {fileID: 8300000, guid: 277d1e280567f7c4cbea4669849def27, type: 3}
-  maxRecoilUp: 1
-  maxRecoilSide: 0.5
+  maxRecoilUp: 1.5
+  maxRecoilSide: 1
   recoilCurve:
     serializedVersion: 2
     m_Curve:
@@ -11657,23 +11657,23 @@ MonoBehaviour:
   recoilMaxShots: 10
   adsRecoilUpMultiplier: 1
   adsRecoilSideMultiplier: 1
-  tiltAmount: 3
-  tiltFrequency: 20
+  tiltAmount: 8
+  tiltFrequency: 30
   tiltFadeSpeed: 30
   adsTiltMultiplier: 0.5
   hipFireTiltMultiplier: 0.5
-  kickRotationX: 5
+  kickRotationX: 0
   kickRotationY: 5
   kickRotationZ: 5
   kickPositionZ: -0.3
   kickPositionY: 0.15
   kickPositionX: 0.09
-  adsKickRotationX: 1.5
-  adsKickRotationY: 1.5
-  adsKickRotationZ: 0
+  adsKickRotationX: -1
+  adsKickRotationY: 1
+  adsKickRotationZ: 1
   adsKickPositionZ: -0.15
   adsKickPositionY: 0
-  adsKickPositionX: 0.02
+  adsKickPositionX: 0
   isAutomatic: 1
   rpm: 500
   baseRpm: 0

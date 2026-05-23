@@ -32,12 +32,12 @@ public class CrosshairUI : MonoBehaviour
     public WeaponRecoil weaponRecoil;
     [Range(0f, 1f)] public float recoilFollowStrength = 0.4f;
     public float recoilFollowPixelScale = 120f;
+    public float recoilReturnSpeed = 40f;
 
     // Runtime
     float _currentSpread;
     Vector2 _reticleOffset;
 
-    // Generated lines: 0=top 1=bottom 2=left 3=right
     RectTransform[] _lineRTs = new RectTransform[4];
     Image[] _lineImgs = new Image[4];
 
@@ -55,7 +55,6 @@ public class CrosshairUI : MonoBehaviour
 
     void BuildLines()
     {
-        // pos and size are set every frame in ApplyLayout, just need the objects
         for (int i = 0; i < 4; i++)
         {
             GameObject go = new GameObject("CrosshairLine_" + i, typeof(RectTransform), typeof(Image));
@@ -90,19 +89,26 @@ public class CrosshairUI : MonoBehaviour
         if (weaponRecoil != null)
         {
             Vector3 posKick = weaponRecoil.targetPosition - weaponRecoil.originalLocalPosition;
-            targetOffset = new Vector2(
+            Vector2 posOffset = new Vector2(
                 posKick.x * recoilFollowPixelScale,
                 posKick.y * recoilFollowPixelScale
             ) * recoilFollowStrength;
+
+            Quaternion rotDelta = weaponRecoil.targetRotation * Quaternion.Inverse(weaponRecoil.originalLocalRotation);
+            Vector3 forwardKicked = rotDelta * Vector3.forward;
+            Vector2 rotOffset = new Vector2(
+                forwardKicked.x * recoilFollowPixelScale,
+                forwardKicked.y * recoilFollowPixelScale
+            ) * recoilFollowStrength;
+
+            targetOffset = posOffset + rotOffset;
         }
-        _reticleOffset = Vector2.Lerp(_reticleOffset, targetOffset, spreadLerpSpeed * Time.deltaTime);
+        _reticleOffset = Vector2.Lerp(_reticleOffset, targetOffset, recoilReturnSpeed * Time.deltaTime);
 
         // Alpha
-        float targetLineAlpha;
-        if (isAiming)
-            targetLineAlpha = activeWeapon.adsFadeCrosshair ? adsAlpha : 0f;
-        else
-            targetLineAlpha = 1f;
+        float targetLineAlpha = isAiming
+            ? (activeWeapon.adsFadeCrosshair ? adsAlpha : 0f)
+            : 1f;
 
         Color targetColor = isAiming ? adsColor : normalColor;
         targetColor.a = targetLineAlpha;
@@ -118,11 +124,16 @@ public class CrosshairUI : MonoBehaviour
             adsCrosshair.color = ac;
             adsCrosshair.rectTransform.anchoredPosition = _reticleOffset;
         }
+
+        if (isAiming)
+        {
+            foreach (RectTransform rt in _lineRTs)
+                rt.anchoredPosition += _reticleOffset;
+        }
     }
 
     void ApplyLayout(float spread)
     {
-        // top, bottom, left, right
         (Vector2 pos, Vector2 size)[] configs =
         {
             (new Vector2(0f,  spread + armLength * 0.5f), new Vector2(lineThickness, armLength)),
