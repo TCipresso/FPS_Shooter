@@ -111,6 +111,7 @@ public class WeaponInventory : MonoBehaviour
         Debug.Log($"[WeaponInventory] Partial refill {percent * 100}% applied to all weapons.");
     }
 
+
     public bool TryAddWeapon(WeaponData data, WeaponUpgradeData upgradeData = null)
     {
         if (data == null || data.prefab == null)
@@ -212,6 +213,81 @@ public class WeaponInventory : MonoBehaviour
         return instance;
     }
 
+
+    public void TryAddWeaponInstance(WeaponInstance instance)
+    {
+        if (instance == null || instance.definition == null || instance.definition.prefab == null)
+        {
+            Debug.LogWarning("[WeaponInventory] Invalid WeaponInstance.");
+            return;
+        }
+
+        if (equippedWeapons.Count < maxSlots)
+            AddWeaponInstanceToSlot(instance);
+        else
+            SwapWeaponInstance(instance, activeSlot);
+    }
+
+    void AddWeaponInstanceToSlot(WeaponInstance instance)
+    {
+        GameObject go = InstantiateWeaponInstance(instance);
+        equippedWeapons.Add(go);
+        equippedData.Add(null);
+        equippedUpgradeData.Add(null);
+        weaponLevels.Add(1);
+
+        int newSlot = equippedWeapons.Count - 1;
+        SetActiveSlot(newSlot);
+
+        Debug.Log($"[WeaponInventory] Picked up {instance.definition.weaponName} ({instance.rarity})");
+    }
+
+    void SwapWeaponInstance(WeaponInstance instance, int slot)
+    {
+        Destroy(equippedWeapons[slot]);
+        equippedWeapons.RemoveAt(slot);
+        equippedData.RemoveAt(slot);
+        equippedUpgradeData.RemoveAt(slot);
+        weaponLevels.RemoveAt(slot);
+
+        GameObject go = InstantiateWeaponInstance(instance);
+        equippedWeapons.Insert(slot, go);
+        equippedData.Insert(slot, null);
+        equippedUpgradeData.Insert(slot, null);
+        weaponLevels.Insert(slot, 1);
+
+        SetActiveSlot(slot);
+
+        Debug.Log($"[WeaponInventory] Swapped slot {slot} to {instance.definition.weaponName} ({instance.rarity})");
+    }
+
+    GameObject InstantiateWeaponInstance(WeaponInstance instance)
+    {
+        WeaponDefinitionSO def = instance.definition;
+        GameObject go = Instantiate(def.prefab, weaponHolder);
+        go.transform.localPosition = def.positionOffset;
+        go.transform.localRotation = Quaternion.Euler(def.rotationOffset);
+        go.SetActive(false);
+
+        WeaponBase wb = go.GetComponentInChildren<WeaponBase>();
+        if (wb != null)
+        {
+            wb.Equip(instance);
+
+            if (BulletPool.Instance != null && def.bulletData != null && def.bulletData.trailPrefab != null)
+                BulletPool.Instance.EnsurePoolSize(def.bulletData.trailPoolKey, def.bulletData.trailPrefab.gameObject, def.bulletData.trailPoolSize);
+
+            if (playerStats != null)
+            {
+                wb.ApplyExtraMagazine(playerStats.extraMagazine);
+                wb.currentMag = wb.maxMag;
+            }
+        }
+
+        return go;
+    }
+
+
     public void SetActiveSlot(int slot)
     {
         if (slot < 0 || slot >= equippedWeapons.Count) return;
@@ -238,7 +314,8 @@ public class WeaponInventory : MonoBehaviour
         if (ikHandler != null)
             ikHandler.UpdateIKTargets(equippedWeapons[slot]);
 
-        Debug.Log($"[WeaponInventory] Equipped slot {slot}: {equippedData[slot].weaponName}.");
+        if (equippedData[slot] != null)
+            Debug.Log($"[WeaponInventory] Equipped slot {slot}: {equippedData[slot].weaponName}.");
     }
 
     public void SwitchToSlot(int slot) => SetActiveSlot(slot);

@@ -5,8 +5,6 @@ public class Shotgun : WeaponBase
     [Header("Shotgun Settings")]
     public int pelletsPerShot = 8;
     public float spreadAngle = 10f;
-    public float range = 50f;
-    public int damagePerPellet = 15;
 
     float nextFireTime = 0f;
 
@@ -20,8 +18,8 @@ public class Shotgun : WeaponBase
     {
         if (!CanShoot()) return;
         if (Time.time < nextFireTime) return;
-
         nextFireTime = Time.time + FireInterval;
+
         currentMag--;
 
         TriggerFireAnimation();
@@ -42,22 +40,38 @@ public class Shotgun : WeaponBase
     {
         float x = Random.Range(-spreadAngle, spreadAngle);
         float y = Random.Range(-spreadAngle, spreadAngle);
-
         Vector3 direction = GetAimDirection(x, y);
         Vector3 origin = GetAimOrigin();
-
         Ray ray = new Ray(origin, direction);
         Vector3 endPoint;
 
-        if (Physics.Raycast(ray, out RaycastHit hit, range))
+        bool didHit = bulletData != null && bulletData.hitMask != 0
+            ? Physics.Raycast(ray, out RaycastHit hit, range, bulletData.hitMask)
+            : Physics.Raycast(ray, out hit, range);
+
+        if (didHit)
         {
             endPoint = hit.point;
 
-            ZombieBase zombie = hit.collider.GetComponent<ZombieBase>();
-            if (zombie != null)
-                // zombie.TakeDamage(damagePerPellet, playerStats, goldMultiplier); //rework with gold mult changes
+            HitBox hitBox = hit.collider.GetComponent<HitBox>();
+            if (hitBox != null)
+            {
+                hitBox.TakeDamageWithHitPoint(damage, playerStats, hit.point,
+                    playerStats != null ? playerStats.goldGainMultiplier : 1f);
+            }
+            else
+            {
+                ZombieBase zombie = hit.collider.GetComponent<ZombieBase>();
+                if (zombie != null)
+                {
+                    zombie.TakeDamage(ApplyCrit(damage), playerStats,
+                        playerStats != null ? playerStats.goldGainMultiplier : 1f);
+                    if (HitMarkerPool.Instance != null)
+                        HitMarkerPool.Instance.Spawn(hit.point, false);
+                }
+            }
 
-                SpawnImpactEffect(hit);
+            SpawnImpactEffect(hit);
         }
         else
         {

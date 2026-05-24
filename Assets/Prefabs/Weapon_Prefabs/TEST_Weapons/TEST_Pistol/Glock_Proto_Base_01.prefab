@@ -574,14 +574,7 @@ MonoBehaviour:
   muzzlePoint: {fileID: 7363513301519263153}
   muzzleFlash: {fileID: 289944992267554749}
   casingEject: {fileID: 2416857414979998119}
-  trailPrefab: {fileID: 7533938775617344793, guid: 5fdbe00ae02ad624bb45ad9bdb2038fe, type: 3}
-  trailPoolKey: BulletTrail
-  trailPoolSize: 8
-  impactEffect: {fileID: 198175801688348628, guid: 25c7aa9ad705fe143a4d71c1c8deb7d4, type: 3}
-  zombieImpactEffect: {fileID: 198175801688348628, guid: 25c7aa9ad705fe143a4d71c1c8deb7d4, type: 3}
-  hitMarkerPrefab: {fileID: 135852800148444717, guid: 442ceafaa01f03e4da4008e7ba8572b4, type: 3}
-  hitMarkerPoolKey: HitMarker
-  hitMarkerPoolSize: 10
+  bulletData: {fileID: 11400000, guid: 5bb6425b3383d22408b5e8d13fc0b5a9, type: 2}
   audioSource: {fileID: 3842966285468081062}
   fireSound: {fileID: 8300000, guid: f1d018efce553ee41b014ecbb1456d94, type: 3}
   sounds:
@@ -589,12 +582,78 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 9b1351fa756bcf64c923b1e194121fff, type: 3}
   - name: Pistol_Cocked
     clip: {fileID: 8300000, guid: 277d1e280567f7c4cbea4669849def27, type: 3}
-  recoilUp: 7
-  recoilSideRange: 1.5
+  damage: 25
+  range: 80
+  maxRecoilUp: 4
+  maxRecoilSide: 1.5
+  recoilCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.2
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  recoilSideCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.5
+      inSlope: 0
+      outSlope: 0.5
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0.5
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  recoilMaxShots: 10
+  adsRecoilUpMultiplier: 0.4
+  adsRecoilSideMultiplier: 0.3
+  tiltAmount: 0.3
+  tiltFrequency: 20
+  tiltFadeSpeed: 3
+  adsTiltMultiplier: 0.3
+  hipFireTiltMultiplier: 0.4
+  kickRotationX: 2
+  kickRotationY: 2
   kickRotationZ: 5
   kickPositionZ: -0.25
   kickPositionY: 0.05
   kickPositionX: 0.02
+  adsKickRotationX: 1
+  adsKickRotationY: 1
+  adsKickRotationZ: 2
+  adsKickPositionZ: -0.05
+  adsKickPositionY: 0.02
+  adsKickPositionX: 0.01
   isAutomatic: 0
   rpm: 500
   baseRpm: 0
@@ -617,8 +676,6 @@ MonoBehaviour:
   isReloading: 0
   isCocking: 0
   isFiring: 0
-  range: 80
-  damagePerBullet: 35
 --- !u!1 &1969169409271382595
 GameObject:
   m_ObjectHideFlags: 0

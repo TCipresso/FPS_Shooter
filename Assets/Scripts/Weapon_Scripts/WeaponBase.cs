@@ -25,6 +25,10 @@ public abstract class WeaponBase : MonoBehaviour
     public AudioClip fireSound;
     public List<WeaponSound> sounds = new List<WeaponSound>();
 
+    [Header("Damage / Range")]
+    public int damage = 25;
+    public float range = 50f;
+
     [Header("Camera Recoil")]
     public float maxRecoilUp = 4f;
     public float maxRecoilSide = 1.5f;
@@ -182,7 +186,7 @@ public abstract class WeaponBase : MonoBehaviour
 
    
 
-    protected void FireHitscan(int damage, float range)
+    private void FireHitscan(int damage, float range)
     {
         if (bulletData == null) return;
 
@@ -320,7 +324,28 @@ public abstract class WeaponBase : MonoBehaviour
         audioSource.PlayOneShot(fireSound);
     }
 
-    
+    protected void Fire(int damage)
+    {
+        if (bulletData == null) return;
+
+        switch (bulletData.bulletType)
+        {
+            case BulletType.Hitscan:
+                FireHitscan(damage, range);
+                break;
+            case BulletType.Projectile:
+                FireProjectile(damage);
+                break;
+        }
+    }
+
+
+    private void FireProjectile(int damage)  // stub for later
+    {
+        Debug.LogWarning("[WeaponBase] Projectile firing not yet implemented.");
+    }
+
+
 
     protected void PlayMuzzleFlash()
     {
@@ -414,7 +439,27 @@ public abstract class WeaponBase : MonoBehaviour
             fpsLook.StopRecoil();
     }
 
-  
+    public void Equip(WeaponInstance instance)
+    {
+        if (instance == null || instance.definition == null) return;
+
+        WeaponDefinitionSO def = instance.definition;
+
+        bulletData = def.bulletData;
+        damage = instance.finalDamage;
+        range = instance.finalRange;
+        rpm = instance.finalRpm;
+        baseRpm = instance.finalRpm;
+        maxMag = instance.finalMagSize;
+        baseMaxMag = instance.finalMagSize;
+        currentMag = instance.finalMagSize;
+        reserveAmmo = instance.finalReserveAmmo;
+        maxReserve = instance.finalReserveAmmo;
+
+        Debug.Log($"[WeaponBase] Equipped {def.weaponName} | Rarity: {instance.rarity} | Damage: {damage} | Range: {range} | RPM: {rpm} | Mag: {maxMag}");
+    }
+
+
 
     protected Vector3 GetAimDirection(float spreadX, float spreadY)
     {

@@ -2,10 +2,6 @@ using UnityEngine;
 
 public class Mac : WeaponBase
 {
-    [Header("Mac Settings")]
-    public float range = 50f;
-    public int damagePerBullet = 35;
-
     float nextFireTime = 0f;
 
     protected override void Awake()
@@ -27,7 +23,8 @@ public class Mac : WeaponBase
         PlayMuzzleFlash();
         ApplyRecoil();
         AddBloom();
-        FireHitscan(damagePerBullet, range);
+        AddBloom();
+        Fire(damage);
 
         if (currentMag <= 0 && reserveAmmo > 0)
             Reload();
