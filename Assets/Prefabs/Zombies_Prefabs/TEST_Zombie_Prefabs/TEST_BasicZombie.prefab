@@ -1785,6 +1785,7 @@ GameObject:
   - component: {fileID: 314896445272783478}
   - component: {fileID: 2473496486619695436}
   - component: {fileID: 1778699423586735161}
+  - component: {fileID: 3500487194275283864}
   m_Layer: 0
   m_Name: TEST_BasicZombie
   m_TagString: Untagged
@@ -1872,6 +1873,17 @@ MonoBehaviour:
   attackDamage: 25
   attackRange: 1.5
   attackCooldown: 1.5
+  isGrunt: 1
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  canClimb: 1
+  climbSpeed: 2
+  rayOffset: {x: 0, y: -0.9, z: 0}
+  rayLength: 0.6
+  launchForce: 8
+  headTransform: {fileID: 0}
+  verboseLogging: 0
 --- !u!114 &1778699423586735161
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1890,6 +1902,33 @@ MonoBehaviour:
   critHitDuration: 0.08
   renderers:
   - {fileID: 1425928039516374368}
+--- !u!54 &3500487194275283864
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8278437370199412268}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &8373123973166257115
 GameObject:
   m_ObjectHideFlags: 0
