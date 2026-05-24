@@ -200,8 +200,8 @@ public class WeaponInventory : MonoBehaviour
         instance.SetActive(false);
 
         WeaponBase wb = instance.GetComponentInChildren<WeaponBase>();
-        if (wb != null && BulletPool.Instance != null && wb.trailPrefab != null)
-            BulletPool.Instance.EnsurePoolSize(wb.trailPoolKey, wb.trailPrefab.gameObject, wb.trailPoolSize);
+        if (wb != null && BulletPool.Instance != null && wb.bulletData != null && wb.bulletData.trailPrefab != null)
+            BulletPool.Instance.EnsurePoolSize(wb.bulletData.trailPoolKey, wb.bulletData.trailPrefab.gameObject, wb.bulletData.trailPoolSize);
 
         if (wb != null && playerStats != null)
         {

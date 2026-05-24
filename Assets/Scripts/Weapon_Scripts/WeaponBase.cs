@@ -17,10 +17,8 @@ public abstract class WeaponBase : MonoBehaviour
     public ParticleSystem muzzleFlash;
     public ParticleSystem casingEject;
 
-    [Header("Trail")]
-    public BulletTrail trailPrefab;
-    public string trailPoolKey = "BulletTrail";
-    public int trailPoolSize = 10;
+    [Header("Bullet Data")]
+    public BulletDataSO bulletData;
 
     [Header("Audio")]
     public AudioSource audioSource;
@@ -122,6 +120,8 @@ public abstract class WeaponBase : MonoBehaviour
             Debug.LogWarning($"[{gameObject.name}] FPSLook not found in scene.");
         if (mainCamera == null)
             Debug.LogWarning($"[{gameObject.name}] Main Camera not found in scene.");
+        if (bulletData == null)
+            Debug.LogWarning($"[{gameObject.name}] No BulletDataSO assigned.");
     }
 
     protected virtual void OnEnable()
@@ -179,6 +179,55 @@ public abstract class WeaponBase : MonoBehaviour
 
     public abstract void Shoot();
     public abstract void Reload();
+
+   
+
+    protected void FireHitscan(int damage, float range)
+    {
+        if (bulletData == null) return;
+
+        Vector3 direction = GetAimDirection(0f, 0f);
+        Vector3 origin = GetAimOrigin();
+        Ray ray = new Ray(origin, direction);
+        Vector3 endPoint;
+
+        bool didHit = bulletData.hitMask != 0
+            ? Physics.Raycast(ray, out RaycastHit hit, range, bulletData.hitMask)
+            : Physics.Raycast(ray, out hit, range);
+
+        if (didHit)
+        {
+            endPoint = hit.point;
+
+            HitBox hitBox = hit.collider.GetComponent<HitBox>();
+            if (hitBox != null)
+            {
+                hitBox.TakeDamageWithHitPoint(damage, playerStats, hit.point,
+                    playerStats != null ? playerStats.goldGainMultiplier : 1f);
+            }
+            else
+            {
+                ZombieBase zombie = hit.collider.GetComponent<ZombieBase>();
+                if (zombie != null)
+                {
+                    zombie.TakeDamage(ApplyCrit(damage), playerStats,
+                        playerStats != null ? playerStats.goldGainMultiplier : 1f);
+                    if (HitMarkerPool.Instance != null)
+                        HitMarkerPool.Instance.Spawn(hit.point, false);
+                }
+            }
+
+            SpawnImpactEffect(hit);
+        }
+        else
+        {
+            endPoint = origin + direction * range;
+        }
+
+        SpawnTrail(muzzlePoint.position, endPoint);
+    }
+
+   
 
     public void ApplyExtraMagazine(int extra)
     {
@@ -252,6 +301,8 @@ public abstract class WeaponBase : MonoBehaviour
         Debug.Log($"[{gameObject.name}] Reloaded. Ammo: {currentMag}/{maxMag} | Reserve: {reserveAmmo}");
     }
 
+   
+
     public void PlaySoundByName(string soundName)
     {
         if (audioSource == null) return;
@@ -269,6 +320,8 @@ public abstract class WeaponBase : MonoBehaviour
         audioSource.PlayOneShot(fireSound);
     }
 
+    
+
     protected void PlayMuzzleFlash()
     {
         if (muzzleFlash == null) return;
@@ -282,13 +335,35 @@ public abstract class WeaponBase : MonoBehaviour
         casingEject.Play();
     }
 
+    protected void SpawnImpactEffect(RaycastHit hit)
+    {
+        if (ImpactEffectPool.Instance == null) return;
+        bool isZombie = hit.collider.GetComponent<ZombieBase>() != null;
+        if (isZombie)
+            ImpactEffectPool.Instance.SpawnZombie(hit.point, hit.normal);
+        else
+            ImpactEffectPool.Instance.SpawnWorld(hit.point, hit.normal);
+    }
+
+    protected void SpawnTrail(Vector3 start, Vector3 end)
+    {
+        if (bulletData == null || BulletPool.Instance == null) return;
+        GameObject obj = BulletPool.Instance.Get(bulletData.trailPoolKey, start, Quaternion.identity);
+        if (obj == null) return;
+        BulletTrail trail = obj.GetComponent<BulletTrail>();
+        if (trail != null) trail.Fire(start, end);
+    }
+
+   
+
     public void LoadRecoilValues()
     {
         if (weaponRecoil == null)
             weaponRecoil = FindFirstObjectByType<WeaponRecoil>();
 
         if (weaponRecoil != null)
-            weaponRecoil.LoadValues(kickRotationX, kickRotationY, kickRotationZ, kickPositionZ, kickPositionY, kickPositionX);
+            weaponRecoil.LoadValues(kickRotationX, kickRotationY, kickRotationZ,
+                kickPositionZ, kickPositionY, kickPositionX);
     }
 
     protected void ApplyRecoil()
@@ -320,9 +395,11 @@ public abstract class WeaponBase : MonoBehaviour
         if (weaponRecoil != null)
         {
             if (isAiming)
-                weaponRecoil.LoadValues(adsKickRotationX, adsKickRotationY, adsKickRotationZ, adsKickPositionZ, adsKickPositionY, adsKickPositionX);
+                weaponRecoil.LoadValues(adsKickRotationX, adsKickRotationY, adsKickRotationZ,
+                    adsKickPositionZ, adsKickPositionY, adsKickPositionX);
             else
-                weaponRecoil.LoadValues(kickRotationX, kickRotationY, kickRotationZ, kickPositionZ, kickPositionY, kickPositionX);
+                weaponRecoil.LoadValues(kickRotationX, kickRotationY, kickRotationZ,
+                    kickPositionZ, kickPositionY, kickPositionX);
 
             weaponRecoil.Kick();
         }
@@ -337,15 +414,7 @@ public abstract class WeaponBase : MonoBehaviour
             fpsLook.StopRecoil();
     }
 
-    protected void SpawnImpactEffect(RaycastHit hit)
-    {
-        if (ImpactEffectPool.Instance == null) return;
-        bool isZombie = hit.collider.GetComponent<ZombieBase>() != null;
-        if (isZombie)
-            ImpactEffectPool.Instance.SpawnZombie(hit.point, hit.normal);
-        else
-            ImpactEffectPool.Instance.SpawnWorld(hit.point, hit.normal);
-    }
+  
 
     protected Vector3 GetAimDirection(float spreadX, float spreadY)
     {
@@ -361,6 +430,14 @@ public abstract class WeaponBase : MonoBehaviour
         return spreadRotation * mainCamera.transform.forward;
     }
 
+    protected Vector3 GetAimOrigin()
+    {
+        if (mainCamera == null) return muzzlePoint.position;
+        return mainCamera.transform.position;
+    }
+
+  
+
     public int ApplyCrit(int damage)
     {
         if (Random.value <= critChance)
@@ -373,11 +450,7 @@ public abstract class WeaponBase : MonoBehaviour
         currentBloom = Mathf.Min(currentBloom + bloomPerShot, maxBloom);
     }
 
-    protected Vector3 GetAimOrigin()
-    {
-        if (mainCamera == null) return muzzlePoint.position;
-        return mainCamera.transform.position;
-    }
+
 
     protected void TriggerCockAnimation()
     {
@@ -432,15 +505,6 @@ public abstract class WeaponBase : MonoBehaviour
             if (fpsController != null)
                 animator.SetBool("IsSprinting", fpsController.IsSprinting && !fpsController.IsSprintingSuppressed);
         }
-    }
-
-    protected void SpawnTrail(Vector3 start, Vector3 end)
-    {
-        if (BulletPool.Instance == null) return;
-        GameObject obj = BulletPool.Instance.Get(trailPoolKey, start, Quaternion.identity);
-        if (obj == null) return;
-        BulletTrail trail = obj.GetComponent<BulletTrail>();
-        if (trail != null) trail.Fire(start, end);
     }
 }
 
