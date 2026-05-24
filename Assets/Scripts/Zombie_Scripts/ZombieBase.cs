@@ -34,13 +34,13 @@ public abstract class ZombieBase : MonoBehaviour
     bool wasClimbing = false;
 
     [Header("Health Bar")]
-    public Transform headTransform; // assign the head bone in the prefab inspector
+    public Transform headTransform;
 
     [Header("Debug")]
     public bool verboseLogging = false;
 
     public event System.Action OnDeath;
-    public event System.Action<int, int> OnHealthChanged; // (currentHealth, maxHealth)
+    public event System.Action<int, int> OnHealthChanged;
 
     protected NavMeshAgent agent;
     protected Rigidbody rb;
@@ -63,7 +63,6 @@ public abstract class ZombieBase : MonoBehaviour
         if (isGrunt)
         {
             agent.enabled = false;
-
             rb.isKinematic = false;
             rb.useGravity = true;
             rb.freezeRotation = true;
@@ -160,7 +159,6 @@ public abstract class ZombieBase : MonoBehaviour
         int actualDamage = Mathf.Min(amount, currentHealth);
         currentHealth -= actualDamage;
 
-        // Notify health bar
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
 
         if (dealer != null)
@@ -215,6 +213,10 @@ public abstract class ZombieBase : MonoBehaviour
 
         if (verboseLogging) Debug.Log($"[{gameObject.name}] Died.");
         OnDeath?.Invoke();
+
+        if (WeaponDropManager.Instance != null)
+            WeaponDropManager.Instance.TryDrop(transform.position);
+
         Destroy(gameObject, 0.1f);
     }
 

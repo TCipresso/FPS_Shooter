@@ -24764,6 +24764,7 @@ GameObject:
   - component: {fileID: 229765649}
   - component: {fileID: 229765650}
   - component: {fileID: 229765651}
+  - component: {fileID: 229765652}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -24860,6 +24861,27 @@ MonoBehaviour:
   offsetDistanceScale: 10
   fadeDuration: 0.25
   deathFadeDuration: 0.05
+--- !u!114 &229765652
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229765646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09efe32e0fed5bb4f8cf5580aecd0e9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponDropManager
+  weaponPool:
+  - {fileID: 11400000, guid: 605a22dfb62a742419312aba1558d1a4, type: 2}
+  dropChance: 1
+  commonWeight: 60
+  rareWeight: 25
+  epicWeight: 10
+  legendaryWeight: 4
+  contrabandWeight: 1
+  weaponPickupPrefab: {fileID: 1951437649463098823, guid: 2f55684d9e63b8f4c9ad7cc3e89108a2, type: 3}
 --- !u!1 &230308054
 GameObject:
   m_ObjectHideFlags: 0
@@ -180661,12 +180683,12 @@ MonoBehaviour:
   muzzlePoint: {fileID: 0}
   muzzleFlash: {fileID: 0}
   casingEject: {fileID: 0}
-  trailPrefab: {fileID: 0}
-  trailPoolKey: BulletTrail
-  trailPoolSize: 10
+  bulletData: {fileID: 0}
   audioSource: {fileID: 0}
   fireSound: {fileID: 0}
   sounds: []
+  damage: 25
+  range: 50
   maxRecoilUp: 4
   maxRecoilSide: 1.5
   recoilCurve:
@@ -180759,8 +180781,6 @@ MonoBehaviour:
   isReloading: 0
   isCocking: 0
   isFiring: 0
-  range: 50
-  damagePerBullet: 35
 --- !u!1 &1657260586
 GameObject:
   m_ObjectHideFlags: 0

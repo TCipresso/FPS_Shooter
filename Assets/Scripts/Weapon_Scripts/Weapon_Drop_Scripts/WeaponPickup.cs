@@ -13,9 +13,22 @@ public class WeaponPickup : MonoBehaviour
 
     Light rarityLight;
 
+    [Header("Launch")]
+    public float launchForce = 5f;
+
     void Awake()
     {
         rarityLight = GetComponentInChildren<Light>();
+    }
+
+    void Start()
+    {
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb == null) return;
+
+        Vector3 randomDir = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f)).normalized;
+        Vector3 launchDir = (Vector3.up * 2f + randomDir).normalized;
+        rb.AddForce(launchDir * launchForce, ForceMode.Impulse);
     }
 
     public void Initialize(WeaponInstance instance)
@@ -27,13 +40,15 @@ public class WeaponPickup : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (weaponInstance == null) return;
+        if (!other.CompareTag("Player")) return;
 
         WeaponInventory inventory = other.GetComponent<WeaponInventory>();
+        if (inventory == null)
+            inventory = other.GetComponentInParent<WeaponInventory>();
         if (inventory == null) return;
 
         inventory.TryAddWeaponInstance(weaponInstance);
-        Destroy(gameObject);
+        Destroy(transform.root.gameObject);
     }
 
     Color GetRarityColor(WeaponRarity rarity)
