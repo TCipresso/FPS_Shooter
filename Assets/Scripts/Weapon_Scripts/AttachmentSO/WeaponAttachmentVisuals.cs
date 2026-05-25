@@ -19,10 +19,9 @@ public class WeaponAttachmentVisuals : MonoBehaviour
 {
     public List<AttachmentMount> mounts = new List<AttachmentMount>();
 
-    public void ApplyAttachments(List<AttachmentSO> attachments)
+    public void ApplyAttachments(List<AttachmentSO> attachments, Animator animator)
     {
-        Debug.Log($"[AttachmentVisuals] ApplyAttachments called with {attachments?.Count ?? 0} attachments");
-
+        // Disable all visuals first
         foreach (AttachmentMount mount in mounts)
             foreach (AttachmentVisual visual in mount.visuals)
                 if (visual.model != null)
@@ -30,20 +29,47 @@ public class WeaponAttachmentVisuals : MonoBehaviour
 
         if (attachments == null) return;
 
+        // Enable matched visuals
         foreach (AttachmentSO attachment in attachments)
         {
             if (attachment == null) continue;
-            Debug.Log($"[AttachmentVisuals] Trying to match slot:{attachment.slotType} model:{attachment.modelName}");
 
             AttachmentMount mount = mounts.Find(m => m.slotName == attachment.slotType);
-            if (mount == null) { Debug.Log($"[AttachmentVisuals] No mount found for {attachment.slotType}"); continue; }
+            if (mount == null) continue;
 
             AttachmentVisual visual = mount.visuals.Find(v => v.modelName == attachment.modelName);
             if (visual != null && visual.model != null)
-            {
-                Debug.Log($"[AttachmentVisuals] Enabling {visual.modelName}");
                 visual.model.SetActive(true);
-            }
         }
+
+        // Apply animation overrides
+        if (animator == null) return;
+
+        // Collect all overrides from rolled attachments
+        List<KeyValuePair<AnimationClip, AnimationClip>> overrides = new List<KeyValuePair<AnimationClip, AnimationClip>>();
+        foreach (AttachmentSO attachment in attachments)
+        {
+            if (attachment == null) continue;
+            if (attachment.overrideClip == null || attachment.clipToReplace == null) continue;
+            overrides.Add(new KeyValuePair<AnimationClip, AnimationClip>(attachment.clipToReplace, attachment.overrideClip));
+        }
+
+        if (overrides.Count == 0) return;
+
+        AnimatorOverrideController overrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
+
+        List<KeyValuePair<AnimationClip, AnimationClip>> allOverrides = new List<KeyValuePair<AnimationClip, AnimationClip>>();
+        overrideController.GetOverrides(allOverrides);
+
+        for (int i = 0; i < allOverrides.Count; i++)
+        {
+            KeyValuePair<AnimationClip, AnimationClip> entry = allOverrides[i];
+            KeyValuePair<AnimationClip, AnimationClip> match = overrides.Find(o => o.Key == entry.Key);
+            if (match.Key != null)
+                allOverrides[i] = new KeyValuePair<AnimationClip, AnimationClip>(entry.Key, match.Value);
+        }
+
+        overrideController.ApplyOverrides(allOverrides);
+        animator.runtimeAnimatorController = overrideController;
     }
 }

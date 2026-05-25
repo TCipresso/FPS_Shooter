@@ -460,10 +460,18 @@ public abstract class WeaponBase : MonoBehaviour
         if (visuals == null)
             visuals = GetComponentInChildren<WeaponAttachmentVisuals>();
 
-        Debug.Log($"[WeaponBase] visuals found: {visuals != null} on {gameObject.name}");
-
         if (visuals != null)
-            visuals.ApplyAttachments(instance.rolledAttachments);
+            visuals.ApplyAttachments(instance.rolledAttachments, animator);
+
+        CrosshairUI crosshairUI = FindFirstObjectByType<CrosshairUI>();
+        if (crosshairUI != null)
+        {
+            AttachmentSO sightAttachment = instance.rolledAttachments.Find(a => a != null && a.overrideCrosshair && a.slotType == "Sight");
+            if (sightAttachment != null)
+                crosshairUI.SetReticle(sightAttachment.reticleSprite, sightAttachment.reticleColor, sightAttachment.reticleScale, sightAttachment.fadeToNothing);
+            else
+                crosshairUI.ClearReticle();
+        }
 
         Debug.Log($"[WeaponBase] Equipped {def.weaponName} | Rarity: {instance.rarity} | Damage: {damage} | Range: {range} | RPM: {rpm} | Mag: {maxMag}");
     }

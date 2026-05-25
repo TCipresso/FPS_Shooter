@@ -21,6 +21,7 @@ public class CrosshairUI : MonoBehaviour
     public Image adsCrosshair;
     public float adsSwapFadeSpeed = 10f;
 
+
     [Header("Color")]
     public Color normalColor = Color.white;
     public Color adsColor = Color.white;
@@ -37,6 +38,7 @@ public class CrosshairUI : MonoBehaviour
     // Runtime
     float _currentSpread;
     Vector2 _reticleOffset;
+    bool _fadeToNothing = false;
 
     RectTransform[] _lineRTs = new RectTransform[4];
     Image[] _lineImgs = new Image[4];
@@ -65,6 +67,24 @@ public class CrosshairUI : MonoBehaviour
             _lineImgs[i] = go.GetComponent<Image>();
             _lineImgs[i].color = normalColor;
         }
+    }
+
+    public void SetReticle(Sprite sprite, Color color, float scale, bool fadeToNothing)
+    {
+        _fadeToNothing = fadeToNothing;
+        if (adsCrosshair != null)
+        {
+            adsCrosshair.sprite = sprite;
+            adsCrosshair.color = new Color(color.r, color.g, color.b, 0f);
+            adsCrosshair.rectTransform.localScale = Vector3.one * scale;
+        }
+    }
+
+    public void ClearReticle()
+    {
+        _fadeToNothing = false;
+        if (adsCrosshair != null)
+            adsCrosshair.sprite = null;
     }
 
     void Update()
@@ -107,7 +127,7 @@ public class CrosshairUI : MonoBehaviour
 
         // Alpha
         float targetLineAlpha = isAiming
-            ? (activeWeapon.adsFadeCrosshair ? adsAlpha : 0f)
+            ? (activeWeapon.adsFadeCrosshair || _fadeToNothing ? 0f : adsAlpha)
             : 1f;
 
         Color targetColor = isAiming ? adsColor : normalColor;
@@ -116,9 +136,9 @@ public class CrosshairUI : MonoBehaviour
         foreach (Image img in _lineImgs)
             img.color = Color.Lerp(img.color, targetColor, spreadLerpSpeed * Time.deltaTime);
 
-        if (adsCrosshair != null && !activeWeapon.adsFadeCrosshair)
+        if (adsCrosshair != null)
         {
-            float targetAdsAlpha = isAiming ? 1f : 0f;
+            float targetAdsAlpha = isAiming && !_fadeToNothing && adsCrosshair.sprite != null ? 1f : 0f;
             Color ac = adsCrosshair.color;
             ac.a = Mathf.Lerp(ac.a, targetAdsAlpha, adsSwapFadeSpeed * Time.deltaTime);
             adsCrosshair.color = ac;

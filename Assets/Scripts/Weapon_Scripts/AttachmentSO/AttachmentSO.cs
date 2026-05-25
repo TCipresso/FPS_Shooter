@@ -34,6 +34,17 @@ public class AttachmentSO : ScriptableObject
     [Header("Visual")]
     public string modelName = "";
 
+    [Header("Animation Override")]
+    public AnimationClip overrideClip;
+    public AnimationClip clipToReplace;
+
+    [Header("Reticle")]
+    public bool overrideCrosshair = false;
+    public Sprite reticleSprite;
+    public bool fadeToNothing = false;
+    public Color reticleColor = Color.white;
+    public float reticleScale = 1f;
+
     [Header("Modifiers")]
     public StatModifier[] modifiers;
 }

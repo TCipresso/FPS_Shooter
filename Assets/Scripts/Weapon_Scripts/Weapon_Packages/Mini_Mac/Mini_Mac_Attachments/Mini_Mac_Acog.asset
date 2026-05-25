@@ -10,9 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3b0ac8b685d999b4ba0ed499ab442c66, type: 3}
-  m_Name: Mini_Mac_RedDot_NoSight
+  m_Name: Mini_Mac_Acog
   m_EditorClassIdentifier: Assembly-CSharp::AttachmentSO
-  attachmentName: None
+  attachmentName: Acog
   slotType: Sight
-  modelName: 
+  modelName: Acog
+  overrideClip: {fileID: 7400000, guid: 68076efb12cce7d42b73f5e463aff911, type: 2}
+  clipToReplace: {fileID: 7400000, guid: 1848d0575b00e4f47a666518865a8207, type: 2}
+  overrideCrosshair: 1
+  reticleSprite: {fileID: 21300000, guid: 071a5f28e9c7c6840a041873a5d7fcda, type: 3}
+  fadeToNothing: 0
+  reticleColor: {r: 1, g: 1, b: 1, a: 1}
+  reticleScale: 2
   modifiers: []
