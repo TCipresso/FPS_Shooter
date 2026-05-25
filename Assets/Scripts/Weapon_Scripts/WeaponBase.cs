@@ -456,6 +456,15 @@ public abstract class WeaponBase : MonoBehaviour
         reserveAmmo = instance.finalReserveAmmo;
         maxReserve = instance.finalReserveAmmo;
 
+        WeaponAttachmentVisuals visuals = GetComponentInParent<WeaponAttachmentVisuals>();
+        if (visuals == null)
+            visuals = GetComponentInChildren<WeaponAttachmentVisuals>();
+
+        Debug.Log($"[WeaponBase] visuals found: {visuals != null} on {gameObject.name}");
+
+        if (visuals != null)
+            visuals.ApplyAttachments(instance.rolledAttachments);
+
         Debug.Log($"[WeaponBase] Equipped {def.weaponName} | Rarity: {instance.rarity} | Damage: {damage} | Range: {range} | RPM: {rpm} | Mag: {maxMag}");
     }
 

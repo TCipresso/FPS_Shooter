@@ -31,6 +31,9 @@ public class AttachmentSO : ScriptableObject
     public string attachmentName = "Attachment";
     public string slotType;
 
+    [Header("Visual")]
+    public string modelName = "";
+
     [Header("Modifiers")]
     public StatModifier[] modifiers;
 }
