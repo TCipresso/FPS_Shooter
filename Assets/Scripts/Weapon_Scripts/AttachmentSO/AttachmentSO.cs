@@ -45,6 +45,11 @@ public class AttachmentSO : ScriptableObject
     public Color reticleColor = Color.white;
     public float reticleScale = 1f;
 
+    [Header("Barrel")]
+    public ParticleSystem muzzleFlashOverride;
+    public string muzzlePointName = ""; // name of child GO on the gun prefab
+    public AudioClip fireSoundOverride;
+
     [Header("Modifiers")]
     public StatModifier[] modifiers;
 }

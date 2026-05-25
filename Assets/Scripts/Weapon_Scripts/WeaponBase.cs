@@ -12,6 +12,11 @@ public abstract class WeaponBase : MonoBehaviour
 
     [Header("Muzzle")]
     public Transform muzzlePoint;
+    Transform _defaultMuzzlePoint;
+    Transform _defaultMuzzleFlashParent;
+    Vector3 _defaultMuzzleFlashLocalPos;
+    Quaternion _defaultMuzzleFlashLocalRot;
+
 
     [Header("Muzzle Flash")]
     public ParticleSystem muzzleFlash;
@@ -119,6 +124,14 @@ public abstract class WeaponBase : MonoBehaviour
         mainCamera = Camera.main;
         playerStats = FindFirstObjectByType<PlayerStats>();
         fpsController = FindFirstObjectByType<PlayerFpsController>();
+
+        _defaultMuzzlePoint = muzzlePoint;
+        if (muzzleFlash != null)
+        {
+            _defaultMuzzleFlashParent = muzzleFlash.transform.parent;
+            _defaultMuzzleFlashLocalPos = muzzleFlash.transform.localPosition;
+            _defaultMuzzleFlashLocalRot = muzzleFlash.transform.localRotation;
+        }
 
         if (fpsLook == null)
             Debug.LogWarning($"[{gameObject.name}] FPSLook not found in scene.");
@@ -350,9 +363,12 @@ public abstract class WeaponBase : MonoBehaviour
     protected void PlayMuzzleFlash()
     {
         if (muzzleFlash == null) return;
+        muzzleFlash.transform.position = muzzlePoint.position;
+        muzzleFlash.transform.rotation = muzzlePoint.rotation;
         muzzleFlash.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         muzzleFlash.Play();
     }
+
 
     public void EjectCasing()
     {
@@ -463,6 +479,27 @@ public abstract class WeaponBase : MonoBehaviour
         if (visuals != null)
             visuals.ApplyAttachments(instance.rolledAttachments, animator);
 
+        // Reset muzzle to default
+        muzzlePoint = _defaultMuzzlePoint;
+
+        // Barrel overrides
+        AttachmentSO barrelAttachment = instance.rolledAttachments.Find(a => a != null && a.slotType == "Barrel");
+        if (barrelAttachment != null)
+        {
+            if (!string.IsNullOrEmpty(barrelAttachment.muzzlePointName))
+            {
+                Transform newMuzzle = FindDeepChild(transform, barrelAttachment.muzzlePointName);
+                if (newMuzzle != null)
+                    muzzlePoint = newMuzzle;
+                else
+                    Debug.LogWarning($"[WeaponBase] Muzzle point '{barrelAttachment.muzzlePointName}' not found.");
+            }
+
+            if (barrelAttachment.fireSoundOverride != null)
+                fireSound = barrelAttachment.fireSoundOverride;
+        }
+
+        // Crosshair / reticle
         CrosshairUI crosshairUI = FindFirstObjectByType<CrosshairUI>();
         if (crosshairUI != null)
         {
@@ -474,6 +511,17 @@ public abstract class WeaponBase : MonoBehaviour
         }
 
         Debug.Log($"[WeaponBase] Equipped {def.weaponName} | Rarity: {instance.rarity} | Damage: {damage} | Range: {range} | RPM: {rpm} | Mag: {maxMag}");
+    }
+
+    Transform FindDeepChild(Transform parent, string name)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == name) return child;
+            Transform result = FindDeepChild(child, name);
+            if (result != null) return result;
+        }
+        return null;
     }
 
 
