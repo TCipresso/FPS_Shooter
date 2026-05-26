@@ -6,7 +6,7 @@ public enum StatType
     Rpm,
     MagSize,
     ReserveAmmo,
-    Range,
+    RangeStat,
     ReloadTime
 }
 

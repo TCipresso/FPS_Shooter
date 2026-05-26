@@ -7,7 +7,6 @@ public class WeaponInstance
     public WeaponRarity rarity;
     public List<AttachmentSO> rolledAttachments = new List<AttachmentSO>();
 
-    // Computed finals — populated by ComputeStats()
     public int finalDamage;
     public float finalRpm;
     public int finalMagSize;
@@ -27,13 +26,12 @@ public class WeaponInstance
     {
         float rarityMult = definition.GetRarityMultiplier(rarity);
 
-        // Apply rarity multiplier to base stats
         float damage = definition.baseDamage * rarityMult;
         float rpm = definition.baseRpm * rarityMult;
         float magSize = definition.baseMagSize * rarityMult;
         float reserve = definition.baseReserveAmmo * rarityMult;
         float range = definition.baseRange * rarityMult;
-        float reloadTime = definition.baseReloadTime;   // lower = faster, handle separately
+        float reloadTime = definition.baseReloadTime;
 
         // Pass 1 — additives
         foreach (AttachmentSO attachment in rolledAttachments)
@@ -48,7 +46,7 @@ public class WeaponInstance
                     case StatType.Rpm: rpm += mod.value; break;
                     case StatType.MagSize: magSize += mod.value; break;
                     case StatType.ReserveAmmo: reserve += mod.value; break;
-                    case StatType.Range: range += mod.value; break;
+                    case StatType.RangeStat: range += mod.value; break;
                     case StatType.ReloadTime: reloadTime += mod.value; break;
                 }
             }
@@ -67,13 +65,12 @@ public class WeaponInstance
                     case StatType.Rpm: rpm *= 1f + mod.value; break;
                     case StatType.MagSize: magSize *= 1f + mod.value; break;
                     case StatType.ReserveAmmo: reserve *= 1f + mod.value; break;
-                    case StatType.Range: range *= 1f + mod.value; break;
+                    case StatType.RangeStat: range *= 1f + mod.value; break;
                     case StatType.ReloadTime: reloadTime *= 1f + mod.value; break;
                 }
             }
         }
 
-        // Clamp and assign finals
         finalDamage = Mathf.Max(1, Mathf.RoundToInt(damage));
         finalRpm = Mathf.Max(1f, rpm);
         finalMagSize = Mathf.Max(1, Mathf.RoundToInt(magSize));
