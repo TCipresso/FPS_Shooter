@@ -102,6 +102,7 @@ public abstract class WeaponBase : MonoBehaviour
     public Animator animator;
     public float walkStopDelay = 0.1f;
     public string FireClipName = "Enter Clip name Here";
+    public Animator universalAnimator;
 
     [HideInInspector] public bool isReloading = false;
     [HideInInspector] public bool isCocking = false;
@@ -184,6 +185,12 @@ public abstract class WeaponBase : MonoBehaviour
             animator.SetBool("IsWalking", showWalking);
             animator.SetBool("IsSprinting", !isReloading && showSprinting);
             animator.SetBool("IsIdle", isReloading);
+
+            if (universalAnimator != null)
+            {
+                universalAnimator.SetBool("IsWalking", showWalking);
+                universalAnimator.SetBool("IsSprinting", !isReloading && showSprinting);
+            }
 
             isAiming = fpsController.input.AimHeld && !isReloading;
 
@@ -615,6 +622,9 @@ public abstract class WeaponBase : MonoBehaviour
             if (fpsController != null)
                 animator.SetBool("IsSprinting", fpsController.IsSprinting && !fpsController.IsSprintingSuppressed);
         }
+
+        if (universalAnimator != null && fpsController != null)
+            universalAnimator.SetBool("IsSprinting", fpsController.IsSprinting && !fpsController.IsSprintingSuppressed);
     }
 }
 
