@@ -37517,6 +37517,7 @@ GameObject:
   m_Component:
   - component: {fileID: 344646849}
   - component: {fileID: 344646850}
+  - component: {fileID: 344646851}
   m_Layer: 0
   m_Name: WeaponAnims
   m_TagString: Untagged
@@ -37562,6 +37563,27 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &344646851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 344646848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7e8dee1cf172c745a0a8b645147efa0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAudio
+  footstepSource: {fileID: 732553770}
+  walkClips:
+  - {fileID: 8300000, guid: 32b1e15356c3ac04687436b9d58fd311, type: 3}
+  - {fileID: 8300000, guid: b928a257e74bc384f995355f13e5e12a, type: 3}
+  sprintClips:
+  - {fileID: 8300000, guid: 32b1e15356c3ac04687436b9d58fd311, type: 3}
+  - {fileID: 8300000, guid: b928a257e74bc384f995355f13e5e12a, type: 3}
+  walkVolume: 0.6
+  sprintVolume: 0.85
 --- !u!1 &345531195
 GameObject:
   m_ObjectHideFlags: 0
@@ -181307,6 +181329,7 @@ MonoBehaviour:
   muzzlePoint: {fileID: 0}
   muzzleFlash: {fileID: 0}
   casingEject: {fileID: 0}
+  attachmentSearchRoot: {fileID: 0}
   bulletData: {fileID: 0}
   audioSource: {fileID: 0}
   fireSound: {fileID: 0}
