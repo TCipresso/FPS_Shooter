@@ -206,12 +206,11 @@ public abstract class WeaponBase : MonoBehaviour
     public abstract void Shoot();
     public abstract void Reload();
 
-   
+
 
     private void FireHitscan(int damage, float range)
     {
         if (bulletData == null) return;
-
         Vector3 direction = GetAimDirection(0f, 0f);
         Vector3 origin = GetAimOrigin();
         Ray ray = new Ray(origin, direction);
@@ -224,12 +223,12 @@ public abstract class WeaponBase : MonoBehaviour
         if (didHit)
         {
             endPoint = hit.point;
-
             HitBox hitBox = hit.collider.GetComponent<HitBox>();
             if (hitBox != null)
             {
                 hitBox.TakeDamageWithHitPoint(damage, playerStats, hit.point,
-                    playerStats != null ? playerStats.goldGainMultiplier : 1f);
+                    playerStats != null ? playerStats.goldGainMultiplier : 1f,
+                    direction);
             }
             else
             {
@@ -237,23 +236,22 @@ public abstract class WeaponBase : MonoBehaviour
                 if (zombie != null)
                 {
                     zombie.TakeDamage(ApplyCrit(damage), playerStats,
-                        playerStats != null ? playerStats.goldGainMultiplier : 1f);
+                        playerStats != null ? playerStats.goldGainMultiplier : 1f,
+                        direction);
                     if (HitMarkerPool.Instance != null)
                         HitMarkerPool.Instance.Spawn(hit.point, false);
                 }
             }
-
             SpawnImpactEffect(hit);
         }
         else
         {
             endPoint = origin + direction * range;
         }
-
         SpawnTrail(muzzlePoint.position, endPoint);
     }
 
-   
+
 
     public void ApplyExtraMagazine(int extra)
     {
