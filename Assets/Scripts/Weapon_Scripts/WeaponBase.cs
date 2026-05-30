@@ -140,6 +140,8 @@ public abstract class WeaponBase : MonoBehaviour
             Debug.LogWarning($"[{gameObject.name}] Main Camera not found in scene.");
         if (bulletData == null)
             Debug.LogWarning($"[{gameObject.name}] No BulletDataSO assigned.");
+        if (universalAnimator == null)
+            universalAnimator = GameObject.Find("WeaponAnims")?.GetComponent<Animator>();
     }
 
     protected virtual void OnEnable()
@@ -168,6 +170,11 @@ public abstract class WeaponBase : MonoBehaviour
             if (isReloading && fpsController.IsSprinting && !canReloadWhileSprinting)
                 CancelReload();
 
+            isAiming = fpsController.input.AimHeld && !isReloading;
+
+            if (isAiming)
+                fpsController.IsSprinting = false;
+
             bool isWalking = !isCocking
                           && !isReloading
                           && fpsController.input.Move.sqrMagnitude > 0.01f;
@@ -177,27 +184,20 @@ public abstract class WeaponBase : MonoBehaviour
             else if (walkStopTimer > 0f)
                 walkStopTimer -= Time.deltaTime;
 
-            bool showWalking = !isReloading && (isWalking || walkStopTimer > 0f);
-
-            bool showSprinting = fpsController.IsSprinting && !fpsController.IsSprintingSuppressed
+            bool showWalking = !isReloading && !isAiming && (isWalking || walkStopTimer > 0f);
+            bool showSprinting = !isAiming && fpsController.IsSprinting && !fpsController.IsSprintingSuppressed
                                  && !(isReloading && canReloadWhileSprinting);
 
             animator.SetBool("IsWalking", showWalking);
             animator.SetBool("IsSprinting", !isReloading && showSprinting);
             animator.SetBool("IsIdle", isReloading);
+            animator.SetBool("IsAiming", isAiming);
 
             if (universalAnimator != null)
             {
                 universalAnimator.SetBool("IsWalking", showWalking);
                 universalAnimator.SetBool("IsSprinting", !isReloading && showSprinting);
             }
-
-            isAiming = fpsController.input.AimHeld && !isReloading;
-
-            if (isAiming)
-                fpsController.IsSprinting = false;
-
-            animator.SetBool("IsAiming", isAiming);
         }
     }
 
