@@ -17,10 +17,12 @@ public abstract class WeaponBase : MonoBehaviour
     Vector3 _defaultMuzzleFlashLocalPos;
     Quaternion _defaultMuzzleFlashLocalRot;
 
-
     [Header("Muzzle Flash")]
     public ParticleSystem muzzleFlash;
     public ParticleSystem casingEject;
+
+    [Header("Attachment Search Root")]
+    public Transform attachmentSearchRoot;
 
     [Header("Bullet Data")]
     public BulletDataSO bulletData;
@@ -495,7 +497,8 @@ public abstract class WeaponBase : MonoBehaviour
         {
             if (!string.IsNullOrEmpty(barrelAttachment.muzzlePointName))
             {
-                Transform newMuzzle = FindDeepChild(transform, barrelAttachment.muzzlePointName);
+                Transform searchRoot = attachmentSearchRoot != null ? attachmentSearchRoot : transform;
+                Transform newMuzzle = FindDeepChild(searchRoot, barrelAttachment.muzzlePointName);
                 if (newMuzzle != null)
                     muzzlePoint = newMuzzle;
                 else
