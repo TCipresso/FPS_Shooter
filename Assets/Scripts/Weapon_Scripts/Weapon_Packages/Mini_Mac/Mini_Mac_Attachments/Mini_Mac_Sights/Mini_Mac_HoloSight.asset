@@ -15,11 +15,14 @@ MonoBehaviour:
   attachmentName: HoloSight
   slotType: Sight
   modelName: HoloSight
-  overrideClip: {fileID: 7400000, guid: 342307c75cf3e614dbdb71088f1ddb95, type: 2}
-  clipToReplace: {fileID: 7400000, guid: 1848d0575b00e4f47a666518865a8207, type: 2}
+  overrideClip: {fileID: 7400000, guid: a120e60e5e8783a429876aa3ae626c1c, type: 2}
+  clipToReplace: {fileID: 7400000, guid: 60b6c0adfa127694ea75d711c1d5a92b, type: 2}
   overrideCrosshair: 1
   reticleSprite: {fileID: 21300000, guid: 09afb309be4c93e4d9e360426b6e6b8c, type: 3}
   fadeToNothing: 0
   reticleColor: {r: 1, g: 1, b: 1, a: 1}
   reticleScale: 0.5
+  muzzleFlashOverride: {fileID: 0}
+  muzzlePointName: 
+  fireSoundOverride: {fileID: 0}
   modifiers: []
