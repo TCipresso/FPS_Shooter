@@ -4,25 +4,18 @@ using UnityEngine;
 public class SpawnZombiesAction : InteractableAction
 {
     [Header("Spawn Settings")]
-    public GameObject zombiePrefab;
+    public string enemyId;
     public int spawnCount = 5;
     public float spawnRadius = 3f;
 
     public override void Execute(PlayerStats stats)
     {
-        if (zombiePrefab == null)
+        if (EnemySpawnManager.Instance == null)
         {
-            Debug.LogWarning("[SpawnZombiesAction] No zombie prefab assigned!");
+            Debug.LogWarning("[SpawnZombiesAction] No EnemySpawnManager in scene!");
             return;
         }
 
-        for (int i = 0; i < spawnCount; i++)
-        {
-            Vector2 random2D = Random.insideUnitCircle * spawnRadius;
-            Vector3 spawnPos = stats.transform.position + new Vector3(random2D.x, 0f, random2D.y);
-            GameObject.Instantiate(zombiePrefab, spawnPos, Quaternion.identity);
-        }
-
-        Debug.Log($"[SpawnZombiesAction] Spawned {spawnCount} zombies.");
+        EnemySpawnManager.Instance.DebugSpawnNearPlayer(enemyId, spawnCount, spawnRadius);
     }
 }

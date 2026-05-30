@@ -146,7 +146,10 @@ MonoBehaviour:
   rayOffset: {x: 0, y: -0.9, z: 0}
   rayLength: 0.6
   launchForce: 8
+  ragdollForce: 8
+  skeletonRoot: {fileID: 2769214003864653106}
   headTransform: {fileID: 1402225284564797892}
+  enemyId: BasicGrunt
   verboseLogging: 0
 --- !u!136 &5489905723570387883
 CapsuleCollider:
@@ -609,6 +612,11 @@ MonoBehaviour:
   zombie: {fileID: 1022946802317947505}
   limbMultiplier: 1
   isHeadshot: 0
+--- !u!4 &2769214003864653106 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5465940246521907071, guid: 8a2028c2bd4652c47bd3d038148549bf, type: 3}
+  m_PrefabInstance: {fileID: 7905174998788131405}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &4079720332848529094 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -3086436065929644917, guid: 8a2028c2bd4652c47bd3d038148549bf, type: 3}

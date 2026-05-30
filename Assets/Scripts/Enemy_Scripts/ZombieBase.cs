@@ -34,11 +34,16 @@ public abstract class ZombieBase : MonoBehaviour
     bool wasClimbing = false;
 
     [Header("Ragdoll")]
-    public float ragdollDestroyDelay = 4f;
     public float ragdollForce = 8f;
+
+    [Header("Skeleton")]
+    public Transform skeletonRoot;
 
     [Header("Health Bar")]
     public Transform headTransform;
+
+    [Header("Identity")]
+    public string enemyId;
 
     [Header("Debug")]
     public bool verboseLogging = false;
@@ -54,10 +59,6 @@ public abstract class ZombieBase : MonoBehaviour
     protected float lastAttackTime;
     protected bool isDead = false;
 
-    Animator animator;
-    Rigidbody[] ragdollBodies;
-    Collider[] ragdollColliders;
-
     Vector3 lastHitDirection = Vector3.back;
 
     Dictionary<PlayerStats, int> damageContributors = new Dictionary<PlayerStats, int>();
@@ -69,13 +70,6 @@ public abstract class ZombieBase : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
-        animator = GetComponentInChildren<Animator>();
-
-        // Grab all rigidbodies on child bones (excluding root rb)
-        ragdollBodies = GetComponentsInChildren<Rigidbody>();
-        ragdollColliders = GetComponentsInChildren<Collider>();
-
-        SetRagdollActive(false);
 
         if (isGrunt)
         {
@@ -147,18 +141,24 @@ public abstract class ZombieBase : MonoBehaviour
         rb.MovePosition(rb.position + move * Time.fixedDeltaTime);
     }
 
-    void SetRagdollActive(bool active)
+    void CopyPoseToRagdoll(GameObject ragdoll)
     {
-        foreach (Rigidbody body in ragdollBodies)
-        {
-            if (body == rb) continue; // skip root
-            body.isKinematic = !active;
-        }
+        if (skeletonRoot == null) return;
 
-        foreach (Collider c in ragdollColliders)
+        Transform[] liveJoints = skeletonRoot.GetComponentsInChildren<Transform>();
+        Transform[] ragdollJoints = ragdoll.GetComponentsInChildren<Transform>();
+
+        Dictionary<string, Transform> ragdollMap = new Dictionary<string, Transform>();
+        foreach (Transform t in ragdollJoints)
+            ragdollMap[t.name] = t;
+
+        foreach (Transform liveJoint in liveJoints)
         {
-            if (c == col) continue; // skip root collider
-            c.enabled = active;
+            if (ragdollMap.TryGetValue(liveJoint.name, out Transform ragdollJoint))
+            {
+                ragdollJoint.position = liveJoint.position;
+                ragdollJoint.rotation = liveJoint.rotation;
+            }
         }
     }
 
@@ -224,15 +224,37 @@ public abstract class ZombieBase : MonoBehaviour
         TakeDamage(amount, playerStats);
     }
 
+    public virtual void ResetEnemy()
+    {
+        isDead = false;
+        currentHealth = maxHealth;
+        lastHitDirection = Vector3.back;
+        damageContributors.Clear();
+        goldMultipliers.Clear();
+        totalDamageDealt = 0;
+        lastAttackTime = 0f;
+        wasClimbing = false;
+
+        if (isGrunt)
+        {
+            rb.isKinematic = false;
+            rb.linearVelocity = Vector3.zero;
+        }
+        else
+        {
+            agent.enabled = true;
+            agent.isStopped = false;
+        }
+    }
+
     void HandleDeath()
     {
         isDead = true;
 
-        // Stop all movement
         if (isGrunt)
         {
             rb.linearVelocity = Vector3.zero;
-            rb.isKinematic = true; // hand off physics to ragdoll bones
+            rb.isKinematic = true;
         }
         else
         {
@@ -240,20 +262,13 @@ public abstract class ZombieBase : MonoBehaviour
             agent.enabled = false;
         }
 
-        // Disable animator, enable ragdoll
-        if (animator != null) animator.enabled = false;
-        if (col != null) col.enabled = false;
-        SetRagdollActive(true);
-
-        // Apply knockback force to hips (first non-root rb, usually hips bone)
-        foreach (Rigidbody body in ragdollBodies)
+        if (EnemySpawnManager.Instance != null)
         {
-            if (body == rb) continue;
-            body.AddForce(lastHitDirection * ragdollForce + Vector3.up * (ragdollForce * 0.5f), ForceMode.Impulse);
-            break; // just hips, let joints propagate naturally
+            GameObject corpse = EnemySpawnManager.Instance.SpawnRagdoll(enemyId, transform.position, transform.rotation, lastHitDirection, ragdollForce);
+            if (corpse != null)
+                CopyPoseToRagdoll(corpse);
         }
 
-        // Gold payout
         foreach (var kvp in damageContributors)
         {
             PlayerStats contributor = kvp.Key;
@@ -262,9 +277,6 @@ public abstract class ZombieBase : MonoBehaviour
             float multiplier = goldMultipliers.ContainsKey(contributor) ? goldMultipliers[contributor] : 1f;
             int goldAwarded = Mathf.RoundToInt(goldBounty * proportion * multiplier * contributor.goldGainMultiplier);
             contributor.AddGold(goldAwarded);
-
-            if (verboseLogging)
-                Debug.Log($"[{gameObject.name}] Awarded {goldAwarded} gold to {contributor.gameObject.name}.");
         }
 
         if (verboseLogging) Debug.Log($"[{gameObject.name}] Died.");
@@ -272,8 +284,6 @@ public abstract class ZombieBase : MonoBehaviour
 
         if (WeaponDropManager.Instance != null)
             WeaponDropManager.Instance.TryDrop(transform.position);
-
-        Destroy(gameObject, ragdollDestroyDelay);
     }
 
     void OnDrawGizmos()
