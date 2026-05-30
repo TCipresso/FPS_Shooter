@@ -102,6 +102,7 @@ public abstract class WeaponBase : MonoBehaviour
     public Animator animator;
     public float walkStopDelay = 0.1f;
     public string FireClipName = "Enter Clip name Here";
+    public Animator universalAnimator;
 
     [HideInInspector] public bool isReloading = false;
     [HideInInspector] public bool isCocking = false;
@@ -139,6 +140,8 @@ public abstract class WeaponBase : MonoBehaviour
             Debug.LogWarning($"[{gameObject.name}] Main Camera not found in scene.");
         if (bulletData == null)
             Debug.LogWarning($"[{gameObject.name}] No BulletDataSO assigned.");
+        if (universalAnimator == null)
+            universalAnimator = GameObject.Find("WeaponAnims")?.GetComponent<Animator>();
     }
 
     protected virtual void OnEnable()
@@ -167,6 +170,11 @@ public abstract class WeaponBase : MonoBehaviour
             if (isReloading && fpsController.IsSprinting && !canReloadWhileSprinting)
                 CancelReload();
 
+            isAiming = fpsController.input.AimHeld && !isReloading;
+
+            if (isAiming)
+                fpsController.IsSprinting = false;
+
             bool isWalking = !isCocking
                           && !isReloading
                           && fpsController.input.Move.sqrMagnitude > 0.01f;
@@ -176,21 +184,20 @@ public abstract class WeaponBase : MonoBehaviour
             else if (walkStopTimer > 0f)
                 walkStopTimer -= Time.deltaTime;
 
-            bool showWalking = !isReloading && (isWalking || walkStopTimer > 0f);
-
-            bool showSprinting = fpsController.IsSprinting && !fpsController.IsSprintingSuppressed
+            bool showWalking = !isReloading && !isAiming && (isWalking || walkStopTimer > 0f);
+            bool showSprinting = !isAiming && fpsController.IsSprinting && !fpsController.IsSprintingSuppressed
                                  && !(isReloading && canReloadWhileSprinting);
 
             animator.SetBool("IsWalking", showWalking);
             animator.SetBool("IsSprinting", !isReloading && showSprinting);
             animator.SetBool("IsIdle", isReloading);
-
-            isAiming = fpsController.input.AimHeld && !isReloading;
-
-            if (isAiming)
-                fpsController.IsSprinting = false;
-
             animator.SetBool("IsAiming", isAiming);
+
+            if (universalAnimator != null)
+            {
+                universalAnimator.SetBool("IsWalking", showWalking);
+                universalAnimator.SetBool("IsSprinting", !isReloading && showSprinting);
+            }
         }
     }
 
@@ -615,6 +622,9 @@ public abstract class WeaponBase : MonoBehaviour
             if (fpsController != null)
                 animator.SetBool("IsSprinting", fpsController.IsSprinting && !fpsController.IsSprintingSuppressed);
         }
+
+        if (universalAnimator != null && fpsController != null)
+            universalAnimator.SetBool("IsSprinting", fpsController.IsSprinting && !fpsController.IsSprintingSuppressed);
     }
 }
 

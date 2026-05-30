@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3b0ac8b685d999b4ba0ed499ab442c66, type: 3}
-  m_Name: Mini_Mac_RedDot_Sight
+  m_Name: Mini_Mac_FlashHider
   m_EditorClassIdentifier: Assembly-CSharp::AttachmentSO
-  attachmentName: RedDot
-  slotType: Sight
-  modelName: RedDot
-  overrideClip: {fileID: 7400000, guid: c53ad821d3355024797057b3ff9fe2c1, type: 2}
-  clipToReplace: {fileID: 7400000, guid: 60b6c0adfa127694ea75d711c1d5a92b, type: 2}
-  overrideCrosshair: 1
-  reticleSprite: {fileID: 21300000, guid: 7ce109694c48b4c46bdd9bbcbc0861e8, type: 3}
+  attachmentName: FlashHider
+  slotType: Barrel
+  modelName: FlashHider
+  overrideClip: {fileID: 0}
+  clipToReplace: {fileID: 0}
+  overrideCrosshair: 0
+  reticleSprite: {fileID: 0}
   fadeToNothing: 0
-  reticleColor: {r: 1, g: 0, b: 0, a: 1}
-  reticleScale: 0.4
+  reticleColor: {r: 1, g: 1, b: 1, a: 1}
+  reticleScale: 1
   muzzleFlashOverride: {fileID: 0}
-  muzzlePointName: 
+  muzzlePointName: Hide_Muzzle
   fireSoundOverride: {fileID: 0}
   modifiers: []

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinitionSO
   weaponName: Mini Mac
   weaponType: 1
-  prefab: {fileID: 3693165179114688019, guid: 2df148210dd52a84c8b552da26f3c828, type: 3}
-  positionOffset: {x: -0.561, y: -0.49, z: -1.031}
+  prefab: {fileID: 2925203945551275606, guid: 283f639c6c87a7c48be4d8338b28d18d, type: 3}
+  positionOffset: {x: -0.377, y: -0.088, z: -1.901}
   rotationOffset: {x: 0, y: 0, z: 0}
   bulletData: {fileID: 11400000, guid: 5bb6425b3383d22408b5e8d13fc0b5a9, type: 2}
   baseDamage: 20
@@ -40,6 +40,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: d349a4beb07772e43888ae3dab615469, type: 2}
     - {fileID: 11400000, guid: 0ce42caa7c81f3c4d9dd09ed9b400d05, type: 2}
     - {fileID: 11400000, guid: 82edf47512939944f925713af67b97b7, type: 2}
+    - {fileID: 11400000, guid: 73d19733cd52e4346a8b76d32737a899, type: 2}
   - slotName: Grip
     pool:
     - {fileID: 11400000, guid: f1c0fc277834b954181104aa9beb34f6, type: 2}
@@ -48,3 +49,5 @@ MonoBehaviour:
     pool:
     - {fileID: 11400000, guid: 4e8602c64a69c8143a063c7ca0e0cd51, type: 2}
     - {fileID: 11400000, guid: 32d4f7c22bb919641aa629a7189e3ca6, type: 2}
+    - {fileID: 11400000, guid: 00ea4b9f72ea5ee48bc05851170246bd, type: 2}
+    - {fileID: 11400000, guid: 73d19733cd52e4346a8b76d32737a899, type: 2}
