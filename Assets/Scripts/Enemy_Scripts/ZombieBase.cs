@@ -100,6 +100,11 @@ public abstract class ZombieBase : MonoBehaviour
             Debug.LogError($"[{gameObject.name}] NavMeshAgent is NOT on the NavMesh!");
     }
 
+    public void ClearDeathListeners()
+    {
+        OnDeath = null;
+    }
+
     protected virtual void Update()
     {
         if (isDead) return;

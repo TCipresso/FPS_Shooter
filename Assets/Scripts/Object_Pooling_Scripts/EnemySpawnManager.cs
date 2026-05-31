@@ -24,7 +24,6 @@ public class EnemySpawnManager : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-
         InitializePools();
     }
 
@@ -34,12 +33,10 @@ public class EnemySpawnManager : MonoBehaviour
         {
             for (int i = 0; i < pool.poolSize; i++)
             {
-                // Enemy
                 GameObject enemy = Instantiate(pool.enemyPrefab, transform);
                 enemy.SetActive(false);
                 pool.enemyQueue.Enqueue(enemy);
 
-                // Ragdoll
                 GameObject ragdoll = Instantiate(pool.ragdollPrefab, transform);
                 ragdoll.SetActive(false);
                 pool.ragdollQueue.Enqueue(ragdoll);
@@ -65,11 +62,20 @@ public class EnemySpawnManager : MonoBehaviour
         GameObject enemy = pool.enemyQueue.Dequeue();
         enemy.transform.position = position;
         enemy.transform.rotation = rotation;
-        enemy.SetActive(true);
 
         ZombieBase zombie = enemy.GetComponent<ZombieBase>();
         if (zombie != null)
+        {
+            // Clear all previous OnDeath listeners before adding new one
+            zombie.ClearDeathListeners();
             zombie.OnDeath += () => ReturnEnemy(enemyId, enemy);
+        }
+
+        enemy.SetActive(true);
+
+        // Reset AFTER SetActive so all components are awake
+        if (zombie != null)
+            zombie.ResetEnemy();
 
         return enemy;
     }
@@ -78,7 +84,6 @@ public class EnemySpawnManager : MonoBehaviour
     {
         EnemyPool pool = enemyPools.Find(p => p.enemyId == enemyId);
         if (pool == null) return null;
-
         if (pool.ragdollQueue.Count == 0) return null;
 
         GameObject ragdoll = pool.ragdollQueue.Dequeue();
