@@ -6,6 +6,7 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Ammo")]
     public int currentMag;
     public int maxMag;
+
     [HideInInspector] public int baseMaxMag;
     public int reserveAmmo;
     public int maxReserve;
@@ -16,6 +17,8 @@ public abstract class WeaponBase : MonoBehaviour
     Transform _defaultMuzzleFlashParent;
     Vector3 _defaultMuzzleFlashLocalPos;
     Quaternion _defaultMuzzleFlashLocalRot;
+
+
 
     [Header("Muzzle Flash")]
     public ParticleSystem muzzleFlash;
@@ -35,6 +38,9 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Damage / Range")]
     public int damage = 25;
     public float range = 50f;
+
+    [Header("Ragdoll")]
+    public float ragdollForceMultiplier = 1f;
 
     [Header("Camera Recoil")]
     public float maxRecoilUp = 4f;
@@ -228,7 +234,7 @@ public abstract class WeaponBase : MonoBehaviour
             {
                 hitBox.TakeDamageWithHitPoint(damage, playerStats, hit.point,
                     playerStats != null ? playerStats.goldGainMultiplier : 1f,
-                    direction);
+                    direction, ragdollForceMultiplier);
             }
             else
             {
@@ -237,7 +243,7 @@ public abstract class WeaponBase : MonoBehaviour
                 {
                     zombie.TakeDamage(ApplyCrit(damage), playerStats,
                         playerStats != null ? playerStats.goldGainMultiplier : 1f,
-                        direction);
+                        direction, ragdollForceMultiplier, hit.collider.name);
                     if (HitMarkerPool.Instance != null)
                         HitMarkerPool.Instance.Spawn(hit.point, false);
                 }

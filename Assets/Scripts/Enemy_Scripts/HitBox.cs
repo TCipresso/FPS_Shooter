@@ -16,7 +16,7 @@ public class HitBox : MonoBehaviour
             zombie = GetComponentInParent<ZombieBase>();
     }
 
-    public void TakeDamage(int amount, PlayerStats dealer, float weaponMultiplier = 1f, Vector3 hitDirection = default)
+    public void TakeDamage(int amount, PlayerStats dealer, float weaponMultiplier = 1f, Vector3 hitDirection = default, float ragdollForceMultiplier = 1f)
     {
         if (zombie == null) return;
 
@@ -36,10 +36,10 @@ public class HitBox : MonoBehaviour
             finalDamage = rolled;
         }
 
-        zombie.TakeDamage(finalDamage, dealer, weaponMultiplier, hitDirection);
+        zombie.TakeDamage(finalDamage, dealer, weaponMultiplier, hitDirection, ragdollForceMultiplier, gameObject.name);
     }
 
-    public void TakeDamageWithHitPoint(int amount, PlayerStats dealer, Vector3 hitPoint, float weaponMultiplier = 1f, Vector3 hitDirection = default)
+    public void TakeDamageWithHitPoint(int amount, PlayerStats dealer, Vector3 hitPoint, float weaponMultiplier = 1f, Vector3 hitDirection = default, float ragdollForceMultiplier = 1f)
     {
         if (zombie == null) { Debug.LogError("[HitBox] zombie is null!"); return; }
 
@@ -59,7 +59,7 @@ public class HitBox : MonoBehaviour
             finalDamage = rolled;
         }
 
-        zombie.TakeDamage(finalDamage, dealer, weaponMultiplier, hitDirection);
+        zombie.TakeDamage(finalDamage, dealer, weaponMultiplier, hitDirection, ragdollForceMultiplier);
 
         ZombieHitFlash flash = zombie.GetComponent<ZombieHitFlash>();
         if (flash != null) flash.Flash(isCrit);

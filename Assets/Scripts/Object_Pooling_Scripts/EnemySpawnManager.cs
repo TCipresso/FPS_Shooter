@@ -80,7 +80,7 @@ public class EnemySpawnManager : MonoBehaviour
         return enemy;
     }
 
-    public GameObject SpawnRagdoll(string enemyId, Vector3 position, Quaternion rotation, Vector3 hitDirection, float force)
+    public GameObject SpawnRagdoll(string enemyId, Vector3 position, Quaternion rotation, Vector3 hitDirection, float force, string hitBone = "")
     {
         EnemyPool pool = enemyPools.Find(p => p.enemyId == enemyId);
         if (pool == null) return null;
@@ -93,7 +93,7 @@ public class EnemySpawnManager : MonoBehaviour
 
         RagdollCorpse corpse = ragdoll.GetComponent<RagdollCorpse>();
         if (corpse != null)
-            corpse.Launch(hitDirection, force, () => ReturnRagdoll(enemyId, ragdoll));
+            corpse.Launch(hitDirection, force, hitBone, () => ReturnRagdoll(enemyId, ragdoll));
 
         return ragdoll;
     }

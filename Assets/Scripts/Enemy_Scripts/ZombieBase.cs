@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(NavMeshAgent))]
@@ -9,6 +10,8 @@ public abstract class ZombieBase : MonoBehaviour
     [Header("Stats")]
     public int maxHealth = 100;
     public int currentHealth;
+
+    string lastHitBone = "";
 
     [Header("Gold")]
     public int goldBounty = 100;
@@ -35,6 +38,7 @@ public abstract class ZombieBase : MonoBehaviour
 
     [Header("Ragdoll")]
     public float ragdollForce = 8f;
+    float lastRagdollForceMultiplier = 1f;
 
     [Header("Skeleton")]
     public Transform skeletonRoot;
@@ -189,12 +193,12 @@ public abstract class ZombieBase : MonoBehaviour
             agent.isStopped = false;
     }
 
-    public virtual void TakeDamage(int amount, PlayerStats dealer, float weaponMultiplier = 1f, Vector3 hitDirection = default)
+    public virtual void TakeDamage(int amount, PlayerStats dealer, float weaponMultiplier = 1f, Vector3 hitDirection = default, float ragdollForceMultiplier = 1f, string hitBone = "")
     {
         if (isDead) return;
-
-        if (hitDirection != default)
-            lastHitDirection = hitDirection;
+        if (hitDirection != default) lastHitDirection = hitDirection;
+        lastRagdollForceMultiplier = ragdollForceMultiplier;
+        if (!string.IsNullOrEmpty(hitBone)) lastHitBone = hitBone;
 
         int actualDamage = Mathf.Min(amount, currentHealth);
         currentHealth -= actualDamage;
@@ -267,13 +271,6 @@ public abstract class ZombieBase : MonoBehaviour
             agent.enabled = false;
         }
 
-        if (EnemySpawnManager.Instance != null)
-        {
-            GameObject corpse = EnemySpawnManager.Instance.SpawnRagdoll(enemyId, transform.position, transform.rotation, lastHitDirection, ragdollForce);
-            if (corpse != null)
-                CopyPoseToRagdoll(corpse);
-        }
-
         foreach (var kvp in damageContributors)
         {
             PlayerStats contributor = kvp.Key;
@@ -285,10 +282,25 @@ public abstract class ZombieBase : MonoBehaviour
         }
 
         if (verboseLogging) Debug.Log($"[{gameObject.name}] Died.");
-        OnDeath?.Invoke();
 
         if (WeaponDropManager.Instance != null)
             WeaponDropManager.Instance.TryDrop(transform.position);
+
+        StartCoroutine(SpawnRagdollThenReturn(lastHitDirection, ragdollForce * lastRagdollForceMultiplier));
+    }
+
+    IEnumerator SpawnRagdollThenReturn(Vector3 hitDirection, float force)
+    {
+        yield return new WaitForEndOfFrame();
+
+        if (EnemySpawnManager.Instance != null)
+        {
+            GameObject corpse = EnemySpawnManager.Instance.SpawnRagdoll(enemyId, transform.position, transform.rotation, hitDirection, force, lastHitBone);
+            if (corpse != null)
+                CopyPoseToRagdoll(corpse);
+        }
+
+        OnDeath?.Invoke();
     }
 
     void OnDrawGizmos()
@@ -304,5 +316,16 @@ public abstract class ZombieBase : MonoBehaviour
     {
         if (player == null) return false;
         return Vector3.Distance(transform.position, player.position) <= range;
+    }
+
+    IEnumerator SpawnRagdollNextFrame(Vector3 hitDirection, float force)
+    {
+        yield return new WaitForEndOfFrame();
+        if (EnemySpawnManager.Instance != null)
+        {
+            GameObject corpse = EnemySpawnManager.Instance.SpawnRagdoll(enemyId, transform.position, transform.rotation, hitDirection, force);
+            if (corpse != null)
+                CopyPoseToRagdoll(corpse);
+        }
     }
 }

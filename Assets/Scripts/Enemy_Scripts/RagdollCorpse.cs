@@ -6,13 +6,15 @@ public class RagdollCorpse : MonoBehaviour
     public float destroyDelay = 4f;
     public Transform hipsJoint;
 
-    public void Launch(Vector3 hitDirection, float force, Action onComplete)
+    public void Launch(Vector3 hitDirection, float force, string hitBoneName, Action onComplete)
     {
-        if (hipsJoint != null)
+        Rigidbody[] bodies = GetComponentsInChildren<Rigidbody>();
+        foreach (Rigidbody body in bodies)
         {
-            Rigidbody hipsRb = hipsJoint.GetComponent<Rigidbody>();
-            if (hipsRb != null)
-                hipsRb.AddForce(hitDirection * force + Vector3.up * (force * 0.5f), ForceMode.Impulse);
+            if (body.name == hitBoneName)
+                body.AddForce(hitDirection * force + Vector3.up * (force * 0.4f), ForceMode.Impulse);
+            else
+                body.AddForce(hitDirection * (force * 0.3f), ForceMode.Impulse);
         }
 
         StartCoroutine(ReturnAfterDelay(destroyDelay, onComplete));
