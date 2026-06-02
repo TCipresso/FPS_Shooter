@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1db699f6b11753341974c3f3dc5d2874, type: 3}
+  m_Name: Shotgun_Double_Barrel_Data
+  m_EditorClassIdentifier: Assembly-CSharp::BulletDataSO
+  bulletType: 0
+  isShotgun: 1
+  pelletCount: 8
+  pelletSpreadAngle: 5
+  trailPrefab: {fileID: 7533938775617344793, guid: 5fdbe00ae02ad624bb45ad9bdb2038fe, type: 3}
+  trailPoolKey: BulletTrail
+  trailPoolSize: 10
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  impactEffectOverride: {fileID: 379087086293945372, guid: 00df2626230093c478373a5f1dc23aa6, type: 3}
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 40
+  projectileGravityScale: 0

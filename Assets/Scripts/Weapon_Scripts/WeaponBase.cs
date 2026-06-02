@@ -217,7 +217,28 @@ public abstract class WeaponBase : MonoBehaviour
     private void FireHitscan(int damage, float range)
     {
         if (bulletData == null) return;
-        Vector3 direction = GetAimDirection(0f, 0f);
+
+        if (bulletData.isShotgun)
+        {
+            int pellets = Mathf.Max(1, bulletData.pelletCount);
+            int pelletDamage = Mathf.Max(1, damage / pellets);
+
+            for (int i = 0; i < pellets; i++)
+            {
+                float spreadX = Random.Range(-bulletData.pelletSpreadAngle, bulletData.pelletSpreadAngle);
+                float spreadY = Random.Range(-bulletData.pelletSpreadAngle, bulletData.pelletSpreadAngle);
+                FireHitscanPellet(pelletDamage, range, spreadX, spreadY);
+            }
+        }
+        else
+        {
+            FireHitscanPellet(damage, range, 0f, 0f);
+        }
+    }
+
+    private void FireHitscanPellet(int damage, float range, float spreadX, float spreadY)
+    {
+        Vector3 direction = GetAimDirection(spreadX, spreadY);
         Vector3 origin = GetAimOrigin();
         Ray ray = new Ray(origin, direction);
         Vector3 endPoint;
@@ -331,7 +352,7 @@ public abstract class WeaponBase : MonoBehaviour
         Debug.Log($"[{gameObject.name}] Reloaded. Ammo: {currentMag}/{maxMag} | Reserve: {reserveAmmo}");
     }
 
-   
+
 
     public void PlaySoundByName(string soundName)
     {
@@ -408,7 +429,7 @@ public abstract class WeaponBase : MonoBehaviour
         if (trail != null) trail.Fire(start, end);
     }
 
-   
+
 
     public void LoadRecoilValues()
     {
@@ -560,7 +581,7 @@ public abstract class WeaponBase : MonoBehaviour
         return mainCamera.transform.position;
     }
 
-  
+
 
     public int ApplyCrit(int damage)
     {
