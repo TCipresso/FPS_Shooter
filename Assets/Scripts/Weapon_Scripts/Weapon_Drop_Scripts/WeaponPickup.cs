@@ -12,6 +12,7 @@ public class WeaponPickup : MonoBehaviour
     public Color contrabandColor = new Color(1f, 0.4f, 0f);
 
     Light rarityLight;
+    Renderer pickupRenderer;
 
     [Header("Launch")]
     public float launchForce = 5f;
@@ -19,6 +20,7 @@ public class WeaponPickup : MonoBehaviour
     void Awake()
     {
         rarityLight = GetComponentInChildren<Light>();
+        pickupRenderer = GetComponentInChildren<Renderer>();
     }
 
     void Start()
@@ -34,8 +36,19 @@ public class WeaponPickup : MonoBehaviour
     public void Initialize(WeaponInstance instance)
     {
         weaponInstance = instance;
+        Color rarityColor = GetRarityColor(instance.rarity);
+
         if (rarityLight != null)
-            rarityLight.color = GetRarityColor(instance.rarity);
+            rarityLight.color = rarityColor;
+
+        if (pickupRenderer != null)
+        {
+            MaterialPropertyBlock mpb = new MaterialPropertyBlock();
+            pickupRenderer.GetPropertyBlock(mpb);
+            mpb.SetColor("_BaseColor", rarityColor);
+            mpb.SetColor("_EmissionColor", rarityColor * 0.3f);
+            pickupRenderer.SetPropertyBlock(mpb);
+        }
     }
 
     void OnTriggerEnter(Collider other)

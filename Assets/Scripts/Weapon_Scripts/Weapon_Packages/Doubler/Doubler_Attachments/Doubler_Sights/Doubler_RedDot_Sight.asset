@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b0ac8b685d999b4ba0ed499ab442c66, type: 3}
+  m_Name: Doubler_RedDot_Sight
+  m_EditorClassIdentifier: Assembly-CSharp::AttachmentSO
+  attachmentName: RedDot
+  slotType: Sight
+  modelName: RedDot
+  overrideClip: {fileID: 7400000, guid: 3dc06cb934dc37d4a8cf0abf480ede66, type: 2}
+  clipToReplace: {fileID: 7400000, guid: b63c1851d6ffc5a4796037d37430087f, type: 2}
+  overrideCrosshair: 1
+  reticleSprite: {fileID: 21300000, guid: 7ce109694c48b4c46bdd9bbcbc0861e8, type: 3}
+  fadeToNothing: 0
+  reticleColor: {r: 1, g: 0, b: 0, a: 1}
+  reticleScale: 0.4
+  muzzleFlashOverride: {fileID: 0}
+  muzzlePointName: 
+  fireSoundOverride: {fileID: 0}
+  modifiers: []
