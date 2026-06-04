@@ -145,7 +145,12 @@ public class RoundManager : MonoBehaviour
     IEnumerator StageChangeRoutine()
     {
         currentStage++;
-        Debug.Log($"[RoundManager] ===== STAGE {currentStage} BEGIN ===== (starting in {stageChangeDelay}s)");
+        Debug.Log($"[RoundManager] ===== STAGE {currentStage} BEGIN ===== Transitioning map...");
+
+        if (GridPrefabSpawner.Instance != null)
+            yield return StartCoroutine(GridPrefabSpawner.Instance.TransitionToRandomPattern());
+
+        Debug.Log($"[RoundManager] Map ready. Stage {currentStage} starting in {stageChangeDelay}s.");
         yield return new WaitForSeconds(stageChangeDelay);
         StartRound();
     }

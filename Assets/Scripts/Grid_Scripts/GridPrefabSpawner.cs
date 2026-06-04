@@ -10,6 +10,9 @@ public class GridPrefabSpawner : MonoBehaviour
     public GridManager gridManager;
     public List<GameObject> prefabLibrary = new List<GameObject>();
 
+    [Header("Patterns")]
+    public List<GridPattern> stagePatterns = new List<GridPattern>();
+
     [Header("Animation Settings")]
     public float riseSpeed = 15f;
     public float riseHeight = 30f;
@@ -35,6 +38,19 @@ public class GridPrefabSpawner : MonoBehaviour
         yield return StartCoroutine(SpawnPrefabs(pattern));
 
         isTransitioning = false;
+    }
+
+    public IEnumerator TransitionToRandomPattern()
+    {
+        if (stagePatterns == null || stagePatterns.Count == 0)
+        {
+            Debug.LogWarning("[GridPrefabSpawner] No stage patterns assigned.");
+            yield break;
+        }
+
+        GridPattern picked = stagePatterns[Random.Range(0, stagePatterns.Count)];
+        Debug.Log($"[GridPrefabSpawner] Transitioning to pattern: {picked.name}");
+        yield return StartCoroutine(TransitionToPattern(picked));
     }
 
     IEnumerator DespawnPrefabs()
