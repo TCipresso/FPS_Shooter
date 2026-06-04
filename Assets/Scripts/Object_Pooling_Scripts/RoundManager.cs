@@ -23,9 +23,11 @@ public class RoundManager : MonoBehaviour
     public float healthMultiplierPerStage = 1.3f;
     public float damageMultiplierPerStage = 1.2f;
     public float speedMultiplierPerStage = 1.1f;
+    public float stageChangeDelay = 5f;
 
     [Header("Round Progression")]
-    public bool roundProgressionEnabled = true;
+    [Tooltip("False = enemies scale per stage (default). True = enemies scale per round instead.")]
+    public bool scaleByRound = false;
 
     int currentRound = 0;
     int currentStage = 1;
@@ -37,6 +39,7 @@ public class RoundManager : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        Debug.Log("[RoundManager] Awake fired.");
     }
 
     IEnumerator Start()
@@ -47,8 +50,6 @@ public class RoundManager : MonoBehaviour
 
     void StartRound()
     {
-        if (!roundProgressionEnabled) return;
-
         currentRound++;
         enemiesRemainingAlive = 0;
         enemiesLeftToSpawn = Mathf.Min(baseEnemiesPerRound + enemiesAddedPerRound * (currentRound - 1), maxEnemiesPerRound);
@@ -71,8 +72,6 @@ public class RoundManager : MonoBehaviour
         {
             Debug.Log($"[RoundManager] Attempting to spawn: {id}");
 
-            if (!roundProgressionEnabled) { Debug.Log("[RoundManager] Progression disabled, breaking."); yield break; }
-
             Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Count)];
             GameObject enemy = EnemySpawnManager.Instance.SpawnEnemy(id, spawnPoint.position, spawnPoint.rotation);
 
@@ -80,7 +79,7 @@ public class RoundManager : MonoBehaviour
 
             if (enemy != null)
             {
-                ApplyStageScaling(enemy);
+                ApplyScaling(enemy);
 
                 ZombieBase zombie = enemy.GetComponent<ZombieBase>();
                 if (zombie != null)
@@ -99,7 +98,6 @@ public class RoundManager : MonoBehaviour
         for (int i = 0; i < count; i++)
             list.Add(enemyIds[Random.Range(0, enemyIds.Count)]);
 
-        // Fisher-Yates shuffle
         for (int i = list.Count - 1; i > 0; i--)
         {
             int j = Random.Range(0, i + 1);
@@ -109,22 +107,18 @@ public class RoundManager : MonoBehaviour
         return list;
     }
 
-    void ApplyStageScaling(GameObject enemy)
+    void ApplyScaling(GameObject enemy)
     {
-        if (currentStage <= 1) return;
-
         ZombieBase zombie = enemy.GetComponent<ZombieBase>();
         if (zombie == null) return;
 
-        float mult = Mathf.Pow(healthMultiplierPerStage, currentStage - 1);
-        zombie.maxHealth = Mathf.RoundToInt(zombie.maxHealth * mult);
+        int scalingStep = scaleByRound ? (currentRound - 1) : (currentStage - 1);
+        if (scalingStep <= 0) return;
+
+        zombie.maxHealth = Mathf.RoundToInt(zombie.maxHealth * Mathf.Pow(healthMultiplierPerStage, scalingStep));
         zombie.currentHealth = zombie.maxHealth;
-
-        float dmgMult = Mathf.Pow(damageMultiplierPerStage, currentStage - 1);
-        zombie.attackDamage = Mathf.RoundToInt(zombie.attackDamage * dmgMult);
-
-        float spdMult = Mathf.Pow(speedMultiplierPerStage, currentStage - 1);
-        zombie.moveSpeed *= spdMult;
+        zombie.attackDamage = Mathf.RoundToInt(zombie.attackDamage * Mathf.Pow(damageMultiplierPerStage, scalingStep));
+        zombie.moveSpeed *= Mathf.Pow(speedMultiplierPerStage, scalingStep);
     }
 
     void OnEnemyDied()
@@ -142,22 +136,20 @@ public class RoundManager : MonoBehaviour
     {
         Debug.Log($"[RoundManager] Round {currentRound} complete.");
 
-        int roundInStage = currentRound % roundsPerStage;
-
-        if (roundInStage == 0)
-            AdvanceStage();
+        if (currentRound % roundsPerStage == 0)
+            StartCoroutine(StageChangeRoutine());
         else
             StartRound();
     }
 
-    void AdvanceStage()
+    IEnumerator StageChangeRoutine()
     {
         currentStage++;
-        Debug.Log($"[RoundManager] Advancing to Stage {currentStage}.");
+        Debug.Log($"[RoundManager] ===== STAGE {currentStage} BEGIN ===== (starting in {stageChangeDelay}s)");
+        yield return new WaitForSeconds(stageChangeDelay);
         StartRound();
     }
 
-    // Public accessors
     public int GetCurrentRound() => currentRound;
     public int GetCurrentStage() => currentStage;
 }
