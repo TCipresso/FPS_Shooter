@@ -115,7 +115,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!114 &1022946802317947505
@@ -142,11 +142,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   canClimb: 1
-  climbSpeed: 2
-  rayOffset: {x: 0, y: -0.9, z: 0}
-  rayLength: 0.6
-  launchForce: 8
-  ragdollForce: 10
+  climbSpeed: 30
+  rayOffset: {x: 0, y: -2.25, z: 0}
+  rayLength: 2.18
+  launchForce: 30
+  ragdollForce: 8
   skeletonRoot: {fileID: 2769214003864653106}
   headTransform: {fileID: 1402225284564797892}
   enemyId: BasicGrunt
@@ -275,7 +275,7 @@ PrefabInstance:
     - target: {fileID: -5234106749925997848, guid: 8a2028c2bd4652c47bd3d038148549bf, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 257d16ad794b1dc42a1ecf15b4a22907, type: 2}
+      objectReference: {fileID: 2100000, guid: 30d3a7f4d7914fd4eaca96c1caafad91, type: 2}
     - target: {fileID: -5195048882033904264, guid: 8a2028c2bd4652c47bd3d038148549bf, type: 3}
       propertyPath: m_Layer
       value: 13
