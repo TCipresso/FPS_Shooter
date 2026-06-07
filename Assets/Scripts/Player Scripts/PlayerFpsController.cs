@@ -23,6 +23,7 @@ public class PlayerFpsController : MonoBehaviour
     [SerializeField] private float gravity = -28f;
     [SerializeField] private float groundedStickForce = -4f;
     [SerializeField] private float coyoteTime = 0.12f;
+    [SerializeField] private int jumpCount = 1;
 
     [Header("Wall Jump")]
     [SerializeField] private float wallJumpUpSpeed = 9f;
@@ -62,6 +63,12 @@ public class PlayerFpsController : MonoBehaviour
     public bool IsSprintingSuppressed => sprintSuppressTimer > 0f || (IsSlideJumping && !IsGrounded);
     public bool IsGrounded => controller != null && controller.isGrounded;
 
+    public int JumpCount
+    {
+        get => jumpCount;
+        set => jumpCount = Mathf.Max(1, value);
+    }
+
     private CharacterController controller;
     private Vector3 horizontalVelocity;
     private float verticalVelocity;
@@ -82,6 +89,8 @@ public class PlayerFpsController : MonoBehaviour
     private Vector3 groundNormal = Vector3.up;
     private bool hasGroundNormal = false;
 
+    private int jumpsRemaining;
+
     void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -98,6 +107,8 @@ public class PlayerFpsController : MonoBehaviour
         verticalVelocity = groundedStickForce;
         defaultHeight = controller.height;
         defaultCenter = controller.center;
+
+        jumpsRemaining = jumpCount;
     }
 
     void Update()
@@ -137,14 +148,12 @@ public class PlayerFpsController : MonoBehaviour
 
         verticalVelocity += gravity * Time.deltaTime;
 
-        // build final velocity — on a slope while sliding, project along surface
         Vector3 finalVelocity;
 
         if (IsSliding && hasGroundNormal)
         {
             Vector3 slopeMoveDir = Vector3.ProjectOnPlane(horizontalVelocity, groundNormal);
             finalVelocity = slopeMoveDir;
-            // constant press-into-ground so CharacterController doesn't lose contact
             finalVelocity += -groundNormal * 8f;
         }
         else
@@ -306,7 +315,6 @@ public class PlayerFpsController : MonoBehaviour
     {
         if (IsSliding)
         {
-            // kill vertical accumulation while on slope so it doesn't bounce us
             if (hasGroundNormal)
                 verticalVelocity = groundedStickForce;
 
@@ -381,6 +389,7 @@ public class PlayerFpsController : MonoBehaviour
             onWall = false;
             wallContactTimer = 0f;
             wallJumpCooldownTimer = wallJumpCooldown;
+            //if (jumpsRemaining > 0) jumpsRemaining--;
             movementAudio?.PlayJump();
             input.ConsumeJump();
             return;
@@ -390,6 +399,16 @@ public class PlayerFpsController : MonoBehaviour
         {
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
             coyoteCounter = 0f;
+            jumpsRemaining = Mathf.Max(0, jumpsRemaining - 1);
+            movementAudio?.PlayJump();
+            input.ConsumeJump();
+            return;
+        }
+
+        if (jumpsRemaining > 0)
+        {
+            verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            jumpsRemaining--;
             movementAudio?.PlayJump();
             input.ConsumeJump();
         }
@@ -403,6 +422,7 @@ public class PlayerFpsController : MonoBehaviour
         {
             groundNormal = hit.normal;
             hasGroundNormal = true;
+            jumpsRemaining = jumpCount;
             return;
         }
 
