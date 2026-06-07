@@ -66,7 +66,11 @@ public class PlayerFpsController : MonoBehaviour
     public int JumpCount
     {
         get => jumpCount;
-        set => jumpCount = Mathf.Max(1, value);
+        set
+        {
+            jumpCount = Mathf.Max(1, value);
+            jumpsRemaining = jumpCount;
+        }
     }
 
     private CharacterController controller;

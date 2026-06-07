@@ -28568,6 +28568,7 @@ GameObject:
   - component: {fileID: 576031185}
   - component: {fileID: 576031187}
   - component: {fileID: 576031186}
+  - component: {fileID: 576031188}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -28841,6 +28842,7 @@ MonoBehaviour:
   gravity: -100
   groundedStickForce: -4
   coyoteTime: 0.25
+  jumpCount: 1
   wallJumpUpSpeed: 50
   wallJumpAwaySpeed: 50
   wallContactBuffer: 0.15
@@ -28888,6 +28890,46 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &576031188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 576031171}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f52af0f8a514bcd41bf069ae94737553, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BodyEnhancementController
+  fpsController: {fileID: 0}
+  fpsInput: {fileID: 0}
+  cameraHolder: {fileID: 0}
+  orientation: {fileID: 0}
+  armLeft:
+    slotType: 0
+    enhancement: {fileID: 0}
+    cooldownTimer: 0
+  armRight:
+    slotType: 0
+    enhancement: {fileID: 0}
+    cooldownTimer: 0
+  head:
+    slotType: 1
+    enhancement: {fileID: 0}
+    cooldownTimer: 0
+  chest:
+    slotType: 2
+    enhancement: {fileID: 0}
+    cooldownTimer: 0
+  legLeft:
+    slotType: 3
+    enhancement: {fileID: 11400000, guid: e437e358ef445654b973aedf379f5c05, type: 2}
+    cooldownTimer: 0
+  legRight:
+    slotType: 3
+    enhancement: {fileID: 0}
+    cooldownTimer: 0
 --- !u!1 &578359719
 GameObject:
   m_ObjectHideFlags: 0
