@@ -34,7 +34,7 @@ public class GridPattern : ScriptableObject
 
     public void SetTile(int x, int z, int value)
     {
-        tiles[x + z * width] = Mathf.Clamp(value, 0, 5);
+        tiles[x + z * width] = Mathf.Clamp(value, 0, 10);
     }
 
     public PrefabPlacement GetPrefabAt(int x, int z)
@@ -49,9 +49,7 @@ public class GridPattern : ScriptableObject
         prefabPlacements.RemoveAll(p =>
             Mathf.RoundToInt(p.position.x) == x &&
             Mathf.RoundToInt(p.position.z) == z);
-
         if (prefabIndex < 0) return;
-
         prefabPlacements.Add(new PrefabPlacement
         {
             prefabIndex = prefabIndex,

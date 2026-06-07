@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 public class GridManager : MonoBehaviour
 {
     [Header("Grid Settings")]
@@ -8,12 +9,18 @@ public class GridManager : MonoBehaviour
     public int gridHeight = 40;
     public float tileSize = 5f;
     public GameObject tilePrefab;
+
+    [Header("Pattern")]
+    public GridPattern patternToLoad;
+
     [Header("Runtime")]
     public Tile[,] tiles;
+
     void Start()
     {
         RebuildTileReferences();
     }
+
     public void RebuildTileReferences()
     {
         tiles = new Tile[gridWidth, gridHeight];
@@ -27,12 +34,14 @@ public class GridManager : MonoBehaviour
             }
         }
     }
+
     public void SpawnGrid()
     {
         ClearGrid();
         tiles = new Tile[gridWidth, gridHeight];
         float offsetX = (gridWidth - 1) * tileSize / 2f;
         float offsetZ = (gridHeight - 1) * tileSize / 2f;
+
         for (int x = 0; x < gridWidth; x++)
         {
             for (int z = 0; z < gridHeight; z++)
@@ -55,12 +64,35 @@ public class GridManager : MonoBehaviour
             }
         }
     }
+
     public void ClearGrid()
     {
         for (int i = transform.childCount - 1; i >= 0; i--)
             DestroyImmediate(transform.GetChild(i).gameObject);
         tiles = null;
     }
+
+    public void LoadPatternImmediate(GridPattern pattern)
+    {
+        if (pattern.width != gridWidth || pattern.height != gridHeight)
+        {
+            Debug.LogError("Pattern size doesn't match grid size.");
+            return;
+        }
+
+        if (tiles == null)
+            RebuildTileReferences();
+
+        for (int x = 0; x < gridWidth; x++)
+        {
+            for (int z = 0; z < gridHeight; z++)
+            {
+                if (tiles[x, z] != null)
+                    tiles[x, z].SetHeightImmediate(pattern.GetTile(x, z));
+            }
+        }
+    }
+
     public void ApplyPattern(GridPattern pattern)
     {
         if (pattern.width != gridWidth || pattern.height != gridHeight)
@@ -70,13 +102,13 @@ public class GridManager : MonoBehaviour
         }
         StartCoroutine(TransitionRoutine(pattern));
     }
+
     private IEnumerator TransitionRoutine(GridPattern pattern)
     {
         for (int x = 0; x < gridWidth; x++)
         {
             for (int z = 0; z < gridHeight; z++)
                 tiles[x, z].ApplyHeight(pattern.GetTile(x, z));
-
             yield return null;
         }
     }

@@ -20,12 +20,17 @@ public class GridPatternEditor : Editor
 
     private static readonly Color[] heightColors = new Color[]
     {
-        new Color(0.05f, 0.05f, 0.05f),
-        new Color(0.9f, 0.1f, 0.1f),
-        new Color(1.0f, 0.55f, 0.0f),
-        new Color(1.0f, 1.0f, 0.0f),
-        new Color(0.1f, 0.9f, 0.1f),
-        new Color(0.2f, 0.5f, 1.0f),
+        new Color(0.05f, 0.05f, 0.05f), // 0
+        new Color(0.9f, 0.1f, 0.1f),    // 1
+        new Color(1.0f, 0.55f, 0.0f),   // 2
+        new Color(1.0f, 1.0f, 0.0f),    // 3
+        new Color(0.1f, 0.9f, 0.1f),    // 4
+        new Color(0.2f, 0.5f, 1.0f),    // 5
+        new Color(0.5f, 0.0f, 1.0f),    // 6
+        new Color(1.0f, 0.0f, 0.6f),    // 7
+        new Color(0.0f, 0.9f, 0.9f),    // 8
+        new Color(1.0f, 0.8f, 0.4f),    // 9
+        new Color(1.0f, 1.0f, 1.0f),    // 10
     };
 
     private GUIStyle labelStyle;
@@ -78,8 +83,8 @@ public class GridPatternEditor : Editor
         // Legend
         EditorGUILayout.LabelField("Height Legend", EditorStyles.boldLabel);
         Rect legendRect = GUILayoutUtility.GetRect(0, 28, GUILayout.ExpandWidth(true));
-        float legendCellW = legendRect.width / 6f;
-        for (int i = 0; i <= 5; i++)
+        float legendCellW = legendRect.width / 11f;
+        for (int i = 0; i <= 10; i++)
         {
             Rect cell = new Rect(legendRect.x + i * legendCellW, legendRect.y, legendCellW - 2, legendRect.height);
             EditorGUI.DrawRect(cell, heightColors[i]);
@@ -101,9 +106,9 @@ public class GridPatternEditor : Editor
         EditorGUILayout.EndHorizontal();
 
         if (activeTool == PaintTool.SetTo)
-            setToValue = EditorGUILayout.IntSlider("Set To Value", setToValue, 0, 5);
+            setToValue = EditorGUILayout.IntSlider("Set To Value", setToValue, 0, 10);
         if (activeTool == PaintTool.Paint)
-            paintValue = EditorGUILayout.IntSlider("Paint Value", paintValue, 0, 5);
+            paintValue = EditorGUILayout.IntSlider("Paint Value", paintValue, 0, 10);
 
         EditorGUILayout.Space();
 
@@ -155,7 +160,7 @@ public class GridPatternEditor : Editor
                     buttonSize - 1
                 );
 
-                EditorGUI.DrawRect(cellRect, heightColors[current]);
+                EditorGUI.DrawRect(cellRect, heightColors[Mathf.Clamp(current, 0, 10)]);
                 GUI.Label(cellRect, current.ToString(), labelStyle);
 
                 if ((e.type == EventType.MouseDown || e.type == EventType.MouseDrag) && cellRect.Contains(e.mousePosition))
@@ -163,8 +168,8 @@ public class GridPatternEditor : Editor
                     int newVal = current;
                     switch (activeTool)
                     {
-                        case PaintTool.PlusOne: newVal = Mathf.Clamp(current + 1, 0, 5); break;
-                        case PaintTool.MinusOne: newVal = Mathf.Clamp(current - 1, 0, 5); break;
+                        case PaintTool.PlusOne: newVal = Mathf.Clamp(current + 1, 0, 10); break;
+                        case PaintTool.MinusOne: newVal = Mathf.Clamp(current - 1, 0, 10); break;
                         case PaintTool.SetTo: newVal = setToValue; break;
                         case PaintTool.Paint: newVal = paintValue; break;
                     }
@@ -201,7 +206,6 @@ public class GridPatternEditor : Editor
         }
 
         EditorGUILayout.Space();
-
         EditorGUILayout.LabelField("Selected Prefab", EditorStyles.boldLabel);
 
         if (prefabSpawner.prefabLibrary.Count == 0)
