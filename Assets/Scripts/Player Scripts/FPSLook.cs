@@ -30,6 +30,11 @@ public class FPSLook : MonoBehaviour
     [Range(0f, 50f)] public float slideFOVPercent = 15f;
     public float fovTransitionSpeed = 6f;
 
+    [Header("Dash FOV")]
+    [Range(0f, 50f)] public float dashFOVPercent = 15f;
+    public float dashFOVInSpeed = 20f;
+    public float dashFOVOutSpeed = 8f;
+
     float rotationX = 0f;
     float targetRotationX = 0f;
     float currentTiltZ = 0f;
@@ -38,7 +43,6 @@ public class FPSLook : MonoBehaviour
     float targetRecoilYaw = 0f;
     float recoilYawVelocity = 0f;
 
-    // perlin tilt
     float tiltAmount = 0f;
     float tiltFrequency = 0f;
     float tiltFadeSpeed = 0f;
@@ -51,6 +55,7 @@ public class FPSLook : MonoBehaviour
     bool isFiring = false;
 
     float baseFOV;
+    float currentDashFOV;
 
     void Start()
     {
@@ -58,7 +63,10 @@ public class FPSLook : MonoBehaviour
         Cursor.visible = false;
 
         if (playerCamera != null)
+        {
             baseFOV = playerCamera.fieldOfView;
+            currentDashFOV = baseFOV;
+        }
 
         SyncOverlayFOV();
     }
@@ -68,7 +76,7 @@ public class FPSLook : MonoBehaviour
         HandleRotation();
         HandleStrafeTilt();
         HandleRecoil();
-        HandleSprintFOV();
+        HandleFOV();
         SyncOverlayFOV();
     }
 
@@ -118,7 +126,6 @@ public class FPSLook : MonoBehaviour
             tiltAmount = Mathf.MoveTowards(tiltAmount, 0f, tiltFadeSpeed * Time.deltaTime);
         }
 
-        // perlin drives target tilt while firing
         if (tiltAmount > 0f)
         {
             perlinTime += Time.deltaTime * tiltFrequency;
@@ -152,7 +159,7 @@ public class FPSLook : MonoBehaviour
             overlayCamera.transform.localRotation = rot;
     }
 
-    void HandleSprintFOV()
+    void HandleFOV()
     {
         if (playerCamera == null || fpsController == null) return;
 
@@ -170,11 +177,15 @@ public class FPSLook : MonoBehaviour
         else
             targetFOV = baseFOV;
 
-        playerCamera.fieldOfView = Mathf.Lerp(
-            playerCamera.fieldOfView,
-            targetFOV,
-            fovTransitionSpeed * Time.deltaTime
-        );
+        // dash FOV layered on top — snaps in fast, eases out slow
+        float dashTargetFOV = fpsController.IsDashing
+            ? baseFOV * (1f + dashFOVPercent / 100f)
+            : targetFOV;
+
+        float dashFOVSpeed = fpsController.IsDashing ? dashFOVInSpeed : dashFOVOutSpeed;
+        currentDashFOV = Mathf.Lerp(currentDashFOV, dashTargetFOV, dashFOVSpeed * Time.deltaTime);
+
+        playerCamera.fieldOfView = currentDashFOV;
     }
 
     public void ApplyRecoil(float pitchDegrees, float yawDegrees, bool aiming, float weaponTiltAmount, float weaponTiltFrequency, float weaponTiltFade, float hipFireTiltMultiplier)

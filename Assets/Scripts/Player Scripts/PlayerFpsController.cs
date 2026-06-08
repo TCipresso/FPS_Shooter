@@ -47,6 +47,13 @@ public class PlayerFpsController : MonoBehaviour
     [SerializeField] private float slideGravityScale = 18f;
     [SerializeField] private float slideSlopeThreshold = 10f;
 
+    [Header("Dash")]
+    [SerializeField] private float dashSpeed = 32f;
+    [SerializeField] private float dashDuration = 0.15f;
+    [SerializeField] private float dashCooldown = 1f;
+    [SerializeField] private float dashSteerStrength = 8f;
+    [SerializeField] private int dashCharges = 1;
+
     [Header("Camera Slide Dip")]
     [SerializeField] private Transform cameraHolder;
     [SerializeField] private float slideCameraDrop = 0.8f;
@@ -60,6 +67,7 @@ public class PlayerFpsController : MonoBehaviour
     public bool IsSprinting { get; set; }
     public bool IsSliding { get; private set; }
     public bool IsSlideJumping { get; private set; }
+    public bool IsDashing { get; private set; }
     public bool IsSprintingSuppressed => sprintSuppressTimer > 0f || (IsSlideJumping && !IsGrounded);
     public bool IsGrounded => controller != null && controller.isGrounded;
 
@@ -72,6 +80,10 @@ public class PlayerFpsController : MonoBehaviour
             jumpsRemaining = jumpCount;
         }
     }
+
+    public float DashSpeedMultiplier { get; set; } = 1f;
+    public float DashCooldownMultiplier { get; set; } = 1f;
+    public int DashCharges { get; set; } = 1;
 
     private CharacterController controller;
     private Vector3 horizontalVelocity;
@@ -95,6 +107,13 @@ public class PlayerFpsController : MonoBehaviour
 
     private int jumpsRemaining;
 
+    private float dashTimer;
+    private float dashCooldownTimer;
+    private int dashChargesRemaining;
+    private Vector3 dashDirection;
+    private Vector3 preDashHorizontalVelocity;
+    private float preDashVerticalVelocity;
+
     void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -113,6 +132,8 @@ public class PlayerFpsController : MonoBehaviour
         defaultCenter = controller.center;
 
         jumpsRemaining = jumpCount;
+        DashCharges = dashCharges;
+        dashChargesRemaining = DashCharges;
     }
 
     void Update()
@@ -144,9 +165,12 @@ public class PlayerFpsController : MonoBehaviour
         }
 
         UpdateSprintState();
-        UpdateSlideState(grounded);
-        UpdateCapsuleHeight();
+        HandleDash();
 
+        if (!IsDashing)
+            UpdateSlideState(grounded);
+
+        UpdateCapsuleHeight();
         ApplyHorizontalMovement(grounded);
         HandleJump(grounded);
 
@@ -180,6 +204,60 @@ public class PlayerFpsController : MonoBehaviour
         if (wallJumpCooldownTimer > 0f) wallJumpCooldownTimer -= Time.deltaTime;
         if (slideCooldownTimer > 0f) slideCooldownTimer -= Time.deltaTime;
         if (slideGroundedBuffer > 0f) slideGroundedBuffer -= Time.deltaTime;
+
+        if (dashTimer > 0f)
+        {
+            dashTimer -= Time.deltaTime;
+            if (dashTimer <= 0f)
+            {
+                IsDashing = false;
+                // restore pre-dash velocity so dash is a clean burst with no momentum change
+                horizontalVelocity = preDashHorizontalVelocity;
+                //verticalVelocity = preDashVerticalVelocity;
+            }
+        }
+
+        if (dashCooldownTimer > 0f)
+        {
+            dashCooldownTimer -= Time.deltaTime;
+            if (dashCooldownTimer <= 0f)
+                dashChargesRemaining = Mathf.Min(dashChargesRemaining + 1, DashCharges);
+        }
+    }
+
+    void HandleDash()
+    {
+        if (input.ManeuverPressed && dashChargesRemaining > 0)
+        {
+            if (IsSliding) EndSlide();
+
+            // store current velocity to restore after dash
+            preDashHorizontalVelocity = horizontalVelocity;
+            preDashVerticalVelocity = verticalVelocity;
+
+            Vector2 moveInput = input.Move;
+            if (moveInput.sqrMagnitude > 0.01f)
+            {
+                dashDirection = orientation.right * moveInput.x + orientation.forward * moveInput.y;
+                dashDirection.y = 0f;
+                dashDirection.Normalize();
+            }
+            else
+            {
+                dashDirection = orientation.forward;
+                dashDirection.y = 0f;
+                dashDirection.Normalize();
+            }
+
+            horizontalVelocity = dashDirection * dashSpeed * DashSpeedMultiplier;
+            verticalVelocity = 0f;
+
+            movementAudio?.PlayDash();
+            IsDashing = true;
+            dashTimer = dashDuration;
+            dashChargesRemaining--;
+            dashCooldownTimer = dashCooldown * DashCooldownMultiplier;
+        }
     }
 
     void UpdateWallContact()
@@ -211,9 +289,7 @@ public class PlayerFpsController : MonoBehaviour
         bool canInitiate = slideGroundedBuffer > 0f;
 
         if (!IsSliding && input.CrouchPressed && IsSprinting && canInitiate && slideCooldownTimer <= 0f)
-        {
             StartSlide();
-        }
 
         if (IsSliding)
         {
@@ -276,7 +352,6 @@ public class PlayerFpsController : MonoBehaviour
     {
         IsSliding = false;
         slideCooldownTimer = slideCooldown;
-
         movementAudio?.StopSlide();
     }
 
@@ -317,6 +392,25 @@ public class PlayerFpsController : MonoBehaviour
 
     void ApplyHorizontalMovement(bool grounded)
     {
+        if (IsDashing)
+        {
+            verticalVelocity = 0f;
+
+            Vector2 moveInput = input.Move;
+            if (moveInput.sqrMagnitude > 0.01f)
+            {
+                Vector3 wishDir = orientation.right * moveInput.x + orientation.forward * moveInput.y;
+                wishDir.y = 0f;
+                wishDir.Normalize();
+                horizontalVelocity = Vector3.MoveTowards(
+                    horizontalVelocity,
+                    wishDir * dashSpeed * DashSpeedMultiplier,
+                    dashSteerStrength * Time.deltaTime
+                );
+            }
+            return;
+        }
+
         if (IsSliding)
         {
             if (hasGroundNormal)
@@ -393,7 +487,6 @@ public class PlayerFpsController : MonoBehaviour
             onWall = false;
             wallContactTimer = 0f;
             wallJumpCooldownTimer = wallJumpCooldown;
-            //if (jumpsRemaining > 0) jumpsRemaining--;
             movementAudio?.PlayJump();
             input.ConsumeJump();
             return;
@@ -442,5 +535,10 @@ public class PlayerFpsController : MonoBehaviour
     {
         if (duration > sprintSuppressTimer)
             sprintSuppressTimer = duration;
+    }
+
+    public void SetHorizontalVelocity(Vector3 velocity)
+    {
+        horizontalVelocity = velocity;
     }
 }

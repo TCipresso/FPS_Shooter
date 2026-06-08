@@ -10120,6 +10120,9 @@ MonoBehaviour:
   sprintFOVPercent: 10
   slideFOVPercent: 20
   fovTransitionSpeed: 8
+  dashFOVPercent: 30
+  dashFOVInSpeed: 3
+  dashFOVOutSpeed: 3
 --- !u!114 &196436221
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11489,7 +11492,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 229765646}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 799b3eb85b026004cb58eb400b233fea, type: 3}
   m_Name: 
@@ -11506,7 +11509,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 229765646}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0a85f4421a58e1a498ef92b9ce25e702, type: 3}
   m_Name: 
@@ -28672,6 +28675,7 @@ MonoBehaviour:
   sprintAction: {fileID: -7471211009204490832, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   crouchAction: {fileID: 7040659881675835329, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   aimAction: {fileID: -8161507568153756356, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  maneuverAction: {fileID: -8959604889712651825, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   jumpBufferTime: 0.15
 --- !u!114 &576031180
 MonoBehaviour:
@@ -28814,9 +28818,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovementAudio
   audioSource: {fileID: 732553770}
   jumpClip: {fileID: 8300000, guid: 9121bf8827a2d87409af25a22820065c, type: 3}
-  slideClip: {fileID: 8300000, guid: d884ac8f093fc2d488be9aa9d2b05ce7, type: 3}
   jumpVolume: 3
+  slideClip: {fileID: 8300000, guid: d884ac8f093fc2d488be9aa9d2b05ce7, type: 3}
   slideVolume: 0.4
+  dashClip: {fileID: 8300000, guid: a50e2df5c056070468c146105f455942, type: 3}
+  dashVolume: 0.5
 --- !u!114 &576031186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28831,7 +28837,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFpsController
   input: {fileID: 576031179}
   orientation: {fileID: 1980046426}
-  walkSpeed: 20
+  walkSpeed: 35
   sprintSpeed: 35
   acceleration: 500
   airAcceleration: 500
@@ -28861,6 +28867,11 @@ MonoBehaviour:
   slideDropForce: -14
   slideGravityScale: 18
   slideSlopeThreshold: 8
+  dashSpeed: 100
+  dashDuration: 0.15
+  dashCooldown: 1
+  dashSteerStrength: 8
+  dashCharges: 1
   cameraHolder: {fileID: 196436219}
   slideCameraDrop: 2.5
   cameraLerpSpeed: 12
@@ -28902,10 +28913,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f52af0f8a514bcd41bf069ae94737553, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BodyEnhancementController
-  fpsController: {fileID: 0}
-  fpsInput: {fileID: 0}
-  cameraHolder: {fileID: 0}
-  orientation: {fileID: 0}
+  fpsController: {fileID: 576031186}
+  fpsInput: {fileID: 576031179}
+  cameraHolder: {fileID: 196436219}
+  orientation: {fileID: 1980046426}
   armLeft:
     slotType: 0
     enhancement: {fileID: 0}

@@ -5,13 +5,17 @@ public class PlayerMovementAudio : MonoBehaviour
     [Header("Audio Source")]
     public AudioSource audioSource;
 
-    [Header("Clips")]
+    [Header("Jump")]
     public AudioClip jumpClip;
-    public AudioClip slideClip;
-
-    [Header("Volume")]
     public float jumpVolume = 1f;
+
+    [Header("Slide")]
+    public AudioClip slideClip;
     public float slideVolume = 1f;
+
+    [Header("Dash")]
+    public AudioClip dashClip;
+    public float dashVolume = 1f;
 
     public void PlayJump()
     {
@@ -33,5 +37,11 @@ public class PlayerMovementAudio : MonoBehaviour
         if (audioSource == null || !audioSource.isPlaying) return;
         audioSource.loop = false;
         audioSource.Stop();
+    }
+
+    public void PlayDash()
+    {
+        if (audioSource == null || dashClip == null) return;
+        audioSource.PlayOneShot(dashClip, dashVolume);
     }
 }

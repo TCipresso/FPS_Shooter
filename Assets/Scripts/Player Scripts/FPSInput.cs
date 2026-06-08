@@ -9,6 +9,7 @@ public class FPSInput : MonoBehaviour
     public InputActionReference sprintAction;
     public InputActionReference crouchAction;
     public InputActionReference aimAction;
+    public InputActionReference maneuverAction;
 
     public float jumpBufferTime = 0.15f;
 
@@ -20,6 +21,7 @@ public class FPSInput : MonoBehaviour
     public bool CrouchPressed { get; private set; }
     public bool AimHeld { get; private set; }
     public bool IsSprinting { get; set; }
+    public bool ManeuverPressed { get; private set; }
 
     float jumpBufferCounter;
     public bool JumpBuffered => jumpBufferCounter > 0f;
@@ -32,6 +34,7 @@ public class FPSInput : MonoBehaviour
         if (sprintAction) sprintAction.action.Enable();
         if (crouchAction) crouchAction.action.Enable();
         if (aimAction) aimAction.action.Enable();
+        if (maneuverAction) maneuverAction.action.Enable();
     }
 
     void OnDisable()
@@ -42,13 +45,13 @@ public class FPSInput : MonoBehaviour
         if (sprintAction) sprintAction.action.Disable();
         if (crouchAction) crouchAction.action.Disable();
         if (aimAction) aimAction.action.Disable();
+        if (maneuverAction) maneuverAction.action.Disable();
     }
 
     void Update()
     {
         Move = moveAction ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
         Look = lookAction ? lookAction.action.ReadValue<Vector2>() : Vector2.zero;
-
         Move = Vector2.ClampMagnitude(Move, 1f);
 
         JumpHeld = jumpAction && jumpAction.action.IsPressed();
@@ -56,6 +59,7 @@ public class FPSInput : MonoBehaviour
         CrouchHeld = crouchAction && crouchAction.action.IsPressed();
         CrouchPressed = crouchAction && crouchAction.action.WasPressedThisFrame();
         AimHeld = aimAction && aimAction.action.IsPressed();
+        ManeuverPressed = maneuverAction && maneuverAction.action.WasPressedThisFrame();
 
         if (jumpAction && jumpAction.action.WasPressedThisFrame())
             jumpBufferCounter = jumpBufferTime;
