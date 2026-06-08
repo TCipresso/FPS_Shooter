@@ -221,7 +221,12 @@ public class PlayerFpsController : MonoBehaviour
         {
             dashCooldownTimer -= Time.deltaTime;
             if (dashCooldownTimer <= 0f)
+            {
                 dashChargesRemaining = Mathf.Min(dashChargesRemaining + 1, DashCharges);
+                // if still not at cap, start another cooldown immediately
+                if (dashChargesRemaining < DashCharges)
+                    dashCooldownTimer = dashCooldown * DashCooldownMultiplier;
+            }
         }
     }
 
