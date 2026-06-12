@@ -11502,6 +11502,10 @@ MonoBehaviour:
     enemyPrefab: {fileID: 7668686849717164370, guid: 658d09e561f3d094eba2ec8ee4bb1919, type: 3}
     ragdollPrefab: {fileID: 8180093843654034589, guid: 13e242f89f5be344da23225d014faa71, type: 3}
     poolSize: 10
+  - enemyId: ThickGrunt
+    enemyPrefab: {fileID: 964876140160963712, guid: f69de17267453194984ddad1e3c0f5d7, type: 3}
+    ragdollPrefab: {fileID: 8180093843654034589, guid: 4701ad9a702499b469ec60ecaac6e2b6, type: 3}
+    poolSize: 10
 --- !u!114 &229765654
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11534,6 +11538,7 @@ MonoBehaviour:
   - {fileID: 259555621}
   enemyIds:
   - BasicGrunt
+  - ThickGrunt
   baseEnemiesPerRound: 10
   enemiesAddedPerRound: 3
   maxEnemiesPerRound: 40
@@ -28844,7 +28849,7 @@ MonoBehaviour:
   omniDirectionalSprint: 1
   maxAirSpeed: 100
   conserveAirMomentum: 1
-  jumpHeight: 15
+  jumpHeight: 10
   gravity: -100
   groundedStickForce: -4
   coyoteTime: 0.25
