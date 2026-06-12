@@ -10110,7 +10110,7 @@ MonoBehaviour:
   lookSpeed: 0.1
   lookXLimit: 90
   CanLook: 1
-  maxTiltZ: 0
+  maxTiltZ: 1
   tiltSpeed: 10
   recoilRiseSpeed: 14
   recoilRecoverySpeed: 6
@@ -11492,7 +11492,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 229765646}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 799b3eb85b026004cb58eb400b233fea, type: 3}
   m_Name: 
@@ -11509,7 +11509,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 229765646}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0a85f4421a58e1a498ef92b9ce25e702, type: 3}
   m_Name: 
@@ -43726,8 +43726,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDrift
   characterController: {fileID: 576031187}
   fpsInput: {fileID: 576031179}
-  lateralStrength: 0.01
-  backwardStrength: 0.01
+  lateralStrength: 0.005
+  backwardStrength: 0.005
   smoothSpeed: 5
 --- !u!1 &808256223
 GameObject:
@@ -63385,7 +63385,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1181634429}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 90ed840a6cd48e647b161450061b0103, type: 3}
   m_Name: 
@@ -72497,7 +72497,7 @@ MonoBehaviour:
   input: {fileID: 576031179}
   weaponInventory: {fileID: 576031183}
   positionSwayAmount: 0.05
-  maxPositionSway: 0.25
+  maxPositionSway: 0.15
   rotationSwayAmount: 1
   maxRotationSway: 6
   adsSwayMultiplier: 0.02

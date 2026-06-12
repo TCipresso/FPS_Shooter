@@ -16367,7 +16367,7 @@ MonoBehaviour:
   baseAccuracy: 1
   bloomPerShot: 0.25
   bloomDecaySpeed: 3
-  maxBloom: 2
+  maxBloom: 1
   currentBloom: 0
   adsFOVReduction: 15
   adsBloomMultiplier: 0
@@ -18105,7 +18105,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: b30e7e7728c04284392c2a8fafccb9f7, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

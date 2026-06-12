@@ -11908,8 +11908,8 @@ MonoBehaviour:
   damage: 25
   range: 150
   ragdollForceMultiplier: 1
-  maxRecoilUp: 6
-  maxRecoilSide: 1.5
+  maxRecoilUp: 0
+  maxRecoilSide: 0
   recoilCurve:
     serializedVersion: 2
     m_Curve:
@@ -11961,9 +11961,9 @@ MonoBehaviour:
   recoilMaxShots: 10
   adsRecoilUpMultiplier: 0.4
   adsRecoilSideMultiplier: 0.3
-  tiltAmount: 5
-  tiltFrequency: 10
-  tiltFadeSpeed: 100
+  tiltAmount: 0
+  tiltFrequency: 0
+  tiltFadeSpeed: 0
   adsTiltMultiplier: 0.5
   hipFireTiltMultiplier: 0.5
   kickRotationX: -30
@@ -11978,15 +11978,15 @@ MonoBehaviour:
   adsKickPositionZ: -0.25
   adsKickPositionY: 0
   adsKickPositionX: 0.05
-  isAutomatic: 0
-  rpm: 850
+  isAutomatic: 1
+  rpm: 10
   baseRpm: 0
   critChance: 0.1
   critMultiplier: 2
   baseAccuracy: 1
   bloomPerShot: 0.1
   bloomDecaySpeed: 3
-  maxBloom: 2
+  maxBloom: 1
   currentBloom: 0
   adsFOVReduction: 15
   adsBloomMultiplier: 0.25
