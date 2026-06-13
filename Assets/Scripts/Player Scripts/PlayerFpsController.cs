@@ -114,7 +114,6 @@ public class PlayerFpsController : MonoBehaviour
     private bool wasGroundedLastFrame = false;
     private bool slideLaunchBoostApplied = false;
 
-    // Prevents auto re-slide after a slide ends — cleared by jump or releasing crouch
     private bool slideEndedWhileHeld = false;
 
     private int jumpsRemaining;
@@ -188,7 +187,6 @@ public class PlayerFpsController : MonoBehaviour
             }
         }
 
-        // Clear the re-slide blocker when crouch is released
         if (!input.CrouchHeld)
             slideEndedWhileHeld = false;
 
@@ -314,7 +312,6 @@ public class PlayerFpsController : MonoBehaviour
 
         bool moving = input.Move.sqrMagnitude > 0.01f;
 
-        // wantsToSlide uses CrouchHeld but blocked if slide just ended while held
         bool wantsToSlide = (input.CrouchHeld && !slideEndedWhileHeld) || slideBufferCounter > 0f;
         if (!IsSliding && !IsSlideJumping && wantsToSlide && moving && slideGroundedBuffer > 0f && slideCooldownTimer <= 0f)
         {
@@ -344,7 +341,6 @@ public class PlayerFpsController : MonoBehaviour
             }
             else if (tooSlow)
             {
-                // Slide ended naturally while crouch still held — block auto re-slide
                 slideEndedWhileHeld = true;
                 EndSlide();
             }
@@ -496,7 +492,6 @@ public class PlayerFpsController : MonoBehaviour
                     }
                     else
                     {
-                        // Uphill — bleed speed with strong friction
                         Vector3 frictionDelta = horizontalVelocity.normalized * slideFriction * uphillSlideFriction * Time.deltaTime;
                         if (frictionDelta.magnitude < horizontalVelocity.magnitude)
                             horizontalVelocity -= frictionDelta;
@@ -506,7 +501,6 @@ public class PlayerFpsController : MonoBehaviour
                 }
             }
 
-            // Steering and flat friction — grounded, flat or downhill only
             if (controller.isGrounded)
             {
                 bool onSlope = hasGroundNormal && Vector3.Angle(Vector3.up, groundNormal) >= slideSlopeThreshold;
@@ -576,7 +570,6 @@ public class PlayerFpsController : MonoBehaviour
 
             IsSlideJumping = true;
             EndSlide();
-            // Jump clears the re-slide blocker so landing with crouch held works
             slideEndedWhileHeld = false;
             movementAudio?.PlayJump();
             input.ConsumeJump();
@@ -617,6 +610,13 @@ public class PlayerFpsController : MonoBehaviour
             movementAudio?.PlayJump();
             input.ConsumeJump();
         }
+    }
+
+    public Vector3 GetMoveDirection()
+    {
+        if (IsDashing)
+            return dashDirection;
+        return horizontalVelocity.normalized;
     }
 
     void OnControllerColliderHit(ControllerColliderHit hit)
