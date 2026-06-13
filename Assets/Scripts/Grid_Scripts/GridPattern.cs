@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.AI;
+using Unity.AI.Navigation;
 
 [CreateAssetMenu(fileName = "NewPattern", menuName = "Bloodsport/Pattern")]
 public class GridPattern : ScriptableObject
@@ -7,6 +9,7 @@ public class GridPattern : ScriptableObject
     public int width;
     public int height;
     public int[] tiles;
+    public NavMeshData navMeshData;
 
     [System.Serializable]
     public class PrefabPlacement

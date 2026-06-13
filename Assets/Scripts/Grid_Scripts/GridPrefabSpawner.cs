@@ -20,6 +20,9 @@ public class GridPrefabSpawner : MonoBehaviour
 
     private List<GameObject> activePrefabs = new List<GameObject>();
     private bool isTransitioning = false;
+    private GridPattern lastLoadedPattern;
+
+    public GridPattern GetLastLoadedPattern() => lastLoadedPattern;
 
     void Awake()
     {
@@ -49,6 +52,7 @@ public class GridPrefabSpawner : MonoBehaviour
         }
 
         GridPattern picked = stagePatterns[Random.Range(0, stagePatterns.Count)];
+        lastLoadedPattern = picked;
         Debug.Log($"[GridPrefabSpawner] Transitioning to pattern: {picked.name}");
         yield return StartCoroutine(TransitionToPattern(picked));
     }

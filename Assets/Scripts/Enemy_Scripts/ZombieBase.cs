@@ -101,7 +101,18 @@ public abstract class ZombieBase : MonoBehaviour
             Debug.LogWarning($"[{gameObject.name}] PlayerStats not found in scene.");
 
         if (!isGrunt && !agent.isOnNavMesh)
-            Debug.LogError($"[{gameObject.name}] NavMeshAgent is NOT on the NavMesh!");
+        {
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(transform.position, out hit, 5f, NavMesh.AllAreas))
+            {
+                agent.Warp(hit.position);
+                Debug.Log($"[{gameObject.name}] Warped to NavMesh at {hit.position}");
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] Could not find NavMesh near spawn point!");
+            }
+        }
     }
 
     public void ClearDeathListeners()

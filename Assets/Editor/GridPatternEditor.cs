@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.AI;
 using System.Collections.Generic;
 
 public enum PaintTool { PlusOne, MinusOne, SetTo, Paint }
@@ -47,6 +48,7 @@ public class GridPatternEditor : Editor
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Toggle(activeTab == "Heights", "Heights", "Button")) activeTab = "Heights";
         if (GUILayout.Toggle(activeTab == "Prefabs", "Prefabs", "Button")) activeTab = "Prefabs";
+        if (GUILayout.Toggle(activeTab == "NavMesh", "NavMesh", "Button")) activeTab = "NavMesh";
         if (GUILayout.Toggle(activeTab == "Export", "Export", "Button")) activeTab = "Export";
         EditorGUILayout.EndHorizontal();
 
@@ -56,8 +58,23 @@ public class GridPatternEditor : Editor
             DrawHeightsTab(pattern);
         else if (activeTab == "Prefabs")
             DrawPrefabsTab(pattern);
+        else if (activeTab == "NavMesh")
+            DrawNavMeshTab(pattern);
         else if (activeTab == "Export")
             EditorGUILayout.HelpBox("Export tab coming soon.", MessageType.Info);
+    }
+
+    private void DrawNavMeshTab(GridPattern pattern)
+    {
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("NavMesh Data", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox("Bake the NavMesh for this pattern, duplicate the generated .asset file, rename it to match this pattern, then drag it in here.", MessageType.Info);
+        EditorGUILayout.Space();
+
+        SerializedObject so = new SerializedObject(pattern);
+        so.Update();
+        EditorGUILayout.PropertyField(so.FindProperty("navMeshData"), new GUIContent("Nav Mesh Data"));
+        so.ApplyModifiedProperties();
     }
 
     private void DrawHeightsTab(GridPattern pattern)

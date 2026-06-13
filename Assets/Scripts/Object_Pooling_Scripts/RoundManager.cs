@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.AI;
+using Unity.AI.Navigation;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -28,6 +30,9 @@ public class RoundManager : MonoBehaviour
     [Header("Round Progression")]
     [Tooltip("False = enemies scale per stage (default). True = enemies scale per round instead.")]
     public bool scaleByRound = false;
+
+    [Header("NavMesh")]
+    public NavMeshSurface navMeshSurface;
 
     int currentRound = 0;
     int currentStage = 1;
@@ -149,6 +154,26 @@ public class RoundManager : MonoBehaviour
 
         if (GridPrefabSpawner.Instance != null)
             yield return StartCoroutine(GridPrefabSpawner.Instance.TransitionToRandomPattern());
+
+        if (navMeshSurface != null && GridPrefabSpawner.Instance != null)
+        {
+            GridPattern pattern = GridPrefabSpawner.Instance.GetLastLoadedPattern();
+            if (pattern != null && pattern.navMeshData != null)
+            {
+                navMeshSurface.RemoveData();
+                navMeshSurface.navMeshData = pattern.navMeshData;
+                navMeshSurface.AddData();
+                Debug.Log($"[RoundManager] NavMesh swapped to: {pattern.name}");
+            }
+            else
+            {
+                Debug.LogWarning($"[RoundManager] Pattern has no NavMeshData assigned — skipping swap.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[RoundManager] No NavMeshSurface assigned — skipping NavMesh swap.");
+        }
 
         Debug.Log($"[RoundManager] Map ready. Stage {currentStage} starting in {stageChangeDelay}s.");
         yield return new WaitForSeconds(stageChangeDelay);
