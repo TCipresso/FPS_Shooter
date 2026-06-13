@@ -286,9 +286,7 @@ public class PlayerFpsController : MonoBehaviour
 
             if (!input.CrouchHeld)
                 EndSlide();
-            else if (tooSlow)
-                EndSlide();
-            else if (slideAirgraceTimer <= 0f)
+            else if (tooSlow && slideAirgraceTimer <= 0f)
                 EndSlide();
         }
     }
@@ -395,7 +393,11 @@ public class PlayerFpsController : MonoBehaviour
         if (IsSliding)
         {
             if (hasGroundNormal)
-                verticalVelocity = groundedStickForce;
+            {
+                float slopeAngle = Vector3.Angle(Vector3.up, groundNormal);
+                if (slopeAngle < slideSlopeThreshold)
+                    verticalVelocity = groundedStickForce;
+            }
 
             if (hasGroundNormal)
             {
@@ -407,7 +409,8 @@ public class PlayerFpsController : MonoBehaviour
                 }
             }
 
-            Vector3 frictionDelta = horizontalVelocity.normalized * slideFriction * Time.deltaTime;
+            float frictionScale = (hasGroundNormal && IsDownhill()) ? 0.1f : 1f;
+            Vector3 frictionDelta = horizontalVelocity.normalized * slideFriction * frictionScale * Time.deltaTime;
             if (frictionDelta.magnitude < horizontalVelocity.magnitude)
                 horizontalVelocity -= frictionDelta;
             else
@@ -500,7 +503,7 @@ public class PlayerFpsController : MonoBehaviour
             groundNormal = hit.normal;
             hasGroundNormal = true;
             jumpsRemaining = jumpCount;
-            wallJumpsRemaining = wallJumpCount;  
+            wallJumpsRemaining = wallJumpCount;
             return;
         }
 
