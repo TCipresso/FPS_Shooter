@@ -22,11 +22,8 @@ public class FPSLook : MonoBehaviour
     public float recoilRiseSpeed = 14f;
     public float recoilRecoverySpeed = 6f;
 
-    [Header("ADS Sensitivity")]
-    public WeaponInventory weaponInventory;
-    [Range(0f, 1f)] public float adsSensitivityMultiplier = 0.6f;
+    [Header("FOV")]
     public PlayerFpsController fpsController;
-    [Range(0f, 50f)] public float sprintFOVPercent = 10f;
     [Range(0f, 50f)] public float slideFOVPercent = 15f;
     public float fovTransitionSpeed = 6f;
 
@@ -84,21 +81,8 @@ public class FPSLook : MonoBehaviour
     {
         if (!CanLook || input == null) return;
 
-        float sensScale = 1f;
-
-        if (weaponInventory != null)
-        {
-            WeaponBase weapon = weaponInventory.GetActiveWeaponBase();
-            if (weapon != null && weapon.isAiming)
-            {
-                float aimFOV = baseFOV * (1f - weapon.adsFOVReduction / 100f);
-                float fovRatio = aimFOV / baseFOV;
-                sensScale = fovRatio * adsSensitivityMultiplier;
-            }
-        }
-
-        float mouseX = input.Look.x * lookSpeed * sensScale;
-        float mouseY = input.Look.y * lookSpeed * sensScale;
+        float mouseX = input.Look.x * lookSpeed;
+        float mouseY = input.Look.y * lookSpeed;
 
         targetRotationX -= mouseY;
         targetRotationX = Mathf.Clamp(targetRotationX, -lookXLimit, lookXLimit);
@@ -163,21 +147,10 @@ public class FPSLook : MonoBehaviour
     {
         if (playerCamera == null || fpsController == null) return;
 
-        WeaponBase weapon = FindFirstObjectByType<WeaponBase>();
-        bool isAiming = weapon != null && weapon.isAiming;
+        float targetFOV = (fpsController.IsSliding || fpsController.IsSlideJumping)
+            ? baseFOV * (1f + slideFOVPercent / 100f)
+            : baseFOV;
 
-        float targetFOV;
-
-        if (isAiming)
-            targetFOV = baseFOV * (1f - weapon.adsFOVReduction / 100f);
-        else if (fpsController.IsSliding || fpsController.IsSlideJumping)
-            targetFOV = baseFOV * (1f + slideFOVPercent / 100f);
-        else if (fpsController.IsSprinting)
-            targetFOV = baseFOV * (1f + sprintFOVPercent / 100f);
-        else
-            targetFOV = baseFOV;
-
-        // dash FOV layered on top — snaps in fast, eases out slow
         float dashTargetFOV = fpsController.IsDashing
             ? baseFOV * (1f + dashFOVPercent / 100f)
             : targetFOV;
@@ -196,7 +169,7 @@ public class FPSLook : MonoBehaviour
         tiltAmount = weaponTiltAmount;
         tiltFrequency = weaponTiltFrequency;
         tiltFadeSpeed = weaponTiltFade;
-        tiltScale = aiming ? 1f : hipFireTiltMultiplier;
+        tiltScale = hipFireTiltMultiplier;
         isFiring = true;
     }
 
@@ -210,7 +183,6 @@ public class FPSLook : MonoBehaviour
     {
         if (!overlayCamera || !playerCamera) return;
         if (overlayCamera.orthographic) return;
-
         overlayCamera.fieldOfView = weaponCameraFOV;
     }
 }

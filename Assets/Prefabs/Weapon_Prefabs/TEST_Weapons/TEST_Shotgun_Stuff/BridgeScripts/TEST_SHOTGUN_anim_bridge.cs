@@ -48,8 +48,6 @@ public class TEST_SHOTGUN_anim_bridge : MonoBehaviour
 
     public void OnHitFrame()
     {
-        if (weapon != null && weapon is Sword sword)
-            sword.OnHitFrame();
     }
 
     public void PlayWeaponSound(AnimationEvent evt)

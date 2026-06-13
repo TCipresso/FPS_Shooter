@@ -6,7 +6,6 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Ammo")]
     public int currentMag;
     public int maxMag;
-
     [HideInInspector] public int baseMaxMag;
     public int reserveAmmo;
     public int maxReserve;
@@ -17,8 +16,6 @@ public abstract class WeaponBase : MonoBehaviour
     Transform _defaultMuzzleFlashParent;
     Vector3 _defaultMuzzleFlashLocalPos;
     Quaternion _defaultMuzzleFlashLocalRot;
-
-
 
     [Header("Muzzle Flash")]
     public ParticleSystem muzzleFlash;
@@ -52,32 +49,19 @@ public abstract class WeaponBase : MonoBehaviour
     [Tooltip("How many shots to reach the end of the curve.")]
     public int recoilMaxShots = 10;
 
-    [Header("Camera Recoil - ADS Multipliers")]
-    [Range(0f, 1f)] public float adsRecoilUpMultiplier = 0.4f;
-    [Range(0f, 1f)] public float adsRecoilSideMultiplier = 0.3f;
-
     [Header("Camera Tilt")]
     public float tiltAmount = 0.3f;
     public float tiltFrequency = 20f;
     public float tiltFadeSpeed = 3f;
-    public float adsTiltMultiplier = 0.3f;
     [Range(0f, 1f)] public float hipFireTiltMultiplier = 0.4f;
 
-    [Header("Weapon Recoil - Hip Fire")]
+    [Header("Weapon Recoil")]
     public float kickRotationX = 2f;
     public float kickRotationY = 2f;
     public float kickRotationZ = 5f;
     public float kickPositionZ = -0.1f;
     public float kickPositionY = 0.05f;
     public float kickPositionX = 0.02f;
-
-    [Header("Weapon Recoil - ADS")]
-    public float adsKickRotationX = 1f;
-    public float adsKickRotationY = 1f;
-    public float adsKickRotationZ = 2f;
-    public float adsKickPositionZ = -0.05f;
-    public float adsKickPositionY = 0.02f;
-    public float adsKickPositionX = 0.01f;
 
     [Header("Fire Mode")]
     public bool isAutomatic = false;
@@ -95,13 +79,6 @@ public abstract class WeaponBase : MonoBehaviour
     public float bloomDecaySpeed = 3f;
     public float maxBloom = 4f;
     [HideInInspector] public float currentBloom = 0f;
-
-    [Header("ADS")]
-    public float adsFOVReduction = 15f;
-    public float adsBloomMultiplier = 0.25f;
-    public float adsTransitionSpeed = 10f;
-    public bool adsFadeCrosshair = false;
-    [HideInInspector] public bool isAiming = false;
 
     [Header("Reload")]
     public bool canReloadWhileSprinting = false;
@@ -160,8 +137,6 @@ public abstract class WeaponBase : MonoBehaviour
         {
             animator.SetBool("IsReloading", false);
             animator.SetBool("IsWalking", false);
-            animator.SetBool("IsSprinting", false);
-            animator.SetBool("IsAiming", false);
             animator.SetBool("IsIdle", false);
             animator.ResetTrigger("Cock");
             animator.Play("Idle", 0, 0f);
@@ -175,13 +150,8 @@ public abstract class WeaponBase : MonoBehaviour
 
         if (fpsController != null && animator != null)
         {
-            if (isReloading && fpsController.IsSprinting && !canReloadWhileSprinting)
+            if (isReloading && fpsController.IsSliding)
                 CancelReload();
-
-            isAiming = fpsController.input.AimHeld && !isReloading;
-
-            if (isAiming)
-                fpsController.IsSprinting = false;
 
             bool isWalking = !isCocking
                           && !isReloading
@@ -192,27 +162,18 @@ public abstract class WeaponBase : MonoBehaviour
             else if (walkStopTimer > 0f)
                 walkStopTimer -= Time.deltaTime;
 
-            bool showWalking = !isReloading && !isAiming && (isWalking || walkStopTimer > 0f);
-            bool showSprinting = !isAiming && fpsController.IsSprinting && !fpsController.IsSprintingSuppressed
-                                 && !(isReloading && canReloadWhileSprinting);
+            bool showWalking = !isReloading && (isWalking || walkStopTimer > 0f);
 
             animator.SetBool("IsWalking", showWalking);
-            animator.SetBool("IsSprinting", !isReloading && showSprinting);
             animator.SetBool("IsIdle", isReloading);
-            animator.SetBool("IsAiming", isAiming);
 
             if (universalAnimator != null)
-            {
                 universalAnimator.SetBool("IsWalking", showWalking);
-                universalAnimator.SetBool("IsSprinting", !isReloading && showSprinting);
-            }
         }
     }
 
     public abstract void Shoot();
     public abstract void Reload();
-
-
 
     private void FireHitscan(int damage, float range)
     {
@@ -278,8 +239,6 @@ public abstract class WeaponBase : MonoBehaviour
         SpawnTrail(muzzlePoint.position, endPoint);
     }
 
-
-
     public void ApplyExtraMagazine(int extra)
     {
         maxMag = baseMaxMag + extra;
@@ -315,7 +274,6 @@ public abstract class WeaponBase : MonoBehaviour
 
         isReloading = false;
         isCocking = false;
-        isAiming = false;
         currentBloom = 0f;
         shotsFired = 0;
 
@@ -323,8 +281,6 @@ public abstract class WeaponBase : MonoBehaviour
         {
             animator.SetBool("IsReloading", false);
             animator.SetBool("IsWalking", false);
-            animator.SetBool("IsSprinting", false);
-            animator.SetBool("IsAiming", false);
             animator.SetBool("IsIdle", false);
             animator.ResetTrigger("Cock");
             animator.Play("Idle", 0, 0f);
@@ -351,8 +307,6 @@ public abstract class WeaponBase : MonoBehaviour
 
         Debug.Log($"[{gameObject.name}] Reloaded. Ammo: {currentMag}/{maxMag} | Reserve: {reserveAmmo}");
     }
-
-
 
     public void PlaySoundByName(string soundName)
     {
@@ -386,13 +340,10 @@ public abstract class WeaponBase : MonoBehaviour
         }
     }
 
-
-    private void FireProjectile(int damage)  // stub for later
+    private void FireProjectile(int damage)
     {
         Debug.LogWarning("[WeaponBase] Projectile firing not yet implemented.");
     }
-
-
 
     protected void PlayMuzzleFlash()
     {
@@ -402,7 +353,6 @@ public abstract class WeaponBase : MonoBehaviour
         muzzleFlash.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         muzzleFlash.Play();
     }
-
 
     public void EjectCasing()
     {
@@ -429,8 +379,6 @@ public abstract class WeaponBase : MonoBehaviour
         if (trail != null) trail.Fire(start, end);
     }
 
-
-
     public void LoadRecoilValues()
     {
         if (weaponRecoil == null)
@@ -453,29 +401,16 @@ public abstract class WeaponBase : MonoBehaviour
         float pitch = pitchStrength * maxRecoilUp;
         float yaw = sideStrength * maxRecoilSide * (Random.value > 0.5f ? 1f : -1f);
 
-        if (isAiming)
-        {
-            pitch *= adsRecoilUpMultiplier;
-            yaw *= adsRecoilSideMultiplier;
-        }
-
-        float finalTilt = tiltAmount * (isAiming ? adsTiltMultiplier : 1f);
-
         if (fpsLook != null)
-            fpsLook.ApplyRecoil(pitch, yaw, isAiming, finalTilt, tiltFrequency, tiltFadeSpeed, hipFireTiltMultiplier);
+            fpsLook.ApplyRecoil(pitch, yaw, false, tiltAmount, tiltFrequency, tiltFadeSpeed, hipFireTiltMultiplier);
 
         if (weaponRecoil == null)
             weaponRecoil = FindFirstObjectByType<WeaponRecoil>();
 
         if (weaponRecoil != null)
         {
-            if (isAiming)
-                weaponRecoil.LoadValues(adsKickRotationX, adsKickRotationY, adsKickRotationZ,
-                    adsKickPositionZ, adsKickPositionY, adsKickPositionX);
-            else
-                weaponRecoil.LoadValues(kickRotationX, kickRotationY, kickRotationZ,
-                    kickPositionZ, kickPositionY, kickPositionX);
-
+            weaponRecoil.LoadValues(kickRotationX, kickRotationY, kickRotationZ,
+                kickPositionZ, kickPositionY, kickPositionX);
             weaponRecoil.Kick();
         }
 
@@ -513,10 +448,8 @@ public abstract class WeaponBase : MonoBehaviour
         if (visuals != null)
             visuals.ApplyAttachments(instance.rolledAttachments, animator);
 
-        // Reset muzzle to default
         muzzlePoint = _defaultMuzzlePoint;
 
-        // Barrel overrides
         AttachmentSO barrelAttachment = instance.rolledAttachments.Find(a => a != null && a.slotType == "Barrel");
         if (barrelAttachment != null)
         {
@@ -534,7 +467,6 @@ public abstract class WeaponBase : MonoBehaviour
                 fireSound = barrelAttachment.fireSoundOverride;
         }
 
-        // Crosshair / reticle
         CrosshairUI crosshairUI = FindFirstObjectByType<CrosshairUI>();
         if (crosshairUI != null)
         {
@@ -559,15 +491,12 @@ public abstract class WeaponBase : MonoBehaviour
         return null;
     }
 
-
-
     protected Vector3 GetAimDirection(float spreadX, float spreadY)
     {
         if (mainCamera == null) return muzzlePoint.forward;
 
-        float bloomScale = isAiming ? adsBloomMultiplier : 1f;
-        float totalX = spreadX + Random.Range(-currentBloom, currentBloom) * bloomScale;
-        float totalY = spreadY + Random.Range(-currentBloom, currentBloom) * bloomScale;
+        float totalX = spreadX + Random.Range(-currentBloom, currentBloom);
+        float totalY = spreadY + Random.Range(-currentBloom, currentBloom);
 
         Quaternion spreadRotation = Quaternion.AngleAxis(totalY, mainCamera.transform.up)
                                   * Quaternion.AngleAxis(totalX, mainCamera.transform.right);
@@ -581,8 +510,6 @@ public abstract class WeaponBase : MonoBehaviour
         return mainCamera.transform.position;
     }
 
-
-
     public int ApplyCrit(int damage)
     {
         if (Random.value <= critChance)
@@ -594,8 +521,6 @@ public abstract class WeaponBase : MonoBehaviour
     {
         currentBloom = Mathf.Min(currentBloom + bloomPerShot, maxBloom);
     }
-
-
 
     protected void TriggerCockAnimation()
     {
@@ -609,11 +534,6 @@ public abstract class WeaponBase : MonoBehaviour
         if (animator == null) return;
         if (isReloading) return;
         isFiring = true;
-        if (fpsController != null)
-        {
-            fpsController.IsSprinting = false;
-            fpsController.SuppressSprintOnShoot(0.3f);
-        }
         animator.Play(FireClipName, 2, 0f);
         StartCoroutine(ResetFiring());
     }
@@ -628,13 +548,10 @@ public abstract class WeaponBase : MonoBehaviour
     protected void TriggerReloadAnimation()
     {
         if (animator == null) return;
-        isAiming = false;
         isReloading = true;
         isCocking = false;
         StopRecoil();
-        animator.SetBool("IsAiming", false);
         animator.SetBool("IsWalking", false);
-        animator.SetBool("IsSprinting", false);
         animator.SetFloat("ReloadSpeed", playerStats != null ? playerStats.reloadSpeed : 1f);
         animator.SetBool("IsReloading", true);
     }
@@ -647,12 +564,10 @@ public abstract class WeaponBase : MonoBehaviour
         {
             animator.SetBool("IsReloading", false);
             animator.SetBool("IsIdle", false);
-            if (fpsController != null)
-                animator.SetBool("IsSprinting", fpsController.IsSprinting && !fpsController.IsSprintingSuppressed);
         }
 
-        if (universalAnimator != null && fpsController != null)
-            universalAnimator.SetBool("IsSprinting", fpsController.IsSprinting && !fpsController.IsSprintingSuppressed);
+        if (universalAnimator != null)
+            universalAnimator.SetBool("IsWalking", false);
     }
 }
 

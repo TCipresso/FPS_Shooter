@@ -15,19 +15,10 @@ public class WeaponDrift : MonoBehaviour
 
     void Update()
     {
-        if (fpsInput.AimHeld)
-        {
-            _targetPosition = Vector3.zero;
-        }
-        else
-        {
-            Vector3 localVelocity = transform.parent.InverseTransformDirection(characterController.velocity);
-
-            float lateral = -localVelocity.x * lateralStrength;
-            float backward = localVelocity.z < 0 ? localVelocity.z * backwardStrength : 0f;
-
-            _targetPosition = new Vector3(lateral, 0f, backward);
-        }
+        Vector3 localVelocity = transform.parent.InverseTransformDirection(characterController.velocity);
+        float lateral = -localVelocity.x * lateralStrength;
+        float backward = localVelocity.z < 0 ? localVelocity.z * backwardStrength : 0f;
+        _targetPosition = new Vector3(lateral, 0f, backward);
 
         transform.localPosition = Vector3.Lerp(transform.localPosition, _targetPosition, Time.deltaTime * smoothSpeed);
     }
