@@ -150,9 +150,6 @@ public abstract class WeaponBase : MonoBehaviour
 
         if (fpsController != null && animator != null)
         {
-            if (isReloading && fpsController.IsSliding)
-                CancelReload();
-
             bool isWalking = !isCocking
                           && !isReloading
                           && fpsController.input.Move.sqrMagnitude > 0.01f;

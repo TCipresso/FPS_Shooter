@@ -24,6 +24,8 @@ public class PlayerFpsController : MonoBehaviour
     [SerializeField] private int jumpCount = 1;
 
     [Header("Wall Jump")]
+    [SerializeField] private int wallJumpCount = 1;
+    private int wallJumpsRemaining;
     [SerializeField] private float wallJumpUpSpeed = 9f;
     [SerializeField] private float wallJumpAwaySpeed = 8f;
     [SerializeField] private float wallContactBuffer = 0.15f;
@@ -125,6 +127,7 @@ public class PlayerFpsController : MonoBehaviour
         defaultHeight = controller.height;
         defaultCenter = controller.center;
 
+        wallJumpsRemaining = wallJumpCount;
         jumpsRemaining = jumpCount;
         DashCharges = dashCharges;
         dashChargesRemaining = DashCharges;
@@ -310,7 +313,6 @@ public class PlayerFpsController : MonoBehaviour
         Vector3 fwd = orientation.forward;
         Vector3 side = orientation.right;
         Vector2 m = input.Move;
-        m.y = Mathf.Max(0f, m.y);
 
         Vector3 slideDir = fwd * m.y + side * m.x;
 
@@ -456,11 +458,12 @@ public class PlayerFpsController : MonoBehaviour
             return;
         }
 
-        if (!grounded && onWall && wallJumpCooldownTimer <= 0f)
+        if (!grounded && onWall && wallJumpCooldownTimer <= 0f && wallJumpsRemaining > 0)
         {
             horizontalVelocity = new Vector3(wallNormal.x, 0f, wallNormal.z).normalized * wallJumpAwaySpeed;
             verticalVelocity = wallJumpUpSpeed;
 
+            wallJumpsRemaining--;
             onWall = false;
             wallContactTimer = 0f;
             wallJumpCooldownTimer = wallJumpCooldown;
@@ -497,6 +500,7 @@ public class PlayerFpsController : MonoBehaviour
             groundNormal = hit.normal;
             hasGroundNormal = true;
             jumpsRemaining = jumpCount;
+            wallJumpsRemaining = wallJumpCount;  
             return;
         }
 
