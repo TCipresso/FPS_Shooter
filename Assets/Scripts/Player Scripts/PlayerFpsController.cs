@@ -51,6 +51,7 @@ public class PlayerFpsController : MonoBehaviour
     [SerializeField] private float ledgeCheckDepth = 2.5f;
     [SerializeField] private float slideLedgeLaunchBoost = 6f;
     [SerializeField] private float slideBufferTime = 0.2f;
+    [SerializeField] private float uphillSlideFriction = 2f;
 
     [Header("Slope Walking")]
     [SerializeField] private float slopeStickDistance = 0.5f;
@@ -113,6 +114,9 @@ public class PlayerFpsController : MonoBehaviour
     private bool wasGroundedLastFrame = false;
     private bool slideLaunchBoostApplied = false;
 
+    // Prevents auto re-slide after a slide ends — cleared by jump or releasing crouch
+    private bool slideEndedWhileHeld = false;
+
     private int jumpsRemaining;
 
     private float dashTimer;
@@ -172,12 +176,21 @@ public class PlayerFpsController : MonoBehaviour
             groundNormal = Vector3.up;
             hasGroundNormal = false;
 
-            if (wasGroundedLastFrame && IsSliding && !slideLaunchBoostApplied)
+            if (wasGroundedLastFrame && IsSliding)
             {
-                horizontalVelocity += horizontalVelocity.normalized * slideLedgeLaunchBoost;
-                slideLaunchBoostApplied = true;
+                movementAudio?.StopSlide();
+
+                if (!slideLaunchBoostApplied)
+                {
+                    horizontalVelocity += horizontalVelocity.normalized * slideLedgeLaunchBoost;
+                    slideLaunchBoostApplied = true;
+                }
             }
         }
+
+        // Clear the re-slide blocker when crouch is released
+        if (!input.CrouchHeld)
+            slideEndedWhileHeld = false;
 
         wasGroundedLastFrame = grounded;
 
@@ -301,7 +314,8 @@ public class PlayerFpsController : MonoBehaviour
 
         bool moving = input.Move.sqrMagnitude > 0.01f;
 
-        bool wantsToSlide = input.CrouchHeld || slideBufferCounter > 0f;
+        // wantsToSlide uses CrouchHeld but blocked if slide just ended while held
+        bool wantsToSlide = (input.CrouchHeld && !slideEndedWhileHeld) || slideBufferCounter > 0f;
         if (!IsSliding && !IsSlideJumping && wantsToSlide && moving && slideGroundedBuffer > 0f && slideCooldownTimer <= 0f)
         {
             StartSlide();
@@ -311,18 +325,29 @@ public class PlayerFpsController : MonoBehaviour
         if (IsSliding)
         {
             if (grounded)
+            {
                 slideAirgraceTimer = slideAirgraceTime;
+                movementAudio?.EnsureSlideAudioPlaying();
+            }
             else
+            {
                 slideAirgraceTimer -= Time.deltaTime;
+            }
 
             float horizSpeed = horizontalVelocity.magnitude;
             bool goingDownhill = hasGroundNormal && IsDownhill();
             bool tooSlow = horizSpeed < slideMinSpeed && !goingDownhill;
 
             if (!input.CrouchHeld)
+            {
                 EndSlide();
+            }
             else if (tooSlow)
+            {
+                // Slide ended naturally while crouch still held — block auto re-slide
+                slideEndedWhileHeld = true;
                 EndSlide();
+            }
         }
     }
 
@@ -455,39 +480,61 @@ public class PlayerFpsController : MonoBehaviour
             if (hasGroundNormal && controller.isGrounded)
             {
                 float slopeAngle = Vector3.Angle(Vector3.up, groundNormal);
-                if (slopeAngle < slideSlopeThreshold)
-                    verticalVelocity = groundedStickForce;
-            }
 
-            if (hasGroundNormal)
-            {
-                float slopeAngle = Vector3.Angle(Vector3.up, groundNormal);
-                if (slopeAngle >= slideSlopeThreshold)
+                if (slopeAngle < slideSlopeThreshold)
+                {
+                    verticalVelocity = groundedStickForce;
+                }
+                else
                 {
                     Vector3 slopeDir = Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized;
-                    horizontalVelocity += slopeDir * slideGravityScale * Time.deltaTime;
+                    bool movingDownhill = Vector3.Dot(horizontalVelocity.normalized, slopeDir) > 0f;
+
+                    if (movingDownhill)
+                    {
+                        horizontalVelocity += slopeDir * slideGravityScale * Time.deltaTime;
+                    }
+                    else
+                    {
+                        // Uphill — bleed speed with strong friction
+                        Vector3 frictionDelta = horizontalVelocity.normalized * slideFriction * uphillSlideFriction * Time.deltaTime;
+                        if (frictionDelta.magnitude < horizontalVelocity.magnitude)
+                            horizontalVelocity -= frictionDelta;
+                        else
+                            horizontalVelocity = Vector3.zero;
+                    }
                 }
             }
 
-            Vector2 moveInput = input.Move;
-            if (moveInput.sqrMagnitude > 0.01f)
+            // Steering and flat friction — grounded, flat or downhill only
+            if (controller.isGrounded)
             {
-                Vector3 wishDir = orientation.right * moveInput.x + orientation.forward * moveInput.y;
-                wishDir.y = 0f;
-                wishDir.Normalize();
-                horizontalVelocity = Vector3.MoveTowards(
-                    horizontalVelocity,
-                    wishDir * horizontalVelocity.magnitude,
-                    slideSteerStrength * Time.deltaTime
-                );
-            }
+                bool onSlope = hasGroundNormal && Vector3.Angle(Vector3.up, groundNormal) >= slideSlopeThreshold;
+                bool goingUphill = onSlope && !IsDownhill();
 
-            float frictionScale = (hasGroundNormal && IsDownhill()) ? 0.1f : 1f;
-            Vector3 frictionDelta = horizontalVelocity.normalized * slideFriction * frictionScale * Time.deltaTime;
-            if (frictionDelta.magnitude < horizontalVelocity.magnitude)
-                horizontalVelocity -= frictionDelta;
-            else
-                horizontalVelocity = Vector3.zero;
+                if (!goingUphill)
+                {
+                    Vector2 moveInput = input.Move;
+                    if (moveInput.sqrMagnitude > 0.01f)
+                    {
+                        Vector3 wishDir = orientation.right * moveInput.x + orientation.forward * moveInput.y;
+                        wishDir.y = 0f;
+                        wishDir.Normalize();
+                        horizontalVelocity = Vector3.MoveTowards(
+                            horizontalVelocity,
+                            wishDir * horizontalVelocity.magnitude,
+                            slideSteerStrength * Time.deltaTime
+                        );
+                    }
+
+                    float frictionScale = IsDownhill() ? 0.1f : 1f;
+                    Vector3 frictionDelta = horizontalVelocity.normalized * slideFriction * frictionScale * Time.deltaTime;
+                    if (frictionDelta.magnitude < horizontalVelocity.magnitude)
+                        horizontalVelocity -= frictionDelta;
+                    else
+                        horizontalVelocity = Vector3.zero;
+                }
+            }
 
             return;
         }
@@ -529,6 +576,8 @@ public class PlayerFpsController : MonoBehaviour
 
             IsSlideJumping = true;
             EndSlide();
+            // Jump clears the re-slide blocker so landing with crouch held works
+            slideEndedWhileHeld = false;
             movementAudio?.PlayJump();
             input.ConsumeJump();
             return;
@@ -543,6 +592,7 @@ public class PlayerFpsController : MonoBehaviour
             onWall = false;
             wallContactTimer = 0f;
             wallJumpCooldownTimer = wallJumpCooldown;
+            slideEndedWhileHeld = false;
             movementAudio?.PlayJump();
             input.ConsumeJump();
             return;
@@ -553,6 +603,7 @@ public class PlayerFpsController : MonoBehaviour
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
             coyoteCounter = 0f;
             jumpsRemaining = Mathf.Max(0, jumpsRemaining - 1);
+            slideEndedWhileHeld = false;
             movementAudio?.PlayJump();
             input.ConsumeJump();
             return;
@@ -562,6 +613,7 @@ public class PlayerFpsController : MonoBehaviour
         {
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
             jumpsRemaining--;
+            slideEndedWhileHeld = false;
             movementAudio?.PlayJump();
             input.ConsumeJump();
         }

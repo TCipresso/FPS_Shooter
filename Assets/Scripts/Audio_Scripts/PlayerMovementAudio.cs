@@ -34,9 +34,19 @@ public class PlayerMovementAudio : MonoBehaviour
 
     public void StopSlide()
     {
-        if (audioSource == null || !audioSource.isPlaying) return;
+        if (audioSource == null) return;
         audioSource.loop = false;
         audioSource.Stop();
+    }
+
+    public void EnsureSlideAudioPlaying()
+    {
+        if (audioSource == null || slideClip == null) return;
+        if (audioSource.isPlaying && audioSource.clip == slideClip) return;
+        audioSource.clip = slideClip;
+        audioSource.loop = true;
+        audioSource.volume = slideVolume;
+        audioSource.Play();
     }
 
     public void PlayDash()

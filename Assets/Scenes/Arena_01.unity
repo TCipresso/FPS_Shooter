@@ -32821,7 +32821,7 @@ MonoBehaviour:
   slideHeightLerpSpeed: 1
   slideJumpUpSpeed: 30
   slideJumpForwardBoost: 10
-  slideAirgraceTime: 0.7
+  slideAirgraceTime: 1.5
   slideDropForce: -14
   slideGravityScale: 18
   slideSlopeThreshold: 8
@@ -32830,6 +32830,7 @@ MonoBehaviour:
   ledgeCheckDepth: 10
   slideLedgeLaunchBoost: 6
   slideBufferTime: 0.2
+  uphillSlideFriction: 16
   slopeStickDistance: 0.5
   dashSpeed: 100
   dashDuration: 0.15
