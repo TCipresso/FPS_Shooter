@@ -46,6 +46,7 @@ public class PlayerFpsController : MonoBehaviour
     [SerializeField] private float slideDropForce = -14f;
     [SerializeField] private float slideGravityScale = 18f;
     [SerializeField] private float slideSlopeThreshold = 10f;
+    [SerializeField] private float slideSteerStrength = 4f;
 
     [Header("Dash")]
     [SerializeField] private float dashSpeed = 32f;
@@ -286,7 +287,7 @@ public class PlayerFpsController : MonoBehaviour
 
             if (!input.CrouchHeld)
                 EndSlide();
-            else if (tooSlow && slideAirgraceTimer <= 0f)
+            else if (tooSlow)
                 EndSlide();
         }
     }
@@ -392,7 +393,7 @@ public class PlayerFpsController : MonoBehaviour
 
         if (IsSliding)
         {
-            if (hasGroundNormal)
+            if (hasGroundNormal && controller.isGrounded)
             {
                 float slopeAngle = Vector3.Angle(Vector3.up, groundNormal);
                 if (slopeAngle < slideSlopeThreshold)
@@ -407,6 +408,19 @@ public class PlayerFpsController : MonoBehaviour
                     Vector3 slopeDir = Vector3.ProjectOnPlane(Vector3.down, groundNormal).normalized;
                     horizontalVelocity += slopeDir * slideGravityScale * Time.deltaTime;
                 }
+            }
+
+            Vector2 moveInput = input.Move;
+            if (moveInput.sqrMagnitude > 0.01f)
+            {
+                Vector3 wishDir = orientation.right * moveInput.x + orientation.forward * moveInput.y;
+                wishDir.y = 0f;
+                wishDir.Normalize();
+                horizontalVelocity = Vector3.MoveTowards(
+                    horizontalVelocity,
+                    wishDir * horizontalVelocity.magnitude,
+                    slideSteerStrength * Time.deltaTime
+                );
             }
 
             float frictionScale = (hasGroundNormal && IsDownhill()) ? 0.1f : 1f;
