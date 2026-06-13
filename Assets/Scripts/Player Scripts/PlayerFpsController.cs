@@ -49,6 +49,11 @@ public class PlayerFpsController : MonoBehaviour
     [SerializeField] private float slideSteerStrength = 4f;
     [SerializeField] private float ledgeCheckDistance = 1.0f;
     [SerializeField] private float ledgeCheckDepth = 2.5f;
+    [SerializeField] private float slideLedgeLaunchBoost = 6f;
+    [SerializeField] private float slideBufferTime = 0.2f;
+
+    [Header("Slope Walking")]
+    [SerializeField] private float slopeStickDistance = 0.5f;
 
     [Header("Dash")]
     [SerializeField] private float dashSpeed = 32f;
@@ -99,11 +104,14 @@ public class PlayerFpsController : MonoBehaviour
     private float slideCooldownTimer;
     private float slideAirgraceTimer;
     private float slideGroundedBuffer;
+    private float slideBufferCounter;
     private float defaultHeight;
     private Vector3 defaultCenter;
 
     private Vector3 groundNormal = Vector3.up;
     private bool hasGroundNormal = false;
+    private bool wasGroundedLastFrame = false;
+    private bool slideLaunchBoostApplied = false;
 
     private int jumpsRemaining;
 
@@ -113,7 +121,6 @@ public class PlayerFpsController : MonoBehaviour
     private Vector3 dashDirection;
     private Vector3 preDashHorizontalVelocity;
 
-    // stored for gizmos
     private Vector3 lastLedgeCheckPos;
     private Vector3 lastLedgeCheckEnd;
     private bool lastLedgeCheckHit;
@@ -157,13 +164,22 @@ public class PlayerFpsController : MonoBehaviour
         {
             coyoteCounter = coyoteTime;
             IsSlideJumping = false;
+            slideLaunchBoostApplied = false;
         }
         else
         {
             coyoteCounter -= Time.deltaTime;
             groundNormal = Vector3.up;
             hasGroundNormal = false;
+
+            if (wasGroundedLastFrame && IsSliding && !slideLaunchBoostApplied)
+            {
+                horizontalVelocity += horizontalVelocity.normalized * slideLedgeLaunchBoost;
+                slideLaunchBoostApplied = true;
+            }
         }
+
+        wasGroundedLastFrame = grounded;
 
         HandleDash();
 
@@ -184,6 +200,12 @@ public class PlayerFpsController : MonoBehaviour
             finalVelocity = slopeMoveDir;
             finalVelocity += -groundNormal * 8f;
         }
+        else if (!IsSliding && grounded && hasGroundNormal && verticalVelocity <= 0f)
+        {
+            Vector3 slopeMoveDir = Vector3.ProjectOnPlane(horizontalVelocity, groundNormal);
+            finalVelocity = slopeMoveDir;
+            finalVelocity += Vector3.down * slopeStickDistance;
+        }
         else
         {
             finalVelocity = horizontalVelocity;
@@ -203,6 +225,11 @@ public class PlayerFpsController : MonoBehaviour
         if (wallJumpCooldownTimer > 0f) wallJumpCooldownTimer -= Time.deltaTime;
         if (slideCooldownTimer > 0f) slideCooldownTimer -= Time.deltaTime;
         if (slideGroundedBuffer > 0f) slideGroundedBuffer -= Time.deltaTime;
+
+        if (input.CrouchPressed)
+            slideBufferCounter = slideBufferTime;
+        else if (slideBufferCounter > 0f)
+            slideBufferCounter -= Time.deltaTime;
 
         if (dashTimer > 0f)
         {
@@ -274,8 +301,12 @@ public class PlayerFpsController : MonoBehaviour
 
         bool moving = input.Move.sqrMagnitude > 0.01f;
 
-        if (!IsSliding && input.CrouchPressed && moving && slideGroundedBuffer > 0f && slideCooldownTimer <= 0f)
+        bool wantsToSlide = input.CrouchHeld || slideBufferCounter > 0f;
+        if (!IsSliding && !IsSlideJumping && wantsToSlide && moving && slideGroundedBuffer > 0f && slideCooldownTimer <= 0f)
+        {
             StartSlide();
+            slideBufferCounter = 0f;
+        }
 
         if (IsSliding)
         {
@@ -311,6 +342,7 @@ public class PlayerFpsController : MonoBehaviour
         IsSliding = true;
         slideAirgraceTimer = slideAirgraceTime;
         verticalVelocity = slideDropForce;
+        slideLaunchBoostApplied = false;
 
         Vector3 fwd = orientation.forward;
         Vector3 side = orientation.right;
