@@ -14,7 +14,12 @@ public class SpeedLinesVFX : MonoBehaviour
     public ParticleSystem vfx_W;
     public ParticleSystem vfx_NW;
 
+    [Header("Slide Repeat")]
+    [SerializeField] private float slideRepeatRate = 0.3f;
+
     private ParticleSystem activeSystem;
+    private ParticleSystem slideLockedSystem;
+    private float slideRepeatTimer;
 
     void Start()
     {
@@ -29,6 +34,7 @@ public class SpeedLinesVFX : MonoBehaviour
         {
             if (activeSystem != null)
                 StopAll();
+            slideLockedSystem = null;
             return;
         }
 
@@ -37,23 +43,52 @@ public class SpeedLinesVFX : MonoBehaviour
         {
             if (activeSystem != null)
                 StopAll();
+            slideLockedSystem = null;
             return;
         }
 
-        Vector3 flatDir = new Vector3(moveDir.x, 0f, moveDir.z).normalized;
-        Vector3 localDir = transform.InverseTransformDirection(flatDir);
-        float angle = Mathf.Atan2(localDir.x, localDir.z) * Mathf.Rad2Deg;
-        if (angle < 0f) angle += 360f;
+        if (fpsController.IsSliding)
+        {
+            // Lock direction on slide start
+            if (slideLockedSystem == null)
+            {
+                Vector3 flatDir = new Vector3(moveDir.x, 0f, moveDir.z).normalized;
+                Vector3 localDir = transform.InverseTransformDirection(flatDir);
+                float angle = Mathf.Atan2(localDir.x, localDir.z) * Mathf.Rad2Deg;
+                if (angle < 0f) angle += 360f;
+                slideLockedSystem = GetSystemForAngle(angle);
+                activeSystem = slideLockedSystem;
+                StopAll();
+                activeSystem = slideLockedSystem;
+                activeSystem?.Play();
+                slideRepeatTimer = slideRepeatRate;
+            }
+            else
+            {
+                slideRepeatTimer -= Time.deltaTime;
+                if (slideRepeatTimer <= 0f)
+                {
+                    slideLockedSystem?.Play();
+                    slideRepeatTimer = slideRepeatRate;
+                }
+            }
+            return;
+        }
 
-        Debug.Log($"moveDir={moveDir} angle={angle} target={GetSystemForAngle(angle).name}");
+        // Dash logic unchanged
+        slideLockedSystem = null;
 
-        ParticleSystem target = GetSystemForAngle(angle);
+        Vector3 flatDirDash = new Vector3(moveDir.x, 0f, moveDir.z).normalized;
+        Vector3 localDirDash = transform.InverseTransformDirection(flatDirDash);
+        float angleDash = Mathf.Atan2(localDirDash.x, localDirDash.z) * Mathf.Rad2Deg;
+        if (angleDash < 0f) angleDash += 360f;
+
+        ParticleSystem target = GetSystemForAngle(angleDash);
 
         if (target == activeSystem) return;
 
         StopAll();
         activeSystem = target;
-
         if (activeSystem != null)
             activeSystem.Play();
     }
@@ -72,14 +107,14 @@ public class SpeedLinesVFX : MonoBehaviour
 
     void StopAll()
     {
-        vfx_N?.Stop(true);
-        vfx_NE?.Stop(true);
-        vfx_E?.Stop(true);
-        vfx_SE?.Stop(true);
-        vfx_S?.Stop(true);
-        vfx_SW?.Stop(true);
-        vfx_W?.Stop(true);
-        vfx_NW?.Stop(true);
+        vfx_N?.Stop(false);
+        vfx_NE?.Stop(false);
+        vfx_E?.Stop(false);
+        vfx_SE?.Stop(false);
+        vfx_S?.Stop(false);
+        vfx_SW?.Stop(false);
+        vfx_W?.Stop(false);
+        vfx_NW?.Stop(false);
         activeSystem = null;
     }
 }
