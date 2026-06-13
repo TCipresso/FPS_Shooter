@@ -13157,7 +13157,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 229765646}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 799b3eb85b026004cb58eb400b233fea, type: 3}
   m_Name: 
@@ -13182,7 +13182,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 229765646}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0a85f4421a58e1a498ef92b9ce25e702, type: 3}
   m_Name: 
@@ -32825,6 +32825,9 @@ MonoBehaviour:
   slideDropForce: -14
   slideGravityScale: 18
   slideSlopeThreshold: 8
+  slideSteerStrength: 10
+  ledgeCheckDistance: 2.5
+  ledgeCheckDepth: 10
   dashSpeed: 100
   dashDuration: 0.15
   dashCooldown: 1
@@ -98959,7 +98962,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!65 &1845844508
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -99046,13 +99049,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1845844507}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -20.13, y: -0.5, z: -0.9874687}
-  m_LocalScale: {x: 24, y: 24, z: 24}
+  m_LocalRotation: {x: -0.13052596, y: -0, z: -0, w: 0.99144495}
+  m_LocalPosition: {x: -20.13, y: 19.8, z: 111.1}
+  m_LocalScale: {x: 24, y: 6.9307203, z: 457.5647}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -15, y: 0, z: 0}
 --- !u!1 &1846349124
 GameObject:
   m_ObjectHideFlags: 0

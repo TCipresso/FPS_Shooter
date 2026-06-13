@@ -47,6 +47,8 @@ public class PlayerFpsController : MonoBehaviour
     [SerializeField] private float slideGravityScale = 18f;
     [SerializeField] private float slideSlopeThreshold = 10f;
     [SerializeField] private float slideSteerStrength = 4f;
+    [SerializeField] private float ledgeCheckDistance = 1.0f;
+    [SerializeField] private float ledgeCheckDepth = 2.5f;
 
     [Header("Dash")]
     [SerializeField] private float dashSpeed = 32f;
@@ -111,6 +113,11 @@ public class PlayerFpsController : MonoBehaviour
     private Vector3 dashDirection;
     private Vector3 preDashHorizontalVelocity;
 
+    // stored for gizmos
+    private Vector3 lastLedgeCheckPos;
+    private Vector3 lastLedgeCheckEnd;
+    private bool lastLedgeCheckHit;
+
     void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -154,10 +161,6 @@ public class PlayerFpsController : MonoBehaviour
         else
         {
             coyoteCounter -= Time.deltaTime;
-        }
-
-        if (!grounded)
-        {
             groundNormal = Vector3.up;
             hasGroundNormal = false;
         }
@@ -175,7 +178,7 @@ public class PlayerFpsController : MonoBehaviour
 
         Vector3 finalVelocity;
 
-        if (IsSliding && hasGroundNormal)
+        if (IsSliding && hasGroundNormal && controller.isGrounded && IsFloorAhead())
         {
             Vector3 slopeMoveDir = Vector3.ProjectOnPlane(horizontalVelocity, groundNormal);
             finalVelocity = slopeMoveDir;
@@ -368,6 +371,30 @@ public class PlayerFpsController : MonoBehaviour
             targetPos,
             cameraLerpSpeed * Time.deltaTime
         );
+    }
+
+    bool IsFloorAhead()
+    {
+        Vector3 moveDir = horizontalVelocity.normalized;
+        if (moveDir.sqrMagnitude < 0.01f) return true;
+
+        Vector3 checkPos = transform.position + moveDir * ledgeCheckDistance + Vector3.up * 0.5f;
+        Vector3 checkEnd = checkPos + Vector3.down * ledgeCheckDepth;
+        bool hit = Physics.Raycast(checkPos, Vector3.down, ledgeCheckDepth);
+
+        lastLedgeCheckPos = checkPos;
+        lastLedgeCheckEnd = checkEnd;
+        lastLedgeCheckHit = hit;
+
+        return hit;
+    }
+
+    void OnDrawGizmos()
+    {
+        if (!IsSliding) return;
+        Gizmos.color = lastLedgeCheckHit ? Color.green : Color.red;
+        Gizmos.DrawLine(lastLedgeCheckPos, lastLedgeCheckEnd);
+        Gizmos.DrawWireSphere(lastLedgeCheckPos, 0.15f);
     }
 
     void ApplyHorizontalMovement(bool grounded)
