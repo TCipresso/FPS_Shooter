@@ -28,19 +28,8 @@ MonoBehaviour:
   epicBonus: 0.1
   legendaryBonus: 0.15
   contrabandBonus: 0.25
-  attachmentSlots:
-  - slotName: Sight
-    pool:
-    - {fileID: 11400000, guid: 5e563124750f93a4c9759ff0c7a8e536, type: 2}
-    - {fileID: 11400000, guid: d352ebc58806a8f46856e0138aedfdb2, type: 2}
-    - {fileID: 11400000, guid: ab7fd3a346a08544eb02d9e383a88254, type: 2}
-    - {fileID: 11400000, guid: 924f77705f6ca5f428f1a98427c6ab10, type: 2}
-  - slotName: Rail
-    pool:
-    - {fileID: 11400000, guid: 95bb61e9f862a0246abc1ba2761e9f14, type: 2}
-    - {fileID: 11400000, guid: db6e2bd56d0a6a549b74592ef405abd4, type: 2}
-    - {fileID: 11400000, guid: b016a2e95e9091143b9f103c7f9281b7, type: 2}
-  - slotName: Barrel
-    pool:
-    - {fileID: 11400000, guid: 07ebdcedf2269234e941dbd607b16395, type: 2}
-    - {fileID: 11400000, guid: 80b6e3e135c350d4d8d49821503dde6b, type: 2}
+  perkPool:
+  - {fileID: 11400000, guid: 308d013c84864114aaffee0df3361b5a, type: 2}
+  - {fileID: 11400000, guid: 9eb65b107e240814b8aa2191988f3df7, type: 2}
+  - {fileID: 11400000, guid: 85359204e96d5784ea26942895768f40, type: 2}
+  - {fileID: 11400000, guid: dc7f13e07b4f689449eb5d1048fdd6d6, type: 2}

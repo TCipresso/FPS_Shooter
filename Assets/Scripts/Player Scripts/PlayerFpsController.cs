@@ -78,19 +78,34 @@ public class PlayerFpsController : MonoBehaviour
     public bool IsDashing { get; private set; }
     public bool IsGrounded => controller != null && controller.isGrounded;
 
+    private int baseDashCharges;
+    private int baseWallJumpCount;
+    private int baseJumpCount;
+
+    public int BaseDashCharges => baseDashCharges;
+    public int BaseWallJumpCount => baseWallJumpCount;
+    public int BaseJumpCount => baseJumpCount;
+
     public int JumpCount
     {
         get => jumpCount;
-        set
-        {
-            jumpCount = Mathf.Max(1, value);
-            jumpsRemaining = jumpCount;
-        }
+        set => jumpCount = Mathf.Max(1, value);
+    }
+
+    public int WallJumpCount
+    {
+        get => wallJumpCount;
+        set => wallJumpCount = Mathf.Max(0, value);
+    }
+
+    public int DashCharges
+    {
+        get => dashCharges;
+        set => dashCharges = Mathf.Max(0, value);
     }
 
     public float DashSpeedMultiplier { get; set; } = 1f;
     public float DashCooldownMultiplier { get; set; } = 1f;
-    public int DashCharges { get; set; } = 1;
 
     private CharacterController controller;
     private Vector3 horizontalVelocity;
@@ -147,8 +162,11 @@ public class PlayerFpsController : MonoBehaviour
 
         wallJumpsRemaining = wallJumpCount;
         jumpsRemaining = jumpCount;
-        DashCharges = dashCharges;
-        dashChargesRemaining = DashCharges;
+        dashChargesRemaining = dashCharges;
+
+        baseDashCharges = dashCharges;
+        baseWallJumpCount = wallJumpCount;
+        baseJumpCount = jumpCount;
     }
 
     void Update()

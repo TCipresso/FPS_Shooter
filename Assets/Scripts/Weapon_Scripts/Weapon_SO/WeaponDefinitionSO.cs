@@ -39,6 +39,9 @@ public class WeaponDefinitionSO : ScriptableObject
     public float legendaryBonus = 0.15f;
     public float contrabandBonus = 0.25f;
 
+    [Header("Perks")]
+    public List<WeaponPerkSO> perkPool = new List<WeaponPerkSO>();
+
     public float GetRarityMultiplier(WeaponRarity rarity)
     {
         return rarity switch

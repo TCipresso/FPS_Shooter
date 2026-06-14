@@ -17,6 +17,8 @@ public abstract class WeaponBase : MonoBehaviour
     Vector3 _defaultMuzzleFlashLocalPos;
     Quaternion _defaultMuzzleFlashLocalRot;
 
+    [HideInInspector] public WeaponInstance currentInstance;
+
     [Header("Muzzle Flash")]
     public ParticleSystem muzzleFlash;
     public ParticleSystem casingEject;
@@ -423,6 +425,7 @@ public abstract class WeaponBase : MonoBehaviour
         if (instance == null || instance.definition == null) return;
 
         WeaponDefinitionSO def = instance.definition;
+        currentInstance = instance;
 
         bulletData = def.bulletData;
         damage = instance.finalDamage;
@@ -440,6 +443,20 @@ public abstract class WeaponBase : MonoBehaviour
             crosshairUI.ClearReticle();
 
         Debug.Log($"[WeaponBase] Equipped {def.weaponName} | Rarity: {instance.rarity} | Damage: {damage} | Range: {range} | RPM: {rpm} | Mag: {maxMag}");
+    }
+
+    public void ApplyPerks(List<WeaponPerkSO> perks)
+    {
+        if (perks == null) return;
+        foreach (WeaponPerkSO perk in perks)
+            perk?.OnEquip(this, fpsController);
+    }
+
+    public void RemovePerks(List<WeaponPerkSO> perks)
+    {
+        if (perks == null) return;
+        foreach (WeaponPerkSO perk in perks)
+            perk?.OnUnequip(this, fpsController);
     }
 
     Transform FindDeepChild(Transform parent, string name)

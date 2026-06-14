@@ -27,6 +27,15 @@ public class WeaponInventory : MonoBehaviour
     public List<int> weaponLevels = new List<int>();
 
     private int activeSlot = 0;
+    private WeaponInstance activeInstance;
+    private PlayerFpsController fpsController;
+
+    void Awake()
+    {
+        fpsController = GetComponentInParent<PlayerFpsController>();
+        if (fpsController == null)
+            fpsController = FindFirstObjectByType<PlayerFpsController>();
+    }
 
     void OnEnable()
     {
@@ -110,7 +119,6 @@ public class WeaponInventory : MonoBehaviour
         }
         Debug.Log($"[WeaponInventory] Partial refill {percent * 100}% applied to all weapons.");
     }
-
 
     public bool TryAddWeapon(WeaponData data, WeaponUpgradeData upgradeData = null)
     {
@@ -213,7 +221,6 @@ public class WeaponInventory : MonoBehaviour
         return instance;
     }
 
-
     public void TryAddWeaponInstance(WeaponInstance instance)
     {
         if (instance == null || instance.definition == null || instance.definition.prefab == null)
@@ -287,10 +294,19 @@ public class WeaponInventory : MonoBehaviour
         return go;
     }
 
+    void ResetControllerToBase()
+    {
+        if (fpsController == null) return;
+        fpsController.DashCharges = fpsController.BaseDashCharges;
+        fpsController.WallJumpCount = fpsController.BaseWallJumpCount;
+        fpsController.JumpCount = fpsController.BaseJumpCount;
+    }
 
     public void SetActiveSlot(int slot)
     {
         if (slot < 0 || slot >= equippedWeapons.Count) return;
+
+        ResetControllerToBase();
 
         for (int i = 0; i < equippedWeapons.Count; i++)
             equippedWeapons[i].SetActive(false);
@@ -309,6 +325,13 @@ public class WeaponInventory : MonoBehaviour
                 wb.critChance = playerStats.critChance;
                 wb.critMultiplier = playerStats.critMultiplier;
             }
+
+            activeInstance = wb.currentInstance;
+            wb.ApplyPerks(activeInstance?.rolledPerks);
+        }
+        else
+        {
+            activeInstance = null;
         }
 
         if (ikHandler != null)
