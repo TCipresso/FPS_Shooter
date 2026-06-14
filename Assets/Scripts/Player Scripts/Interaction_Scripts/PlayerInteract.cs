@@ -39,16 +39,18 @@ public class PlayerInteract : MonoBehaviour
     void CheckForInteractable()
     {
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-
         if (Physics.Raycast(ray, out RaycastHit hit, interactRange))
         {
-            // If we hit a zombie, update the target
-            // If we hit something else, leave the current target alone
             ZombieBase zombie = hit.collider.GetComponentInParent<ZombieBase>();
             if (zombie != null)
                 EnemyHealthBarManager.Instance?.SetTarget(zombie);
 
-            // Existing interact logic
+            if (hit.collider.CompareTag("ItemPickup"))
+            {
+                ShowPrompt("[F] Pick up weapon");
+                return;
+            }
+
             if (!IsInteractableTag(hit.collider.tag))
             {
                 ClearPrompt();
@@ -73,7 +75,6 @@ public class PlayerInteract : MonoBehaviour
         }
         else
         {
-            // Raycast hit nothing at all — now it's safe to clear the health bar
             EnemyHealthBarManager.Instance?.ClearTarget();
         }
 
@@ -85,6 +86,12 @@ public class PlayerInteract : MonoBehaviour
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         if (!Physics.Raycast(ray, out RaycastHit hit, interactRange))
             return;
+
+        if (hit.collider.CompareTag("ItemPickup"))
+        {
+            UIManager.Instance?.OpenItemPickupUI();
+            return;
+        }
 
         if (!IsInteractableTag(hit.collider.tag))
             return;
