@@ -21,9 +21,6 @@ public abstract class WeaponBase : MonoBehaviour
     public ParticleSystem muzzleFlash;
     public ParticleSystem casingEject;
 
-    [Header("Attachment Search Root")]
-    public Transform attachmentSearchRoot;
-
     [Header("Bullet Data")]
     public BulletDataSO bulletData;
 
@@ -438,41 +435,9 @@ public abstract class WeaponBase : MonoBehaviour
         reserveAmmo = instance.finalReserveAmmo;
         maxReserve = instance.finalReserveAmmo;
 
-        WeaponAttachmentVisuals visuals = GetComponentInParent<WeaponAttachmentVisuals>();
-        if (visuals == null)
-            visuals = GetComponentInChildren<WeaponAttachmentVisuals>();
-
-        if (visuals != null)
-            visuals.ApplyAttachments(instance.rolledAttachments, animator);
-
-        muzzlePoint = _defaultMuzzlePoint;
-
-        AttachmentSO barrelAttachment = instance.rolledAttachments.Find(a => a != null && a.slotType == "Barrel");
-        if (barrelAttachment != null)
-        {
-            if (!string.IsNullOrEmpty(barrelAttachment.muzzlePointName))
-            {
-                Transform searchRoot = attachmentSearchRoot != null ? attachmentSearchRoot : transform;
-                Transform newMuzzle = FindDeepChild(searchRoot, barrelAttachment.muzzlePointName);
-                if (newMuzzle != null)
-                    muzzlePoint = newMuzzle;
-                else
-                    Debug.LogWarning($"[WeaponBase] Muzzle point '{barrelAttachment.muzzlePointName}' not found.");
-            }
-
-            if (barrelAttachment.fireSoundOverride != null)
-                fireSound = barrelAttachment.fireSoundOverride;
-        }
-
         CrosshairUI crosshairUI = FindFirstObjectByType<CrosshairUI>();
         if (crosshairUI != null)
-        {
-            AttachmentSO sightAttachment = instance.rolledAttachments.Find(a => a != null && a.overrideCrosshair && a.slotType == "Sight");
-            if (sightAttachment != null)
-                crosshairUI.SetReticle(sightAttachment.reticleSprite, sightAttachment.reticleColor, sightAttachment.reticleScale, sightAttachment.fadeToNothing);
-            else
-                crosshairUI.ClearReticle();
-        }
+            crosshairUI.ClearReticle();
 
         Debug.Log($"[WeaponBase] Equipped {def.weaponName} | Rarity: {instance.rarity} | Damage: {damage} | Range: {range} | RPM: {rpm} | Mag: {maxMag}");
     }

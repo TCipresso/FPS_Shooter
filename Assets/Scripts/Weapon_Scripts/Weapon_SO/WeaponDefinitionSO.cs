@@ -10,13 +10,6 @@ public enum WeaponRarity
     Contraband
 }
 
-[System.Serializable]
-public class AttachmentSlot
-{
-    public string slotName;
-    public List<AttachmentSO> pool = new List<AttachmentSO>();
-}
-
 [CreateAssetMenu(fileName = "NewWeaponDefinition", menuName = "Bloodsport/Weapon Definition")]
 public class WeaponDefinitionSO : ScriptableObject
 {
@@ -45,9 +38,6 @@ public class WeaponDefinitionSO : ScriptableObject
     public float epicBonus = 0.10f;
     public float legendaryBonus = 0.15f;
     public float contrabandBonus = 0.25f;
-
-    [Header("Attachment Slots")]
-    public List<AttachmentSlot> attachmentSlots = new List<AttachmentSlot>();
 
     public float GetRarityMultiplier(WeaponRarity rarity)
     {

@@ -18083,7 +18083,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 229765646}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 799b3eb85b026004cb58eb400b233fea, type: 3}
   m_Name: 
@@ -18108,7 +18108,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 229765646}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0a85f4421a58e1a498ef92b9ce25e702, type: 3}
   m_Name: 
@@ -90714,6 +90714,7 @@ MonoBehaviour:
   vfx_SW: {fileID: 657289056}
   vfx_W: {fileID: 443858809}
   vfx_NW: {fileID: 1083180975}
+  slideRepeatRate: 0.3
 --- !u!1 &1098478202
 GameObject:
   m_ObjectHideFlags: 0
@@ -138404,7 +138405,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &1845844508
 BoxCollider:
   m_ObjectHideFlags: 0

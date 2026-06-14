@@ -34,10 +34,7 @@ public class WeaponDropManager : MonoBehaviour
 
         WeaponDefinitionSO definition = weaponPool[Random.Range(0, weaponPool.Count)];
         WeaponRarity rarity = RollRarity();
-        List<AttachmentSO> attachments = RollAttachments(definition);
-
-        WeaponInstance instance = new WeaponInstance(definition, rarity, attachments);
-
+        WeaponInstance instance = new WeaponInstance(definition, rarity);
         SpawnPickup(position, instance);
     }
 
@@ -45,27 +42,11 @@ public class WeaponDropManager : MonoBehaviour
     {
         float total = commonWeight + rareWeight + epicWeight + legendaryWeight + contrabandWeight;
         float roll = Random.Range(0f, total);
-
         if (roll < commonWeight) return WeaponRarity.Common;
         if (roll < commonWeight + rareWeight) return WeaponRarity.Rare;
         if (roll < commonWeight + rareWeight + epicWeight) return WeaponRarity.Epic;
         if (roll < commonWeight + rareWeight + epicWeight + legendaryWeight) return WeaponRarity.Legendary;
         return WeaponRarity.Contraband;
-    }
-
-    List<AttachmentSO> RollAttachments(WeaponDefinitionSO definition)
-    {
-        List<AttachmentSO> result = new List<AttachmentSO>();
-
-        foreach (AttachmentSlot slot in definition.attachmentSlots)
-        {
-            if (slot.pool.Count == 0) continue;
-            AttachmentSO rolled = slot.pool[Random.Range(0, slot.pool.Count)];
-            if (rolled != null)
-                result.Add(rolled);
-        }
-
-        return result;
     }
 
     void SpawnPickup(Vector3 position, WeaponInstance instance)
@@ -75,7 +56,6 @@ public class WeaponDropManager : MonoBehaviour
             Debug.LogWarning("[WeaponDropManager] No pickup prefab assigned.");
             return;
         }
-
         GameObject obj = Instantiate(weaponPickupPrefab, position, Quaternion.identity);
         WeaponPickup pickup = obj.GetComponent<WeaponPickup>();
         if (pickup != null)
