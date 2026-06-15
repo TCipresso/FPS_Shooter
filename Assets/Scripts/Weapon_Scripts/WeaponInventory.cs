@@ -90,7 +90,6 @@ public class WeaponInventory : MonoBehaviour
 
                 if (released)
                 {
-                    alternateIndex = 0;
                     alternateTimer = 0f;
                     foreach (var w in equippedWeapons)
                     {
@@ -98,7 +97,7 @@ public class WeaponInventory : MonoBehaviour
                         w.GetComponentInChildren<WeaponBase>()?.StopRecoil();
                     }
                 }
-                else if (held && alternateTimer <= 0f)
+                else if ((held || pressed) && alternateTimer <= 0f)
                 {
                     WeaponDefinitionSO def = GetAlternateDefinition();
                     float interval = 60f / def.alternateRPM;

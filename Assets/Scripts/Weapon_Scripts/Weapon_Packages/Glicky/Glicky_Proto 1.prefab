@@ -11896,7 +11896,6 @@ MonoBehaviour:
   muzzlePoint: {fileID: 1192061725494769116}
   muzzleFlash: {fileID: 6510583251458803333}
   casingEject: {fileID: 8000601392472019987}
-  attachmentSearchRoot: {fileID: 7658524451316331219}
   bulletData: {fileID: 11400000, guid: 5bb6425b3383d22408b5e8d13fc0b5a9, type: 2}
   audioSource: {fileID: 3253763508379621086}
   fireSound: {fileID: 8300000, guid: f1d018efce553ee41b014ecbb1456d94, type: 3}
@@ -11959,12 +11958,9 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   recoilMaxShots: 10
-  adsRecoilUpMultiplier: 0.4
-  adsRecoilSideMultiplier: 0.3
   tiltAmount: 0
   tiltFrequency: 0
   tiltFadeSpeed: 0
-  adsTiltMultiplier: 0.5
   hipFireTiltMultiplier: 0.5
   kickRotationX: -30
   kickRotationY: 5
@@ -11972,27 +11968,16 @@ MonoBehaviour:
   kickPositionZ: -0.5
   kickPositionY: 0.1
   kickPositionX: 0.25
-  adsKickRotationX: -1
-  adsKickRotationY: 1
-  adsKickRotationZ: 1
-  adsKickPositionZ: -0.25
-  adsKickPositionY: 0
-  adsKickPositionX: 0.05
   isAutomatic: 1
   rpm: 10
   baseRpm: 0
   critChance: 0.1
   critMultiplier: 2
-  baseAccuracy: 1
+  baseAccuracy: 0.1
   bloomPerShot: 0.1
-  bloomDecaySpeed: 3
-  maxBloom: 1
+  bloomDecaySpeed: 0
+  maxBloom: 0.1
   currentBloom: 0
-  adsFOVReduction: 15
-  adsBloomMultiplier: 0.25
-  adsTransitionSpeed: 10
-  adsFadeCrosshair: 1
-  isAiming: 0
   canReloadWhileSprinting: 1
   animator: {fileID: 3489303027546256033}
   walkStopDelay: 0.1

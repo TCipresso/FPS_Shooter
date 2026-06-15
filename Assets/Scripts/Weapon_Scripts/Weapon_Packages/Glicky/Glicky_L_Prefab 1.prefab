@@ -11345,21 +11345,21 @@ MonoBehaviour:
   tiltFrequency: 0
   tiltFadeSpeed: 0
   hipFireTiltMultiplier: 0.4
-  kickRotationX: 2
-  kickRotationY: 2
+  kickRotationX: -30
+  kickRotationY: 5
   kickRotationZ: 5
-  kickPositionZ: -0.1
-  kickPositionY: 0.05
-  kickPositionX: 0.02
+  kickPositionZ: -0.5
+  kickPositionY: 0.1
+  kickPositionX: 0.25
   isAutomatic: 1
   rpm: 300
   baseRpm: 0
   critChance: 0.1
   critMultiplier: 2
-  baseAccuracy: 1
-  bloomPerShot: 0.5
-  bloomDecaySpeed: 3
-  maxBloom: 4
+  baseAccuracy: 0.1
+  bloomPerShot: 0.1
+  bloomDecaySpeed: 0
+  maxBloom: 0.1
   currentBloom: 0
   canReloadWhileSprinting: 0
   animator: {fileID: 2196947400024668812}
