@@ -17,10 +17,15 @@ public class WeaponDefinitionSO : ScriptableObject
     public string weaponName = "Weapon";
     public WeaponType weaponType;
 
-    [Header("Prefab")]
-    public GameObject prefab;
-    public Vector3 positionOffset = Vector3.zero;
-    public Vector3 rotationOffset = Vector3.zero;
+    [Header("Left Hand Prefab")]
+    public GameObject leftPrefab;
+    public Vector3 leftPositionOffset = Vector3.zero;
+    public Vector3 leftRotationOffset = Vector3.zero;
+
+    [Header("Right Hand Prefab")]
+    public GameObject rightPrefab;
+    public Vector3 rightPositionOffset = Vector3.zero;
+    public Vector3 rightRotationOffset = Vector3.zero;
 
     [Header("Bullet Data")]
     public BulletDataSO bulletData;
@@ -39,8 +44,16 @@ public class WeaponDefinitionSO : ScriptableObject
     public float legendaryBonus = 0.15f;
     public float contrabandBonus = 0.25f;
 
+    [Header("Alternate Fire")]
+    public bool willAlternate = false;
+    public float alternateRPM = 300f;
+
     [Header("Perks")]
     public List<WeaponPerkSO> perkPool = new List<WeaponPerkSO>();
+
+    public GameObject GetPrefabForSlot(int slot) => slot == 0 ? leftPrefab : rightPrefab;
+    public Vector3 GetPositionOffsetForSlot(int slot) => slot == 0 ? leftPositionOffset : rightPositionOffset;
+    public Vector3 GetRotationOffsetForSlot(int slot) => slot == 0 ? leftRotationOffset : rightRotationOffset;
 
     public float GetRarityMultiplier(WeaponRarity rarity)
     {

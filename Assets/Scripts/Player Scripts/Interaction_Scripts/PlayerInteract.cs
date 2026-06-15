@@ -70,8 +70,6 @@ public class PlayerInteract : MonoBehaviour
                 ShowPrompt(interactable.interactPrompt);
                 return;
             }
-
-            Debug.Log("Tag matched but no Buyable or Interactable component found on: " + hit.collider.gameObject.name);
         }
         else
         {
@@ -89,7 +87,9 @@ public class PlayerInteract : MonoBehaviour
 
         if (hit.collider.CompareTag("ItemPickup"))
         {
-            UIManager.Instance?.OpenItemPickupUI();
+            WeaponPickup pickup = hit.collider.GetComponentInParent<WeaponPickup>();
+            if (pickup != null)
+                UIManager.Instance?.OpenItemPickupUI(pickup);
             return;
         }
 
@@ -111,10 +111,7 @@ public class PlayerInteract : MonoBehaviour
         }
     }
 
-    bool IsInteractableTag(string tag)
-    {
-        return interactableTags.Contains(tag);
-    }
+    bool IsInteractableTag(string tag) => interactableTags.Contains(tag);
 
     void ShowPrompt(string prompt)
     {

@@ -6,22 +6,39 @@ public class WeaponHUD : MonoBehaviour
     [Header("References")]
     public WeaponInventory weaponInventory;
 
-    [Header("Ammo UI")]
-    public TextMeshProUGUI magText;
-    public TextMeshProUGUI reserveText;
+    [Header("Left Hand Ammo")]
+    public TextMeshProUGUI leftMagText;
+    public TextMeshProUGUI leftReserveText;
+
+    [Header("Right Hand Ammo")]
+    public TextMeshProUGUI rightMagText;
+    public TextMeshProUGUI rightReserveText;
 
     void Update()
     {
-        WeaponBase activeWeapon = weaponInventory.GetActiveWeaponBase();
+        UpdateSlot(0, leftMagText, leftReserveText);
+        UpdateSlot(1, rightMagText, rightReserveText);
+    }
 
-        if (activeWeapon == null)
+    void UpdateSlot(int slot, TextMeshProUGUI magText, TextMeshProUGUI reserveText)
+    {
+        GameObject weaponGO = weaponInventory.equippedWeapons[slot];
+        if (weaponGO == null)
         {
             magText.text = "--";
             reserveText.text = "--";
             return;
         }
 
-        magText.text = activeWeapon.currentMag.ToString();
-        reserveText.text = activeWeapon.reserveAmmo.ToString();
+        WeaponBase wb = weaponGO.GetComponentInChildren<WeaponBase>();
+        if (wb == null)
+        {
+            magText.text = "--";
+            reserveText.text = "--";
+            return;
+        }
+
+        magText.text = wb.currentMag.ToString();
+        reserveText.text = wb.reserveAmmo.ToString();
     }
 }

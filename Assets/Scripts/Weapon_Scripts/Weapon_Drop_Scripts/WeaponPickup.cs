@@ -3,6 +3,7 @@ using UnityEngine;
 public class WeaponPickup : MonoBehaviour
 {
     WeaponInstance weaponInstance;
+    public WeaponInstance WeaponInstance => weaponInstance;
 
     [Header("Rarity Colors")]
     public Color commonColor = Color.white;
@@ -27,7 +28,6 @@ public class WeaponPickup : MonoBehaviour
     {
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb == null) return;
-
         Vector3 randomDir = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f)).normalized;
         Vector3 launchDir = (Vector3.up * 2f + randomDir).normalized;
         rb.AddForce(launchDir * launchForce, ForceMode.Impulse);
@@ -54,12 +54,10 @@ public class WeaponPickup : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
-
         WeaponInventory inventory = other.GetComponent<WeaponInventory>();
         if (inventory == null)
             inventory = other.GetComponentInParent<WeaponInventory>();
         if (inventory == null) return;
-
         inventory.TryAddWeaponInstance(weaponInstance);
         Destroy(transform.root.gameObject);
     }
