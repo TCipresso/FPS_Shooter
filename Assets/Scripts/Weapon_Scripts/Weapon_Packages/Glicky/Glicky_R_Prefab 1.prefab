@@ -5557,6 +5557,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1809463756cde5e498a4dc9e78198500, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Glicky
+  isRightHand: 1
   currentMag: 15
   maxMag: 15
   baseMaxMag: 0
@@ -5640,10 +5641,10 @@ MonoBehaviour:
   baseRpm: 0
   critChance: 0.1
   critMultiplier: 2
-  baseAccuracy: 1
-  bloomPerShot: 0.5
-  bloomDecaySpeed: 3
-  maxBloom: 4
+  baseAccuracy: 0
+  bloomPerShot: 0
+  bloomDecaySpeed: 0
+  maxBloom: 0
   currentBloom: 0
   canReloadWhileSprinting: 0
   animator: {fileID: 7867520723872598859}

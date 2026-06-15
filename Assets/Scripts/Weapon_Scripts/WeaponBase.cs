@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 public abstract class WeaponBase : MonoBehaviour
 {
+    [Header("Hand")]
+    public bool isRightHand = false;
+
     [Header("Ammo")]
     public int currentMag;
     public int maxMag;
@@ -71,6 +74,7 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Critical Hit")]
     [Range(0f, 1f)] public float critChance = 0.1f;
     public float critMultiplier = 2f;
+
 
     [Header("Accuracy")]
     public float baseAccuracy = 1f;
@@ -378,7 +382,12 @@ public abstract class WeaponBase : MonoBehaviour
     public void LoadRecoilValues()
     {
         if (weaponRecoil == null)
-            weaponRecoil = FindFirstObjectByType<WeaponRecoil>();
+        {
+            string recoilName = isRightHand ? "WeaponRecoil_R" : "WeaponRecoil_L";
+            GameObject recoilGO = GameObject.Find(recoilName);
+            if (recoilGO != null) weaponRecoil = recoilGO.GetComponent<WeaponRecoil>();
+        }
+        Debug.Log($"[{gameObject.name}] isRightHand={isRightHand} recoil={weaponRecoil?.gameObject.name}");
 
         if (weaponRecoil != null)
             weaponRecoil.LoadValues(kickRotationX, kickRotationY, kickRotationZ,
@@ -401,7 +410,12 @@ public abstract class WeaponBase : MonoBehaviour
             fpsLook.ApplyRecoil(pitch, yaw, false, tiltAmount, tiltFrequency, tiltFadeSpeed, hipFireTiltMultiplier);
 
         if (weaponRecoil == null)
-            weaponRecoil = FindFirstObjectByType<WeaponRecoil>();
+        {
+            string recoilName = isRightHand ? "WeaponRecoil_R" : "WeaponRecoil_L";
+            GameObject recoilGO = GameObject.Find(recoilName);
+            if (recoilGO != null) weaponRecoil = recoilGO.GetComponent<WeaponRecoil>();
+        }
+        Debug.Log($"[{gameObject.name}] isRightHand={isRightHand} recoil={weaponRecoil?.gameObject.name}");
 
         if (weaponRecoil != null)
         {
