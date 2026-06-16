@@ -14,20 +14,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinitionSO
   weaponName: Doubler
   weaponType: 3
-  prefab: {fileID: 6850122235405207352, guid: 359978e2d679e0a469996927ab439517, type: 3}
-  positionOffset: {x: -0.48, y: 0, z: -1.95}
-  rotationOffset: {x: 0, y: 0, z: 0}
+  leftPrefab: {fileID: 215116565771022536, guid: 0bb4749946959eb43b2b3fa83f19ec3f, type: 3}
+  leftPositionOffset: {x: -0.46, y: -0.01999983, z: -1.77}
+  leftRotationOffset: {x: 0, y: 0, z: 0}
+  rightPrefab: {fileID: 1394502676363903918, guid: 0fd7756f7baa103479089f02527be1bd, type: 3}
+  rightPositionOffset: {x: -0.46, y: -0.02, z: -1.77}
+  rightRotationOffset: {x: 0, y: 0, z: 0}
   bulletData: {fileID: 11400000, guid: 8a289beee63f85145aad87a8045799f1, type: 2}
   baseDamage: 200
-  baseRpm: 1000
+  baseRpm: 200
   baseMagSize: 2
-  baseReserveAmmo: 24
-  baseRange: 100
+  baseReserveAmmo: 999
+  baseRange: 999
   baseReloadTime: 1
   rareBonus: 0.05
   epicBonus: 0.1
   legendaryBonus: 0.15
   contrabandBonus: 0.25
+  willAlternate: 1
+  alternateRPM: 200
   perkPool:
   - {fileID: 11400000, guid: 308d013c84864114aaffee0df3361b5a, type: 2}
   - {fileID: 11400000, guid: 9eb65b107e240814b8aa2191988f3df7, type: 2}
