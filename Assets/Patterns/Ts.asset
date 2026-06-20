@@ -1,0 +1,1412 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3076c647be54604a9a1a4599637392d, type: 3}
+  m_Name: Ts
+  m_EditorClassIdentifier: Assembly-CSharp::GridPattern
+  width: 25
+  height: 25
+  tiles:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 10
+  - 15
+  - 20
+  - 25
+  - 25
+  - 25
+  - 25
+  - 25
+  - 20
+  - 15
+  - 10
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 5
+  - 5
+  - 5
+  - 5
+  - 5
+  - 25
+  - 5
+  - 5
+  - 5
+  - 5
+  - 5
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 25
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 25
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 10
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 15
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 20
+  - 5
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 25
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 25
+  - 10
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 25
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 25
+  - 15
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 25
+  - 25
+  - 25
+  - 0
+  - 0
+  - 0
+  - 0
+  - 20
+  - 20
+  - 20
+  - 25
+  - 20
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 25
+  - 25
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 25
+  - 25
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 20
+  - 25
+  - 20
+  - 20
+  - 20
+  - 0
+  - 0
+  - 0
+  - 0
+  - 25
+  - 25
+  - 25
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 15
+  - 25
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 25
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 10
+  - 25
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 25
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 5
+  - 20
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 15
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 10
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 20
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 20
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 5
+  - 5
+  - 5
+  - 5
+  - 5
+  - 20
+  - 5
+  - 5
+  - 5
+  - 5
+  - 5
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 5
+  - 10
+  - 15
+  - 20
+  - 25
+  - 25
+  - 25
+  - 25
+  - 25
+  - 20
+  - 15
+  - 10
+  - 5
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  navMeshData: {fileID: 0}
+  prefabPlacements:
+  - prefabIndex: 2
+    position: {x: 49.999966, y: 1, z: -0.00002670288}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 25.000027, y: 1, z: -49.999924}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.99994, y: 1, z: 20.000065}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -60.000004, y: 1, z: -24.999918}
+    eulerAngles: {x: -0, y: 180.00012, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -59.99993, y: 6, z: 40.000076}
+    eulerAngles: {x: -0, y: 0.00010928303, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.999992, y: 1, z: -25.000023}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 50, y: 1, z: -30.000027}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 0.000025749207, y: 1, z: -49.99995}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 20.000008, y: 6, z: 60}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.999992, y: 1, z: -15.000027}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.99995, y: 1, z: -19.99993}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 25.000008, y: 1, z: 59.999996}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 5.0000277, y: 1, z: -49.999947}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 10.000008, y: 16, z: 60.000008}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 30.000011, y: 16, z: -59.99998}
+    eulerAngles: {x: -0, y: 90.00007, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999928, y: 1, z: 40.00007}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -54.999924, y: 1, z: 45.000076}
+    eulerAngles: {x: -0, y: 0.00010928303, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -44.999996, y: 1, z: 55.00005}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60.000008, y: 11, z: 14.999985}
+    eulerAngles: {x: -0, y: 0.00012635849, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -60.00001, y: 21, z: -4.999921}
+    eulerAngles: {x: -0, y: 180.00012, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -19.99997, y: 6, z: -59.99997}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -59.999928, y: 1, z: 45.000076}
+    eulerAngles: {x: -0, y: 0.00010928303, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -14.99997, y: 11, z: -59.99997}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -59.999943, y: 16, z: 30.000076}
+    eulerAngles: {x: -0, y: 0.00010928303, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999943, y: 1, z: 15.000065}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -4.999982, y: 1, z: -49.999954}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -30, y: 1, z: 49.999996}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 54.99999, y: 1, z: 24.99997}
+    eulerAngles: {x: -0, y: 0.00012635849, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.999958, y: 1, z: 4.999977}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999947, y: 1, z: -9.999931}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -60.00001, y: 21, z: -4.999921}
+    eulerAngles: {x: -0, y: 180.00012, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 54.99999, y: 1, z: 24.99997}
+    eulerAngles: {x: -0, y: 0.00012635849, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60.000023, y: 21, z: 4.9999695}
+    eulerAngles: {x: -0, y: 0.00012635849, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 20, y: 1, z: 50}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -9.99997, y: 16, z: -59.99997}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.999992, y: 1, z: -25.000023}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -55.000004, y: 1, z: -24.999926}
+    eulerAngles: {x: -0, y: 180.00012, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999928, y: 1, z: 40.00007}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -34.999992, y: 11, z: 60.000057}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 5, y: 1, z: 50}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60.000008, y: 1, z: 24.999966}
+    eulerAngles: {x: -0, y: 0.00012635849, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.999958, y: 1, z: 19.999973}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -25, y: 1, z: 49.999996}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999943, y: 1, z: -4.999935}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -35, y: 1, z: 49.999996}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -19.99998, y: 1.2, z: -49.99997}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -60.000004, y: 1, z: -24.999918}
+    eulerAngles: {x: -0, y: 180.00012, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 20.000023, y: 1, z: -49.999928}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -59.99995, y: 21, z: 25.000076}
+    eulerAngles: {x: -0, y: 0.00010928303, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60.000008, y: 21, z: -25.000023}
+    eulerAngles: {x: -0, y: 180.0001, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 40.00002, y: 1, z: -49.999905}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 50, y: 1, z: -35.000027}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -19.99998, y: 1.2, z: -49.99997}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 30.000011, y: 1, z: -49.999912}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 35.00001, y: 1, z: -49.9999}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -24.999973, y: 1, z: -54.99997}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 15.000008, y: 11, z: 60.000004}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -29.999987, y: 16, z: 60.00006}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -9.99997, y: 16, z: -59.99997}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 25.000023, y: 21, z: -59.99998}
+    eulerAngles: {x: -0, y: 90.00007, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 20, y: 1, z: 50}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60.000023, y: 16, z: 9.9999695}
+    eulerAngles: {x: -0, y: 0.00012635849, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999943, y: 1, z: 5.000066}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -24.999973, y: 1, z: -59.999977}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 15, y: 1, z: 50}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 15.000023, y: 1, z: -49.999928}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 25.000004, y: 1, z: 54.999996}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.99995, y: 1, z: -14.999933}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.999958, y: 1, z: 4.999977}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999935, y: 1, z: 30.000067}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -29.999987, y: 16, z: 60.00006}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 50, y: 1, z: -30.000027}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999935, y: 1, z: 25.000065}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.999973, y: 1, z: -5.0000305}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.99999, y: 1, z: -20.00002}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 15.000023, y: 1, z: -49.999928}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -60.00001, y: 16, z: -9.999914}
+    eulerAngles: {x: -0, y: 180.00012, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -4.999978, y: 21, z: -59.999966}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -60.000004, y: 6, z: -19.99992}
+    eulerAngles: {x: -0, y: 180.00012, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999943, y: 1, z: -4.999935}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 10, y: 1, z: 50}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 55, y: 1, z: -45.000042}
+    eulerAngles: {x: -0, y: 180.0001, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -15, y: 1, z: 49.999996}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -55.000004, y: 1, z: -24.999926}
+    eulerAngles: {x: -0, y: 180.00012, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 50, y: 1, z: -40.00003}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 35.000015, y: 11, z: -59.99997}
+    eulerAngles: {x: -0, y: 90.00007, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.999958, y: 1, z: 9.999973}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 20.000008, y: 6, z: 60}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 35.000015, y: 11, z: -59.99997}
+    eulerAngles: {x: -0, y: 90.00007, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 5.0000076, y: 21, z: 60.00001}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999943, y: 1, z: 0.00006484985}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 10, y: 1, z: 50}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60.000023, y: 16, z: 9.9999695}
+    eulerAngles: {x: -0, y: 0.00012635849, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -24.99999, y: 21, z: 60.00006}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -30, y: 1, z: 49.999996}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -25, y: 1, z: 49.999996}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -5, y: 1, z: 50}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 50, y: 1, z: -35.000027}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.99995, y: 1, z: 14.999985}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 5, y: 1, z: 50}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60.000008, y: 16, z: -30.000023}
+    eulerAngles: {x: -0, y: 180.0001, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -60.00001, y: 16, z: -9.999914}
+    eulerAngles: {x: -0, y: 180.00012, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -40, y: 1, z: 49.999996}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.99994, y: 1, z: 20.000065}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -60.000004, y: 11, z: -14.999918}
+    eulerAngles: {x: -0, y: 180.00012, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60.000008, y: 6, z: 19.999977}
+    eulerAngles: {x: -0, y: 0.00012635849, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.999958, y: 1, z: 19.999973}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 40.000023, y: 6, z: -59.999958}
+    eulerAngles: {x: -0, y: 90.00007, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60, y: 1, z: -45.000023}
+    eulerAngles: {x: -0, y: 180.0001, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -9.999978, y: 1, z: -49.999958}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -39.999992, y: 6, z: 60.000053}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 45.000015, y: 1, z: -54.999943}
+    eulerAngles: {x: -0, y: 90.00007, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 0, y: 1, z: 50}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.99995, y: 1, z: -19.99993}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 45.000023, y: 1, z: -59.999954}
+    eulerAngles: {x: -0, y: 90.00007, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 25.000004, y: 1, z: 54.999996}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -4.999982, y: 1, z: -49.999954}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60, y: 11, z: -35.00003}
+    eulerAngles: {x: -0, y: 180.0001, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -59.999935, y: 11, z: 35.000076}
+    eulerAngles: {x: -0, y: 0.00010928303, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -59.999943, y: 16, z: 30.000076}
+    eulerAngles: {x: -0, y: 0.00010928303, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 35.00001, y: 1, z: -49.9999}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -9.999978, y: 1, z: -49.999958}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 0, y: 1, z: 50}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 15, y: 1, z: 50}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999935, y: 1, z: 30.000067}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 5.0000277, y: 1, z: -49.999947}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -59.999935, y: 11, z: 35.000076}
+    eulerAngles: {x: -0, y: 0.00010928303, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60, y: 1, z: -45.000023}
+    eulerAngles: {x: -0, y: 180.0001, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -59.999928, y: 1, z: 45.000076}
+    eulerAngles: {x: -0, y: 0.00010928303, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60.000008, y: 6, z: 19.999977}
+    eulerAngles: {x: -0, y: 0.00012635849, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60, y: 11, z: -35.00003}
+    eulerAngles: {x: -0, y: 180.0001, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -54.999924, y: 1, z: 45.000076}
+    eulerAngles: {x: -0, y: 0.00010928303, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -59.99995, y: 21, z: 25.000076}
+    eulerAngles: {x: -0, y: 0.00010928303, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -19.99997, y: 6, z: -59.99997}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.99999, y: 1, z: -20.00002}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -14.999978, y: 1.2, z: -49.99996}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -4.999978, y: 21, z: -59.999966}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999947, y: 1, z: -9.999931}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -35, y: 1, z: 49.999996}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.999958, y: 1, z: 9.999973}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -14.999978, y: 1.2, z: -49.99996}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 45.000015, y: 1, z: -54.999943}
+    eulerAngles: {x: -0, y: 90.00007, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 5.0000076, y: 21, z: 60.00001}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.99995, y: 1, z: 14.999985}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999935, y: 1, z: 35.000065}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 30.000011, y: 16, z: -59.99998}
+    eulerAngles: {x: -0, y: 90.00007, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60.000008, y: 6, z: -40.000027}
+    eulerAngles: {x: -0, y: 180.0001, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -44.999996, y: 1, z: 55.00005}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60.000008, y: 16, z: -30.000023}
+    eulerAngles: {x: -0, y: 180.0001, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -60.000004, y: 11, z: -14.999918}
+    eulerAngles: {x: -0, y: 180.00012, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -44.999992, y: 1, z: 60.00005}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -24.999973, y: 1, z: -54.99997}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 15.000008, y: 11, z: 60.000004}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -20, y: 1, z: 49.999996}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -20, y: 1, z: 49.999996}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -15, y: 1, z: 49.999996}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60.000008, y: 21, z: -25.000023}
+    eulerAngles: {x: -0, y: 180.0001, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -40, y: 1, z: 49.999996}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999935, y: 1, z: 35.000065}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999943, y: 1, z: 15.000065}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999935, y: 1, z: 25.000065}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.999992, y: 1, z: -15.000027}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.99995, y: 1, z: -14.999933}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 10.000008, y: 16, z: 60.000008}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 40.00002, y: 1, z: -49.999905}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 55, y: 1, z: -45.000042}
+    eulerAngles: {x: -0, y: 180.0001, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999943, y: 1, z: 5.000066}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -24.999973, y: 1, z: -59.999977}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -60.000004, y: 6, z: -19.99992}
+    eulerAngles: {x: -0, y: 180.00012, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.999973, y: 1, z: -5.0000305}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -34.999992, y: 11, z: 60.000057}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -59.99993, y: 6, z: 40.000076}
+    eulerAngles: {x: -0, y: 0.00010928303, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60.000023, y: 21, z: 4.9999695}
+    eulerAngles: {x: -0, y: 0.00012635849, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 45.000023, y: 1, z: -59.999954}
+    eulerAngles: {x: -0, y: 90.00007, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60.000008, y: 6, z: -40.000027}
+    eulerAngles: {x: -0, y: 180.0001, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60.000008, y: 11, z: 14.999985}
+    eulerAngles: {x: -0, y: 0.00012635849, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -24.99999, y: 21, z: 60.00006}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 60.000008, y: 1, z: 24.999966}
+    eulerAngles: {x: -0, y: 0.00012635849, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -49.999943, y: 1, z: 0.00006484985}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 25.000023, y: 21, z: -59.99998}
+    eulerAngles: {x: -0, y: 90.00007, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 0.000025749207, y: 1, z: -49.99995}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 30.000011, y: 1, z: -49.999912}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 40.000023, y: 6, z: -59.999958}
+    eulerAngles: {x: -0, y: 90.00007, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -39.999992, y: 6, z: 60.000053}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 25.000027, y: 1, z: -49.999924}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 50, y: 1, z: -40.00003}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -14.99997, y: 11, z: -59.99997}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 49.999966, y: 1, z: -0.00002670288}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -5, y: 1, z: 50}
+    eulerAngles: {x: -0, y: 180, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 25.000008, y: 1, z: 59.999996}
+    eulerAngles: {x: -0, y: 90.00005, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: 20.000023, y: 1, z: -49.999928}
+    eulerAngles: {x: -0, y: 0.0000051226416, z: 0}
+    scale: {x: 1, y: 1, z: 1}
+  - prefabIndex: 2
+    position: {x: -44.999992, y: 1, z: 60.00005}
+    eulerAngles: {x: -0, y: 270.00006, z: 0}
+    scale: {x: 1, y: 1, z: 1}

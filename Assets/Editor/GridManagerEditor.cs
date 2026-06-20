@@ -19,8 +19,18 @@ public class GridManagerEditor : Editor
             EditorUtility.SetDirty(gm);
         }
 
+        if (GUILayout.Button("Spawn Fresh Grid (Zeroed)", GUILayout.Height(35)))
+        {
+            if (gm.tilePrefab == null) { Debug.LogError("Assign a tile prefab first."); return; }
+            ClearScenePrefabs();
+            gm.patternToLoad = null;
+            gm.SpawnGrid();
+            EditorUtility.SetDirty(gm);
+        }
+
         if (GUILayout.Button("Clear Grid", GUILayout.Height(25)))
         {
+            ClearScenePrefabs();
             gm.ClearGrid();
             EditorUtility.SetDirty(gm);
         }
@@ -29,10 +39,20 @@ public class GridManagerEditor : Editor
         EditorGUILayout.LabelField("Load Pattern", EditorStyles.boldLabel);
         gm.patternToLoad = (GridPattern)EditorGUILayout.ObjectField("Pattern", gm.patternToLoad, typeof(GridPattern), false);
 
-        if (GUILayout.Button("Load Pattern", GUILayout.Height(35)))
+        if (GUILayout.Button("Load Pattern (Heights Only)", GUILayout.Height(35)))
         {
             if (gm.patternToLoad == null) { Debug.LogError("Assign a pattern first."); return; }
+            gm.RebuildTileReferences();
             gm.LoadPatternImmediate(gm.patternToLoad);
+            EditorUtility.SetDirty(gm);
+        }
+
+        if (GUILayout.Button("Load Pattern + Prefabs", GUILayout.Height(35)))
+        {
+            if (gm.patternToLoad == null) { Debug.LogError("Assign a pattern first."); return; }
+            gm.RebuildTileReferences();
+            gm.LoadPatternImmediate(gm.patternToLoad);
+            LoadPrefabMarkersIntoScene(gm.patternToLoad);
             EditorUtility.SetDirty(gm);
         }
 
@@ -44,36 +64,71 @@ public class GridManagerEditor : Editor
             SavePattern(gm);
 
         if (GUILayout.Button("Clear Scene Prefabs", GUILayout.Height(25)))
+            ClearScenePrefabs();
+    }
+
+    void ClearScenePrefabs()
+    {
+        PatternPrefabMarker[] markers = FindObjectsByType<PatternPrefabMarker>(FindObjectsSortMode.None);
+        foreach (var marker in markers)
+            if (marker != null) DestroyImmediate(marker.gameObject);
+    }
+
+    void LoadPrefabMarkersIntoScene(GridPattern pattern)
+    {
+        ClearScenePrefabs();
+
+        GridPrefabSpawner spawner = FindFirstObjectByType<GridPrefabSpawner>();
+        if (spawner == null)
         {
-            PatternPrefabMarker[] markers = FindObjectsByType<PatternPrefabMarker>(FindObjectsSortMode.None);
-            foreach (var marker in markers)
-                DestroyImmediate(marker.gameObject);
+            Debug.LogError("[GridManagerEditor] No GridPrefabSpawner found in scene.");
+            return;
         }
 
-        // Debug readout: shows tile Y values as integers (visual only, stored as float)
-        EditorGUILayout.Space();
-        EditorGUILayout.LabelField("Tile Heights (visual int, stored float)", EditorStyles.boldLabel);
-        if (gm.tiles != null && GUILayout.Button("Print Tile Heights to Console"))
+        foreach (var placement in pattern.prefabPlacements)
         {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            for (int z = gm.gridHeight - 1; z >= 0; z--)
+            if (placement.prefabIndex < 0 || placement.prefabIndex >= spawner.prefabLibrary.Count)
             {
-                for (int x = 0; x < gm.gridWidth; x++)
-                {
-                    Tile t = gm.tiles[x, z];
-                    float rawY = t != null ? t.transform.localPosition.y : 0f;
-                    // Display as int for readability, actual value is float
-                    sb.Append(Mathf.RoundToInt(rawY).ToString("D3")).Append(" ");
-                }
-                sb.AppendLine();
+                Debug.LogWarning($"[GridManagerEditor] Prefab index {placement.prefabIndex} out of range, skipping.");
+                continue;
             }
-            Debug.Log(sb.ToString());
+
+            GameObject prefab = spawner.prefabLibrary[placement.prefabIndex];
+            if (prefab == null) continue;
+
+            GameObject go = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            go.transform.position = placement.position;
+            go.transform.eulerAngles = placement.eulerAngles;
+            go.transform.localScale = placement.scale;
+
+            PatternPrefabMarker marker = go.GetComponent<PatternPrefabMarker>();
+            if (marker == null) marker = go.AddComponent<PatternPrefabMarker>();
+            marker.prefabIndex = placement.prefabIndex;
         }
+
+        Debug.Log($"[GridManagerEditor] Loaded {pattern.prefabPlacements.Count} prefab(s) into scene.");
     }
 
     void SavePattern(GridManager gm)
     {
-        if (gm.tiles == null) { Debug.LogError("No grid spawned."); return; }
+        if (gm.tiles == null)
+            gm.RebuildTileReferences();
+
+        if (gm.tiles == null)
+        {
+            Debug.LogError("No grid found in scene. Spawn the grid first.");
+            return;
+        }
+
+        string path = $"Assets/Patterns/{patternName}.asset";
+        System.IO.Directory.CreateDirectory("Assets/Patterns");
+
+        // Delete existing asset at that path so we never accumulate old data
+        if (System.IO.File.Exists(path))
+        {
+            AssetDatabase.DeleteAsset(path);
+            AssetDatabase.Refresh();
+        }
 
         GridPattern pattern = ScriptableObject.CreateInstance<GridPattern>();
         pattern.Init(gm.gridWidth, gm.gridHeight);
@@ -84,8 +139,6 @@ public class GridManagerEditor : Editor
             {
                 Tile tile = gm.tiles[x, z];
                 if (tile == null) continue;
-
-                // Save raw world Y directly — no math, no conversion
                 float worldY = tile.transform.localPosition.y;
                 pattern.SetTile(x, z, worldY);
             }
@@ -94,6 +147,7 @@ public class GridManagerEditor : Editor
         PatternPrefabMarker[] markers = FindObjectsByType<PatternPrefabMarker>(FindObjectsSortMode.None);
         foreach (var marker in markers)
         {
+            if (marker == null) continue;
             pattern.prefabPlacements.Add(new GridPattern.PrefabPlacement
             {
                 prefabIndex = marker.prefabIndex,
@@ -103,15 +157,10 @@ public class GridManagerEditor : Editor
             });
         }
 
-        foreach (var marker in markers)
-            DestroyImmediate(marker.gameObject);
-
-        string path = $"Assets/Patterns/{patternName}.asset";
-        System.IO.Directory.CreateDirectory("Assets/Patterns");
         AssetDatabase.CreateAsset(pattern, path);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        Debug.Log($"Pattern saved to {path}");
+        Debug.Log($"Pattern saved to {path} with {pattern.prefabPlacements.Count} prefab(s).");
         EditorUtility.FocusProjectWindow();
         Selection.activeObject = pattern;
     }
