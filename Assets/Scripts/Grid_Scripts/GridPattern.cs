@@ -8,7 +8,10 @@ public class GridPattern : ScriptableObject
 {
     public int width;
     public int height;
-    public int[] tiles;
+
+    // Raw world Y positions per tile — no height index math
+    public float[] tiles;
+
     public NavMeshData navMeshData;
 
     [System.Serializable]
@@ -26,18 +29,18 @@ public class GridPattern : ScriptableObject
     {
         width = w;
         height = h;
-        tiles = new int[w * h];
+        tiles = new float[w * h];
         prefabPlacements = new List<PrefabPlacement>();
     }
 
-    public int GetTile(int x, int z)
+    public float GetTile(int x, int z)
     {
         return tiles[x + z * width];
     }
 
-    public void SetTile(int x, int z, int value)
+    public void SetTile(int x, int z, float worldY)
     {
-        tiles[x + z * width] = Mathf.Clamp(value, 0, 10);
+        tiles[x + z * width] = worldY;
     }
 
     public PrefabPlacement GetPrefabAt(int x, int z)

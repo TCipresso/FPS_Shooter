@@ -13,8 +13,8 @@ public class GridPatternEditor : Editor
     private Vector2 scrollPos;
     private Vector2 scrollPosPrefab;
     private PaintTool activeTool = PaintTool.PlusOne;
-    private int setToValue = 1;
-    private int paintValue = 1;
+    private float setToValue = 0f;
+    private float paintValue = 0f;
     private string activeTab = "Heights";
     private int selectedPrefabIndex = 0;
     private float selectedRotation = 0f;
@@ -31,7 +31,7 @@ public class GridPatternEditor : Editor
         new Color(1.0f, 0.0f, 0.6f),    // 7
         new Color(0.0f, 0.9f, 0.9f),    // 8
         new Color(1.0f, 0.8f, 0.4f),    // 9
-        new Color(1.0f, 1.0f, 1.0f),    // 10
+        new Color(1.0f, 1.0f, 1.0f),    // 10+
     };
 
     private GUIStyle labelStyle;
@@ -97,7 +97,7 @@ public class GridPatternEditor : Editor
 
         EditorGUILayout.Space();
 
-        // Legend
+        // Legend — color index is based on rounded int of the float value
         EditorGUILayout.LabelField("Height Legend", EditorStyles.boldLabel);
         Rect legendRect = GUILayoutUtility.GetRect(0, 28, GUILayout.ExpandWidth(true));
         float legendCellW = legendRect.width / 11f;
@@ -114,30 +114,46 @@ public class GridPatternEditor : Editor
         // Toolbox
         EditorGUILayout.LabelField("Toolbox", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Toggle(activeTool == PaintTool.PlusOne, "Plus One", "Button")) activeTool = PaintTool.PlusOne;
-        if (GUILayout.Toggle(activeTool == PaintTool.MinusOne, "Minus One", "Button")) activeTool = PaintTool.MinusOne;
+        if (GUILayout.Toggle(activeTool == PaintTool.PlusOne, "+5 units", "Button")) activeTool = PaintTool.PlusOne;
+        if (GUILayout.Toggle(activeTool == PaintTool.MinusOne, "-5 units", "Button")) activeTool = PaintTool.MinusOne;
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Toggle(activeTool == PaintTool.SetTo, "Set To", "Button")) activeTool = PaintTool.SetTo;
         if (GUILayout.Toggle(activeTool == PaintTool.Paint, "Paint", "Button")) activeTool = PaintTool.Paint;
         EditorGUILayout.EndHorizontal();
 
+        // Set To / Paint show float field — displayed as int visually
         if (activeTool == PaintTool.SetTo)
-            setToValue = EditorGUILayout.IntSlider("Set To Value", setToValue, 0, 10);
+        {
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Set To Value (float, shown as int)", GUILayout.Width(200));
+            // Display as int visually, store as float
+            int displayInt = Mathf.RoundToInt(setToValue);
+            int newInt = EditorGUILayout.IntField(displayInt);
+            setToValue = (float)newInt;
+            EditorGUILayout.EndHorizontal();
+        }
         if (activeTool == PaintTool.Paint)
-            paintValue = EditorGUILayout.IntSlider("Paint Value", paintValue, 0, 10);
+        {
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Paint Value (float, shown as int)", GUILayout.Width(200));
+            int displayInt = Mathf.RoundToInt(paintValue);
+            int newInt = EditorGUILayout.IntField(displayInt);
+            paintValue = (float)newInt;
+            EditorGUILayout.EndHorizontal();
+        }
 
         EditorGUILayout.Space();
 
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Fill All (1)"))
+        if (GUILayout.Button("Fill All (5.0)"))
         {
-            for (int i = 0; i < pattern.tiles.Length; i++) pattern.tiles[i] = 1;
+            for (int i = 0; i < pattern.tiles.Length; i++) pattern.tiles[i] = 5f;
             EditorUtility.SetDirty(pattern);
         }
-        if (GUILayout.Button("Clear All (0)"))
+        if (GUILayout.Button("Clear All (0.0)"))
         {
-            for (int i = 0; i < pattern.tiles.Length; i++) pattern.tiles[i] = 0;
+            for (int i = 0; i < pattern.tiles.Length; i++) pattern.tiles[i] = 0f;
             EditorUtility.SetDirty(pattern);
         }
         EditorGUILayout.EndHorizontal();
@@ -167,7 +183,12 @@ public class GridPatternEditor : Editor
         {
             for (int x = 0; x < pattern.width; x++)
             {
-                int current = pattern.GetTile(x, z);
+                // Raw float stored value
+                float currentFloat = pattern.GetTile(x, z);
+                // Visual int — purely for display and color indexing
+                int currentInt = Mathf.RoundToInt(currentFloat);
+                int colorIndex = Mathf.Clamp(currentInt, 0, heightColors.Length - 1);
+
                 int drawZ = pattern.height - 1 - z;
 
                 Rect cellRect = new Rect(
@@ -177,21 +198,22 @@ public class GridPatternEditor : Editor
                     buttonSize - 1
                 );
 
-                EditorGUI.DrawRect(cellRect, heightColors[Mathf.Clamp(current, 0, 10)]);
-                GUI.Label(cellRect, current.ToString(), labelStyle);
+                EditorGUI.DrawRect(cellRect, heightColors[colorIndex]);
+                // Show as int visually — the actual stored value is float
+                GUI.Label(cellRect, currentInt.ToString(), labelStyle);
 
                 if ((e.type == EventType.MouseDown || e.type == EventType.MouseDrag) && cellRect.Contains(e.mousePosition))
                 {
-                    int newVal = current;
+                    float newVal = currentFloat;
                     switch (activeTool)
                     {
-                        case PaintTool.PlusOne: newVal = Mathf.Clamp(current + 1, 0, 10); break;
-                        case PaintTool.MinusOne: newVal = Mathf.Clamp(current - 1, 0, 10); break;
+                        case PaintTool.PlusOne: newVal = currentFloat + 5f; break;
+                        case PaintTool.MinusOne: newVal = currentFloat - 5f; break;
                         case PaintTool.SetTo: newVal = setToValue; break;
                         case PaintTool.Paint: newVal = paintValue; break;
                     }
 
-                    if (newVal != current)
+                    if (!Mathf.Approximately(newVal, currentFloat))
                     {
                         pattern.SetTile(x, z, newVal);
                         EditorUtility.SetDirty(pattern);

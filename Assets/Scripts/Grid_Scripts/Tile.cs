@@ -3,37 +3,27 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    public float tileSize = 5f;
     public float animationSpeed = 30f;
-    public float columnHeight = 65f;
-    public float pitDepth = -30f;
 
     private float currentY = 0f;
     private float targetY = 0f;
     private Coroutine currentAnimation;
 
-    private float GetTargetY(int height)
+    // Sets tile to exact world Y immediately, no animation
+    public void SetHeightImmediate(float worldY)
     {
-        if (height == 0)
-            return pitDepth - columnHeight;
-        return height * tileSize;
-    }
-
-    public void SetHeightImmediate(int height)
-    {
-        currentY = GetTargetY(height);
-        targetY = currentY;
-        transform.localPosition = new Vector3(
-            transform.localPosition.x,
-            currentY - columnHeight,
-            transform.localPosition.z
-        );
+        StopAllCoroutines();
+        currentY = worldY;
+        targetY = worldY;
+        Vector3 p = transform.localPosition;
+        transform.localPosition = new Vector3(p.x, worldY, p.z);
         enabled = false;
     }
 
-    public void ApplyHeight(int height)
+    // Smoothly animates tile to exact world Y
+    public void ApplyHeight(float worldY)
     {
-        targetY = GetTargetY(height);
+        targetY = worldY;
         if (currentAnimation != null)
             StopCoroutine(currentAnimation);
         currentAnimation = StartCoroutine(AnimateTo(targetY));
@@ -44,19 +34,14 @@ public class Tile : MonoBehaviour
         enabled = true;
         while (!Mathf.Approximately(currentY, target))
         {
-            currentY = Mathf.MoveTowards(
-                currentY,
-                target,
-                animationSpeed * Time.deltaTime
-            );
-            transform.localPosition = new Vector3(
-                transform.localPosition.x,
-                currentY - columnHeight,
-                transform.localPosition.z
-            );
+            currentY = Mathf.MoveTowards(currentY, target, animationSpeed * Time.deltaTime);
+            Vector3 p = transform.localPosition;
+            transform.localPosition = new Vector3(p.x, currentY, p.z);
             yield return null;
         }
         currentY = target;
+        Vector3 fp = transform.localPosition;
+        transform.localPosition = new Vector3(fp.x, currentY, fp.z);
         enabled = false;
     }
 }

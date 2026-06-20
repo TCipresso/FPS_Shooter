@@ -39,30 +39,41 @@ public class GridManager : MonoBehaviour
     {
         ClearGrid();
         tiles = new Tile[gridWidth, gridHeight];
+
         float offsetX = (gridWidth - 1) * tileSize / 2f;
         float offsetZ = (gridHeight - 1) * tileSize / 2f;
+
+        // Determine starting Y: match patternToLoad if assigned, else default to 0
+        float defaultY = 0f;
+        if (patternToLoad != null && patternToLoad.tiles != null && patternToLoad.tiles.Length == gridWidth * gridHeight)
+            defaultY = patternToLoad.tiles[0]; // use first tile as baseline; LoadPatternImmediate sets all correctly
 
         for (int x = 0; x < gridWidth; x++)
         {
             for (int z = 0; z < gridHeight; z++)
             {
-                Vector3 pos = new Vector3(
+                Vector3 localPos = new Vector3(
                     x * tileSize - offsetX,
-                    0f,
+                    defaultY,
                     z * tileSize - offsetZ
                 );
+
                 GameObject tileGO = Instantiate(tilePrefab, Vector3.zero, Quaternion.identity, transform);
                 tileGO.name = $"Tile_{x}_{z}";
+
                 Tile tile = tileGO.GetComponent<Tile>();
                 if (tile == null)
                     tile = tileGO.AddComponent<Tile>();
-                tile.tileSize = tileSize;
-                tile.animationSpeed = 30f;
-                tileGO.transform.localPosition = new Vector3(pos.x, 0f, pos.z);
-                tile.SetHeightImmediate(1);
+
+                tileGO.transform.localPosition = localPos;
+                tile.SetHeightImmediate(defaultY);
                 tiles[x, z] = tile;
             }
         }
+
+        // If pattern assigned, immediately apply correct per-tile heights
+        if (patternToLoad != null)
+            LoadPatternImmediate(patternToLoad);
     }
 
     public void ClearGrid()
@@ -100,6 +111,7 @@ public class GridManager : MonoBehaviour
             Debug.LogError("Pattern size doesn't match grid size.");
             return;
         }
+
         StartCoroutine(TransitionRoutine(pattern));
     }
 

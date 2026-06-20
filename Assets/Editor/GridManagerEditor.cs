@@ -12,7 +12,6 @@ public class GridManagerEditor : Editor
         GridManager gm = (GridManager)target;
 
         EditorGUILayout.Space();
-
         if (GUILayout.Button("Spawn Grid", GUILayout.Height(35)))
         {
             if (gm.tilePrefab == null) { Debug.LogError("Assign a tile prefab first."); return; }
@@ -28,7 +27,6 @@ public class GridManagerEditor : Editor
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Load Pattern", EditorStyles.boldLabel);
-
         gm.patternToLoad = (GridPattern)EditorGUILayout.ObjectField("Pattern", gm.patternToLoad, typeof(GridPattern), false);
 
         if (GUILayout.Button("Load Pattern", GUILayout.Height(35)))
@@ -51,6 +49,26 @@ public class GridManagerEditor : Editor
             foreach (var marker in markers)
                 DestroyImmediate(marker.gameObject);
         }
+
+        // Debug readout: shows tile Y values as integers (visual only, stored as float)
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Tile Heights (visual int, stored float)", EditorStyles.boldLabel);
+        if (gm.tiles != null && GUILayout.Button("Print Tile Heights to Console"))
+        {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            for (int z = gm.gridHeight - 1; z >= 0; z--)
+            {
+                for (int x = 0; x < gm.gridWidth; x++)
+                {
+                    Tile t = gm.tiles[x, z];
+                    float rawY = t != null ? t.transform.localPosition.y : 0f;
+                    // Display as int for readability, actual value is float
+                    sb.Append(Mathf.RoundToInt(rawY).ToString("D3")).Append(" ");
+                }
+                sb.AppendLine();
+            }
+            Debug.Log(sb.ToString());
+        }
     }
 
     void SavePattern(GridManager gm)
@@ -66,10 +84,10 @@ public class GridManagerEditor : Editor
             {
                 Tile tile = gm.tiles[x, z];
                 if (tile == null) continue;
-                float localY = tile.transform.localPosition.y;
-                int height = Mathf.RoundToInt((localY + tile.columnHeight) / gm.tileSize);
-                height = Mathf.Clamp(height, 0, 10);
-                pattern.SetTile(x, z, height);
+
+                // Save raw world Y directly — no math, no conversion
+                float worldY = tile.transform.localPosition.y;
+                pattern.SetTile(x, z, worldY);
             }
         }
 
