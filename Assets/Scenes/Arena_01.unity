@@ -16186,6 +16186,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8b057809788b6ec4a81778b0670d1bc1, type: 2}
   - {fileID: 11400000, guid: 70e69f58da8342644943f5c0d3dc3487, type: 2}
   - {fileID: 11400000, guid: 67d7b869b9fa6c94288310894e6c6ece, type: 2}
+  - {fileID: 11400000, guid: 8a8bb345d41056649ad141f4e3bc8f03, type: 2}
   dropChance: 1
   commonWeight: 60
   rareWeight: 25
@@ -40001,7 +40002,7 @@ MonoBehaviour:
   playerStats: {fileID: 576031181}
   ikHandler: {fileID: 0}
   giveRightWeaponOnStart: 1
-  rightStartWeapon: {fileID: 11400000, guid: 67d7b869b9fa6c94288310894e6c6ece, type: 2}
+  rightStartWeapon: {fileID: 11400000, guid: 8a8bb345d41056649ad141f4e3bc8f03, type: 2}
   fireAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   reloadAction: {fileID: -6994043773312852012, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   scrollAction: {fileID: -8062664436889712257, guid: 052faaac586de48259a63d0c4782560b, type: 3}
@@ -71169,7 +71170,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 4dc4c6c5ee187604fa57a475af2eb2de, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

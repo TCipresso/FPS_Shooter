@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5cb4844a83ccf945bcb4bc288bfd193, type: 3}
+  m_Name: LMG_Def
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinitionSO
+  weaponName: Weapon
+  weaponType: 0
+  leftPrefab: {fileID: 974614806280583103, guid: 2a4b116a9605e0c45b329e119ca3bcfa, type: 3}
+  leftPositionOffset: {x: -0.27, y: -0.06000075, z: -2.62}
+  leftRotationOffset: {x: 0, y: 0, z: 0}
+  rightPrefab: {fileID: 981217711601339385, guid: eaa66a852af01814a836ea602cc29efc, type: 3}
+  rightPositionOffset: {x: -0.63, y: -0.06, z: -2.62}
+  rightRotationOffset: {x: 0, y: 0, z: 0}
+  bulletData: {fileID: 11400000, guid: 5bb6425b3383d22408b5e8d13fc0b5a9, type: 2}
+  baseDamage: 40
+  baseRpm: 650
+  baseMagSize: 65
+  baseReserveAmmo: 999
+  baseRange: 999
+  baseReloadTime: 2
+  rareBonus: 0.05
+  epicBonus: 0.1
+  legendaryBonus: 0.15
+  contrabandBonus: 0.25
+  willAlternate: 0
+  alternateRPM: 600
+  perkPool:
+  - {fileID: 11400000, guid: 308d013c84864114aaffee0df3361b5a, type: 2}
+  - {fileID: 11400000, guid: 9eb65b107e240814b8aa2191988f3df7, type: 2}
+  - {fileID: 11400000, guid: dc7f13e07b4f689449eb5d1048fdd6d6, type: 2}
+  - {fileID: 11400000, guid: 85359204e96d5784ea26942895768f40, type: 2}
