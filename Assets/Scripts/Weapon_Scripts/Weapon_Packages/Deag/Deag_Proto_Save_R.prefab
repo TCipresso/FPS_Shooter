@@ -1085,7 +1085,7 @@ MonoBehaviour:
   muzzlePoint: {fileID: 5952715752402498811}
   muzzleFlash: {fileID: 6491312168878328953}
   casingEject: {fileID: 9068375666246554824}
-  bulletData: {fileID: 11400000, guid: 5bb6425b3383d22408b5e8d13fc0b5a9, type: 2}
+  bulletData: {fileID: 11400000, guid: ac47cddfe3e42e84082eb912257dc91b, type: 2}
   audioSource: {fileID: 680336633763911719}
   fireSound: {fileID: 8300000, guid: aebb82bac21064f45a835fe91ab69884, type: 3}
   sounds: []
@@ -1147,11 +1147,11 @@ MonoBehaviour:
   tiltFrequency: 20
   tiltFadeSpeed: 3
   hipFireTiltMultiplier: 0.4
-  kickRotationX: -50
+  kickRotationX: -100
   kickRotationY: 5
   kickRotationZ: 5
-  kickPositionZ: -0.5
-  kickPositionY: 0.02
+  kickPositionZ: -1
+  kickPositionY: 0.6
   kickPositionX: 0.02
   isAutomatic: 1
   rpm: 75
