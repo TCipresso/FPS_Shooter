@@ -54,6 +54,19 @@ public class MenuUIHelper : MonoBehaviour
         isPaused = true;
     }
 
+    public void Restart()
+    {
+        Time.timeScale = 1f;
+
+        if (MusicPlaylist.Instance != null)
+            Destroy(MusicPlaylist.Instance.gameObject);
+
+        if (RoundManager.Instance != null)
+            Destroy(RoundManager.Instance.gameObject);
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
     public void EnterDraftState()
     {
         Cursor.lockState = CursorLockMode.None;

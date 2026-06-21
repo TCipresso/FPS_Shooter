@@ -195,11 +195,12 @@ MonoBehaviour:
   verboseLogging: 0
   projectilePrefab: {fileID: 6952823424246680234, guid: 4e6f427956da0174490ef00c1f52ca7f, type: 3}
   firePoint: {fileID: 8685113739759318804}
-  preferredRange: 50
-  retreatRange: 30
   minFireRange: 1
   maxFireRange: 100
   aimHeightOffset: 0.5
+  wanderDistanceMax: 15
+  wanderIntervalMin: 1.5
+  wanderIntervalMax: 3.5
 --- !u!1 &8926549422176106542
 GameObject:
   m_ObjectHideFlags: 0

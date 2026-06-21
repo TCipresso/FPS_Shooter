@@ -5,17 +5,23 @@ public class RangedGrunt : ZombieBase
     [Header("Ranged Attack")]
     public GameObject projectilePrefab;
     public Transform firePoint;
-    public float preferredRange = 10f;
-    public float retreatRange = 4f;
     public float minFireRange = 3f;
     public float maxFireRange = 18f;
 
     [Header("Aim")]
     public float aimHeightOffset = 0.5f;
 
+    [Header("Wandering")]
+    public float wanderDistanceMax = 5f;
+    public float wanderIntervalMin = 1.5f;
+    public float wanderIntervalMax = 3.5f;
+
     RangedProjectile[] pool;
     int poolSize = 10;
     int poolIndex = 0;
+
+    float wanderTimer = 0f;
+    float wanderInterval = 0f;
 
     protected override void Awake()
     {
@@ -27,6 +33,7 @@ public class RangedGrunt : ZombieBase
     {
         base.Start();
         BuildPool();
+        PickNewWanderInterval();
     }
 
     void BuildPool()
@@ -53,7 +60,7 @@ public class RangedGrunt : ZombieBase
         float dist = Vector3.Distance(transform.position, player.position);
 
         FacePlayer();
-        UpdateMovement(dist);
+        UpdateWander();
         TryFire(dist);
     }
 
@@ -69,25 +76,32 @@ public class RangedGrunt : ZombieBase
         );
     }
 
-    void UpdateMovement(float dist)
+    void UpdateWander()
     {
         if (!agent.isOnNavMesh) return;
 
-        if (dist < retreatRange)
+        wanderTimer += Time.deltaTime;
+
+        if (wanderTimer >= wanderInterval)
         {
-            Vector3 retreatPos = transform.position + (transform.position - player.position).normalized * preferredRange;
-            agent.SetDestination(retreatPos);
-            agent.isStopped = false;
+            wanderTimer = 0f;
+            PickNewWanderInterval();
+
+            float wanderDist = Random.Range(2f, wanderDistanceMax);
+            Vector2 rand2D = Random.insideUnitCircle.normalized * wanderDist;
+            Vector3 wanderTarget = transform.position + new Vector3(rand2D.x, 0f, rand2D.y);
+
+            if (UnityEngine.AI.NavMesh.SamplePosition(wanderTarget, out UnityEngine.AI.NavMeshHit hit, wanderDistanceMax, UnityEngine.AI.NavMesh.AllAreas))
+            {
+                agent.SetDestination(hit.position);
+                agent.isStopped = false;
+            }
         }
-        else if (dist > preferredRange)
-        {
-            agent.SetDestination(player.position);
-            agent.isStopped = false;
-        }
-        else
-        {
-            agent.isStopped = true;
-        }
+    }
+
+    void PickNewWanderInterval()
+    {
+        wanderInterval = Random.Range(wanderIntervalMin, wanderIntervalMax);
     }
 
     void TryFire(float dist)
@@ -104,6 +118,7 @@ public class RangedGrunt : ZombieBase
     bool HasLineOfSight()
     {
         if (firePoint == null || player == null) return false;
+
         Vector3 origin = firePoint.position;
         Vector3 target = player.position + Vector3.up * aimHeightOffset;
         Vector3 dir = (target - origin).normalized;

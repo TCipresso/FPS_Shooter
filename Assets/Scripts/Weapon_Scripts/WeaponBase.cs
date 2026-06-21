@@ -41,22 +41,6 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Ragdoll")]
     public float ragdollForceMultiplier = 1f;
 
-    [Header("Camera Recoil")]
-    public float maxRecoilUp = 4f;
-    public float maxRecoilSide = 1.5f;
-    [Tooltip("X = shot index 0-1, Y = 0-1 recoil strength. Controls pitch per shot.")]
-    public AnimationCurve recoilCurve = AnimationCurve.EaseInOut(0f, 0.2f, 1f, 1f);
-    [Tooltip("X = shot index 0-1, Y = 0-1 side kick strength.")]
-    public AnimationCurve recoilSideCurve = AnimationCurve.Linear(0f, 0.5f, 1f, 1f);
-    [Tooltip("How many shots to reach the end of the curve.")]
-    public int recoilMaxShots = 10;
-
-    [Header("Camera Tilt")]
-    public float tiltAmount = 0.3f;
-    public float tiltFrequency = 20f;
-    public float tiltFadeSpeed = 3f;
-    [Range(0f, 1f)] public float hipFireTiltMultiplier = 0.4f;
-
     [Header("Weapon Recoil")]
     public float kickRotationX = 2f;
     public float kickRotationY = 2f;
@@ -74,7 +58,6 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Critical Hit")]
     [Range(0f, 1f)] public float critChance = 0.1f;
     public float critMultiplier = 2f;
-
 
     [Header("Accuracy")]
     public float baseAccuracy = 1f;
@@ -96,7 +79,6 @@ public abstract class WeaponBase : MonoBehaviour
     [HideInInspector] public bool isCocking = false;
     [HideInInspector] public bool isFiring = false;
 
-    int shotsFired = 0;
     float walkStopTimer = 0f;
 
     protected FPSLook fpsLook;
@@ -134,8 +116,6 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected virtual void OnEnable()
     {
-        shotsFired = 0;
-
         if (animator != null)
         {
             animator.SetBool("IsReloading", false);
@@ -275,7 +255,6 @@ public abstract class WeaponBase : MonoBehaviour
         isReloading = false;
         isCocking = false;
         currentBloom = 0f;
-        shotsFired = 0;
 
         if (animator != null)
         {
@@ -387,7 +366,6 @@ public abstract class WeaponBase : MonoBehaviour
             GameObject recoilGO = GameObject.Find(recoilName);
             if (recoilGO != null) weaponRecoil = recoilGO.GetComponent<WeaponRecoil>();
         }
-        Debug.Log($"[{gameObject.name}] isRightHand={isRightHand} recoil={weaponRecoil?.gameObject.name}");
 
         if (weaponRecoil != null)
             weaponRecoil.LoadValues(kickRotationX, kickRotationY, kickRotationZ,
@@ -396,26 +374,12 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected void ApplyRecoil()
     {
-        float t = recoilMaxShots > 0
-            ? Mathf.Clamp01((float)shotsFired / recoilMaxShots)
-            : 1f;
-
-        float pitchStrength = recoilCurve.Evaluate(t);
-        float sideStrength = recoilSideCurve.Evaluate(t);
-
-        float pitch = pitchStrength * maxRecoilUp;
-        float yaw = sideStrength * maxRecoilSide * (Random.value > 0.5f ? 1f : -1f);
-
-        if (fpsLook != null)
-            fpsLook.ApplyRecoil(pitch, yaw, false, tiltAmount, tiltFrequency, tiltFadeSpeed, hipFireTiltMultiplier);
-
         if (weaponRecoil == null)
         {
             string recoilName = isRightHand ? "WeaponRecoil_R" : "WeaponRecoil_L";
             GameObject recoilGO = GameObject.Find(recoilName);
             if (recoilGO != null) weaponRecoil = recoilGO.GetComponent<WeaponRecoil>();
         }
-        Debug.Log($"[{gameObject.name}] isRightHand={isRightHand} recoil={weaponRecoil?.gameObject.name}");
 
         if (weaponRecoil != null)
         {
@@ -423,16 +387,9 @@ public abstract class WeaponBase : MonoBehaviour
                 kickPositionZ, kickPositionY, kickPositionX);
             weaponRecoil.Kick();
         }
-
-        shotsFired++;
     }
 
-    public void StopRecoil()
-    {
-        shotsFired = 0;
-        if (fpsLook != null)
-            fpsLook.StopRecoil();
-    }
+    public void StopRecoil() { }
 
     public void Equip(WeaponInstance instance)
     {
