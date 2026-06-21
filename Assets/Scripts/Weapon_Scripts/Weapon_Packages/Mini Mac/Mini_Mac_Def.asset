@@ -14,22 +14,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinitionSO
   weaponName: Mini Mac
   weaponType: 1
-  prefab: {fileID: 2925203945551275606, guid: 283f639c6c87a7c48be4d8338b28d18d, type: 3}
-  positionOffset: {x: -0.377, y: -0.088, z: -1.901}
-  rotationOffset: {x: 0, y: 0, z: 0}
+  leftPrefab: {fileID: 8156487116465681106, guid: 760fae2d4993c5447b2656d8b9ed0e63, type: 3}
+  leftPositionOffset: {x: -0.43, y: -0.01999983, z: -2.07}
+  leftRotationOffset: {x: 0, y: 0, z: 0}
+  rightPrefab: {fileID: 8180054734349319006, guid: 08c3c77840874f64cbc19ceb97da940c, type: 3}
+  rightPositionOffset: {x: -0.43, y: -0.02, z: -2.07}
+  rightRotationOffset: {x: 0, y: 0, z: 0}
   bulletData: {fileID: 11400000, guid: 5bb6425b3383d22408b5e8d13fc0b5a9, type: 2}
-  baseDamage: 20
+  baseDamage: 25
   baseRpm: 1000
-  baseMagSize: 30
-  baseReserveAmmo: 300
+  baseMagSize: 35
+  baseReserveAmmo: 999
   baseRange: 999
   baseReloadTime: 2
   rareBonus: 0.05
   epicBonus: 0.1
   legendaryBonus: 0.15
   contrabandBonus: 0.25
+  willAlternate: 0
+  alternateRPM: 300
   perkPool:
   - {fileID: 11400000, guid: 308d013c84864114aaffee0df3361b5a, type: 2}
-  - {fileID: 11400000, guid: 9eb65b107e240814b8aa2191988f3df7, type: 2}
   - {fileID: 11400000, guid: 85359204e96d5784ea26942895768f40, type: 2}
+  - {fileID: 11400000, guid: 9eb65b107e240814b8aa2191988f3df7, type: 2}
   - {fileID: 11400000, guid: dc7f13e07b4f689449eb5d1048fdd6d6, type: 2}
