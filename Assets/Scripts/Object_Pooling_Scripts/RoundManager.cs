@@ -16,7 +16,7 @@ public class RoundManager : MonoBehaviour
 
     [Header("Round Settings")]
     public int baseEnemiesPerRound = 10;
-    public int enemiesAddedPerRound = 3;
+    public int enemiesAddedPerStage = 3;
     public int maxEnemiesPerRound = 40;
     public int roundsPerStage = 4;
     public float spawnInterval = 0.5f;
@@ -50,14 +50,45 @@ public class RoundManager : MonoBehaviour
     IEnumerator Start()
     {
         yield return null;
+
+        if (GridPrefabSpawner.Instance != null)
+            yield return StartCoroutine(GridPrefabSpawner.Instance.TransitionToRandomPattern());
+
+        yield return null;
+
+        RefreshSpawnPoints();
+
+        if (navMeshSurface != null && GridPrefabSpawner.Instance != null)
+        {
+            GridPattern pattern = GridPrefabSpawner.Instance.GetLastLoadedPattern();
+            if (pattern != null && pattern.navMeshData != null)
+            {
+                navMeshSurface.RemoveData();
+                navMeshSurface.navMeshData = pattern.navMeshData;
+                navMeshSurface.AddData();
+            }
+        }
+
         StartRound();
+    }
+
+    void RefreshSpawnPoints()
+    {
+        spawnPoints.Clear();
+        foreach (GameObject sp in GameObject.FindGameObjectsWithTag("SpawnPoint"))
+            spawnPoints.Add(sp.transform);
+
+        Debug.Log($"[RoundManager] Found {spawnPoints.Count} spawn points.");
+
+        if (spawnPoints.Count == 0)
+            Debug.LogError("[RoundManager] Zero spawn points found — check tag assignment on prefab.");
     }
 
     void StartRound()
     {
         currentRound++;
         enemiesRemainingAlive = 0;
-        enemiesLeftToSpawn = Mathf.Min(baseEnemiesPerRound + enemiesAddedPerRound * (currentRound - 1), maxEnemiesPerRound);
+        enemiesLeftToSpawn = Mathf.Min(baseEnemiesPerRound + enemiesAddedPerStage * (currentStage - 1), maxEnemiesPerRound);
         roundActive = true;
 
         Debug.Log($"[RoundManager] Stage {currentStage} | Round {currentRound} started. Spawning {enemiesLeftToSpawn} enemies.");
@@ -67,6 +98,12 @@ public class RoundManager : MonoBehaviour
 
     IEnumerator SpawnRoutine()
     {
+        if (spawnPoints.Count == 0)
+        {
+            Debug.LogError("[RoundManager] No spawn points found! Tag your SpawnPoint prefabs as 'SpawnPoint'.");
+            yield break;
+        }
+
         Debug.Log($"[RoundManager] SpawnRoutine started. Count: {enemiesLeftToSpawn}");
         Debug.Log($"[RoundManager] SpawnPoints: {spawnPoints.Count} | EnemyIds: {enemyIds.Count}");
         Debug.Log($"[RoundManager] EnemySpawnManager null? {EnemySpawnManager.Instance == null}");
@@ -154,6 +191,10 @@ public class RoundManager : MonoBehaviour
 
         if (GridPrefabSpawner.Instance != null)
             yield return StartCoroutine(GridPrefabSpawner.Instance.TransitionToRandomPattern());
+
+        yield return null;
+
+        RefreshSpawnPoints();
 
         if (navMeshSurface != null && GridPrefabSpawner.Instance != null)
         {

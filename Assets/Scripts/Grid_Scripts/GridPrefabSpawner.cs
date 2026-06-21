@@ -77,6 +77,11 @@ public class GridPrefabSpawner : MonoBehaviour
 
     IEnumerator SpawnPrefabs(GridPattern pattern)
     {
+        Debug.Log($"[GridPrefabSpawner] SpawnPrefabs called. Placements: {pattern.prefabPlacements.Count} | Library: {prefabLibrary.Count}");
+        foreach (var p in pattern.prefabPlacements)
+            Debug.Log($"[GridPrefabSpawner] Placement — index: {p.prefabIndex} | pos: {p.position}");
+        List<Coroutine> animations = new List<Coroutine>();
+
         foreach (var placement in pattern.prefabPlacements)
         {
             if (placement.prefabIndex < 0 || placement.prefabIndex >= prefabLibrary.Count) continue;
@@ -95,10 +100,11 @@ public class GridPrefabSpawner : MonoBehaviour
 
             go.transform.localScale = placement.scale;
             activePrefabs.Add(go);
-            StartCoroutine(AnimateUp(go, placement.position.y));
+            animations.Add(StartCoroutine(AnimateUp(go, placement.position.y)));
         }
 
-        yield return new WaitForSeconds(0.5f);
+        foreach (Coroutine c in animations)
+            yield return c;
     }
 
     IEnumerator AnimateUp(GameObject go, float targetY)
