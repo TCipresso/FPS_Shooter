@@ -13,17 +13,8 @@ public class CrosshairUI : MonoBehaviour
     public float bloomSpreadMultiplier = 10f;
     public float spreadLerpSpeed = 10f;
 
-    // [Header("ADS Settings")]
-    // public float adsSpread = 0f;
-    // public float adsAlpha = 0f;
-
-    // [Header("ADS Crosshair Swap")]
-    // public Image adsCrosshair;
-    // public float adsSwapFadeSpeed = 10f;
-
     [Header("Color")]
     public Color normalColor = Color.white;
-    // public Color adsColor = Color.white;
 
     [Header("Weapon Reference")]
     public WeaponInventory weaponInventory;
@@ -34,72 +25,62 @@ public class CrosshairUI : MonoBehaviour
     public float recoilFollowPixelScale = 120f;
     public float recoilReturnSpeed = 40f;
 
-    float _currentSpread;
-    Vector2 _reticleOffset;
-    // bool _fadeToNothing = false;
+    // Right hand — normal crosshair (slot 1)
+    RectTransform _rightContainer;
+    RectTransform[] _rightRTs = new RectTransform[4];
+    Image[] _rightImgs = new Image[4];
+    float _rightSpread;
 
-    RectTransform[] _lineRTs = new RectTransform[4];
-    Image[] _lineImgs = new Image[4];
+    // Left hand — 45-degree crosshair (slot 0)
+    RectTransform _leftContainer;
+    RectTransform[] _leftRTs = new RectTransform[4];
+    Image[] _leftImgs = new Image[4];
+    float _leftSpread;
+
+    Vector2 _reticleOffset;
 
     void Awake()
     {
-        BuildLines();
+        _rightContainer = BuildContainer("Crosshair_Right", 0f);
+        BuildLines(_rightContainer, _rightRTs, _rightImgs, "Right");
 
-        // if (adsCrosshair != null)
-        // {
-        //     Color c = adsCrosshair.color;
-        //     c.a = 0f;
-        //     adsCrosshair.color = c;
-        // }
+        _leftContainer = BuildContainer("Crosshair_Left", 45f);
+        BuildLines(_leftContainer, _leftRTs, _leftImgs, "Left");
     }
 
-    void BuildLines()
+    RectTransform BuildContainer(string name, float rotationDeg)
+    {
+        GameObject go = new GameObject(name, typeof(RectTransform));
+        go.transform.SetParent(transform, false);
+        RectTransform rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.sizeDelta = Vector2.zero;
+        rt.localRotation = Quaternion.Euler(0f, 0f, rotationDeg);
+        return rt;
+    }
+
+    void BuildLines(RectTransform container, RectTransform[] rts, Image[] imgs, string label)
     {
         for (int i = 0; i < 4; i++)
         {
-            GameObject go = new GameObject("CrosshairLine_" + i, typeof(RectTransform), typeof(Image));
-            go.transform.SetParent(transform, false);
+            GameObject go = new GameObject($"Line_{label}_{i}", typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(container, false);
             RectTransform rt = go.GetComponent<RectTransform>();
             rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
-            _lineRTs[i] = rt;
-            _lineImgs[i] = go.GetComponent<Image>();
-            _lineImgs[i].color = normalColor;
+            rt.localRotation = Quaternion.identity;
+            rts[i] = rt;
+            imgs[i] = go.GetComponent<Image>();
+            imgs[i].color = normalColor;
         }
     }
 
-    public void SetReticle(Sprite sprite, Color color, float scale, bool fadeToNothing)
-    {
-        // _fadeToNothing = fadeToNothing;
-        // if (adsCrosshair != null)
-        // {
-        //     adsCrosshair.sprite = sprite;
-        //     adsCrosshair.color = new Color(color.r, color.g, color.b, 0f);
-        //     adsCrosshair.rectTransform.localScale = Vector3.one * scale;
-        // }
-    }
-
-    public void ClearReticle()
-    {
-        // _fadeToNothing = false;
-        // if (adsCrosshair != null)
-        //     adsCrosshair.sprite = null;
-    }
+    public void ClearReticle() { }
+    public void SetReticle(Sprite sprite, Color color, float scale, bool fadeToNothing) { }
 
     void Update()
     {
         if (weaponInventory == null) return;
-        WeaponBase activeWeapon = weaponInventory.GetActiveWeaponBase();
-        if (activeWeapon == null) return;
 
-        // bool isAiming = activeWeapon.isAiming;
-        float bloom = activeWeapon.currentBloom;
-
-        float targetSpread = Mathf.Max(baseSpread + bloom * bloomSpreadMultiplier, minSpread);
-        _currentSpread = Mathf.Lerp(_currentSpread, targetSpread, spreadLerpSpeed * Time.deltaTime);
-
-        ApplyLayout(_currentSpread);
-
-        // Recoil follow
         Vector2 targetOffset = Vector2.zero;
         if (weaponRecoil != null)
         {
@@ -120,29 +101,32 @@ public class CrosshairUI : MonoBehaviour
         }
         _reticleOffset = Vector2.Lerp(_reticleOffset, targetOffset, recoilReturnSpeed * Time.deltaTime);
 
-        // Alpha — always full since no ADS
-        Color targetColor = normalColor;
-        targetColor.a = 1f;
-        foreach (Image img in _lineImgs)
-            img.color = Color.Lerp(img.color, targetColor, spreadLerpSpeed * Time.deltaTime);
+        UpdateHand(1, _rightRTs, _rightImgs, ref _rightSpread);
 
-        // if (adsCrosshair != null)
-        // {
-        //     float targetAdsAlpha = isAiming && !_fadeToNothing && adsCrosshair.sprite != null ? 1f : 0f;
-        //     Color ac = adsCrosshair.color;
-        //     ac.a = Mathf.Lerp(ac.a, targetAdsAlpha, adsSwapFadeSpeed * Time.deltaTime);
-        //     adsCrosshair.color = ac;
-        //     adsCrosshair.rectTransform.anchoredPosition = _reticleOffset;
-        // }
-
-        // if (isAiming)
-        // {
-        //     foreach (RectTransform rt in _lineRTs)
-        //         rt.anchoredPosition += _reticleOffset;
-        // }
+        WeaponBase leftWeapon = weaponInventory.GetWeaponBase(0);
+        UpdateHand(0, _leftRTs, _leftImgs, ref _leftSpread, leftWeapon != null);
     }
 
-    void ApplyLayout(float spread)
+    void UpdateHand(int slot, RectTransform[] rts, Image[] imgs, ref float currentSpread, bool visible = true)
+    {
+        float targetAlpha = visible ? 1f : 0f;
+        Color targetColor = normalColor;
+        targetColor.a = targetAlpha;
+        foreach (Image img in imgs)
+            img.color = Color.Lerp(img.color, targetColor, spreadLerpSpeed * Time.deltaTime);
+
+        if (!visible) return;
+
+        WeaponBase wb = weaponInventory.GetWeaponBase(slot);
+        float bloom = wb != null ? wb.currentBloom : 0f;
+
+        float targetSpread = Mathf.Max(baseSpread + bloom * bloomSpreadMultiplier, minSpread);
+        currentSpread = Mathf.Lerp(currentSpread, targetSpread, spreadLerpSpeed * Time.deltaTime);
+
+        ApplyLayout(rts, currentSpread);
+    }
+
+    void ApplyLayout(RectTransform[] rts, float spread)
     {
         (Vector2 pos, Vector2 size)[] configs =
         {
@@ -154,8 +138,8 @@ public class CrosshairUI : MonoBehaviour
 
         for (int i = 0; i < 4; i++)
         {
-            _lineRTs[i].anchoredPosition = configs[i].pos;
-            _lineRTs[i].sizeDelta = configs[i].size;
+            rts[i].anchoredPosition = configs[i].pos;
+            rts[i].sizeDelta = configs[i].size;
         }
     }
 }

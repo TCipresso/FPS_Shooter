@@ -10,6 +10,11 @@ public enum WeaponRarity
     Contraband
 }
 
+public enum CrosshairType
+{
+    Default
+}
+
 [CreateAssetMenu(fileName = "NewWeaponDefinition", menuName = "Bloodsport/Weapon Definition")]
 public class WeaponDefinitionSO : ScriptableObject
 {
@@ -47,6 +52,9 @@ public class WeaponDefinitionSO : ScriptableObject
     [Header("Alternate Fire")]
     public bool willAlternate = false;
     public float alternateRPM = 300f;
+
+    [Header("Crosshair")]
+    public CrosshairType crosshairType = CrosshairType.Default;
 
     [Header("Perks")]
     public List<WeaponPerkSO> perkPool = new List<WeaponPerkSO>();

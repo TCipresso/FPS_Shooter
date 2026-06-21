@@ -365,11 +365,15 @@ public class WeaponInventory : MonoBehaviour
         if (equippedWeapons[next] != null) SetActiveSlot(next);
     }
 
-    public WeaponBase GetActiveWeaponBase()
+    // Returns the WeaponBase for a specific slot (0 = left, 1 = right)
+    public WeaponBase GetWeaponBase(int slot)
     {
-        if (equippedWeapons[activeSlot] == null) return null;
-        return equippedWeapons[activeSlot].GetComponentInChildren<WeaponBase>();
+        if (slot < 0 || slot >= equippedWeapons.Count) return null;
+        if (equippedWeapons[slot] == null) return null;
+        return equippedWeapons[slot].GetComponentInChildren<WeaponBase>();
     }
+
+    public WeaponBase GetActiveWeaponBase() => GetWeaponBase(activeSlot);
 
     public WeaponData GetActiveWeaponData() => equippedData[activeSlot];
 
