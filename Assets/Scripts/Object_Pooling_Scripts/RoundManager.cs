@@ -75,13 +75,13 @@ public class RoundManager : MonoBehaviour
     void RefreshSpawnPoints()
     {
         spawnPoints.Clear();
-        foreach (GameObject sp in GameObject.FindGameObjectsWithTag("SpawnPoint"))
+        foreach (SpawnPoint sp in FindObjectsOfType<SpawnPoint>())
             spawnPoints.Add(sp.transform);
 
         Debug.Log($"[RoundManager] Found {spawnPoints.Count} spawn points.");
 
         if (spawnPoints.Count == 0)
-            Debug.LogError("[RoundManager] Zero spawn points found — check tag assignment on prefab.");
+            Debug.LogError("[RoundManager] Zero spawn points found.");
     }
 
     void StartRound()
@@ -116,6 +116,13 @@ public class RoundManager : MonoBehaviour
 
             Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Count)];
             GameObject enemy = EnemySpawnManager.Instance.SpawnEnemy(id, spawnPoint.position, spawnPoint.rotation);
+
+            AudioSource spawnAudio = spawnPoint.GetComponent<AudioSource>();
+            if (spawnAudio != null)
+            {
+                spawnAudio.pitch = Random.Range(0.85f, 1.1f);
+                spawnAudio.Play();
+            }
 
             Debug.Log($"[RoundManager] Spawn result for {id}: {(enemy == null ? "NULL" : enemy.name)}");
 
