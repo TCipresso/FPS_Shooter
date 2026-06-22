@@ -1092,67 +1092,15 @@ MonoBehaviour:
   damage: 100
   range: 999
   ragdollForceMultiplier: 35
-  maxRecoilUp: 0
-  maxRecoilSide: 0
-  recoilCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.2
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  recoilSideCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.5
-      inSlope: 0
-      outSlope: 0.5
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0.5
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  recoilMaxShots: 0
-  tiltAmount: 0.3
-  tiltFrequency: 20
-  tiltFadeSpeed: 3
-  hipFireTiltMultiplier: 0.4
   kickRotationX: -100
   kickRotationY: 5
   kickRotationZ: 5
   kickPositionZ: -1
   kickPositionY: 0.6
   kickPositionX: 0.02
+  shakeMagnitude: 1
+  shakeDuration: 0.1
+  shakeFrequency: 30
   isAutomatic: 1
   rpm: 75
   baseRpm: 0

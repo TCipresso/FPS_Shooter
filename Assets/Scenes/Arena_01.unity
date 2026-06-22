@@ -11928,8 +11928,6 @@ MonoBehaviour:
   CanLook: 1
   maxTiltZ: 1
   tiltSpeed: 10
-  recoilRiseSpeed: 14
-  recoilRecoverySpeed: 6
   fpsController: {fileID: 576031186}
   slideFOVPercent: 20
   fovTransitionSpeed: 8
@@ -19101,6 +19099,7 @@ GameObject:
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
   - component: {fileID: 330585548}
+  - component: {fileID: 330585549}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -19240,6 +19239,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OccCuller
   cam: {fileID: 330585545}
+--- !u!114 &330585549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 847704760b46abd4ca90b3296e541d6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScreenShake
 --- !u!1 &331089764
 GameObject:
   m_ObjectHideFlags: 0
@@ -37132,7 +37143,7 @@ MonoBehaviour:
   playerStats: {fileID: 576031181}
   ikHandler: {fileID: 0}
   giveRightWeaponOnStart: 1
-  rightStartWeapon: {fileID: 11400000, guid: 67d7b869b9fa6c94288310894e6c6ece, type: 2}
+  rightStartWeapon: {fileID: 11400000, guid: 70e69f58da8342644943f5c0d3dc3487, type: 2}
   fireAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   reloadAction: {fileID: -6994043773312852012, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   scrollAction: {fileID: -8062664436889712257, guid: 052faaac586de48259a63d0c4782560b, type: 3}
