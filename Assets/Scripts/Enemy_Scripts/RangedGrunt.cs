@@ -16,6 +16,9 @@ public class RangedGrunt : ZombieBase
     public float wanderIntervalMin = 1.5f;
     public float wanderIntervalMax = 3.5f;
 
+    [Header("Chase")]
+    public float chaseRange = 22f;
+
     RangedProjectile[] pool;
     int poolSize = 10;
     int poolIndex = 0;
@@ -60,7 +63,7 @@ public class RangedGrunt : ZombieBase
         float dist = Vector3.Distance(transform.position, player.position);
 
         FacePlayer();
-        UpdateWander();
+        UpdateWander(dist);
         TryFire(dist);
     }
 
@@ -76,9 +79,17 @@ public class RangedGrunt : ZombieBase
         );
     }
 
-    void UpdateWander()
+    void UpdateWander(float dist)
     {
         if (!agent.isOnNavMesh) return;
+
+        if (dist > chaseRange)
+        {
+            agent.SetDestination(player.position);
+            agent.isStopped = false;
+            wanderTimer = 0f;
+            return;
+        }
 
         wanderTimer += Time.deltaTime;
 

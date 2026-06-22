@@ -175,7 +175,7 @@ MonoBehaviour:
   maxHealth: 75
   currentHealth: 0
   goldBounty: 100
-  moveSpeed: 7
+  moveSpeed: 10
   attackDamage: 25
   attackRange: 1.5
   attackCooldown: 1.5
@@ -201,6 +201,7 @@ MonoBehaviour:
   wanderDistanceMax: 15
   wanderIntervalMin: 1.5
   wanderIntervalMax: 3.5
+  chaseRange: 15
 --- !u!1 &8926549422176106542
 GameObject:
   m_ObjectHideFlags: 0
