@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ScreenShake : MonoBehaviour
 {
@@ -7,7 +8,13 @@ public class ScreenShake : MonoBehaviour
 
     Camera cam;
     Vector3 originalLocalPos;
-    Coroutine shakeCoroutine;
+
+    class ShakeInstance
+    {
+        public Vector3 offset;
+    }
+
+    readonly List<ShakeInstance> activeShakes = new List<ShakeInstance>();
 
     void Awake()
     {
@@ -16,18 +23,30 @@ public class ScreenShake : MonoBehaviour
         originalLocalPos = transform.localPosition;
     }
 
+    void LateUpdate()
+    {
+        Vector3 totalOffset = Vector3.zero;
+
+        for (int i = 0; i < activeShakes.Count; i++)
+            totalOffset += activeShakes[i].offset;
+
+        transform.localPosition = originalLocalPos + totalOffset;
+    }
+
     public void Shake(float magnitude, float duration, float frequency = 25f)
     {
-        if (shakeCoroutine != null)
-            StopCoroutine(shakeCoroutine);
-        shakeCoroutine = StartCoroutine(DoShake(magnitude, duration, frequency));
+        StartCoroutine(DoShake(magnitude, duration, frequency));
     }
 
     IEnumerator DoShake(float magnitude, float duration, float frequency)
     {
+        ShakeInstance shake = new ShakeInstance();
+        activeShakes.Add(shake);
+
         float elapsed = 0f;
         float interval = 1f / frequency;
         float timer = 0f;
+
         Vector3 currentOffset = Vector3.zero;
         Vector3 targetOffset = Vector3.zero;
 
@@ -37,7 +56,7 @@ public class ScreenShake : MonoBehaviour
             timer += Time.deltaTime;
 
             float t = elapsed / duration;
-            float currentMag = magnitude * (1f - t); // falloff
+            float currentMag = magnitude * (1f - t);
 
             if (timer >= interval)
             {
@@ -46,13 +65,17 @@ public class ScreenShake : MonoBehaviour
                 targetOffset.z = 0f;
             }
 
-            currentOffset = Vector3.Lerp(currentOffset, targetOffset, Time.deltaTime * frequency);
-            transform.localPosition = originalLocalPos + currentOffset;
+            currentOffset = Vector3.Lerp(
+                currentOffset,
+                targetOffset,
+                Time.deltaTime * frequency
+            );
+
+            shake.offset = currentOffset;
 
             yield return null;
         }
 
-        transform.localPosition = originalLocalPos;
-        shakeCoroutine = null;
+        activeShakes.Remove(shake);
     }
 }
