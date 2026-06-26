@@ -15,12 +15,31 @@ public enum CrosshairType
     Default
 }
 
+public enum WeaponType
+{
+    Pistol,
+    SMG,
+    AR,
+    Shotgun,
+    Sniper,
+    LMG,
+    Launcher
+}
+
+public enum WeaponHandType
+{
+    MainHand,   // Right hand only. Dual wield only if paired with the same gun.
+    Offhand,    // Can always go in the left hand alongside any main hand.
+    Versatile   // Can go in either hand freely.
+}
+
 [CreateAssetMenu(fileName = "NewWeaponDefinition", menuName = "Bloodsport/Weapon Definition")]
 public class WeaponDefinitionSO : ScriptableObject
 {
     [Header("Info")]
     public string weaponName = "Weapon";
     public WeaponType weaponType;
+    public WeaponHandType handType = WeaponHandType.MainHand;
 
     [Header("Left Hand Prefab")]
     public GameObject leftPrefab;
@@ -74,15 +93,4 @@ public class WeaponDefinitionSO : ScriptableObject
             _ => 1f
         };
     }
-}
-
-public enum WeaponType
-{
-    Pistol,
-    SMG,
-    AR,
-    Shotgun,
-    Sniper,
-    LMG,
-    Launcher
 }

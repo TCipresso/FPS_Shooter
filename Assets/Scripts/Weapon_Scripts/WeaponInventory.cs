@@ -23,11 +23,15 @@ public class WeaponInventory : MonoBehaviour
     public InputActionReference scrollAction;
     public InputActionReference slot1Action;
     public InputActionReference slot2Action;
+    public InputActionReference gadgetAction;
 
     public List<GameObject> equippedWeapons = new List<GameObject>(2) { null, null };
     public List<WeaponData> equippedData = new List<WeaponData>(2) { null, null };
     public List<WeaponUpgradeData> equippedUpgradeData = new List<WeaponUpgradeData>(2) { null, null };
     public List<int> weaponLevels = new List<int>(2) { 0, 0 };
+
+    // Gadget slot
+    private GadgetBase equippedGadget;
 
     private int activeSlot = 0;
     private WeaponInstance activeInstance;
@@ -36,6 +40,39 @@ public class WeaponInventory : MonoBehaviour
     // Alternating fire
     private int alternateIndex = 0;
     private float alternateTimer = 0f;
+
+    // 
+    // Slot 0 = Left, Slot 1 = Right
+    // Rules for left hand (slot 0):
+    //   ALLOW if right hand is empty
+    //   ALLOW if incoming weapon is Offhand
+    //   ALLOW if incoming weapon is Versatile
+    //   ALLOW if incoming weapon is the same definition as the right hand weapon
+    //   BLOCK everything else
+    bool CanEquipToLeftHand(WeaponInstance incoming)
+    {
+        if (incoming == null || incoming.definition == null) return false;
+
+        // Right hand empty — no conflict
+        if (equippedWeapons[1] == null) return true;
+
+        WeaponDefinitionSO incomingDef = incoming.definition;
+
+        // Offhand or Versatile always allowed
+        if (incomingDef.handType == WeaponHandType.Offhand) return true;
+        if (incomingDef.handType == WeaponHandType.Versatile) return true;
+
+        // Same gun (by definition asset reference) — dual wield allowed
+        WeaponDefinitionSO rightDef = GetWeaponDefinition(1);
+        if (rightDef != null && incomingDef == rightDef) return true;
+
+        Debug.Log($"[WeaponInventory] Cannot equip {incomingDef.weaponName} to left hand. " +
+                  $"It is a MainHand weapon and differs from the right hand ({(rightDef != null ? rightDef.weaponName : "none")}). " +
+                  $"Requires same gun, Offhand, or Versatile.");
+        return false;
+    }
+
+    // 
 
     void Awake()
     {
@@ -65,6 +102,7 @@ public class WeaponInventory : MonoBehaviour
         if (scrollAction != null) scrollAction.action.Enable();
         if (slot1Action != null) slot1Action.action.Enable();
         if (slot2Action != null) slot2Action.action.Enable();
+        if (gadgetAction != null) gadgetAction.action.Enable();
     }
 
     void OnDisable()
@@ -74,6 +112,7 @@ public class WeaponInventory : MonoBehaviour
         if (scrollAction != null) scrollAction.action.Disable();
         if (slot1Action != null) slot1Action.action.Disable();
         if (slot2Action != null) slot2Action.action.Disable();
+        if (gadgetAction != null) gadgetAction.action.Disable();
     }
 
     void Update()
@@ -137,6 +176,9 @@ public class WeaponInventory : MonoBehaviour
 
         if (slot1Action != null && slot1Action.action.WasPressedThisFrame()) SetActiveSlot(0);
         if (slot2Action != null && slot2Action.action.WasPressedThisFrame()) SetActiveSlot(1);
+
+        if (gadgetAction != null && gadgetAction.action.WasPressedThisFrame())
+            equippedGadget?.TryUse();
     }
 
     bool IsAlternateMode()
@@ -158,11 +200,6 @@ public class WeaponInventory : MonoBehaviour
     }
 
     Transform GetHolderForSlot(int slot) => slot == 0 ? leftWeaponHolder : rightWeaponHolder;
-
-    void FireActiveWeapon()
-    {
-        GetActiveWeaponBase()?.Shoot();
-    }
 
     void ReloadActiveWeapon()
     {
@@ -190,7 +227,28 @@ public class WeaponInventory : MonoBehaviour
         }
     }
 
-    // --- Legacy WeaponData path ---
+    //
+
+    public void EquipGadget(GadgetBase gadget)
+    {
+        if (equippedGadget != null)
+            equippedGadget.OnUnequip();
+
+        equippedGadget = gadget;
+        equippedGadget?.OnEquip();
+        Debug.Log($"[WeaponInventory] Gadget equipped: {gadget?.gadgetName ?? "none"}");
+    }
+
+    public void UnequipGadget()
+    {
+        equippedGadget?.OnUnequip();
+        equippedGadget = null;
+        Debug.Log("[WeaponInventory] Gadget unequipped.");
+    }
+
+    public GadgetBase GetEquippedGadget() => equippedGadget;
+
+    // 
 
     public bool TryAddWeapon(WeaponData data, WeaponUpgradeData upgradeData = null)
     {
@@ -246,15 +304,20 @@ public class WeaponInventory : MonoBehaviour
         return instance;
     }
 
-    // --- WeaponInstance path ---
+    //
 
     public void TryAddWeaponInstanceToSlot(WeaponInstance instance, int slot)
     {
-        if (instance == null || instance.definition == null || (instance.definition.leftPrefab == null && instance.definition.rightPrefab == null))
+        if (instance == null || instance.definition == null ||
+            (instance.definition.leftPrefab == null && instance.definition.rightPrefab == null))
         {
             Debug.LogWarning("[WeaponInventory] Invalid WeaponInstance.");
             return;
         }
+
+        // Left-hand validation (slot 0)
+        if (slot == 0 && !CanEquipToLeftHand(instance))
+            return;
 
         if (equippedWeapons[slot] != null) Destroy(equippedWeapons[slot]);
 
@@ -270,6 +333,13 @@ public class WeaponInventory : MonoBehaviour
 
     public void TryAddWeaponInstance(WeaponInstance instance)
     {
+        // Always try right hand first for MainHand weapons, otherwise find empty slot
+        if (instance?.definition?.handType == WeaponHandType.MainHand && equippedWeapons[1] == null)
+        {
+            TryAddWeaponInstanceToSlot(instance, 1);
+            return;
+        }
+
         int emptySlot = GetEmptySlot();
         TryAddWeaponInstanceToSlot(instance, emptySlot >= 0 ? emptySlot : activeSlot);
     }
@@ -301,7 +371,7 @@ public class WeaponInventory : MonoBehaviour
         return go;
     }
 
-    // --- Slot management ---
+    //
 
     int GetEmptySlot()
     {
@@ -365,7 +435,6 @@ public class WeaponInventory : MonoBehaviour
         if (equippedWeapons[next] != null) SetActiveSlot(next);
     }
 
-    // Returns the WeaponBase for a specific slot (0 = left, 1 = right)
     public WeaponBase GetWeaponBase(int slot)
     {
         if (slot < 0 || slot >= equippedWeapons.Count) return null;

@@ -8,22 +8,28 @@ public class BulletTrail : MonoBehaviour, IPoolable
     public float travelTime = 0.06f;
     public string poolKey = "BulletTrail";
 
+    [Header("Heavy Mode")]
+    public bool heavyMode = false;
+
     TrailRenderer tr;
     Coroutine travelCoroutine;
+    float originalWidthMultiplier;
 
     void Awake()
     {
         tr = GetComponent<TrailRenderer>();
+        originalWidthMultiplier = tr.widthMultiplier;
     }
 
     public void OnSpawn()
     {
-        // Clear any leftover trail from previous use
+        tr.widthMultiplier = originalWidthMultiplier;
         tr.Clear();
     }
 
     public void OnReturnToPool()
     {
+        tr.widthMultiplier = originalWidthMultiplier;
         tr.Clear();
         if (travelCoroutine != null)
         {
@@ -43,7 +49,6 @@ public class BulletTrail : MonoBehaviour, IPoolable
     IEnumerator Travel(Vector3 start, Vector3 end)
     {
         float elapsed = 0f;
-
         while (elapsed < travelTime)
         {
             elapsed += Time.deltaTime;
@@ -51,11 +56,23 @@ public class BulletTrail : MonoBehaviour, IPoolable
             transform.position = Vector3.Lerp(start, end, t);
             yield return null;
         }
-
         transform.position = end;
 
-        // Wait for trail to fade then return to pool
-        yield return new WaitForSeconds(tr.time);
+        if (heavyMode)
+        {
+            float fadeElapsed = 0f;
+            float startWidth = tr.widthMultiplier;
+            while (fadeElapsed < tr.time)
+            {
+                fadeElapsed += Time.deltaTime;
+                tr.widthMultiplier = Mathf.Lerp(startWidth, 0f, fadeElapsed / tr.time);
+                yield return null;
+            }
+        }
+        else
+        {
+            yield return new WaitForSeconds(tr.time);
+        }
 
         BulletPool.Instance.Return(poolKey, gameObject);
     }
