@@ -6704,7 +6704,6 @@ MonoBehaviour:
   muzzlePoint: {fileID: 2131608691527680828}
   muzzleFlash: {fileID: 5361066094102117636}
   casingEject: {fileID: 0}
-  attachmentSearchRoot: {fileID: 7883904161086760782}
   bulletData: {fileID: 11400000, guid: 8a289beee63f85145aad87a8045799f1, type: 2}
   audioSource: {fileID: 106090816803378720}
   fireSound: {fileID: 8300000, guid: c4e1baa2339585a458d71e43f933c3a3, type: 3}
@@ -6714,64 +6713,6 @@ MonoBehaviour:
   damage: 100
   range: 500
   ragdollForceMultiplier: 50
-  maxRecoilUp: 50
-  maxRecoilSide: 1.5
-  recoilCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.2
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  recoilSideCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.5
-      inSlope: 0
-      outSlope: 0.5
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0.5
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  recoilMaxShots: 10
-  adsRecoilUpMultiplier: 1
-  adsRecoilSideMultiplier: 1
-  tiltAmount: 20
-  tiltFrequency: 20
-  tiltFadeSpeed: 100
-  adsTiltMultiplier: 0.5
-  hipFireTiltMultiplier: 0.5
   kickRotationX: -50
   kickRotationY: 2
   kickRotationZ: 5
@@ -6784,8 +6725,8 @@ MonoBehaviour:
   adsKickPositionZ: -0.75
   adsKickPositionY: 0.1
   adsKickPositionX: 0.01
-  isAutomatic: 0
-  rpm: 1000
+  isAutomatic: 1
+  rpm: 500
   baseRpm: 0
   critChance: 0.1
   critMultiplier: 2
@@ -6799,6 +6740,7 @@ MonoBehaviour:
   adsTransitionSpeed: 10
   adsFadeCrosshair: 1
   isAiming: 0
+  infiniteAmmo: 1
   canReloadWhileSprinting: 1
   animator: {fileID: 5738518067563658700}
   walkStopDelay: 0.1

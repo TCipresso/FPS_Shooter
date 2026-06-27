@@ -1,6 +1,8 @@
 using UnityEngine;
+
 public enum BulletType { Hitscan, Projectile }
-[CreateAssetMenu(fileName = "BulletData", menuName = "Bloodsport/Bullet Data")]
+
+[CreateAssetMenu(fileName = "BulletData", menuName = "Zarcade/Bullet Data")]
 public class BulletDataSO : ScriptableObject
 {
     [Header("Type")]
@@ -10,8 +12,10 @@ public class BulletDataSO : ScriptableObject
     public bool isShotgun = false;
     [Tooltip("Number of pellets fired per shot. Only used if isShotgun is true.")]
     public int pelletCount = 8;
-    [Tooltip("Max random spread angle in degrees per pellet. Only used if isShotgun is true.")]
+    [Tooltip("Max random spread angle in degrees per pellet.")]
     public float pelletSpreadAngle = 5f;
+    [Tooltip("If true, pellets spread evenly in a flat horizontal line instead of random angles.")]
+    public bool flatSpread = false;
 
     [Header("Trail")]
     public BulletTrail trailPrefab;

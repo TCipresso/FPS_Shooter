@@ -14,17 +14,13 @@ public class TEST_SHOTGUN_anim_bridge : MonoBehaviour
     {
         if (animator != null)
         {
-            animator.SetBool("IsReloading", false);
             animator.ResetTrigger("Cock");
-            animator.ResetTrigger("Swing");
             animator.Play("Idle", 0, 0f);
             animator.Update(0f);
         }
+
         if (weapon != null)
-        {
-            weapon.isReloading = false;
             weapon.isCocking = false;
-        }
     }
 
     public void OnCockComplete()
@@ -34,22 +30,10 @@ public class TEST_SHOTGUN_anim_bridge : MonoBehaviour
             weapon.OnCockComplete();
     }
 
-    public void OnReloadComplete()
-    {
-        if (weapon != null)
-            weapon.OnReloadComplete();
-    }
-
     public void EjectCasing()
     {
         if (weapon != null)
             weapon.EjectCasing();
-    }
-
-    public void OnHitFrame()
-    {
-        if (weapon != null && weapon is Sword sword)
-            sword.OnHitFrame();
     }
 
     public void PlayWeaponSound(AnimationEvent evt)

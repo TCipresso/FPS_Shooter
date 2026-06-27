@@ -18,10 +18,6 @@ public class FPSLook : MonoBehaviour
     public float maxTiltZ = 5f;
     public float tiltSpeed = 8f;
 
-    [Header("Recoil")]
-    public float recoilRiseSpeed = 14f;
-    public float recoilRecoverySpeed = 6f;
-
     [Header("ADS Sensitivity")]
     public WeaponInventory weaponInventory;
     [Range(0f, 1f)] public float adsSensitivityMultiplier = 0.6f;
@@ -36,24 +32,7 @@ public class FPSLook : MonoBehaviour
     public float dashFOVOutSpeed = 8f;
 
     float rotationX = 0f;
-    float targetRotationX = 0f;
     float currentTiltZ = 0f;
-
-    float recoilYaw = 0f;
-    float targetRecoilYaw = 0f;
-    float recoilYawVelocity = 0f;
-
-    float tiltAmount = 0f;
-    float tiltFrequency = 0f;
-    float tiltFadeSpeed = 0f;
-    float tiltScale = 1f;
-    float currentTiltRecoil = 0f;
-    float targetTiltRecoil = 0f;
-    float tiltRecoilVelocity = 0f;
-    float perlinTime = 0f;
-
-    bool isFiring = false;
-
     float baseFOV;
     float currentDashFOV;
 
@@ -75,7 +54,6 @@ public class FPSLook : MonoBehaviour
     {
         HandleRotation();
         HandleStrafeTilt();
-        HandleRecoil();
         HandleFOV();
         SyncOverlayFOV();
     }
@@ -100,44 +78,13 @@ public class FPSLook : MonoBehaviour
         float mouseX = input.Look.x * lookSpeed * sensScale;
         float mouseY = input.Look.y * lookSpeed * sensScale;
 
-        targetRotationX -= mouseY;
-        targetRotationX = Mathf.Clamp(targetRotationX, -lookXLimit, lookXLimit);
-
-        if (isFiring)
-            rotationX = Mathf.Lerp(rotationX, targetRotationX, recoilRiseSpeed * Time.deltaTime);
-        else
-            rotationX = targetRotationX;
+        rotationX -= mouseY;
+        rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
 
         transform.Rotate(0f, mouseX, 0f);
 
         if (orientation)
             orientation.rotation = Quaternion.Euler(0f, transform.eulerAngles.y, 0f);
-    }
-
-    void HandleRecoil()
-    {
-        recoilYaw = Mathf.Lerp(recoilYaw, targetRecoilYaw, recoilRiseSpeed * Time.deltaTime);
-
-        if (!isFiring)
-        {
-            targetRecoilYaw = Mathf.SmoothDamp(targetRecoilYaw, 0f, ref recoilYawVelocity, 1f / recoilRecoverySpeed);
-            if (Mathf.Abs(targetRecoilYaw) < 0.001f) targetRecoilYaw = 0f;
-
-            tiltAmount = Mathf.MoveTowards(tiltAmount, 0f, tiltFadeSpeed * Time.deltaTime);
-        }
-
-        if (tiltAmount > 0f)
-        {
-            perlinTime += Time.deltaTime * tiltFrequency;
-            float perlin = (Mathf.PerlinNoise(perlinTime, 0.5f) - 0.5f) * 2f;
-            targetTiltRecoil = perlin * tiltAmount * tiltScale;
-        }
-        else
-        {
-            targetTiltRecoil = 0f;
-        }
-
-        currentTiltRecoil = Mathf.SmoothDamp(currentTiltRecoil, targetTiltRecoil, ref tiltRecoilVelocity, 0.05f);
     }
 
     void HandleStrafeTilt()
@@ -147,11 +94,7 @@ public class FPSLook : MonoBehaviour
         float targetTiltZ = -input.Move.x * maxTiltZ;
         currentTiltZ = Mathf.Lerp(currentTiltZ, targetTiltZ, tiltSpeed * Time.deltaTime);
 
-        Quaternion rot = Quaternion.Euler(
-            rotationX,
-            recoilYaw,
-            currentTiltZ + currentTiltRecoil
-        );
+        Quaternion rot = Quaternion.Euler(rotationX, 0f, currentTiltZ);
 
         playerCamera.transform.localRotation = rot;
 
@@ -177,7 +120,6 @@ public class FPSLook : MonoBehaviour
         else
             targetFOV = baseFOV;
 
-        // dash FOV layered on top — snaps in fast, eases out slow
         float dashTargetFOV = fpsController.IsDashing
             ? baseFOV * (1f + dashFOVPercent / 100f)
             : targetFOV;
@@ -188,29 +130,14 @@ public class FPSLook : MonoBehaviour
         playerCamera.fieldOfView = currentDashFOV;
     }
 
-    public void ApplyRecoil(float pitchDegrees, float yawDegrees, bool aiming, float weaponTiltAmount, float weaponTiltFrequency, float weaponTiltFade, float hipFireTiltMultiplier)
-    {
-        targetRotationX -= pitchDegrees;
-        targetRotationX = Mathf.Clamp(targetRotationX, -lookXLimit, lookXLimit);
-        targetRecoilYaw += yawDegrees;
-        tiltAmount = weaponTiltAmount;
-        tiltFrequency = weaponTiltFrequency;
-        tiltFadeSpeed = weaponTiltFade;
-        tiltScale = aiming ? 1f : hipFireTiltMultiplier;
-        isFiring = true;
-    }
-
-    public void StopRecoil()
-    {
-        isFiring = false;
-        recoilYawVelocity = 0f;
-    }
+    // Kept as no-ops so WeaponBase call sites still compile
+    public void ApplyRecoil(float pitchDegrees, float yawDegrees, bool aiming, float weaponTiltAmount, float weaponTiltFrequency, float weaponTiltFade, float hipFireTiltMultiplier) { }
+    public void StopRecoil() { }
 
     void SyncOverlayFOV()
     {
         if (!overlayCamera || !playerCamera) return;
         if (overlayCamera.orthographic) return;
-
         overlayCamera.fieldOfView = weaponCameraFOV;
     }
 }

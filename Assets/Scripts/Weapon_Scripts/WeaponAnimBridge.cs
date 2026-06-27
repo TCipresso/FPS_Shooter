@@ -3,7 +3,6 @@ using UnityEngine;
 public class WeaponAnimBridge : MonoBehaviour
 {
     public WeaponBase weapon;
-
     Animator animator;
 
     void Awake()
@@ -15,18 +14,13 @@ public class WeaponAnimBridge : MonoBehaviour
     {
         if (animator != null)
         {
-            animator.SetBool("IsReloading", false);
             animator.ResetTrigger("Cock");
-            animator.ResetTrigger("Swing");
             animator.Play("Idle", 0, 0f);
             animator.Update(0f);
         }
 
         if (weapon != null)
-        {
-            weapon.isReloading = false;
             weapon.isCocking = false;
-        }
     }
 
     public void OnCockComplete()
@@ -36,16 +30,10 @@ public class WeaponAnimBridge : MonoBehaviour
             weapon.OnCockComplete();
     }
 
-    public void OnReloadComplete()
+    public void EjectCasing()
     {
         if (weapon != null)
-            weapon.OnReloadComplete();
-    }
-
-    public void OnHitFrame()
-    {
-        if (weapon != null && weapon is Sword sword)
-            sword.OnHitFrame();
+            weapon.EjectCasing();
     }
 
     public void PlayWeaponSound(AnimationEvent evt)

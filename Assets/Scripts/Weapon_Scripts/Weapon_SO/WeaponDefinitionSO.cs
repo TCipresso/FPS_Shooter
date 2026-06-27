@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 public enum WeaponRarity
 {
@@ -10,14 +9,7 @@ public enum WeaponRarity
     Contraband
 }
 
-[System.Serializable]
-public class AttachmentSlot
-{
-    public string slotName;
-    public List<AttachmentSO> pool = new List<AttachmentSO>();
-}
-
-[CreateAssetMenu(fileName = "NewWeaponDefinition", menuName = "Bloodsport/Weapon Definition")]
+[CreateAssetMenu(fileName = "NewWeaponDefinition", menuName = "Zarcade/Weapon Definition")]
 public class WeaponDefinitionSO : ScriptableObject
 {
     [Header("Info")]
@@ -35,19 +27,13 @@ public class WeaponDefinitionSO : ScriptableObject
     [Header("Base Stats")]
     public int baseDamage = 25;
     public float baseRpm = 300f;
-    public int baseMagSize = 30;
-    public int baseReserveAmmo = 90;
     public float baseRange = 50f;
-    public float baseReloadTime = 2f;
 
     [Header("Rarity Stat Multipliers")]
     public float rareBonus = 0.05f;
     public float epicBonus = 0.10f;
     public float legendaryBonus = 0.15f;
     public float contrabandBonus = 0.25f;
-
-    [Header("Attachment Slots")]
-    public List<AttachmentSlot> attachmentSlots = new List<AttachmentSlot>();
 
     public float GetRarityMultiplier(WeaponRarity rarity)
     {

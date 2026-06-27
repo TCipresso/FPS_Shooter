@@ -9,7 +9,7 @@ public class ShortRestPowerUp : PowerUpBase
     protected override void ApplyEffect()
     {
         if (weaponInventory == null) return;
-        weaponInventory.PartialAmmoRefill(refillPercent);
+        //weaponInventory.PartialAmmoRefill(refillPercent);
         Debug.Log($"[ShortRestPowerUp] Refilled {refillPercent * 100}% of all weapon reserves.");
     }
 }

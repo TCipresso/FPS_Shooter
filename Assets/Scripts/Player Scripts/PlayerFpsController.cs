@@ -25,14 +25,6 @@ public class PlayerFpsController : MonoBehaviour
     [SerializeField] private float coyoteTime = 0.12f;
     [SerializeField] private int jumpCount = 1;
 
-    [Header("Wall Jump")]
-    [SerializeField] private float wallJumpUpSpeed = 9f;
-    [SerializeField] private float wallJumpAwaySpeed = 8f;
-    [SerializeField] private float wallContactBuffer = 0.15f;
-    [SerializeField] private float wallJumpCooldown = 0.25f;
-    [SerializeField] private float wallMinAngle = 60f;
-    [SerializeField] private float wallMaxAngle = 120f;
-
     [Header("Slide")]
     [SerializeField] private float slideBoostSpeed = 14f;
     [SerializeField] private float slideFriction = 5f;
@@ -91,11 +83,6 @@ public class PlayerFpsController : MonoBehaviour
     private float coyoteCounter;
     private float sprintSuppressTimer;
 
-    private bool onWall;
-    private Vector3 wallNormal;
-    private float wallContactTimer;
-    private float wallJumpCooldownTimer;
-
     private float slideCooldownTimer;
     private float slideAirgraceTimer;
     private float slideGroundedBuffer;
@@ -141,7 +128,6 @@ public class PlayerFpsController : MonoBehaviour
         if (input == null) return;
 
         TickTimers();
-        UpdateWallContact();
 
         bool grounded = controller.isGrounded;
 
@@ -201,7 +187,6 @@ public class PlayerFpsController : MonoBehaviour
     void TickTimers()
     {
         if (sprintSuppressTimer > 0f) sprintSuppressTimer -= Time.deltaTime;
-        if (wallJumpCooldownTimer > 0f) wallJumpCooldownTimer -= Time.deltaTime;
         if (slideCooldownTimer > 0f) slideCooldownTimer -= Time.deltaTime;
         if (slideGroundedBuffer > 0f) slideGroundedBuffer -= Time.deltaTime;
 
@@ -211,9 +196,7 @@ public class PlayerFpsController : MonoBehaviour
             if (dashTimer <= 0f)
             {
                 IsDashing = false;
-                // restore pre-dash velocity so dash is a clean burst with no momentum change
                 horizontalVelocity = preDashHorizontalVelocity;
-                //verticalVelocity = preDashVerticalVelocity;
             }
         }
 
@@ -223,7 +206,6 @@ public class PlayerFpsController : MonoBehaviour
             if (dashCooldownTimer <= 0f)
             {
                 dashChargesRemaining = Mathf.Min(dashChargesRemaining + 1, DashCharges);
-                // if still not at cap, start another cooldown immediately
                 if (dashChargesRemaining < DashCharges)
                     dashCooldownTimer = dashCooldown * DashCooldownMultiplier;
             }
@@ -236,7 +218,6 @@ public class PlayerFpsController : MonoBehaviour
         {
             if (IsSliding) EndSlide();
 
-            // store current velocity to restore after dash
             preDashHorizontalVelocity = horizontalVelocity;
             preDashVerticalVelocity = verticalVelocity;
 
@@ -263,14 +244,6 @@ public class PlayerFpsController : MonoBehaviour
             dashChargesRemaining--;
             dashCooldownTimer = dashCooldown * DashCooldownMultiplier;
         }
-    }
-
-    void UpdateWallContact()
-    {
-        if (wallContactTimer > 0f)
-            wallContactTimer -= Time.deltaTime;
-        else
-            onWall = false;
     }
 
     void UpdateSprintState()
@@ -336,7 +309,6 @@ public class PlayerFpsController : MonoBehaviour
         Vector3 fwd = orientation.forward;
         Vector3 side = orientation.right;
         Vector2 m = input.Move;
-        m.y = Mathf.Max(0f, m.y);
 
         Vector3 slideDir = fwd * m.y + side * m.x;
 
@@ -484,19 +456,6 @@ public class PlayerFpsController : MonoBehaviour
             return;
         }
 
-        if (!grounded && onWall && wallJumpCooldownTimer <= 0f)
-        {
-            horizontalVelocity = new Vector3(wallNormal.x, 0f, wallNormal.z).normalized * wallJumpAwaySpeed;
-            verticalVelocity = wallJumpUpSpeed;
-
-            onWall = false;
-            wallContactTimer = 0f;
-            wallJumpCooldownTimer = wallJumpCooldown;
-            movementAudio?.PlayJump();
-            input.ConsumeJump();
-            return;
-        }
-
         if (coyoteCounter > 0f)
         {
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
@@ -520,19 +479,11 @@ public class PlayerFpsController : MonoBehaviour
     {
         float angle = Vector3.Angle(Vector3.up, hit.normal);
 
-        if (angle < wallMinAngle)
+        if (angle < 60f)
         {
             groundNormal = hit.normal;
             hasGroundNormal = true;
             jumpsRemaining = jumpCount;
-            return;
-        }
-
-        if (!controller.isGrounded && angle >= wallMinAngle && angle < wallMaxAngle)
-        {
-            onWall = true;
-            wallNormal = hit.normal;
-            wallContactTimer = wallContactBuffer;
         }
     }
 

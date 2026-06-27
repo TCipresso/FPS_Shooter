@@ -19,7 +19,7 @@ MonoBehaviour:
   rotationOffset: {x: 0, y: 0, z: 0}
   bulletData: {fileID: 11400000, guid: 5bb6425b3383d22408b5e8d13fc0b5a9, type: 2}
   baseDamage: 19
-  baseRpm: 850
+  baseRpm: 300
   baseMagSize: 15
   baseReserveAmmo: 120
   baseRange: 200
@@ -28,20 +28,3 @@ MonoBehaviour:
   epicBonus: 0.1
   legendaryBonus: 0.15
   contrabandBonus: 0.25
-  attachmentSlots:
-  - slotName: Sight
-    pool:
-    - {fileID: 11400000, guid: c83bf5643e137044386046e72690d58b, type: 2}
-    - {fileID: 11400000, guid: 654d26a004ccc7b409d1cc4a6db1b089, type: 2}
-    - {fileID: 11400000, guid: 927d8318f6ac71346b7a773faa1b49f1, type: 2}
-  - slotName: Rail
-    pool:
-    - {fileID: 11400000, guid: 6a1732d50b0571f4193b0939b70e7ea8, type: 2}
-    - {fileID: 11400000, guid: 61555d9177462334886fe0ad9b7e184a, type: 2}
-    - {fileID: 11400000, guid: c53d93e3a5aed4847ba6188d9b177eb0, type: 2}
-  - slotName: Barrel
-    pool:
-    - {fileID: 11400000, guid: ea861fa50dc172e44b4f9951360934ca, type: 2}
-    - {fileID: 11400000, guid: 1484d921e280dc74eab84e249e8f255f, type: 2}
-    - {fileID: 11400000, guid: cb7c5f5a917c86c45a8f4ab2d9071616, type: 2}
-    - {fileID: 11400000, guid: 5a14f96c4ffe0cf46b51d3b0f590ddf9, type: 2}

@@ -16,22 +16,31 @@ public class WeaponInventory : MonoBehaviour
 
     [Header("Input")]
     public InputActionReference fireAction;
-    public InputActionReference reloadAction;
     public InputActionReference scrollAction;
     public InputActionReference slot1Action;
     public InputActionReference slot2Action;
 
+    [Header("Default Loadout")]
+    public List<WeaponDefinitionSO> defaultWeapons = new List<WeaponDefinitionSO>();
+
     public List<GameObject> equippedWeapons = new List<GameObject>();
     public List<WeaponData> equippedData = new List<WeaponData>();
-    public List<WeaponUpgradeData> equippedUpgradeData = new List<WeaponUpgradeData>();
     public List<int> weaponLevels = new List<int>();
 
     private int activeSlot = 0;
 
+    void Start()
+    {
+        foreach (WeaponDefinitionSO def in defaultWeapons)
+        {
+            if (def != null)
+                TryAddWeaponInstance(new WeaponInstance(def, WeaponRarity.Common));
+        }
+    }
+
     void OnEnable()
     {
         if (fireAction != null) fireAction.action.Enable();
-        if (reloadAction != null) reloadAction.action.Enable();
         if (scrollAction != null) scrollAction.action.Enable();
         if (slot1Action != null) slot1Action.action.Enable();
         if (slot2Action != null) slot2Action.action.Enable();
@@ -40,7 +49,6 @@ public class WeaponInventory : MonoBehaviour
     void OnDisable()
     {
         if (fireAction != null) fireAction.action.Disable();
-        if (reloadAction != null) reloadAction.action.Disable();
         if (scrollAction != null) scrollAction.action.Disable();
         if (slot1Action != null) slot1Action.action.Disable();
         if (slot2Action != null) slot2Action.action.Disable();
@@ -61,9 +69,6 @@ public class WeaponInventory : MonoBehaviour
                 GetActiveWeaponBase()?.StopRecoil();
         }
 
-        if (reloadAction != null && reloadAction.action.WasPressedThisFrame())
-            ReloadActiveWeapon();
-
         if (scrollAction != null)
         {
             float scroll = scrollAction.action.ReadValue<float>();
@@ -82,37 +87,7 @@ public class WeaponInventory : MonoBehaviour
         weapon.Shoot();
     }
 
-    void ReloadActiveWeapon()
-    {
-        WeaponBase weapon = GetActiveWeaponBase();
-        if (weapon == null) return;
-        weapon.Reload();
-    }
-
-    public void MaxAmmo()
-    {
-        foreach (GameObject w in equippedWeapons)
-        {
-            WeaponBase wb = w.GetComponentInChildren<WeaponBase>();
-            if (wb != null) wb.Refill();
-        }
-        Debug.Log("[WeaponInventory] Max ammo applied to all weapons.");
-    }
-
-    public void PartialAmmoRefill(float percent)
-    {
-        foreach (GameObject w in equippedWeapons)
-        {
-            WeaponBase wb = w.GetComponentInChildren<WeaponBase>();
-            if (wb == null) continue;
-            int amount = Mathf.RoundToInt(wb.maxReserve * percent);
-            wb.reserveAmmo = Mathf.Min(wb.reserveAmmo + amount, wb.maxReserve);
-        }
-        Debug.Log($"[WeaponInventory] Partial refill {percent * 100}% applied to all weapons.");
-    }
-
-
-    public bool TryAddWeapon(WeaponData data, WeaponUpgradeData upgradeData = null)
+    public bool TryAddWeapon(WeaponData data)
     {
         if (data == null || data.prefab == null)
         {
@@ -128,21 +103,20 @@ public class WeaponInventory : MonoBehaviour
 
         if (equippedWeapons.Count < maxSlots)
         {
-            AddWeaponToSlot(data, upgradeData);
+            AddWeaponToSlot(data);
             return true;
         }
 
         Debug.Log($"[WeaponInventory] Inventory full. Swapping slot {activeSlot} with {data.weaponName}.");
-        SwapWeapon(data, activeSlot, upgradeData);
+        SwapWeapon(data, activeSlot);
         return true;
     }
 
-    void AddWeaponToSlot(WeaponData data, WeaponUpgradeData upgradeData = null)
+    void AddWeaponToSlot(WeaponData data)
     {
         GameObject instance = InstantiateWeapon(data);
         equippedWeapons.Add(instance);
         equippedData.Add(data);
-        equippedUpgradeData.Add(upgradeData);
         weaponLevels.Add(1);
 
         int newSlot = equippedWeapons.Count - 1;
@@ -151,18 +125,16 @@ public class WeaponInventory : MonoBehaviour
         Debug.Log($"[WeaponInventory] Added {data.weaponName} to slot {newSlot}.");
     }
 
-    void SwapWeapon(WeaponData data, int slot, WeaponUpgradeData upgradeData = null)
+    void SwapWeapon(WeaponData data, int slot)
     {
         Destroy(equippedWeapons[slot]);
         equippedWeapons.RemoveAt(slot);
         equippedData.RemoveAt(slot);
-        equippedUpgradeData.RemoveAt(slot);
         weaponLevels.RemoveAt(slot);
 
         GameObject instance = InstantiateWeapon(data);
         equippedWeapons.Insert(slot, instance);
         equippedData.Insert(slot, data);
-        equippedUpgradeData.Insert(slot, upgradeData);
         weaponLevels.Insert(slot, 1);
 
         SetActiveSlot(slot);
@@ -205,14 +177,10 @@ public class WeaponInventory : MonoBehaviour
             BulletPool.Instance.EnsurePoolSize(wb.bulletData.trailPoolKey, wb.bulletData.trailPrefab.gameObject, wb.bulletData.trailPoolSize);
 
         if (wb != null && playerStats != null)
-        {
-            wb.ApplyExtraMagazine(playerStats.extraMagazine);
-            wb.currentMag = wb.maxMag;
-        }
+            wb.ApplyAttackSpeed(playerStats.attackSpeed);
 
         return instance;
     }
-
 
     public void TryAddWeaponInstance(WeaponInstance instance)
     {
@@ -233,7 +201,6 @@ public class WeaponInventory : MonoBehaviour
         GameObject go = InstantiateWeaponInstance(instance);
         equippedWeapons.Add(go);
         equippedData.Add(null);
-        equippedUpgradeData.Add(null);
         weaponLevels.Add(1);
 
         int newSlot = equippedWeapons.Count - 1;
@@ -247,13 +214,11 @@ public class WeaponInventory : MonoBehaviour
         Destroy(equippedWeapons[slot]);
         equippedWeapons.RemoveAt(slot);
         equippedData.RemoveAt(slot);
-        equippedUpgradeData.RemoveAt(slot);
         weaponLevels.RemoveAt(slot);
 
         GameObject go = InstantiateWeaponInstance(instance);
         equippedWeapons.Insert(slot, go);
         equippedData.Insert(slot, null);
-        equippedUpgradeData.Insert(slot, null);
         weaponLevels.Insert(slot, 1);
 
         SetActiveSlot(slot);
@@ -278,15 +243,11 @@ public class WeaponInventory : MonoBehaviour
                 BulletPool.Instance.EnsurePoolSize(def.bulletData.trailPoolKey, def.bulletData.trailPrefab.gameObject, def.bulletData.trailPoolSize);
 
             if (playerStats != null)
-            {
-                wb.ApplyExtraMagazine(playerStats.extraMagazine);
-                wb.currentMag = wb.maxMag;
-            }
+                wb.ApplyAttackSpeed(playerStats.attackSpeed);
         }
 
         return go;
     }
-
 
     public void SetActiveSlot(int slot)
     {
@@ -305,7 +266,6 @@ public class WeaponInventory : MonoBehaviour
             if (playerStats != null)
             {
                 wb.ApplyAttackSpeed(playerStats.attackSpeed);
-                wb.ApplyExtraMagazine(playerStats.extraMagazine);
                 wb.critChance = playerStats.critChance;
                 wb.critMultiplier = playerStats.critMultiplier;
             }
@@ -345,9 +305,5 @@ public class WeaponInventory : MonoBehaviour
         return weaponLevels[slot];
     }
 
-    public WeaponUpgradeData GetWeaponUpgradeData(int slot)
-    {
-        if (slot < 0 || slot >= equippedUpgradeData.Count) return null;
-        return equippedUpgradeData[slot];
-    }
+    public WeaponUpgradeData GetWeaponUpgradeData(int slot) => null;
 }
