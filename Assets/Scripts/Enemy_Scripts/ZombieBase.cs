@@ -296,6 +296,8 @@ public abstract class ZombieBase : MonoBehaviour
 
         if (WeaponDropManager.Instance != null)
             WeaponDropManager.Instance.TryDrop(transform.position);
+        else
+            Debug.LogWarning("[ZombieBase] WeaponDropManager.Instance is null!");
 
         StartCoroutine(SpawnRagdollThenReturn(lastHitDirection, ragdollForce * lastRagdollForceMultiplier));
     }

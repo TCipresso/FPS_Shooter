@@ -23537,7 +23537,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 67d7b869b9fa6c94288310894e6c6ece, type: 2}
   - {fileID: 11400000, guid: 8a8bb345d41056649ad141f4e3bc8f03, type: 2}
   - {fileID: 11400000, guid: 6e0ffc2af8f005c4db2a30a1eaf013d9, type: 2}
+  gadgetPool:
+  - {fileID: 11400000, guid: 77c05d5e4cba1cb429f862c2b0c871b4, type: 2}
   dropChance: 1
+  weaponWeight: 1
+  gadgetWeight: 1
   commonWeight: 60
   rareWeight: 25
   epicWeight: 10
@@ -62265,6 +62269,7 @@ MonoBehaviour:
   scrollAction: {fileID: -8062664436889712257, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   slot1Action: {fileID: -8497102980329610639, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   slot2Action: {fileID: -7862757462852919426, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  gadgetAction: {fileID: 0}
   equippedWeapons: []
   equippedData: []
   equippedUpgradeData: []

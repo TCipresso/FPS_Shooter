@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f60b163c7311fb44e97614f8d8cb5687, type: 3}
+  m_Name: Cigarette
+  m_EditorClassIdentifier: Assembly-CSharp::GadgetDefinitionSO
+  gadgetName: Cigarette
+  gadgetType: 1
+  handType: 1
+  leftPrefab: {fileID: 1882852865817592967, guid: 41d3b93af8cc5de488cef1e0fa4073ac, type: 3}
+  leftPositionOffset: {x: -0.42, y: 0.01000085, z: -1.85}
+  leftRotationOffset: {x: 0, y: 0, z: 0}
+  rightPrefab: {fileID: 5171339125240120009, guid: 8811ca37b387ede429530a3c304d0658, type: 3}
+  rightPositionOffset: {x: -0.42, y: 0.01, z: -1.85}
+  rightRotationOffset: {x: 0, y: 0, z: 0}
+  baseCooldown: 10
+  baseDuration: 5
+  basePotency: 1
+  rareBonus: 0.05
+  epicBonus: 0.1
+  legendaryBonus: 0.15
+  contrabandBonus: 0.25
+  perkPool: []

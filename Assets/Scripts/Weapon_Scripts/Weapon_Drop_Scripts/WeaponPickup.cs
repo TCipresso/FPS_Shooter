@@ -3,7 +3,10 @@ using UnityEngine;
 public class WeaponPickup : MonoBehaviour
 {
     WeaponInstance weaponInstance;
+    GadgetInstance gadgetInstance;
+
     public WeaponInstance WeaponInstance => weaponInstance;
+    public GadgetInstance GadgetInstance => gadgetInstance;
 
     [Header("Rarity Colors")]
     public Color commonColor = Color.white;
@@ -36,11 +39,22 @@ public class WeaponPickup : MonoBehaviour
     public void Initialize(WeaponInstance instance)
     {
         weaponInstance = instance;
-        Color rarityColor = GetRarityColor(instance.rarity);
+        gadgetInstance = null;
+        ApplyRarityVisuals(instance.rarity);
+    }
 
+    public void Initialize(GadgetInstance instance)
+    {
+        gadgetInstance = instance;
+        weaponInstance = null;
+        ApplyRarityVisuals(instance.rarity);
+    }
+
+    void ApplyRarityVisuals(WeaponRarity rarity)
+    {
+        Color rarityColor = GetRarityColor(rarity);
         if (rarityLight != null)
             rarityLight.color = rarityColor;
-
         if (pickupRenderer != null)
         {
             MaterialPropertyBlock mpb = new MaterialPropertyBlock();
@@ -54,11 +68,17 @@ public class WeaponPickup : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
+
         WeaponInventory inventory = other.GetComponent<WeaponInventory>();
         if (inventory == null)
             inventory = other.GetComponentInParent<WeaponInventory>();
         if (inventory == null) return;
-        inventory.TryAddWeaponInstance(weaponInstance);
+
+        if (weaponInstance != null)
+            inventory.TryAddWeaponInstance(weaponInstance);
+        else if (gadgetInstance != null)
+            inventory.TryAddGadgetInstance(gadgetInstance);
+
         Destroy(transform.root.gameObject);
     }
 

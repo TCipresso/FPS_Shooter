@@ -30,39 +30,25 @@ public class WeaponInventory : MonoBehaviour
     public List<WeaponUpgradeData> equippedUpgradeData = new List<WeaponUpgradeData>(2) { null, null };
     public List<int> weaponLevels = new List<int>(2) { 0, 0 };
 
-    // Gadget slot
     private GadgetBase equippedGadget;
+    private GadgetInstance equippedGadgetInstance;
 
     private int activeSlot = 0;
     private WeaponInstance activeInstance;
     private PlayerFpsController fpsController;
 
-    // Alternating fire
     private int alternateIndex = 0;
     private float alternateTimer = 0f;
 
-    // 
-    // Slot 0 = Left, Slot 1 = Right
-    // Rules for left hand (slot 0):
-    //   ALLOW if right hand is empty
-    //   ALLOW if incoming weapon is Offhand
-    //   ALLOW if incoming weapon is Versatile
-    //   ALLOW if incoming weapon is the same definition as the right hand weapon
-    //   BLOCK everything else
     bool CanEquipToLeftHand(WeaponInstance incoming)
     {
         if (incoming == null || incoming.definition == null) return false;
-
-        // Right hand empty — no conflict
         if (equippedWeapons[1] == null) return true;
 
         WeaponDefinitionSO incomingDef = incoming.definition;
-
-        // Offhand or Versatile always allowed
         if (incomingDef.handType == WeaponHandType.Offhand) return true;
         if (incomingDef.handType == WeaponHandType.Versatile) return true;
 
-        // Same gun (by definition asset reference) — dual wield allowed
         WeaponDefinitionSO rightDef = GetWeaponDefinition(1);
         if (rightDef != null && incomingDef == rightDef) return true;
 
@@ -72,7 +58,18 @@ public class WeaponInventory : MonoBehaviour
         return false;
     }
 
-    // 
+    bool CanEquipToLeftHand(GadgetInstance incoming)
+    {
+        if (incoming == null || incoming.definition == null) return false;
+        if (equippedWeapons[1] == null) return true;
+
+        GadgetDefinitionSO incomingDef = incoming.definition;
+        if (incomingDef.handType == WeaponHandType.Offhand) return true;
+        if (incomingDef.handType == WeaponHandType.Versatile) return true;
+
+        Debug.Log($"[WeaponInventory] Cannot equip gadget {incomingDef.gadgetName} to left hand. MainHand gadgets require the right hand to be empty, or be Offhand/Versatile.");
+        return false;
+    }
 
     void Awake()
     {
@@ -227,7 +224,7 @@ public class WeaponInventory : MonoBehaviour
         }
     }
 
-    //
+    // Gadget Slot
 
     public void EquipGadget(GadgetBase gadget)
     {
@@ -235,6 +232,7 @@ public class WeaponInventory : MonoBehaviour
             equippedGadget.OnUnequip();
 
         equippedGadget = gadget;
+        equippedGadgetInstance = gadget?.currentInstance;
         equippedGadget?.OnEquip();
         Debug.Log($"[WeaponInventory] Gadget equipped: {gadget?.gadgetName ?? "none"}");
     }
@@ -243,12 +241,14 @@ public class WeaponInventory : MonoBehaviour
     {
         equippedGadget?.OnUnequip();
         equippedGadget = null;
+        equippedGadgetInstance = null;
         Debug.Log("[WeaponInventory] Gadget unequipped.");
     }
 
     public GadgetBase GetEquippedGadget() => equippedGadget;
+    public GadgetInstance GetEquippedGadgetInstance() => equippedGadgetInstance;
 
-    // 
+    // Legacy Weapon Path (Zarcade)
 
     public bool TryAddWeapon(WeaponData data, WeaponUpgradeData upgradeData = null)
     {
@@ -304,7 +304,7 @@ public class WeaponInventory : MonoBehaviour
         return instance;
     }
 
-    //
+    // Bloodsport Weapon Instance Path
 
     public void TryAddWeaponInstanceToSlot(WeaponInstance instance, int slot)
     {
@@ -315,7 +315,6 @@ public class WeaponInventory : MonoBehaviour
             return;
         }
 
-        // Left-hand validation (slot 0)
         if (slot == 0 && !CanEquipToLeftHand(instance))
             return;
 
@@ -333,7 +332,6 @@ public class WeaponInventory : MonoBehaviour
 
     public void TryAddWeaponInstance(WeaponInstance instance)
     {
-        // Always try right hand first for MainHand weapons, otherwise find empty slot
         if (instance?.definition?.handType == WeaponHandType.MainHand && equippedWeapons[1] == null)
         {
             TryAddWeaponInstanceToSlot(instance, 1);
@@ -371,7 +369,70 @@ public class WeaponInventory : MonoBehaviour
         return go;
     }
 
-    //
+    // Gadget Instance Path
+
+    public void TryAddGadgetInstance(GadgetInstance instance)
+    {
+        if (instance?.definition?.handType == WeaponHandType.MainHand && equippedWeapons[1] == null)
+        {
+            TryAddGadgetInstanceToSlot(instance, 1);
+            return;
+        }
+
+        int emptySlot = GetEmptySlot();
+        TryAddGadgetInstanceToSlot(instance, emptySlot >= 0 ? emptySlot : activeSlot);
+    }
+
+    public void TryAddGadgetInstanceToSlot(GadgetInstance instance, int slot)
+    {
+        if (instance == null || instance.definition == null ||
+            (instance.definition.leftPrefab == null && instance.definition.rightPrefab == null))
+        {
+            Debug.LogWarning("[WeaponInventory] Invalid GadgetInstance.");
+            return;
+        }
+
+        if (slot == 0 && !CanEquipToLeftHand(instance))
+            return;
+
+        if (equippedWeapons[slot] != null) Destroy(equippedWeapons[slot]);
+
+        GameObject go = InstantiateGadgetInstance(instance, slot);
+        equippedWeapons[slot] = go;
+        equippedData[slot] = null;
+        equippedUpgradeData[slot] = null;
+        weaponLevels[slot] = 1;
+
+        GadgetBase gb = go.GetComponentInChildren<GadgetBase>();
+        if (gb != null)
+        {
+            gb.isRightHand = (slot == 1);
+            EquipGadget(gb);
+        }
+
+        SetActiveSlot(slot);
+
+        Debug.Log($"[WeaponInventory] Equipped gadget {instance.definition.gadgetName} ({instance.rarity}) to {(slot == 0 ? "Left" : "Right")} hand.");
+    }
+
+    GameObject InstantiateGadgetInstance(GadgetInstance instance, int slot)
+    {
+        GadgetDefinitionSO def = instance.definition;
+        Transform holder = GetHolderForSlot(slot);
+
+        GameObject go = Instantiate(def.GetPrefabForSlot(slot), holder);
+        go.transform.localPosition = def.GetPositionOffsetForSlot(slot);
+        go.transform.localRotation = Quaternion.Euler(def.GetRotationOffsetForSlot(slot));
+        go.SetActive(false);
+
+        GadgetBase gb = go.GetComponentInChildren<GadgetBase>();
+        if (gb != null)
+            gb.Equip(instance);
+
+        return go;
+    }
+
+    // Shared Helpers
 
     int GetEmptySlot()
     {

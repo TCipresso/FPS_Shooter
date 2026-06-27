@@ -5,11 +5,18 @@ public class WeaponDropManager : MonoBehaviour
 {
     public static WeaponDropManager Instance { get; private set; }
 
-    [Header("Drop Pool")]
+    [Header("Weapon Drop Pool")]
     public List<WeaponDefinitionSO> weaponPool = new List<WeaponDefinitionSO>();
+
+    [Header("Gadget Drop Pool")]
+    public List<GadgetDefinitionSO> gadgetPool = new List<GadgetDefinitionSO>();
 
     [Header("Drop Settings")]
     [Range(0f, 1f)] public float dropChance = 0.2f;
+
+    [Header("Drop Type Weights")]
+    public float weaponWeight = 1f;
+    public float gadgetWeight = 1f;
 
     [Header("Rarity Weights")]
     public float commonWeight = 60f;
@@ -29,13 +36,31 @@ public class WeaponDropManager : MonoBehaviour
 
     public void TryDrop(Vector3 position)
     {
-        if (weaponPool.Count == 0) return;
         if (Random.value > dropChance) return;
 
-        WeaponDefinitionSO definition = weaponPool[Random.Range(0, weaponPool.Count)];
+        bool hasWeapons = weaponPool.Count > 0;
+        bool hasGadgets = gadgetPool.Count > 0;
+
+        if (!hasWeapons && !hasGadgets) return;
+
+        float effectiveWeaponWeight = hasWeapons ? weaponWeight : 0f;
+        float effectiveGadgetWeight = hasGadgets ? gadgetWeight : 0f;
+        float total = effectiveWeaponWeight + effectiveGadgetWeight;
+
+        if (total <= 0f) return;
+
         WeaponRarity rarity = RollRarity();
-        WeaponInstance instance = new WeaponInstance(definition, rarity);
-        SpawnPickup(position, instance);
+
+        if (Random.Range(0f, total) < effectiveWeaponWeight)
+        {
+            WeaponDefinitionSO definition = weaponPool[Random.Range(0, weaponPool.Count)];
+            SpawnPickup(position, new WeaponInstance(definition, rarity));
+        }
+        else
+        {
+            GadgetDefinitionSO definition = gadgetPool[Random.Range(0, gadgetPool.Count)];
+            SpawnPickup(position, new GadgetInstance(definition, rarity));
+        }
     }
 
     WeaponRarity RollRarity()
@@ -51,14 +76,15 @@ public class WeaponDropManager : MonoBehaviour
 
     void SpawnPickup(Vector3 position, WeaponInstance instance)
     {
-        if (weaponPickupPrefab == null)
-        {
-            Debug.LogWarning("[WeaponDropManager] No pickup prefab assigned.");
-            return;
-        }
+        if (weaponPickupPrefab == null) { Debug.LogWarning("[WeaponDropManager] No pickup prefab assigned."); return; }
         GameObject obj = Instantiate(weaponPickupPrefab, position, Quaternion.identity);
-        WeaponPickup pickup = obj.GetComponent<WeaponPickup>();
-        if (pickup != null)
-            pickup.Initialize(instance);
+        obj.GetComponent<WeaponPickup>()?.Initialize(instance);
+    }
+
+    void SpawnPickup(Vector3 position, GadgetInstance instance)
+    {
+        if (weaponPickupPrefab == null) { Debug.LogWarning("[WeaponDropManager] No pickup prefab assigned."); return; }
+        GameObject obj = Instantiate(weaponPickupPrefab, position, Quaternion.identity);
+        obj.GetComponent<WeaponPickup>()?.Initialize(instance);
     }
 }
