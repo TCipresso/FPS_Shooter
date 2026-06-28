@@ -6602,10 +6602,10 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 74d5e7c806c60f140aa34e6449876d99, type: 2}
-  - {fileID: 2100000, guid: 4b28d7dc02c709847b33d512aa1c9e6e, type: 2}
+  - {fileID: 2100000, guid: 4ceb0b507ff7c254db887c8cc553e561, type: 2}
+  - {fileID: 2100000, guid: c38dc790a9f50be4da713c69a56c09b3, type: 2}
   - {fileID: -6629797300637803691, guid: c7a6d0393a01e124c9eb9fa465d815e6, type: 3}
-  - {fileID: 2100000, guid: 9192534340ea5074ba5a7568ba00c0dd, type: 2}
+  - {fileID: 2100000, guid: c38dc790a9f50be4da713c69a56c09b3, type: 2}
   - {fileID: -2813467912831258332, guid: c7a6d0393a01e124c9eb9fa465d815e6, type: 3}
   - {fileID: -8274133419916619345, guid: c7a6d0393a01e124c9eb9fa465d815e6, type: 3}
   m_StaticBatchInfo:
@@ -6696,11 +6696,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a72c39cc8515394399b161a46c2aca0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Doubler
-  currentMag: 2
-  maxMag: 2
-  baseMaxMag: 0
-  reserveAmmo: 24
-  maxReserve: 24
   muzzlePoint: {fileID: 2131608691527680828}
   muzzleFlash: {fileID: 5361066094102117636}
   casingEject: {fileID: 0}
@@ -6740,13 +6735,10 @@ MonoBehaviour:
   adsTransitionSpeed: 10
   adsFadeCrosshair: 1
   isAiming: 0
-  infiniteAmmo: 1
-  canReloadWhileSprinting: 1
   animator: {fileID: 5738518067563658700}
   walkStopDelay: 0.1
   FireClipName: Fire
   universalAnimator: {fileID: 0}
-  isReloading: 0
   isCocking: 0
   isFiring: 0
 --- !u!114 &5728143562617964251

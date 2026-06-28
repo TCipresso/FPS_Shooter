@@ -11275,7 +11275,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a4d6dc090689f9f47b9c517e05f900ef, type: 2}
+  - {fileID: 2100000, guid: 6eb990875d02210458c32adef724a421, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -11386,7 +11386,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0708bda7c8e85b14d9e263c422e40970, type: 2}
+  - {fileID: 2100000, guid: c89d36ba98d31c74aa3d6b7ab3927725, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -11735,6 +11735,7 @@ GameObject:
   - component: {fileID: 5633203363637221150}
   - component: {fileID: 6065174775650937748}
   - component: {fileID: 5097012958477789975}
+  - component: {fileID: 4726189122929158326}
   m_Layer: 7
   m_Name: Glicky
   m_TagString: Untagged
@@ -11751,7 +11752,7 @@ Transform:
   m_GameObject: {fileID: 5983536388521535902}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071067}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0, z: -1.494}
   m_LocalScale: {x: 100, y: 100, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -11782,14 +11783,14 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e89580fb86fadce49b06b622287aa956, type: 2}
-  - {fileID: 2100000, guid: 4b28d7dc02c709847b33d512aa1c9e6e, type: 2}
-  - {fileID: 2100000, guid: 4b28d7dc02c709847b33d512aa1c9e6e, type: 2}
+  - {fileID: 2100000, guid: 19d4e21d881e37948a89c36b1b687693, type: 2}
+  - {fileID: 2100000, guid: 7b8933ddd1b58c1479b0ecbd4ff6d561, type: 2}
+  - {fileID: 2100000, guid: 7b8933ddd1b58c1479b0ecbd4ff6d561, type: 2}
   - {fileID: -6087771358165109452, guid: 443f2ed6864ccec429ee29e3a0c5c1c4, type: 3}
-  - {fileID: 2100000, guid: 9192534340ea5074ba5a7568ba00c0dd, type: 2}
+  - {fileID: 2100000, guid: e29f4aaa8d8af774499283613789a318, type: 2}
   - {fileID: 2100000, guid: 3ff4d5e64ebdf6043b9d89da3f49fcdf, type: 2}
-  - {fileID: 2100000, guid: 9192534340ea5074ba5a7568ba00c0dd, type: 2}
-  - {fileID: -3522955778539423533, guid: 443f2ed6864ccec429ee29e3a0c5c1c4, type: 3}
+  - {fileID: 2100000, guid: e29f4aaa8d8af774499283613789a318, type: 2}
+  - {fileID: 2100000, guid: a6b0fec446286d0498f06c477b3be1cb, type: 2}
   - {fileID: -3846018093981099296, guid: 443f2ed6864ccec429ee29e3a0c5c1c4, type: 3}
   - {fileID: 6699446615349125189, guid: 443f2ed6864ccec429ee29e3a0c5c1c4, type: 3}
   - {fileID: 880774007180850119, guid: 443f2ed6864ccec429ee29e3a0c5c1c4, type: 3}
@@ -11968,6 +11969,18 @@ MonoBehaviour:
       model: {fileID: 5719772235131932396}
     - modelName: FlashHider
       model: {fileID: 4126536215790466802}
+--- !u!114 &4726189122929158326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5983536388521535902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 424124291f997494c9542988415babb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldAlignedAnchor
 --- !u!1 &6225438718851869532
 GameObject:
   m_ObjectHideFlags: 0

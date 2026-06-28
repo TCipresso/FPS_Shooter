@@ -16490,14 +16490,14 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e89580fb86fadce49b06b622287aa956, type: 2}
+  - {fileID: 2100000, guid: 25349d91fb8cc234c9b092d6dc9449d8, type: 2}
   - {fileID: 2100000, guid: 4b28d7dc02c709847b33d512aa1c9e6e, type: 2}
-  - {fileID: 2100000, guid: 4b28d7dc02c709847b33d512aa1c9e6e, type: 2}
+  - {fileID: 2100000, guid: ebbda43e40da089469852aa7357f8508, type: 2}
   - {fileID: -6087771358165109452, guid: 443f2ed6864ccec429ee29e3a0c5c1c4, type: 3}
-  - {fileID: 2100000, guid: 9192534340ea5074ba5a7568ba00c0dd, type: 2}
-  - {fileID: 2100000, guid: bda0ee8f849932143b45cd6716725207, type: 2}
-  - {fileID: 2100000, guid: 9192534340ea5074ba5a7568ba00c0dd, type: 2}
-  - {fileID: -3522955778539423533, guid: 443f2ed6864ccec429ee29e3a0c5c1c4, type: 3}
+  - {fileID: 2100000, guid: a6b0fec446286d0498f06c477b3be1cb, type: 2}
+  - {fileID: 2100000, guid: 70390826817fd10458acf6530c285182, type: 2}
+  - {fileID: 2100000, guid: a6b0fec446286d0498f06c477b3be1cb, type: 2}
+  - {fileID: 2100000, guid: a6b0fec446286d0498f06c477b3be1cb, type: 2}
   - {fileID: -3846018093981099296, guid: 443f2ed6864ccec429ee29e3a0c5c1c4, type: 3}
   - {fileID: 6699446615349125189, guid: 443f2ed6864ccec429ee29e3a0c5c1c4, type: 3}
   - {fileID: 880774007180850119, guid: 443f2ed6864ccec429ee29e3a0c5c1c4, type: 3}
@@ -16596,15 +16596,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ddf175552c915b4db5db3e61221a847, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Pistol
-  currentMag: 12
-  maxMag: 12
-  baseMaxMag: 0
-  reserveAmmo: 150
-  maxReserve: 150
   muzzlePoint: {fileID: 4251349580536100841}
   muzzleFlash: {fileID: 7446168368013326397}
   casingEject: {fileID: 6541465115219366722}
-  attachmentSearchRoot: {fileID: 902948427058904109}
   bulletData: {fileID: 11400000, guid: 5bb6425b3383d22408b5e8d13fc0b5a9, type: 2}
   audioSource: {fileID: 4380553431300510314}
   fireSound: {fileID: 8300000, guid: f1d018efce553ee41b014ecbb1456d94, type: 3}
@@ -16616,64 +16610,6 @@ MonoBehaviour:
   damage: 25
   range: 150
   ragdollForceMultiplier: 1
-  maxRecoilUp: 6
-  maxRecoilSide: 1.5
-  recoilCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.2
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  recoilSideCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.5
-      inSlope: 0
-      outSlope: 0.5
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0.5
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  recoilMaxShots: 10
-  adsRecoilUpMultiplier: 0.4
-  adsRecoilSideMultiplier: 0.3
-  tiltAmount: 5
-  tiltFrequency: 10
-  tiltFadeSpeed: 100
-  adsTiltMultiplier: 0.5
-  hipFireTiltMultiplier: 0.5
   kickRotationX: -30
   kickRotationY: 5
   kickRotationZ: 5
@@ -16701,12 +16637,10 @@ MonoBehaviour:
   adsTransitionSpeed: 10
   adsFadeCrosshair: 1
   isAiming: 0
-  canReloadWhileSprinting: 1
   animator: {fileID: 7718744349149723428}
   walkStopDelay: 0.1
   FireClipName: Fire
   universalAnimator: {fileID: 0}
-  isReloading: 0
   isCocking: 0
   isFiring: 0
 --- !u!1 &6149532183898446492
