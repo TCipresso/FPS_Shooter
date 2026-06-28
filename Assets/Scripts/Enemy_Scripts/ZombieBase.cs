@@ -7,6 +7,8 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody))]
 public abstract class ZombieBase : MonoBehaviour
 {
+    public enum ZombieState { Idle, Engage, Attack }
+
     [Header("Stats")]
     public int maxHealth = 100;
     public int currentHealth;
@@ -21,8 +23,12 @@ public abstract class ZombieBase : MonoBehaviour
 
     [Header("Attack")]
     public int attackDamage = 25;
-    public float attackRange = 1.5f;
-    public float attackCooldown = 1.5f;
+    public float attackRange = 1.8f;
+    public float attackCooldown = 1.2f;
+    public float hitFrameRange = 2.2f;
+
+    [Header("Detection")]
+    public float engageRange = 15f;
 
     [Header("Pathfinding Mode")]
     public bool isGrunt = true;
@@ -49,8 +55,13 @@ public abstract class ZombieBase : MonoBehaviour
     [Header("Identity")]
     public string enemyId;
 
+    [Header("Animation")]
+    public Animator animator;
+
     [Header("Debug")]
     public bool verboseLogging = false;
+
+    public ZombieState State { get; private set; } = ZombieState.Idle;
 
     public event System.Action OnDeath;
     public event System.Action<int, int> OnHealthChanged;
@@ -60,14 +71,18 @@ public abstract class ZombieBase : MonoBehaviour
     CapsuleCollider col;
     protected Transform player;
     protected PlayerStats playerStats;
+    protected PlayerHealth playerHealth;
     protected float lastAttackTime;
     protected bool isDead = false;
 
+    float attackCooldownTimer = 0f;
     Vector3 lastHitDirection = Vector3.back;
 
     Dictionary<PlayerStats, int> damageContributors = new Dictionary<PlayerStats, int>();
     Dictionary<PlayerStats, float> goldMultipliers = new Dictionary<PlayerStats, float>();
     int totalDamageDealt = 0;
+
+    bool AgentReady => !isGrunt && agent.isActiveAndEnabled && agent.isOnNavMesh;
 
     protected virtual void Awake()
     {
@@ -96,29 +111,99 @@ public abstract class ZombieBase : MonoBehaviour
         currentHealth = maxHealth;
         playerStats = FindFirstObjectByType<PlayerStats>();
         if (playerStats != null)
+        {
             player = playerStats.transform;
+            playerHealth = playerStats.GetComponent<PlayerHealth>();
+        }
         else
+        {
             Debug.LogWarning($"[{gameObject.name}] PlayerStats not found in scene.");
-
-        if (!isGrunt && !agent.isOnNavMesh)
-            Debug.LogError($"[{gameObject.name}] NavMeshAgent is NOT on the NavMesh!");
+        }
     }
 
-    public void ClearDeathListeners()
-    {
-        OnDeath = null;
-    }
+    public void ClearDeathListeners() => OnDeath = null;
 
     protected virtual void Update()
     {
         if (isDead) return;
-        UpdateBehaviour();
+
+        if (attackCooldownTimer > 0f)
+            attackCooldownTimer -= Time.deltaTime;
+
+        float dist = player != null ? Vector3.Distance(transform.position, player.position) : float.MaxValue;
+
+        switch (State)
+        {
+            case ZombieState.Idle:
+                if (dist <= engageRange)
+                    SetState(ZombieState.Engage);
+                break;
+
+            case ZombieState.Engage:
+                if (dist <= attackRange && attackCooldownTimer <= 0f)
+                    SetState(ZombieState.Attack);
+                else
+                    ChasePlayer();
+                break;
+
+            case ZombieState.Attack:
+                break;
+        }
     }
 
     protected virtual void FixedUpdate()
     {
         if (isDead || !isGrunt || player == null) return;
         GruntMove();
+    }
+
+    protected void SetState(ZombieState newState)
+    {
+        State = newState;
+
+        switch (newState)
+        {
+            case ZombieState.Idle:
+                StopMovement();
+                animator?.SetBool("IsWalking", false);
+                animator?.SetBool("IsAttacking", false);
+                break;
+
+            case ZombieState.Engage:
+                ResumeMovement();
+                animator?.SetBool("IsWalking", true);
+                animator?.SetBool("IsAttacking", false);
+                break;
+
+            case ZombieState.Attack:
+                StopMovement();
+                animator?.SetBool("IsWalking", false);
+                animator?.SetTrigger("Attack");
+                break;
+        }
+    }
+
+    public virtual void OnHitFrame()
+    {
+        float dist = player != null ? Vector3.Distance(transform.position, player.position) : -1f;
+        Debug.Log($"[OnHitFrame] playerHealth={playerHealth} dist={dist} range={hitFrameRange}");
+        if (player == null || playerHealth == null) return;
+        if (dist <= hitFrameRange)
+        {
+            Debug.Log("[OnHitFrame] HIT REGISTERED");
+            playerHealth.TakeHit();
+        }
+        else
+        {
+            Debug.Log("[OnHitFrame] MISSED - player too far");
+        }
+    }
+
+    public virtual void OnAttackComplete()
+    {
+        attackCooldownTimer = attackCooldown;
+        float dist = player != null ? Vector3.Distance(transform.position, player.position) : float.MaxValue;
+        SetState(dist <= engageRange ? ZombieState.Engage : ZombieState.Idle);
     }
 
     void GruntMove()
@@ -171,25 +256,28 @@ public abstract class ZombieBase : MonoBehaviour
         }
     }
 
-    protected abstract void UpdateBehaviour();
-
     protected void ChasePlayer()
     {
-        if (player == null || !agent.isOnNavMesh) return;
+        if (!AgentReady || player == null) return;
         agent.SetDestination(player.position);
     }
 
     protected void StopMovement()
     {
         if (isGrunt)
+        {
             rb.linearVelocity = Vector3.zero;
-        else
+        }
+        else if (AgentReady)
+        {
+            agent.ResetPath();
             agent.isStopped = true;
+        }
     }
 
     protected void ResumeMovement()
     {
-        if (!isGrunt)
+        if (AgentReady)
             agent.isStopped = false;
     }
 
@@ -242,7 +330,12 @@ public abstract class ZombieBase : MonoBehaviour
         goldMultipliers.Clear();
         totalDamageDealt = 0;
         lastAttackTime = 0f;
+        attackCooldownTimer = 0f;
         wasClimbing = false;
+        State = ZombieState.Idle;
+
+        animator?.SetBool("IsWalking", false);
+        animator?.SetBool("IsAttacking", false);
 
         if (isGrunt)
         {
@@ -252,7 +345,7 @@ public abstract class ZombieBase : MonoBehaviour
         else
         {
             agent.enabled = true;
-            agent.isStopped = false;
+            // isStopped can only be set once agent is on NavMesh — Update handles movement
         }
     }
 
@@ -265,7 +358,7 @@ public abstract class ZombieBase : MonoBehaviour
             rb.linearVelocity = Vector3.zero;
             rb.isKinematic = true;
         }
-        else
+        else if (AgentReady)
         {
             agent.isStopped = true;
             agent.enabled = false;
@@ -312,20 +405,30 @@ public abstract class ZombieBase : MonoBehaviour
         Gizmos.DrawWireSphere(rayStart, 0.05f);
     }
 
+    void OnDrawGizmosSelected()
+    {
+        // Attack trigger range - when zombie starts attacking
+        Gizmos.color = new Color(1f, 0.5f, 0f, 0.3f);
+        Gizmos.DrawSphere(transform.position, attackRange);
+        Gizmos.color = new Color(1f, 0.5f, 0f, 1f);
+        Gizmos.DrawWireSphere(transform.position, attackRange);
+
+        // Hit frame range - actual damage zone
+        Gizmos.color = new Color(1f, 0f, 0f, 0.3f);
+        Gizmos.DrawSphere(transform.position, hitFrameRange);
+        Gizmos.color = new Color(1f, 0f, 0f, 1f);
+        Gizmos.DrawWireSphere(transform.position, hitFrameRange);
+
+        // Engage range
+        Gizmos.color = new Color(1f, 1f, 0f, 0.1f);
+        Gizmos.DrawSphere(transform.position, engageRange);
+        Gizmos.color = new Color(1f, 1f, 0f, 0.5f);
+        Gizmos.DrawWireSphere(transform.position, engageRange);
+    }
+
     protected bool IsPlayerInRange(float range)
     {
         if (player == null) return false;
         return Vector3.Distance(transform.position, player.position) <= range;
-    }
-
-    IEnumerator SpawnRagdollNextFrame(Vector3 hitDirection, float force)
-    {
-        yield return new WaitForEndOfFrame();
-        if (EnemySpawnManager.Instance != null)
-        {
-            GameObject corpse = EnemySpawnManager.Instance.SpawnRagdoll(enemyId, transform.position, transform.rotation, hitDirection, force);
-            if (corpse != null)
-                CopyPoseToRagdoll(corpse);
-        }
     }
 }

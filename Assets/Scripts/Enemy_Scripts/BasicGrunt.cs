@@ -8,11 +8,11 @@ public class BasicGrunt : ZombieBase
         if (Time.time - lastAttackTime < attackCooldown) return;
         lastAttackTime = Time.time;
         if (playerStats != null)
-            playerStats.TakeDamage(attackDamage);
+            //playerStats.TakeDamage(attackDamage);
         Debug.Log($"[BasicGrunt] Attacked player for {attackDamage} damage.");
     }
 
-    protected override void UpdateBehaviour()
+    /*protected override void UpdateBehaviour()
     {
         if (IsPlayerInRange(attackRange))
             TryAttack();
@@ -23,5 +23,5 @@ public class BasicGrunt : ZombieBase
                 ChasePlayer();
             // Grunt movement is handled in ZombieBase.FixedUpdate automatically
         }
-    }
+    }*/
 }

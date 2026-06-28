@@ -7,18 +7,13 @@ public class PlayerStats : MonoBehaviour
     public WeaponInventory weaponInventory;
     public PickupZone pickupZone;
     public AugmentDraftUI augmentDraftUI;
+    public PlayerHealth playerHealth;
 
     [Header("Combat Stats")]
-    public float reloadSpeed = 1f;
     [Range(0f, 5f)] public float attackSpeed = 1f;
     [Range(0f, 1f)] public float critChance = 0.1f;
     public float critMultiplier = 1.5f;
     public float luck = 0f;
-    public int extraMagazine = 0;
-
-    [Header("Health")]
-    public int maxHealth = 100;
-    public int currentHealth;
 
     [Header("Gold")]
     public int gold = 500;
@@ -28,9 +23,16 @@ public class PlayerStats : MonoBehaviour
     public int goldOnHit => Mathf.RoundToInt(baseGoldOnHit * goldGainMultiplier);
     public int goldOnKill => Mathf.RoundToInt(baseGoldOnKill * goldGainMultiplier);
 
+    [Header("XP & Leveling")]
+    public int currentXP = 0;
+    public int level = 1;
+    public int baseXPToLevel = 100;
+    public float xpGainMultiplier = 1f;
+    public float pickupRange = 1f;
+    public int XPToNextLevel => Mathf.RoundToInt(baseXPToLevel * level * level);
+
     void Awake()
     {
-        currentHealth = maxHealth;
         Application.targetFrameRate = 300;
     }
 
@@ -39,16 +41,11 @@ public class PlayerStats : MonoBehaviour
         if (pickupZone != null) pickupZone.ApplyRange(pickupRange);
     }
 
-    void OnValidate()
-    {
-    }
-
-
+    //
 
     public void AddCritChance(float amount)
     {
-        critChance += amount;
-        critChance = Mathf.Clamp01(critChance);
+        critChance = Mathf.Clamp01(critChance + amount);
         ApplyCombatStats();
         Debug.Log($"[PlayerStats] Crit Chance: {critChance * 100:F0}%");
     }
@@ -70,12 +67,6 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    public void AddReloadSpeed(float amount)
-    {
-        reloadSpeed *= (1f + amount);
-        Debug.Log($"[PlayerStats] Reload Speed: {reloadSpeed:F2}x");
-    }
-
     public void AddAttackSpeed(float amount)
     {
         attackSpeed += amount;
@@ -84,16 +75,24 @@ public class PlayerStats : MonoBehaviour
         Debug.Log($"[PlayerStats] Attack Speed: {attackSpeed * 100:F0}%");
     }
 
-    public void AddExtraMagazine(int amount)
+    // 
+
+    public void AddGold(int amount)
     {
-        extraMagazine += amount;
-        if (weaponInventory != null)
-            foreach (GameObject w in weaponInventory.equippedWeapons)
-            {
-                WeaponBase wb = w.GetComponentInChildren<WeaponBase>();
-                if (wb != null) wb.ApplyExtraMagazine(extraMagazine);
-            }
-        Debug.Log($"[PlayerStats] Extra Magazine: +{extraMagazine}");
+        gold += amount;
+        Debug.Log($"[PlayerStats] +{amount} gold | Total: {gold}");
+    }
+
+    public bool SpendGold(int amount)
+    {
+        if (gold < amount)
+        {
+            Debug.Log($"[PlayerStats] Not enough gold. Have: {gold} | Need: {amount}");
+            return false;
+        }
+        gold -= amount;
+        Debug.Log($"[PlayerStats] -{amount} gold | Total: {gold}");
+        return true;
     }
 
     public void AddGoldGain(float amount)
@@ -102,20 +101,7 @@ public class PlayerStats : MonoBehaviour
         Debug.Log($"[PlayerStats] Gold Gain: {goldGainMultiplier:F2}x");
     }
 
-    public void AddLuck(float amount)
-    {
-        luck += amount;
-        Debug.Log($"[PlayerStats] Luck: {luck:F2}");
-    }
-
-    [Header("XP & Leveling")]
-    public int currentXP = 0;
-    public int level = 1;
-    public int baseXPToLevel = 100;
-    public float xpGainMultiplier = 1f;
-    public float pickupRange = 1f;
-
-    public int XPToNextLevel => Mathf.RoundToInt(baseXPToLevel * level * level);
+    // 
 
     public void AddXP(int amount)
     {
@@ -137,6 +123,12 @@ public class PlayerStats : MonoBehaviour
         Debug.Log($"[PlayerStats] XP Gain: {xpGainMultiplier:F2}x");
     }
 
+    public void AddLuck(float amount)
+    {
+        luck += amount;
+        Debug.Log($"[PlayerStats] Luck: {luck:F2}");
+    }
+
     public void AddPickupRange(float amount)
     {
         pickupRange += amount;
@@ -150,44 +142,23 @@ public class PlayerStats : MonoBehaviour
         if (augmentDraftUI != null) augmentDraftUI.OpenAugmentDraft();
     }
 
-    public void AddGold(int amount)
+    //
+
+    public void TakeHit()
     {
-        gold += amount;
-        Debug.Log($"[PlayerStats] +{amount} gold | Total: {gold}");
+        if (playerHealth != null)
+            playerHealth.TakeHit();
     }
 
-    public bool SpendGold(int amount)
+    public void AddLife(int amount = 1)
     {
-        if (gold < amount)
-        {
-            Debug.Log($"[PlayerStats] Not enough gold. Have: {gold} | Need: {amount}");
-            return false;
-        }
-
-        gold -= amount;
-        Debug.Log($"[PlayerStats] -{amount} gold | Total: {gold}");
-        return true;
+        if (playerHealth != null)
+            playerHealth.AddLife(amount);
     }
 
-    public void TakeDamage(int amount)
+    public void AddHitsToDown(int amount = 1)
     {
-        currentHealth -= amount;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-        Debug.Log($"[PlayerStats] Took {amount} damage | Health: {currentHealth}/{maxHealth}");
-
-        if (currentHealth <= 0)
-            OnDeath();
-    }
-
-    public void Heal(int amount)
-    {
-        currentHealth += amount;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-        Debug.Log($"[PlayerStats] Healed {amount} | Health: {currentHealth}/{maxHealth}");
-    }
-
-    void OnDeath()
-    {
-        Debug.Log("[PlayerStats] Player has died.");
+        if (playerHealth != null)
+            playerHealth.AddHit(amount);
     }
 }

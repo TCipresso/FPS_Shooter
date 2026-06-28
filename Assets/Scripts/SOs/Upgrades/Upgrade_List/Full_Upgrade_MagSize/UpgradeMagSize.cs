@@ -7,7 +7,7 @@ public class UpgradeMagSize : UpgradeEffect
     {
         PlayerStats stats = player.GetComponent<PlayerStats>();
         if (!stats) return;
-        stats.AddExtraMagazine(Mathf.RoundToInt(value));
-        Debug.Log($"[UpgradeMagSize] +{Mathf.RoundToInt(value)} mag size. Total extra: {stats.extraMagazine}");
+        //stats.AddExtraMagazine(Mathf.RoundToInt(value));
+        //Debug.Log($"[UpgradeMagSize] +{Mathf.RoundToInt(value)} mag size. Total extra: {stats.extraMagazine}");
     }
 }

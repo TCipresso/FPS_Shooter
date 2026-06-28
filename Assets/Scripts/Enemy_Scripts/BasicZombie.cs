@@ -11,12 +11,12 @@ public class BasicZombie : ZombieBase
         lastAttackTime = Time.time;
 
         if (playerStats != null)
-            playerStats.TakeDamage(attackDamage);
+           // playerStats.TakeDamage(attackDamage);
 
         Debug.Log($"[BasicZombie] Attacked player for {attackDamage} damage.");
     }
 
-    protected override void UpdateBehaviour()
+   /* protected override void UpdateBehaviour()
     {
         if (IsPlayerInRange(attackRange))
             TryAttack();
@@ -25,5 +25,5 @@ public class BasicZombie : ZombieBase
             agent.isStopped = false;
             ChasePlayer();
         }
-    }
+    }*/
 }

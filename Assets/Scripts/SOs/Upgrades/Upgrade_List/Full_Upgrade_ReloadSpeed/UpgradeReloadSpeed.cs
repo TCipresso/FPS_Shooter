@@ -7,7 +7,7 @@ public class UpgradeReloadSpeed : UpgradeEffect
     {
         PlayerStats stats = player.GetComponent<PlayerStats>();
         if (!stats) return;
-        stats.AddReloadSpeed(value);
-        Debug.Log($"[UpgradeReloadSpeed] +{value * 100:F1}% reload speed. Now {stats.reloadSpeed:F2}x");
+        //stats.AddReloadSpeed(value);
+       // Debug.Log($"[UpgradeReloadSpeed] +{value * 100:F1}% reload speed. Now {stats.reloadSpeed:F2}x");
     }
 }
