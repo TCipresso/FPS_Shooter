@@ -10,6 +10,9 @@ public class PlayerHealth : MonoBehaviour
     [Header("Lives")]
     public int lives = 3;
 
+    [Header("Hit Recovery")]
+    public float hitRecoveryDelay = 2f;
+
     [Header("Down Settings")]
     public float downDuration = 3f;
 
@@ -31,12 +34,11 @@ public class PlayerHealth : MonoBehaviour
 
     public bool IsDown { get; private set; }
     public bool IsGameOver { get; private set; }
+    public int HitsRemaining => hitsRemaining;
+    public float HitRecoveryProgress => hitsRemaining < hitsToDown ? hitRecoveryTimer / hitRecoveryDelay : 0f;
 
     int hitsRemaining;
     float hitRecoveryTimer = 0f;
-
-    [Header("Hit Recovery")]
-    public float hitRecoveryDelay = 2f;
 
     void Start()
     {
@@ -129,6 +131,7 @@ public class PlayerHealth : MonoBehaviour
         if (IsGameOver) return;
         IsDown = false;
         hitsRemaining = hitsToDown;
+        hitRecoveryTimer = 0f;
         onRevive.Invoke();
         Debug.Log($"[PlayerHealth] Player revived. Lives remaining: {lives}");
     }
