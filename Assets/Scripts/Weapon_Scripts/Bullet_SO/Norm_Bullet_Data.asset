@@ -13,12 +13,16 @@ MonoBehaviour:
   m_Name: Norm_Bullet_Data
   m_EditorClassIdentifier: Assembly-CSharp::BulletDataSO
   bulletType: 0
+  isShotgun: 0
+  pelletCount: 8
+  pelletSpreadAngle: 5
+  flatSpread: 0
   trailPrefab: {fileID: 7533938775617344793, guid: 5fdbe00ae02ad624bb45ad9bdb2038fe, type: 3}
   trailPoolKey: BulletTrail
   trailPoolSize: 10
   hitMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 15359
   impactEffectOverride: {fileID: 379087086293945372, guid: 00df2626230093c478373a5f1dc23aa6, type: 3}
   projectilePrefab: {fileID: 0}
   projectileSpeed: 40
