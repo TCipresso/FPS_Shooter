@@ -1,9 +1,7 @@
 using UnityEngine;
-using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
 
-[RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Rigidbody))]
 public abstract class ZombieBase : MonoBehaviour
 {
@@ -29,9 +27,6 @@ public abstract class ZombieBase : MonoBehaviour
 
     [Header("Detection")]
     public float engageRange = 15f;
-
-    [Header("Pathfinding Mode")]
-    public bool isGrunt = true;
 
     [Header("Climbing")]
     public LayerMask groundLayer;
@@ -66,7 +61,6 @@ public abstract class ZombieBase : MonoBehaviour
     public event System.Action OnDeath;
     public event System.Action<int, int> OnHealthChanged;
 
-    protected NavMeshAgent agent;
     protected Rigidbody rb;
     CapsuleCollider col;
     protected Transform player;
@@ -82,28 +76,16 @@ public abstract class ZombieBase : MonoBehaviour
     Dictionary<PlayerStats, float> goldMultipliers = new Dictionary<PlayerStats, float>();
     int totalDamageDealt = 0;
 
-    bool AgentReady => !isGrunt && agent.isActiveAndEnabled && agent.isOnNavMesh;
-
     protected virtual void Awake()
     {
-        agent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
 
-        if (isGrunt)
-        {
-            agent.enabled = false;
-            rb.isKinematic = false;
-            rb.useGravity = true;
-            rb.freezeRotation = true;
-            rb.interpolation = RigidbodyInterpolation.Interpolate;
-            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-        }
-        else
-        {
-            agent.speed = moveSpeed;
-            rb.isKinematic = true;
-        }
+        rb.isKinematic = false;
+        rb.useGravity = true;
+        rb.freezeRotation = true;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
     }
 
     protected virtual void Start()
@@ -142,8 +124,6 @@ public abstract class ZombieBase : MonoBehaviour
             case ZombieState.Engage:
                 if (dist <= attackRange && attackCooldownTimer <= 0f)
                     SetState(ZombieState.Attack);
-                else
-                    ChasePlayer();
                 break;
 
             case ZombieState.Attack:
@@ -153,8 +133,9 @@ public abstract class ZombieBase : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        if (isDead || !isGrunt || player == null) return;
-        GruntMove();
+        if (isDead || player == null) return;
+        if (State == ZombieState.Engage)
+            GruntMove();
     }
 
     protected void SetState(ZombieState newState)
@@ -164,19 +145,18 @@ public abstract class ZombieBase : MonoBehaviour
         switch (newState)
         {
             case ZombieState.Idle:
-                StopMovement();
+                rb.linearVelocity = Vector3.zero;
                 animator?.SetBool("IsWalking", false);
                 animator?.SetBool("IsAttacking", false);
                 break;
 
             case ZombieState.Engage:
-                ResumeMovement();
                 animator?.SetBool("IsWalking", true);
                 animator?.SetBool("IsAttacking", false);
                 break;
 
             case ZombieState.Attack:
-                StopMovement();
+                rb.linearVelocity = Vector3.zero;
                 animator?.SetBool("IsWalking", false);
                 animator?.SetTrigger("Attack");
                 break;
@@ -186,17 +166,9 @@ public abstract class ZombieBase : MonoBehaviour
     public virtual void OnHitFrame()
     {
         float dist = player != null ? Vector3.Distance(transform.position, player.position) : -1f;
-        Debug.Log($"[OnHitFrame] playerHealth={playerHealth} dist={dist} range={hitFrameRange}");
         if (player == null || playerHealth == null) return;
         if (dist <= hitFrameRange)
-        {
-            Debug.Log("[OnHitFrame] HIT REGISTERED");
             playerHealth.TakeHit();
-        }
-        else
-        {
-            Debug.Log("[OnHitFrame] MISSED - player too far");
-        }
     }
 
     public virtual void OnAttackComplete()
@@ -256,31 +228,6 @@ public abstract class ZombieBase : MonoBehaviour
         }
     }
 
-    protected void ChasePlayer()
-    {
-        if (!AgentReady || player == null) return;
-        agent.SetDestination(player.position);
-    }
-
-    protected void StopMovement()
-    {
-        if (isGrunt)
-        {
-            rb.linearVelocity = Vector3.zero;
-        }
-        else if (AgentReady)
-        {
-            agent.ResetPath();
-            agent.isStopped = true;
-        }
-    }
-
-    protected void ResumeMovement()
-    {
-        if (AgentReady)
-            agent.isStopped = false;
-    }
-
     public virtual void TakeDamage(int amount, PlayerStats dealer, float weaponMultiplier = 1f, Vector3 hitDirection = default, float ragdollForceMultiplier = 1f, string hitBone = "")
     {
         if (isDead) return;
@@ -337,32 +284,15 @@ public abstract class ZombieBase : MonoBehaviour
         animator?.SetBool("IsWalking", false);
         animator?.SetBool("IsAttacking", false);
 
-        if (isGrunt)
-        {
-            rb.isKinematic = false;
-            rb.linearVelocity = Vector3.zero;
-        }
-        else
-        {
-            agent.enabled = true;
-            // isStopped can only be set once agent is on NavMesh — Update handles movement
-        }
+        rb.isKinematic = false;
+        rb.linearVelocity = Vector3.zero;
     }
 
     void HandleDeath()
     {
         isDead = true;
-
-        if (isGrunt)
-        {
-            rb.linearVelocity = Vector3.zero;
-            rb.isKinematic = true;
-        }
-        else if (AgentReady)
-        {
-            agent.isStopped = true;
-            agent.enabled = false;
-        }
+        rb.linearVelocity = Vector3.zero;
+        rb.isKinematic = true;
 
         foreach (var kvp in damageContributors)
         {
@@ -398,7 +328,7 @@ public abstract class ZombieBase : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        if (!isGrunt || !canClimb) return;
+        if (!canClimb) return;
         Gizmos.color = Color.cyan;
         Vector3 rayStart = transform.position + transform.TransformVector(rayOffset);
         Gizmos.DrawRay(rayStart, transform.forward * rayLength);
@@ -407,19 +337,16 @@ public abstract class ZombieBase : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        // Attack trigger range - when zombie starts attacking
         Gizmos.color = new Color(1f, 0.5f, 0f, 0.3f);
         Gizmos.DrawSphere(transform.position, attackRange);
         Gizmos.color = new Color(1f, 0.5f, 0f, 1f);
         Gizmos.DrawWireSphere(transform.position, attackRange);
 
-        // Hit frame range - actual damage zone
         Gizmos.color = new Color(1f, 0f, 0f, 0.3f);
         Gizmos.DrawSphere(transform.position, hitFrameRange);
         Gizmos.color = new Color(1f, 0f, 0f, 1f);
         Gizmos.DrawWireSphere(transform.position, hitFrameRange);
 
-        // Engage range
         Gizmos.color = new Color(1f, 1f, 0f, 0.1f);
         Gizmos.DrawSphere(transform.position, engageRange);
         Gizmos.color = new Color(1f, 1f, 0f, 0.5f);

@@ -16138,11 +16138,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3795b3762fab06243b8c4cd3f94deb73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Mac
-  currentMag: 30
-  maxMag: 30
-  baseMaxMag: 0
-  reserveAmmo: 99999999
-  maxReserve: 99999999
   muzzlePoint: {fileID: 1353661734343501968}
   muzzleFlash: {fileID: 5249545334889501700}
   casingEject: {fileID: 6080160708823184391}
@@ -16184,13 +16179,10 @@ MonoBehaviour:
   adsTransitionSpeed: 10
   adsFadeCrosshair: 1
   isAiming: 0
-  infiniteAmmo: 1
-  canReloadWhileSprinting: 1
   animator: {fileID: 3040572311576792686}
   walkStopDelay: 0.1
   FireClipName: Mini_Mac_FIre
   universalAnimator: {fileID: 0}
-  isReloading: 0
   isCocking: 0
   isFiring: 0
 --- !u!114 &2330802132795970710
@@ -16816,7 +16808,7 @@ AudioSource:
   m_GameObject: {fileID: 6484575919728573012}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 3643191422844400911, guid: 919f6b0047b14b24ab0581663b73544d, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0

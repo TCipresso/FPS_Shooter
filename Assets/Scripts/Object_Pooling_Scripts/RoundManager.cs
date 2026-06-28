@@ -1,13 +1,12 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 
 public class RoundManager : MonoBehaviour
 {
     public static RoundManager Instance { get; private set; }
-
-    [Header("Spawn Points")]
-    public List<Transform> spawnPoints = new List<Transform>();
 
     [Header("Enemy Types")]
     public List<string> enemyIds = new List<string>();
@@ -19,32 +18,52 @@ public class RoundManager : MonoBehaviour
     public int roundsPerStage = 4;
     public float spawnInterval = 0.5f;
 
+    [Header("Stage Scenes")]
+    [Tooltip("Scene names to load in order. Loops when exhausted.")]
+    public List<string> stageScenes = new List<string>();
+    public float stageChangeDelay = 5f;
+
     [Header("Stage Scaling")]
     public float healthMultiplierPerStage = 1.3f;
     public float damageMultiplierPerStage = 1.2f;
     public float speedMultiplierPerStage = 1.1f;
-    public float stageChangeDelay = 5f;
 
     [Header("Round Progression")]
-    [Tooltip("False = enemies scale per stage (default). True = enemies scale per round instead.")]
     public bool scaleByRound = false;
+
+    [Header("UI")]
+    public TextMeshProUGUI roundText;
 
     int currentRound = 0;
     int currentStage = 1;
     int enemiesRemainingAlive = 0;
-    int enemiesLeftToSpawn = 0;
     bool roundActive = false;
+    int lastSceneIndex = -1;
+
+    List<Transform> currentSpawnPoints = new List<Transform>();
 
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-        Debug.Log("[RoundManager] Awake fired.");
+        DontDestroyOnLoad(gameObject);
     }
 
     IEnumerator Start()
     {
         yield return null;
+        if (currentRound == 0)
+        {
+            StageSetup setup = FindFirstObjectByType<StageSetup>();
+            if (setup != null)
+                currentSpawnPoints = setup.spawnPoints;
+            StartRound();
+        }
+    }
+
+    public void OnSceneReady(List<Transform> spawnPoints)
+    {
+        currentSpawnPoints = spawnPoints;
         StartRound();
     }
 
@@ -52,39 +71,30 @@ public class RoundManager : MonoBehaviour
     {
         currentRound++;
         enemiesRemainingAlive = 0;
-        enemiesLeftToSpawn = Mathf.Min(baseEnemiesPerRound + enemiesAddedPerRound * (currentRound - 1), maxEnemiesPerRound);
+        int enemyCount = Mathf.Min(baseEnemiesPerRound + enemiesAddedPerRound * (currentRound - 1), maxEnemiesPerRound);
         roundActive = true;
 
-        Debug.Log($"[RoundManager] Stage {currentStage} | Round {currentRound} started. Spawning {enemiesLeftToSpawn} enemies.");
-
-        StartCoroutine(SpawnRoutine());
+        Debug.Log($"[RoundManager] Stage {currentStage} | Round {currentRound} | Enemies: {enemyCount}");
+        if (roundText != null) roundText.text = $"Round {currentRound}";
+        StartCoroutine(SpawnRoutine(enemyCount));
     }
 
-    IEnumerator SpawnRoutine()
+    IEnumerator SpawnRoutine(int count)
     {
-        Debug.Log($"[RoundManager] SpawnRoutine started. Count: {enemiesLeftToSpawn}");
-        Debug.Log($"[RoundManager] SpawnPoints: {spawnPoints.Count} | EnemyIds: {enemyIds.Count}");
-        Debug.Log($"[RoundManager] EnemySpawnManager null? {EnemySpawnManager.Instance == null}");
-
-        List<string> shuffled = GetShuffledEnemyList(enemiesLeftToSpawn);
+        List<string> shuffled = GetShuffledEnemyList(count);
 
         foreach (string id in shuffled)
         {
-            Debug.Log($"[RoundManager] Attempting to spawn: {id}");
-
-            Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Count)];
+            if (currentSpawnPoints.Count == 0) yield break;
+            Transform spawnPoint = currentSpawnPoints[Random.Range(0, currentSpawnPoints.Count)];
             GameObject enemy = EnemySpawnManager.Instance.SpawnEnemy(id, spawnPoint.position, spawnPoint.rotation);
-
-            Debug.Log($"[RoundManager] Spawn result for {id}: {(enemy == null ? "NULL" : enemy.name)}");
 
             if (enemy != null)
             {
                 ApplyScaling(enemy);
-
                 ZombieBase zombie = enemy.GetComponent<ZombieBase>();
                 if (zombie != null)
                     zombie.OnDeath += OnEnemyDied;
-
                 enemiesRemainingAlive++;
             }
 
@@ -103,7 +113,6 @@ public class RoundManager : MonoBehaviour
             int j = Random.Range(0, i + 1);
             (list[i], list[j]) = (list[j], list[i]);
         }
-
         return list;
     }
 
@@ -124,7 +133,6 @@ public class RoundManager : MonoBehaviour
     void OnEnemyDied()
     {
         enemiesRemainingAlive--;
-
         if (enemiesRemainingAlive <= 0 && roundActive)
         {
             roundActive = false;
@@ -142,17 +150,37 @@ public class RoundManager : MonoBehaviour
             StartRound();
     }
 
+    int PickNextSceneIndex()
+    {
+        if (stageScenes.Count == 1) return 0;
+
+        List<int> candidates = new List<int>();
+        for (int i = 0; i < stageScenes.Count; i++)
+        {
+            if (i != lastSceneIndex)
+                candidates.Add(i);
+        }
+
+        return candidates[Random.Range(0, candidates.Count)];
+    }
+
     IEnumerator StageChangeRoutine()
     {
         currentStage++;
-        Debug.Log($"[RoundManager] ===== STAGE {currentStage} BEGIN ===== Transitioning map...");
-
-        if (GridPrefabSpawner.Instance != null)
-            yield return StartCoroutine(GridPrefabSpawner.Instance.TransitionToRandomPattern());
-
-        Debug.Log($"[RoundManager] Map ready. Stage {currentStage} starting in {stageChangeDelay}s.");
+        Debug.Log($"[RoundManager] Loading next stage in {stageChangeDelay}s...");
         yield return new WaitForSeconds(stageChangeDelay);
-        StartRound();
+
+        if (stageScenes.Count > 0)
+        {
+            int nextIndex = PickNextSceneIndex();
+            lastSceneIndex = nextIndex;
+            SceneManager.LoadScene(stageScenes[nextIndex]);
+        }
+        else
+        {
+            Debug.LogWarning("[RoundManager] No stage scenes assigned.");
+            StartRound();
+        }
     }
 
     public int GetCurrentRound() => currentRound;

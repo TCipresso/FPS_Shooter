@@ -45,8 +45,8 @@ public class PlayerInteract : MonoBehaviour
             // If we hit a zombie, update the target
             // If we hit something else, leave the current target alone
             ZombieBase zombie = hit.collider.GetComponentInParent<ZombieBase>();
-            if (zombie != null)
-                EnemyHealthBarManager.Instance?.SetTarget(zombie);
+            //if (zombie != null)
+               // EnemyHealthBarManager.Instance?.SetTarget(zombie);
 
             // Existing interact logic
             if (!IsInteractableTag(hit.collider.tag))
@@ -74,7 +74,7 @@ public class PlayerInteract : MonoBehaviour
         else
         {
             // Raycast hit nothing at all — now it's safe to clear the health bar
-            EnemyHealthBarManager.Instance?.ClearTarget();
+            //EnemyHealthBarManager.Instance?.ClearTarget();
         }
 
         ClearPrompt();
