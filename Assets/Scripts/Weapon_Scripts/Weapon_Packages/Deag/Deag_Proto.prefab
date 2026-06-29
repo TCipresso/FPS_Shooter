@@ -5457,15 +5457,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f33fb26d3289fa48b36525f0d73aab2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Deag
-  currentMag: 8
-  maxMag: 8
-  baseMaxMag: 0
-  reserveAmmo: 60
-  maxReserve: 60
   muzzlePoint: {fileID: 761744670854236868}
   muzzleFlash: {fileID: 6003608171979140065}
   casingEject: {fileID: 7339294500615280436}
-  attachmentSearchRoot: {fileID: 5181372844596895921}
   bulletData: {fileID: 11400000, guid: 5bb6425b3383d22408b5e8d13fc0b5a9, type: 2}
   audioSource: {fileID: 7136560341243679034}
   fireSound: {fileID: 8300000, guid: aebb82bac21064f45a835fe91ab69884, type: 3}
@@ -5473,66 +5467,8 @@ MonoBehaviour:
   - name: Deag_Cocked
     clip: {fileID: 8300000, guid: 277d1e280567f7c4cbea4669849def27, type: 3}
   damage: 50
-  range: 150
+  range: 999
   ragdollForceMultiplier: 50
-  maxRecoilUp: 35
-  maxRecoilSide: 1.5
-  recoilCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.2
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  recoilSideCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.5
-      inSlope: 0
-      outSlope: 0.5
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0.5
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  recoilMaxShots: 10
-  adsRecoilUpMultiplier: 1
-  adsRecoilSideMultiplier: 1
-  tiltAmount: 12
-  tiltFrequency: 20
-  tiltFadeSpeed: 100
-  adsTiltMultiplier: 0.5
-  hipFireTiltMultiplier: 0.5
   kickRotationX: -50
   kickRotationY: 5
   kickRotationZ: 5
@@ -5545,7 +5481,7 @@ MonoBehaviour:
   adsKickPositionZ: -0.05
   adsKickPositionY: 0.8
   adsKickPositionX: 0.4
-  isAutomatic: 0
+  isAutomatic: 1
   rpm: 300
   baseRpm: 0
   critChance: 0.1
@@ -5560,12 +5496,10 @@ MonoBehaviour:
   adsTransitionSpeed: 10
   adsFadeCrosshair: 1
   isAiming: 0
-  canReloadWhileSprinting: 1
   animator: {fileID: 1082548041071943082}
   walkStopDelay: 0.1
   FireClipName: Fire
   universalAnimator: {fileID: 0}
-  isReloading: 0
   isCocking: 0
   isFiring: 0
 --- !u!1 &1603254855356736844
@@ -11106,7 +11040,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a4d6dc090689f9f47b9c517e05f900ef, type: 2}
+  - {fileID: 2100000, guid: e32a26110f11b4846add4f72d51af7c0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
