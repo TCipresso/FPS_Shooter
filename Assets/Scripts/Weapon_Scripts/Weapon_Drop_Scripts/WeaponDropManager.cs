@@ -64,4 +64,13 @@ public class WeaponDropManager : MonoBehaviour
         if (pickup != null)
             pickup.Initialize(instance);
     }
+
+    public void ForceDropRandom(Vector3 position)
+    {
+        if (weaponPool.Count == 0) return;
+        WeaponDefinitionSO definition = weaponPool[Random.Range(0, weaponPool.Count)];
+        WeaponRarity rarity = RollRarity();
+        WeaponInstance instance = new WeaponInstance(definition, rarity);
+        SpawnPickup(position, instance);
+    }
 }
