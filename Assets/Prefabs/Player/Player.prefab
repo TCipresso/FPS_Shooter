@@ -2892,13 +2892,13 @@ MonoBehaviour:
   orientation: {fileID: 22843506724090312}
   input: {fileID: 1602806704120901037}
   weaponCameraFOV: 60
-  lookSpeed: 0.1
+  lookSpeed: 0.07
   lookXLimit: 90
   CanLook: 1
   maxTiltZ: 1
   tiltSpeed: 10
   weaponInventory: {fileID: 5863405062406140053}
-  adsSensitivityMultiplier: 0.6
+  adsSensitivityMultiplier: 1
   fpsController: {fileID: 362184917326460930}
   sprintFOVPercent: 10
   slideFOVPercent: 20
@@ -4679,7 +4679,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFpsController
   input: {fileID: 1602806704120901037}
   orientation: {fileID: 22843506724090312}
-  walkSpeed: 20
+  walkSpeed: 18
   sprintSpeed: 30
   acceleration: 500
   airAcceleration: 500
@@ -4691,14 +4691,14 @@ MonoBehaviour:
   groundedStickForce: -4
   coyoteTime: 0.25
   jumpCount: 1
-  slideBoostSpeed: 75
-  slideFriction: 100
+  slideBoostSpeed: 50
+  slideFriction: 65
   slideMinSpeed: 3
   slideCooldown: 0.5
   slideHeight: 1
   slideHeightLerpSpeed: 1
   slideJumpUpSpeed: 30
-  slideJumpForwardBoost: 10
+  slideJumpForwardBoost: 0
   slideAirgraceTime: 0.2
   slideDropForce: -14
   slideGravityScale: 18
@@ -14490,7 +14490,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 915437539126507199, guid: e4aead514c6885a429626110644547b2, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1387680940737324092, guid: e4aead514c6885a429626110644547b2, type: 3}
       propertyPath: m_LocalPosition.x

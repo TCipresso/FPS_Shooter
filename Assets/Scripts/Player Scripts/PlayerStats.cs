@@ -33,7 +33,7 @@ public class PlayerStats : MonoBehaviour
 
     void Awake()
     {
-        Application.targetFrameRate = 300;
+       // Application.targetFrameRate = 300;
     }
 
     void Start()

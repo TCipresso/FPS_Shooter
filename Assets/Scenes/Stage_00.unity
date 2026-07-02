@@ -12889,7 +12889,7 @@ MonoBehaviour:
   baseEnemiesPerRound: 10
   enemiesAddedPerRound: 3
   maxEnemiesPerRound: 40
-  roundsPerStage: 1
+  roundsPerStage: 4
   spawnInterval: 0.5
   stageScenes:
   - Stage_01
@@ -39375,6 +39375,18 @@ PrefabInstance:
     - target: {fileID: 3459732790648726357, guid: 07e73c9b7f22bbe48a5ed7c3325c722c, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 3533895333255542454, guid: 07e73c9b7f22bbe48a5ed7c3325c722c, type: 3}
+      propertyPath: lookSpeed
+      value: 0.07
+      objectReference: {fileID: 0}
+    - target: {fileID: 3533895333255542454, guid: 07e73c9b7f22bbe48a5ed7c3325c722c, type: 3}
+      propertyPath: adsSensitivityMultiplier
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5498553832527229290, guid: 07e73c9b7f22bbe48a5ed7c3325c722c, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7466082175528795229, guid: 07e73c9b7f22bbe48a5ed7c3325c722c, type: 3}
       propertyPath: m_LocalPosition.x
