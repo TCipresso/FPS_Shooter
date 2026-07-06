@@ -1,6 +1,7 @@
 using UnityEngine;
+using Mirror;
 
-public class FPSLook : MonoBehaviour
+public class FPSLook : NetworkBehaviour
 {
     [Header("References")]
     public Camera playerCamera;
@@ -36,22 +37,28 @@ public class FPSLook : MonoBehaviour
     float baseFOV;
     float currentDashFOV;
 
-    void Start()
+    public override void OnStartLocalPlayer()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
         if (playerCamera != null)
         {
+            playerCamera.gameObject.SetActive(true);
             baseFOV = playerCamera.fieldOfView;
             currentDashFOV = baseFOV;
         }
+
+        if (overlayCamera != null)
+            overlayCamera.gameObject.SetActive(true);
 
         SyncOverlayFOV();
     }
 
     void LateUpdate()
     {
+        if (!isLocalPlayer) return;
+
         HandleRotation();
         HandleStrafeTilt();
         HandleFOV();
@@ -106,7 +113,7 @@ public class FPSLook : MonoBehaviour
     {
         if (playerCamera == null || fpsController == null) return;
 
-        WeaponBase weapon = FindFirstObjectByType<WeaponBase>();
+        WeaponBase weapon = weaponInventory != null ? weaponInventory.GetActiveWeaponBase() : null;
         bool isAiming = weapon != null && weapon.isAiming;
 
         float targetFOV;
@@ -130,7 +137,6 @@ public class FPSLook : MonoBehaviour
         playerCamera.fieldOfView = currentDashFOV;
     }
 
-    // Kept as no-ops so WeaponBase call sites still compile
     public void ApplyRecoil(float pitchDegrees, float yawDegrees, bool aiming, float weaponTiltAmount, float weaponTiltFrequency, float weaponTiltFade, float hipFireTiltMultiplier) { }
     public void StopRecoil() { }
 

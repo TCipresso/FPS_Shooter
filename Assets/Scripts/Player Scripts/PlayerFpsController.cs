@@ -1,7 +1,8 @@
 using UnityEngine;
+using Mirror;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerFpsController : MonoBehaviour
+public class PlayerFpsController : NetworkBehaviour
 {
     [SerializeField] public FPSInput input;
     [SerializeField] private Transform orientation;
@@ -123,8 +124,15 @@ public class PlayerFpsController : MonoBehaviour
         dashChargesRemaining = DashCharges;
     }
 
+    public override void OnStartClient()
+    {
+        if (!isLocalPlayer)
+            controller.enabled = false;
+    }
+
     void Update()
     {
+        if (!isLocalPlayer) return;
         if (input == null) return;
 
         TickTimers();
@@ -477,6 +485,8 @@ public class PlayerFpsController : MonoBehaviour
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
+        if (!isLocalPlayer) return;
+
         float angle = Vector3.Angle(Vector3.up, hit.normal);
 
         if (angle < 60f)

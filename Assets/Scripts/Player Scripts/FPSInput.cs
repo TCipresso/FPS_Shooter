@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Mirror;
 
-public class FPSInput : MonoBehaviour
+public class FPSInput : NetworkBehaviour
 {
     public InputActionReference moveAction;
     public InputActionReference lookAction;
@@ -26,7 +27,18 @@ public class FPSInput : MonoBehaviour
     float jumpBufferCounter;
     public bool JumpBuffered => jumpBufferCounter > 0f;
 
-    void OnEnable()
+    public override void OnStartLocalPlayer()
+    {
+        EnableActions();
+    }
+
+    void OnDisable()
+    {
+        if (isLocalPlayer)
+            DisableActions();
+    }
+
+    void EnableActions()
     {
         if (moveAction) moveAction.action.Enable();
         if (lookAction) lookAction.action.Enable();
@@ -37,7 +49,7 @@ public class FPSInput : MonoBehaviour
         if (maneuverAction) maneuverAction.action.Enable();
     }
 
-    void OnDisable()
+    void DisableActions()
     {
         if (moveAction) moveAction.action.Disable();
         if (lookAction) lookAction.action.Disable();
@@ -50,10 +62,11 @@ public class FPSInput : MonoBehaviour
 
     void Update()
     {
+        if (!isLocalPlayer) return;
+
         Move = moveAction ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
         Look = lookAction ? lookAction.action.ReadValue<Vector2>() : Vector2.zero;
         Move = Vector2.ClampMagnitude(Move, 1f);
-
         JumpHeld = jumpAction && jumpAction.action.IsPressed();
         SprintHeld = sprintAction && sprintAction.action.IsPressed();
         CrouchHeld = crouchAction && crouchAction.action.IsPressed();
