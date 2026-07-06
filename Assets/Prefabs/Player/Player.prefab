@@ -1284,8 +1284,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDrift
   characterController: {fileID: 1466755314347159847}
   fpsInput: {fileID: 1602806704120901037}
-  lateralStrength: 0.01
-  backwardStrength: 0.01
+  lateralStrength: 0.005
+  backwardStrength: 0.005
   smoothSpeed: 5
 --- !u!1 &1387780742237089516
 GameObject:
@@ -1683,8 +1683,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CrosshairUI
   armLength: 10
   lineThickness: 2
-  baseSpread: 20
-  minSpread: 10
+  baseSpread: 5
+  minSpread: 0
   bloomSpreadMultiplier: 10
   spreadLerpSpeed: 10
   adsSpread: 0
@@ -2621,7 +2621,7 @@ MonoBehaviour:
   slot1Action: {fileID: -8497102980329610639, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   slot2Action: {fileID: -7862757462852919426, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   defaultWeapons:
-  - {fileID: 11400000, guid: 8b057809788b6ec4a81778b0670d1bc1, type: 2}
+  - {fileID: 11400000, guid: 0e34567bc5d480d48bdc388360f5813e, type: 2}
   equippedWeapons: []
   equippedData: []
   weaponLevels: 
@@ -2896,10 +2896,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponSway
   input: {fileID: 1602806704120901037}
   weaponInventory: {fileID: 5863405062406140053}
-  positionSwayAmount: 0.05
-  maxPositionSway: 0.25
-  rotationSwayAmount: 1
-  maxRotationSway: 6
+  positionSwayAmount: 0.025
+  maxPositionSway: 0.15
+  rotationSwayAmount: 0.25
+  maxRotationSway: 1.5
   adsSwayMultiplier: 0.02
   positionSmooth: 5
   rotationSmooth: 6
