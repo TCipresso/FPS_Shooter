@@ -7,20 +7,17 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: CelWithRim02__StylSurf_Single_ExCel_Spec_Rim 1
+  m_Name: CelWithRim02__StylSurf_Single_ExCel_Spec_Rim 4
   m_Shader: {fileID: 4800000, guid: bee44b4a58655ee4cbff107302a3e131, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - DR_CEL_EXTRA_ON
-  - DR_ENABLE_LIGHTMAP_DIR
-  - DR_OUTLINE_ON
-  - _CELPRIMARYMODE_SINGLE
   - _DETAILMAPBLENDINGMODE_MULTIPLY
   - _GRADIENTSPACE_WORLD
   - _OUTLINESPACE_SCREEN
   - _TEXTUREBLENDINGMODE_MULTIPLY
   m_InvalidKeywords:
+  - _CELPRIMARYMODE_NONE
   - _FLAT_RIM_ENABLED
   - _FLAT_SHADOWS_ENABLED
   - _FLAT_SPECULAR_ENABLED
@@ -95,9 +92,9 @@ Material:
     - _Blend: 0
     - _BumpScale: 1
     - _CameraDistanceImpact: 0
-    - _CelExtraEnabled: 1
+    - _CelExtraEnabled: 0
     - _CelNumSteps: 3
-    - _CelPrimaryMode: 1
+    - _CelPrimaryMode: 0
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailMapBlendingMode: 0
@@ -139,7 +136,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _OutlineDepthOffset: 0
-    - _OutlineEnabled: 1
+    - _OutlineEnabled: 0
     - _OutlineScale: 1
     - _OutlineSpace: 0
     - _OutlineWidth: 1

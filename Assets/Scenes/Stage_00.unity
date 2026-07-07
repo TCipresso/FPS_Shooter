@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 29cd027eb0f4c8b41a5b43ec4d066670, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: d1feb32bae027bd468cd6a08954a7dba, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -182,7 +182,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (29)
@@ -201,6 +201,133 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
   m_PrefabInstance: {fileID: 820197}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &8098736
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8098737}
+  - component: {fileID: 8098739}
+  - component: {fileID: 8098738}
+  m_Layer: 6
+  m_Name: Point Light
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8098737
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8098736}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 44.4, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 337417282}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8098738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8098736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
+--- !u!108 &8098739
+Light:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8098736}
+  m_Enabled: 1
+  serializedVersion: 12
+  m_Type: 2
+  m_Color: {r: 0.9716981, g: 0.5271004, b: 0.91765064, a: 1}
+  m_Intensity: 250
+  m_Range: 77.028824
+  m_SpotAngle: 30
+  m_InnerSpotAngle: 21.80208
+  m_CookieSize2D: {x: 0.5, y: 0.5}
+  m_Shadows:
+    m_Type: 0
+    m_Resolution: -1
+    m_CustomResolution: -1
+    m_Strength: 1
+    m_Bias: 0.05
+    m_NormalBias: 0.4
+    m_NearPlane: 0.2
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
+  m_Cookie: {fileID: 0}
+  m_DrawHalo: 0
+  m_Flare: {fileID: 0}
+  m_RenderMode: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingLayerMask: 1
+  m_Lightmapping: 4
+  m_LightShadowCasterMode: 0
+  m_AreaSize: {x: 1, y: 1}
+  m_BounceIntensity: 1
+  m_ColorTemperature: 6570
+  m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
+  m_ForceVisible: 0
+  m_ShadowRadius: 0
+  m_ShadowAngle: 0
+  m_LightUnit: 1
+  m_LuxAtDistance: 1
+  m_EnableSpotReflector: 1
 --- !u!1 &15756947
 GameObject:
   m_ObjectHideFlags: 0
@@ -934,7 +1061,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (22)
@@ -1069,7 +1196,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (4)
@@ -1378,7 +1505,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1473,7 +1600,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock
@@ -2807,7 +2934,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (22)
@@ -3016,7 +3143,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (6)
@@ -3093,7 +3220,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3315,7 +3442,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (20)
@@ -3524,7 +3651,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (29)
@@ -3606,7 +3733,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (18)
@@ -4298,7 +4425,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (1)
@@ -4489,7 +4616,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4632,7 +4759,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4773,7 +4900,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4982,7 +5109,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (22)
@@ -5098,7 +5225,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5188,7 +5315,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5722,7 +5849,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5817,7 +5944,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (2)
@@ -5894,7 +6021,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5989,7 +6116,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (28)
@@ -6071,7 +6198,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (24)
@@ -6641,7 +6768,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (7)
@@ -6990,6 +7117,7 @@ Transform:
   - {fileID: 1484160958}
   - {fileID: 631827981}
   - {fileID: 748512001}
+  - {fileID: 8098737}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &350969647
@@ -7222,7 +7350,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (2)
@@ -7304,7 +7432,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (12)
@@ -7386,7 +7514,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (29)
@@ -7468,7 +7596,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (6)
@@ -7550,7 +7678,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (22)
@@ -7685,7 +7813,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (21)
@@ -7919,7 +8047,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (25)
@@ -8221,7 +8349,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (25)
@@ -8871,7 +8999,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (29)
@@ -8948,7 +9076,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9349,7 +9477,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9444,7 +9572,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (20)
@@ -9868,7 +9996,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (19)
@@ -9981,7 +10109,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -10136,7 +10264,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (14)
@@ -10250,7 +10378,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (10)
@@ -10327,7 +10455,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -10534,7 +10662,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (13)
@@ -10998,7 +11126,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -11088,7 +11216,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -11183,7 +11311,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (18)
@@ -11265,7 +11393,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (23)
@@ -11587,7 +11715,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -12893,7 +13021,6 @@ MonoBehaviour:
   spawnInterval: 0.5
   stageScenes:
   - Stage_02
-  - Stage_03
   stageChangeDelay: 5
   healthMultiplierPerStage: 1.2
   damageMultiplierPerStage: 1
@@ -13132,7 +13259,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -13288,7 +13415,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (20)
@@ -13370,7 +13497,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (24)
@@ -13566,7 +13693,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (7)
@@ -13680,7 +13807,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock
@@ -13762,7 +13889,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (27)
@@ -13844,7 +13971,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (27)
@@ -13926,7 +14053,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (15)
@@ -14041,7 +14168,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -14136,7 +14263,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (8)
@@ -14218,7 +14345,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (10)
@@ -14527,7 +14654,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (27)
@@ -14609,7 +14736,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (6)
@@ -14756,7 +14883,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (24)
@@ -14838,7 +14965,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (1)
@@ -15182,7 +15309,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (12)
@@ -15558,7 +15685,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (11)
@@ -16409,7 +16536,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -16681,7 +16808,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (14)
@@ -17100,7 +17227,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 727cfaf3482ac48ff97b662624abc435, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -17195,7 +17322,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (18)
@@ -17272,7 +17399,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -17362,7 +17489,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -17457,7 +17584,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (15)
@@ -17705,7 +17832,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (3)
@@ -17787,7 +17914,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (8)
@@ -17869,7 +17996,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (16)
@@ -17946,7 +18073,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -18168,7 +18295,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (9)
@@ -18443,7 +18570,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (20)
@@ -18669,7 +18796,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (9)
@@ -18806,7 +18933,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -18896,7 +19023,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -18986,7 +19113,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -19081,7 +19208,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (17)
@@ -19618,7 +19745,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (21)
@@ -20328,7 +20455,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -20691,7 +20818,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -20898,7 +21025,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (23)
@@ -20980,7 +21107,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (23)
@@ -21057,7 +21184,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -21458,7 +21585,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -21926,7 +22053,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (10)
@@ -22489,7 +22616,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock
@@ -22566,7 +22693,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -22799,7 +22926,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -22894,7 +23021,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (12)
@@ -23199,7 +23326,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -23374,7 +23501,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (28)
@@ -23456,7 +23583,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (10)
@@ -23533,7 +23660,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -23623,7 +23750,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -23713,7 +23840,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -23922,7 +24049,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (4)
@@ -24080,7 +24207,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (4)
@@ -24156,7 +24283,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.3427106, g: 0, b: 0.3584906, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -24200,8 +24327,8 @@ Light:
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
-  m_ColorTemperature: 7249
-  m_UseColorTemperature: 1
+  m_ColorTemperature: 12040
+  m_UseColorTemperature: 0
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
@@ -24420,7 +24547,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (17)
@@ -24502,7 +24629,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (19)
@@ -24584,7 +24711,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock
@@ -24920,7 +25047,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (26)
@@ -25228,7 +25355,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (18)
@@ -25491,7 +25618,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (24)
@@ -25682,7 +25809,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -26404,7 +26531,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (15)
@@ -26712,7 +26839,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (28)
@@ -26946,7 +27073,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -27041,7 +27168,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (12)
@@ -27118,7 +27245,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -27331,7 +27458,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (19)
@@ -27525,7 +27652,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (1)
@@ -27602,7 +27729,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -27923,7 +28050,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (25)
@@ -28005,7 +28132,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (7)
@@ -28303,7 +28430,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (2)
@@ -28476,7 +28603,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (19)
@@ -28702,7 +28829,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (1)
@@ -29097,7 +29224,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (6)
@@ -29549,7 +29676,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -29639,7 +29766,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -29734,7 +29861,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (26)
@@ -29816,7 +29943,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (16)
@@ -29893,7 +30020,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -30689,7 +30816,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (3)
@@ -30978,7 +31105,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (26)
@@ -31060,7 +31187,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (21)
@@ -31288,7 +31415,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (5)
@@ -31370,7 +31497,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (9)
@@ -31447,7 +31574,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -31651,7 +31778,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -31810,7 +31937,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (17)
@@ -32006,7 +32133,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (11)
@@ -32314,7 +32441,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (16)
@@ -32444,7 +32571,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -32539,7 +32666,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (13)
@@ -32748,7 +32875,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (13)
@@ -33167,7 +33294,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (7)
@@ -33278,7 +33405,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -33373,7 +33500,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (3)
@@ -33450,7 +33577,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -33712,7 +33839,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (11)
@@ -33857,7 +33984,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (21)
@@ -33965,7 +34092,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -34529,7 +34656,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (13)
@@ -34611,7 +34738,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (2)
@@ -34807,7 +34934,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (27)
@@ -34884,7 +35011,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -35011,7 +35138,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (26)
@@ -35207,7 +35334,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (11)
@@ -35289,7 +35416,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (5)
@@ -35405,7 +35532,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (3)
@@ -35884,7 +36011,7 @@ Terrain:
   m_StaticShadowCaster: 0
   m_IgnoreQualitySettings: 0
   m_ReflectionProbeUsage: 1
-  m_MaterialTemplate: {fileID: 2100000, guid: 10add479803f40947b450666aea1782d, type: 2}
+  m_MaterialTemplate: {fileID: 2100000, guid: b1450a80607fee1468a6b8dcb7b5ce8a, type: 2}
   m_BakeLightProbesForTrees: 1
   m_PreserveTreePrototypeLayers: 0
   m_DeringLightProbesForTrees: 1
@@ -36520,7 +36647,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (23)
@@ -36636,7 +36763,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -36795,7 +36922,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (17)
@@ -36872,7 +36999,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -36967,7 +37094,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (25)
@@ -37049,7 +37176,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (28)
@@ -37245,7 +37372,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (9)
@@ -37327,7 +37454,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (5)
@@ -37404,7 +37531,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -37499,7 +37626,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (5)
@@ -37846,7 +37973,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (14)
@@ -37928,7 +38055,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (15)
@@ -38179,7 +38306,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -38388,7 +38515,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (8)
@@ -38470,7 +38597,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (4)
@@ -39027,7 +39154,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (14)
@@ -39250,7 +39377,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 25d2f59e7eb4e9546bd83cf88111f133, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -39459,7 +39586,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 9949310a57172b14d9c27bcdea8afb48, type: 2}
+      objectReference: {fileID: 2100000, guid: 629447d7c08ac494192728ecdb6927a2, type: 2}
     - target: {fileID: 919132149155446097, guid: 6bb780717fb7b53468010dd70aefb433, type: 3}
       propertyPath: m_Name
       value: Rock (16)
@@ -39576,7 +39703,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae554eaf02b49734793304dd8ff4fb5f, type: 2}
+  - {fileID: 2100000, guid: ae5da08c2f172754db71927b3cacb4e2, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
