@@ -183,6 +183,7 @@ MonoBehaviour:
   - {fileID: -7949506990957535216}
   - {fileID: 8993817757079142382}
   - {fileID: -6003855434482523866}
+  - {fileID: 3648997994133617739}
   m_RendererFeatureMap: ad6b866f10d7b46c702bfbea570c8d1c10e07d9082adad91ee7f4d499975d07c26e1dec84a05aeac
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
@@ -319,7 +320,7 @@ MonoBehaviour:
   inputData:
     _value: 3
   lineHardness:
-    _value: 0
+    _value: 1
     _minValue: 0
     _maxValue: 1
   fade:
@@ -397,7 +398,7 @@ MonoBehaviour:
   visualizeEdges:
     _value: 0
   enhanceDetails:
-    _value: 1
+    _value: 0
   sketch:
     _value: 0
   sketchIntensity:
@@ -1149,6 +1150,55 @@ MonoBehaviour:
   _flickerPeriod: 7
   _hdr: 1
   _bloomOnly: 0
+--- !u!114 &3648997994133617739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 576f949be0794f548b825c9ce6f556db, type: 3}
+  m_Name: Flat Kit Per Object Outline
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::FlatKit.ObjectOutlineRendererFeature
+  m_Active: 1
+  settings:
+    passTag: RenderObjectsFeature
+    Event: 300
+    filterSettings:
+      RenderQueueType: 0
+      LayerMask:
+        serializedVersion: 2
+        m_Bits: 4294967295
+      PassNames:
+      - Outline
+    overrideMaterial: {fileID: 0}
+    overrideMaterialPassIndex: 0
+    overrideShader: {fileID: 4800000, guid: bee44b4a58655ee4cbff107302a3e131, type: 3}
+    overrideShaderPassIndex: 1
+    overrideMode: 2
+    overrideDepthState: 0
+    depthCompareFunction: 4
+    enableWrite: 1
+    stencilSettings:
+      overrideStencilState: 0
+      stencilReference: 0
+      stencilCompareFunction: 8
+      passOperation: 0
+      failOperation: 0
+      zFailOperation: 0
+    cameraSettings:
+      overrideCamera: 0
+      restoreCamera: 1
+      offset: {x: 0, y: 0, z: 0, w: 0}
+      cameraFieldOfView: 60
+  materials:
+  - {fileID: 2100000, guid: 5f980a88fe5c1416b8165dd514c65cf2, type: 2}
+  - {fileID: 2100000, guid: f2d81d08d32994061b705c071b2fa0e4, type: 2}
+  - {fileID: 2100000, guid: 727cfaf3482ac48ff97b662624abc435, type: 2}
+  - {fileID: 2100000, guid: 9630d2ae87ba6a04f9b1f77d9926c582, type: 2}
+  autoReferenceMaterials: 1
 --- !u!114 &3892626091282368775
 MonoBehaviour:
   m_ObjectHideFlags: 3
