@@ -11,19 +11,26 @@ Shader "Bloodsport/WorldAligned_Fixed"
         _ShapeScale      ("Shape Scale",         Float)      = 1.0
         _ShapeColor      ("Shape Color",         Color)      = (1, 0.4, 0.05, 1)
         _ShapeOpacity    ("Shape Opacity",       Range(0,1)) = 1.0
+        _ShapeContrast   ("Shape Contrast",      Range(0.5,5)) = 1.5
         _ShapeSmoothness ("Shape Smoothness",    Range(0,1)) = 0.9
         _ShapeMetallic   ("Shape Metallic",      Range(0,1)) = 0.3
+        _ShapeEmission   ("Shape Emission Strength", Range(0,5)) = 1.5
+
+        _ObjectOriginWS  ("Object Origin WS (set via script)", Vector) = (0,0,0,0)
     }
 
     SubShader
     {
-        Tags { "RenderType"="Opaque" "RenderPipeline"="UniversalPipeline" }
+        Tags { "RenderType"="Opaque" "Queue"="Geometry" "RenderPipeline"="UniversalPipeline" }
         LOD 200
 
         Pass
         {
             Name "ForwardLit"
             Tags { "LightMode"="UniversalForward" }
+            Cull Back
+            ZWrite On
+            ZTest LEqual
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -47,8 +54,11 @@ Shader "Bloodsport/WorldAligned_Fixed"
                 float  _ShapeScale;
                 float4 _ShapeColor;
                 float  _ShapeOpacity;
+                float  _ShapeContrast;
                 float  _ShapeSmoothness;
                 float  _ShapeMetallic;
+                float  _ShapeEmission;
+                float4 _ObjectOriginWS;
             CBUFFER_END
 
             TEXTURE2D(_ShapeTex);
@@ -64,10 +74,9 @@ Shader "Bloodsport/WorldAligned_Fixed"
             {
                 float4 positionHCS : SV_POSITION;
                 float3 positionWS  : TEXCOORD0;
-                float3 positionOS  : TEXCOORD1;  // object-space for locked sampling
-                float3 normalWS    : TEXCOORD2;
-                float3 normalOS    : TEXCOORD3;  // object-space normal for locked weights
-                float  fogFactor   : TEXCOORD4;
+                float3 normalWS    : TEXCOORD1;
+                float3 normalOS    : TEXCOORD2;
+                float  fogFactor   : TEXCOORD3;
             };
 
             Varyings vert(Attributes IN)
@@ -75,47 +84,16 @@ Shader "Bloodsport/WorldAligned_Fixed"
                 Varyings OUT;
                 OUT.positionWS  = TransformObjectToWorld(IN.positionOS.xyz);
                 OUT.positionHCS = TransformWorldToHClip(OUT.positionWS);
-                OUT.positionOS  = IN.positionOS.xyz;
                 OUT.normalWS    = TransformObjectToWorldNormal(IN.normalOS);
                 OUT.normalOS    = IN.normalOS;
                 OUT.fogFactor   = ComputeFogFactor(OUT.positionHCS.z);
                 return OUT;
             }
 
-            float3 LitColor(float3 albedo, float metallic, float smoothness,
-                            float3 normalWS, float3 positionWS, float2 screenUV)
-            {
-                float3 viewDirWS = normalize(GetCameraPositionWS() - positionWS);
-
-                InputData inputData               = (InputData)0;
-                inputData.positionWS              = positionWS;
-                inputData.normalWS                = normalize(normalWS);
-                inputData.viewDirectionWS         = viewDirWS;
-                inputData.shadowCoord             = TransformWorldToShadowCoord(positionWS);
-                inputData.fogCoord                = 0;
-                inputData.vertexLighting          = float3(0,0,0);
-                inputData.bakedGI                 = float3(0,0,0);
-                inputData.normalizedScreenSpaceUV = screenUV;
-                inputData.shadowMask              = float4(1,1,1,1);
-
-                SurfaceData surfaceData  = (SurfaceData)0;
-                surfaceData.albedo       = albedo;
-                surfaceData.metallic     = metallic;
-                surfaceData.smoothness   = smoothness;
-                surfaceData.alpha        = 1.0;
-                surfaceData.occlusion    = 1.0;
-                surfaceData.normalTS     = float3(0,0,1);
-                surfaceData.emission     = float3(0,0,0);
-                surfaceData.specular     = float3(0,0,0);
-
-                return UniversalFragmentPBR(inputData, surfaceData).rgb;
-            }
-
-            // Triplanar blend weights from world normal
             float3 TriplanarWeights(float3 normalWS)
             {
                 float3 w = abs(normalWS);
-                w = max(w - 0.2, 0.0);   // sharpness bias
+                w = max(w - 0.2, 0.0);
                 w = pow(w, 4.0);
                 return w / (w.x + w.y + w.z + 1e-5);
             }
@@ -132,16 +110,10 @@ Shader "Bloodsport/WorldAligned_Fixed"
             {
                 float2 screenUV = IN.positionHCS.xy / _ScaledScreenParams.xy;
 
-                // Convert world-space position back into object root space by
-                // removing the object's world translation and rotation only —
-                // this ignores vertex-level deformation from animations so the
-                // texture pattern never scrolls during skinned mesh animation.
-                float3 objectRootWS  = UNITY_MATRIX_M._m03_m13_m23;
-                float3 relativeWS    = IN.positionWS - objectRootWS;
-                // Rotate into object space using inverse of the model rotation
-                // (transpose of the upper-left 3x3, which equals inverse for pure rotation)
-                float3x3 modelRot    = (float3x3)UNITY_MATRIX_M;
-                float3 posForSample  = mul(transpose(modelRot), relativeWS);
+                // Uses an explicit per-object origin (set via MaterialPropertyBlock,
+                // see WorldAlignedOrigin.cs) instead of UNITY_MATRIX_M, since static
+                // batching rewrites UNITY_MATRIX_M and breaks that approach in builds.
+                float3 posForSample = IN.positionWS - _ObjectOriginWS.xyz;
 
                 float3 weights     = TriplanarWeights(IN.normalOS);
                 float4 shapeSample = TriplanarSample(
@@ -149,23 +121,56 @@ Shader "Bloodsport/WorldAligned_Fixed"
                     posForSample, weights, _ShapeScale
                 );
 
-                float  shapeBlend       = shapeSample.a * _ShapeOpacity;
-                float3 tintedShapeColor = _ShapeColor.rgb * shapeSample.rgb;
+                // Luminance-based mask instead of alpha - works even when the
+                // source texture has no meaningful alpha channel.
+                float lum = dot(shapeSample.rgb, float3(0.299, 0.587, 0.114));
+                float shapeMask = saturate(lum * _ShapeContrast) * _ShapeOpacity;
 
-                float3 baseLit = LitColor(
-                    _BaseColor.rgb, _BaseMetallic, _BaseSmoothness,
-                    IN.normalWS, IN.positionWS, screenUV
-                );
+                float3 albedo     = lerp(_BaseColor.rgb, _ShapeColor.rgb, shapeMask);
+                float  metallic   = lerp(_BaseMetallic, _ShapeMetallic, shapeMask);
+                float  smoothness = lerp(_BaseSmoothness, _ShapeSmoothness, shapeMask);
+                float3 emission   = _ShapeColor.rgb * shapeMask * _ShapeEmission;
 
-                float3 shapeLit = LitColor(
-                    tintedShapeColor, _ShapeMetallic, _ShapeSmoothness,
-                    IN.normalWS, IN.positionWS, screenUV
-                );
+                float3 viewDirWS = normalize(GetCameraPositionWS() - IN.positionWS);
 
-                float3 finalColor = lerp(baseLit, shapeLit, shapeBlend);
+                InputData inputData               = (InputData)0;
+                inputData.positionWS              = IN.positionWS;
+                inputData.normalWS                = normalize(IN.normalWS);
+                inputData.viewDirectionWS         = viewDirWS;
+                inputData.shadowCoord             = TransformWorldToShadowCoord(IN.positionWS);
+                inputData.fogCoord                = 0;
+                inputData.vertexLighting          = float3(0,0,0);
+                inputData.bakedGI                 = float3(0,0,0);
+                inputData.normalizedScreenSpaceUV = screenUV;
+                inputData.shadowMask              = float4(1,1,1,1);
+
+                SurfaceData surfaceData  = (SurfaceData)0;
+                surfaceData.albedo       = albedo;
+                surfaceData.metallic     = metallic;
+                surfaceData.smoothness   = smoothness;
+                surfaceData.alpha        = 1.0;
+                surfaceData.occlusion    = 1.0;
+                surfaceData.normalTS     = float3(0,0,1);
+                surfaceData.emission     = emission;
+                surfaceData.specular     = float3(0,0,0);
+
+                float3 finalColor = UniversalFragmentPBR(inputData, surfaceData).rgb;
                 finalColor = MixFog(finalColor, IN.fogFactor);
                 return float4(finalColor, 1.0);
             }
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "DepthNormals"
+            Tags { "LightMode"="DepthNormals" }
+            ZWrite On
+
+            HLSLPROGRAM
+            #pragma vertex DepthNormalsVertex
+            #pragma fragment DepthNormalsFragment
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthNormalsPass.hlsl"
             ENDHLSL
         }
 

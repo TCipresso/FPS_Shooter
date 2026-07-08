@@ -1008,6 +1008,7 @@ GameObject:
   - component: {fileID: 4541108004627735081}
   - component: {fileID: 4561622188631466720}
   - component: {fileID: 6734634405439610466}
+  - component: {fileID: 6057583049158463567}
   m_Layer: 7
   m_Name: Z16
   m_TagString: Untagged
@@ -1055,18 +1056,18 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f0c6350bbffda2e4da25f313ab1a3b0b, type: 2}
+  - {fileID: 2100000, guid: dfff3479a68e5af45b797ed5c1d75679, type: 2}
   - {fileID: 2100000, guid: 9192534340ea5074ba5a7568ba00c0dd, type: 2}
-  - {fileID: 2100000, guid: 8c88a50bd4d7d5d4dacc6dfff1a8220a, type: 2}
-  - {fileID: 2100000, guid: 47b88659336f6b54cb3ebcf432e83237, type: 2}
-  - {fileID: 2100000, guid: f0c6350bbffda2e4da25f313ab1a3b0b, type: 2}
-  - {fileID: 2100000, guid: f0c6350bbffda2e4da25f313ab1a3b0b, type: 2}
-  - {fileID: 2100000, guid: f0c6350bbffda2e4da25f313ab1a3b0b, type: 2}
+  - {fileID: 2100000, guid: 82d109c1caa229a4692e1447e89f86e9, type: 2}
+  - {fileID: 2100000, guid: 82d109c1caa229a4692e1447e89f86e9, type: 2}
+  - {fileID: 2100000, guid: dfff3479a68e5af45b797ed5c1d75679, type: 2}
+  - {fileID: 2100000, guid: 82d109c1caa229a4692e1447e89f86e9, type: 2}
+  - {fileID: 2100000, guid: 82d109c1caa229a4692e1447e89f86e9, type: 2}
   - {fileID: -4246479402191905792, guid: bba058897c6da014b8e4bb0cc29361df, type: 3}
   - {fileID: -8693172909504858975, guid: bba058897c6da014b8e4bb0cc29361df, type: 3}
   - {fileID: -7198559261415225722, guid: bba058897c6da014b8e4bb0cc29361df, type: 3}
   - {fileID: 725804396391725484, guid: bba058897c6da014b8e4bb0cc29361df, type: 3}
-  - {fileID: 2100000, guid: 8c88a50bd4d7d5d4dacc6dfff1a8220a, type: 2}
+  - {fileID: 2100000, guid: dfff3479a68e5af45b797ed5c1d75679, type: 2}
   - {fileID: -5998004595915773402, guid: bba058897c6da014b8e4bb0cc29361df, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -1219,6 +1220,19 @@ MonoBehaviour:
   universalAnimator: {fileID: 0}
   isCocking: 0
   isFiring: 0
+--- !u!114 &6057583049158463567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2386918208603262187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86051facd12968249ac4f491d4b2bb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MK.Toon.Examples::SkinnedWorldAlignedOrigin
+  originSource: {fileID: 4541108004627735081}
 --- !u!1 &2498284345143394346
 GameObject:
   m_ObjectHideFlags: 0
@@ -17289,7 +17303,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 066f3dc7a604e75488d75b009d21888c, type: 2}
+  - {fileID: 2100000, guid: 2141d04155906e947bf4d031081e4df1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

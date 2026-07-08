@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-1195226229787603860
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Editor::UnityEditor.Rendering.Universal.AssetVersion
+  version: 10
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Toonshadefixed 2
+  m_Shader: {fileID: 4800000, guid: a6946f1e1f6e75449b67e2058e2b2a68, type: 3}
+  m_Parent: {fileID: 2100000, guid: 82d109c1caa229a4692e1447e89f86e9, type: 2}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _MK_ALBEDO_MAP
+  - _MK_ARTISTIC_ANIMATION_STUTTER
+  - _MK_ENVIRONMENT_REFLECTIONS_AMBIENT
+  - _MK_LIGHT_CEL
+  - _MK_RECEIVE_SHADOWS
+  - _MK_SPECULAR_ISOTROPIC
+  - _MK_WRAPPED_DIFFUSE
+  - _RECEIVESHADOWS_ON
+  - _WRAPPEDLIGHTING_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap:
+    IGNOREPROJECTOR: False
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _ShapeEmission: 3.88
+    - _ShapeMetallic: 0.647
+    - _ShapeOpacity: 0.539
+    - _ShapeScale: 0.25
+    - _ShapeSmoothness: 0.615
+    m_Colors:
+    - _BaseColor: {r: 0.05428977, g: 0.18867922, b: 0.074520454, a: 1}
+    - _ShapeColor: {r: 0, g: 0.6698113, b: 0.102441765, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

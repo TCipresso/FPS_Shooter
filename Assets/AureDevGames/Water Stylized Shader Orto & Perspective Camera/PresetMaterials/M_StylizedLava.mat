@@ -106,6 +106,7 @@ Material:
     - _FresnelPower: 1
     - _GradientRefractionScale: 10
     - _HorizonDistance: 200
+    - _Hue: 1
     - _IntersectionFoamBlend: 1.09
     - _IntersectionFoamCutoff: 1.85
     - _IntersectionFoamDepth: 2.43
@@ -130,7 +131,9 @@ Material:
     - _RefractionSpeed: 0.05
     - _RefractionStrength: 0.01
     - _RippleStrength: 83.62
+    - _Saturation: 1
     - _SecondaryFoamBlend: 0.06
+    - _Show: 0
     - _SkyboxForce: 2.5
     - _Steps: 50
     - _SurfaceFoamDirection: 1
@@ -138,14 +141,18 @@ Material:
     - _SurfaceFoamSpeed: 0
     - _SurfaceFoamTiling: 1.11
     - _TileSize: 200
+    - _Value: 1
     - _WORLD_SPACE_UV: 1
     - _WaterAlpha: 1
     - _WaterMetallic: 0.577
     - _WaterSmoothness: 0.581
     - _WaveLength: 1.82
+    - _WaveRiverLength: 0
+    - _WaveRiverWidth: 0
     - _WaveSpeed: 0.2
     - _WaveSteepness: 0
     - _WaveStepness: 0.35
+    - _WaveTileSize: 0
     m_Colors:
     - _BaseColor: {r: 0, g: 0.1989687, b: 1.110646, a: 1}
     - _CaveColor: {r: 0.21881218, g: 0.21216798, b: 0.4867924, a: 0}
