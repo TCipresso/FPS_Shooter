@@ -307,18 +307,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2a052916d162d3448e654173d8cc8e3, type: 3}
   m_Name: MKEdgeDetectionRendererFeature
   m_EditorClassIdentifier: MKEdgeDetectionUniversalRendererFeature::MK.EdgeDetection.UniversalRendererFeatures.MKEdgeDetectionRendererFeature
-  m_Active: 1
+  m_Active: 0
   workMode: 1
   precision:
     _value: 0
   largeKernel:
     _value: 0
   mediumKernel:
-    _value: 0
+    _value: 1
   smallKernel:
     _value: 0
   inputData:
-    _value: 3
+    _value: 2
   lineHardness:
     _value: 1
     _minValue: 0
@@ -398,7 +398,7 @@ MonoBehaviour:
   visualizeEdges:
     _value: 0
   enhanceDetails:
-    _value: 0
+    _value: 1
   sketch:
     _value: 0
   sketchIntensity:
