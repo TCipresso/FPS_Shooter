@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 052a0051f28380a49905d797cf6fd45d, type: 3}
   m_Name: MKToonPerObjectOutlines
   m_EditorClassIdentifier: MK.Toon.URP::MK.Toon.URP.MKToonPerObjectOutlines
-  m_Active: 1
+  m_Active: 0
   _layerMask:
     serializedVersion: 2
     m_Bits: 503
@@ -1215,7 +1215,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 576f949be0794f548b825c9ce6f556db, type: 3}
   m_Name: Flat Kit Per Object Outline
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::FlatKit.ObjectOutlineRendererFeature
-  m_Active: 1
+  m_Active: 0
   settings:
     passTag: RenderObjectsFeature
     Event: 300
@@ -1848,7 +1848,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c53165b379c3d94ca34b12cb8eb10f1, type: 3}
   m_Name: VolFx
   m_EditorClassIdentifier: VolFx::VolFx.VolFx
-  m_Active: 1
+  m_Active: 0
   _event: 550
   _format:
     enabled: 1

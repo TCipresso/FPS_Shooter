@@ -33,6 +33,32 @@ Shader "Bloodsport/ToonOutlinePixel"
         Tags { "RenderType"="Opaque" "Queue"="Geometry" "RenderPipeline"="UniversalPipeline" }
         LOD 200
 
+        HLSLINCLUDE
+        #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+        CBUFFER_START(UnityPerMaterial)
+            float4 _BaseColor;
+            float4 _BaseMap_ST;
+
+            float  _ToonSteps;
+            float  _ToonRampSmoothness;
+            float4 _ShadowTint;
+            float  _DitherCellSize;
+            float  _ShadowReceiveBias;
+            float4 _SpecularColor;
+            float  _SpecularToonSize;
+            float  _SpecularToonSmoothness;
+            float4 _RimColor;
+            float  _RimThreshold;
+            float  _RimIntensity;
+
+            float4 _OutlineColor;
+            float  _OutlineWidth;
+            float  _OutlineConstScreenSize;
+            float  _OutlineMaxDist;
+        CBUFFER_END
+        ENDHLSL
+
         Pass
         {
             Name "Outline"
@@ -44,28 +70,6 @@ Shader "Bloodsport/ToonOutlinePixel"
             HLSLPROGRAM
             #pragma vertex vertOutline
             #pragma fragment fragOutline
-
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-
-            CBUFFER_START(UnityPerMaterial)
-                float4 _BaseColor;
-                float4 _BaseMap_ST;
-
-                float  _ToonSteps;
-                float  _ToonRampSmoothness;
-                float4 _ShadowTint;
-                float4 _SpecularColor;
-                float  _SpecularToonSize;
-                float  _SpecularToonSmoothness;
-                float4 _RimColor;
-                float  _RimThreshold;
-                float  _RimIntensity;
-
-                float4 _OutlineColor;
-                float  _OutlineWidth;
-                float  _OutlineConstScreenSize;
-                float  _OutlineMaxDist;
-            CBUFFER_END
 
             struct AttributesOutline
             {
@@ -83,16 +87,20 @@ Shader "Bloodsport/ToonOutlinePixel"
                 VaryingsOutline OUT;
 
                 float3 positionWS = TransformObjectToWorld(IN.positionOS.xyz);
-                float3 normalWS   = normalize(TransformObjectToWorldNormal(IN.normalOS));
-
                 float distToCam   = distance(positionWS, GetCameraPositionWS());
                 float distFade    = saturate(distToCam / max(_OutlineMaxDist, 0.001));
-                float widthWS     = lerp(_OutlineWidth, _OutlineWidth * (distToCam * 0.1), _OutlineConstScreenSize);
+
+                if (_OutlineWidth <= 0.0 || distFade >= 1.0)
+                {
+                    OUT.positionHCS = float4(0.0, 0.0, 0.0, -1.0);
+                    return OUT;
+                }
+
+                float3 normalWS = normalize(TransformObjectToWorldNormal(IN.normalOS));
+                float widthWS   = lerp(_OutlineWidth, _OutlineWidth * (distToCam * 0.1), _OutlineConstScreenSize);
                 widthWS *= (1.0 - distFade * 0.5);
 
-                positionWS += normalWS * widthWS;
-
-                OUT.positionHCS = TransformWorldToHClip(positionWS);
+                OUT.positionHCS = TransformWorldToHClip(positionWS + normalWS * widthWS);
                 return OUT;
             }
 
@@ -116,46 +124,18 @@ Shader "Bloodsport/ToonOutlinePixel"
             #pragma fragment frag
 
             #pragma shader_feature_local _TOON_SHADING
+            #pragma shader_feature_local _RECEIVE_SHADOWS_ON
 
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
-            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS
             #pragma multi_compile _ _FORWARD_PLUS
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
             #pragma multi_compile_fog
-            #pragma shader_feature_local _RECEIVE_SHADOWS_ON
 
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
-            CBUFFER_START(UnityPerMaterial)
-                float4 _BaseColor;
-                float4 _BaseMap_ST;
-
-                float  _ToonSteps;
-                float  _ToonRampSmoothness;
-                float4 _ShadowTint;
-                float  _DitherCellSize;
-                float  _ShadowReceiveBias;
-                float4 _SpecularColor;
-                float  _SpecularToonSize;
-                float  _SpecularToonSmoothness;
-                float4 _RimColor;
-                float  _RimThreshold;
-                float  _RimIntensity;
-
-                float4 _OutlineColor;
-                float  _OutlineWidth;
-                float  _OutlineConstScreenSize;
-                float  _OutlineMaxDist;
-            CBUFFER_END
-
             TEXTURE2D(_BaseMap);
-
-            // sampler_PointRepeat is already declared by Core.hlsl as a reserved
-            // built-in sampler - using it here forces point filtering regardless
-            // of the texture's own Filter Mode import setting, which is what
-            // guarantees the blocky look stays blocky.
 
             struct Attributes
             {
@@ -166,27 +146,32 @@ Shader "Bloodsport/ToonOutlinePixel"
 
             struct Varyings
             {
-                float4 positionHCS : SV_POSITION;
-                float3 positionWS  : TEXCOORD0;
-                float3 normalWS    : TEXCOORD1;
-                float2 uv          : TEXCOORD2;
-                float  fogFactor   : TEXCOORD3;
-                float3 positionOS  : TEXCOORD4;
-                float3 normalOS    : TEXCOORD5;
+                float4 positionHCS      : SV_POSITION;
+                float4 positionWSAndFog : TEXCOORD0;
+                float3 normalWS         : TEXCOORD1;
+                float2 uv               : TEXCOORD2;
+                #if defined(_TOON_SHADING)
+                float3 positionOS       : TEXCOORD3;
+                float3 normalOS         : TEXCOORD4;
+                #endif
             };
 
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
-                OUT.positionWS  = TransformObjectToWorld(IN.positionOS.xyz);
-                OUT.positionHCS = TransformWorldToHClip(OUT.positionWS);
-                OUT.normalWS    = TransformObjectToWorldNormal(IN.normalOS);
-                OUT.uv          = TRANSFORM_TEX(IN.uv, _BaseMap);
-                OUT.fogFactor   = ComputeFogFactor(OUT.positionHCS.z);
-                OUT.positionOS  = IN.positionOS.xyz;
-                OUT.normalOS    = IN.normalOS;
+                float3 positionWS       = TransformObjectToWorld(IN.positionOS.xyz);
+                OUT.positionHCS         = TransformWorldToHClip(positionWS);
+                OUT.positionWSAndFog    = float4(positionWS, ComputeFogFactor(OUT.positionHCS.z));
+                OUT.normalWS            = TransformObjectToWorldNormal(IN.normalOS);
+                OUT.uv                  = TRANSFORM_TEX(IN.uv, _BaseMap);
+                #if defined(_TOON_SHADING)
+                OUT.positionOS          = IN.positionOS.xyz;
+                OUT.normalOS            = IN.normalOS;
+                #endif
                 return OUT;
             }
+
+            #if defined(_TOON_SHADING)
 
             static const float BayerMatrix4x4[16] =
             {
@@ -230,33 +215,36 @@ Shader "Bloodsport/ToonOutlinePixel"
             {
                 float3 totalLight = float3(0, 0, 0);
 
-                Light mainLight = GetMainLight(inputData.shadowCoord);
-                float mainShadowAtten = mainLight.shadowAttenuation;
-                #if !defined(_RECEIVE_SHADOWS_ON)
-                    mainShadowAtten = 1.0;
+                #if defined(_RECEIVE_SHADOWS_ON)
+                    Light mainLight = GetMainLight(inputData.shadowCoord);
+                    float mainAtten = mainLight.shadowAttenuation * mainLight.distanceAttenuation;
+                #else
+                    Light mainLight = GetMainLight();
+                    float mainAtten = mainLight.distanceAttenuation;
                 #endif
-                float mainAtten = mainShadowAtten * mainLight.distanceAttenuation;
+
                 totalLight += mainLight.color * ToonRampShade(dot(normalWS, mainLight.direction), mainAtten, ditherValue);
 
                 float3 halfDir = normalize(mainLight.direction + viewDirWS);
                 float NdotH = saturate(dot(normalWS, halfDir));
                 float specEdge = 1.0 - _SpecularToonSize;
                 float specMask = smoothstep(specEdge - _SpecularToonSmoothness, specEdge + _SpecularToonSmoothness, NdotH);
-                totalLight += _SpecularColor.rgb * specMask * mainAtten;
+                totalLight += _SpecularColor.rgb * (specMask * mainAtten);
 
                 float rim = 1.0 - saturate(dot(normalWS, viewDirWS));
                 float rimMask = smoothstep(_RimThreshold - 0.05, _RimThreshold + 0.05, rim);
-                totalLight += _RimColor.rgb * rimMask * _RimIntensity;
+                totalLight += _RimColor.rgb * (rimMask * _RimIntensity);
 
                 #if defined(_ADDITIONAL_LIGHTS)
                     uint pixelLightCount = GetAdditionalLightsCount();
                     LIGHT_LOOP_BEGIN(pixelLightCount)
-                        Light light = GetAdditionalLight(lightIndex, inputData.positionWS, half4(1, 1, 1, 1));
-                        float lightShadowAtten = light.shadowAttenuation;
-                        #if !defined(_RECEIVE_SHADOWS_ON)
-                            lightShadowAtten = 1.0;
+                        #if defined(_RECEIVE_SHADOWS_ON)
+                            Light light = GetAdditionalLight(lightIndex, inputData.positionWS, half4(1, 1, 1, 1));
+                            float atten = light.distanceAttenuation * light.shadowAttenuation;
+                        #else
+                            Light light = GetAdditionalLight(lightIndex, inputData.positionWS);
+                            float atten = light.distanceAttenuation;
                         #endif
-                        float atten = light.distanceAttenuation * lightShadowAtten;
                         totalLight += light.color * ToonRampShade(dot(normalWS, light.direction), atten, ditherValue);
                     LIGHT_LOOP_END
                 #endif
@@ -264,32 +252,34 @@ Shader "Bloodsport/ToonOutlinePixel"
                 return albedo * totalLight;
             }
 
+            #endif
+
             float4 frag(Varyings IN) : SV_Target
             {
-                float2 screenUV = IN.positionHCS.xy / _ScaledScreenParams.xy;
+                float3 positionWS = IN.positionWSAndFog.xyz;
+                float2 screenUV   = IN.positionHCS.xy / _ScaledScreenParams.xy;
 
                 float4 texSample = SAMPLE_TEXTURE2D(_BaseMap, sampler_PointRepeat, IN.uv);
                 float3 albedo    = texSample.rgb * _BaseColor.rgb;
 
-                float3 viewDirWS = normalize(GetCameraPositionWS() - IN.positionWS);
+                float3 viewDirWS = normalize(GetCameraPositionWS() - positionWS);
                 float3 normalWS  = normalize(IN.normalWS);
 
                 InputData inputData               = (InputData)0;
-                inputData.positionWS              = IN.positionWS;
+                inputData.positionWS              = positionWS;
                 inputData.normalWS                = normalWS;
                 inputData.viewDirectionWS         = viewDirWS;
-                float3 shadowSamplePositionWS      = IN.positionWS + normalWS * _ShadowReceiveBias;
-                inputData.shadowCoord             = TransformWorldToShadowCoord(shadowSamplePositionWS);
-                inputData.fogCoord                = 0;
-                inputData.vertexLighting          = float3(0,0,0);
-                inputData.bakedGI                 = float3(0,0,0);
                 inputData.normalizedScreenSpaceUV = screenUV;
-                inputData.shadowMask              = float4(1,1,1,1);
+                inputData.shadowMask              = float4(1, 1, 1, 1);
+
+                #if defined(_RECEIVE_SHADOWS_ON) || !defined(_TOON_SHADING)
+                    inputData.shadowCoord = TransformWorldToShadowCoord(positionWS + normalWS * _ShadowReceiveBias);
+                #endif
 
                 float3 finalColor;
 
                 #if defined(_TOON_SHADING)
-                    float ditherValue = BayerDitherObject(IN.positionOS, normalize(IN.normalOS));
+                    float ditherValue = BayerDitherObject(IN.positionOS, IN.normalOS);
                     finalColor = ComputeToonLighting(inputData, albedo, normalWS, viewDirWS, ditherValue);
                 #else
                     SurfaceData surfaceData  = (SurfaceData)0;
@@ -298,14 +288,14 @@ Shader "Bloodsport/ToonOutlinePixel"
                     surfaceData.smoothness   = 0.5;
                     surfaceData.alpha        = 1.0;
                     surfaceData.occlusion    = 1.0;
-                    surfaceData.normalTS     = float3(0,0,1);
-                    surfaceData.emission     = float3(0,0,0);
-                    surfaceData.specular     = float3(0,0,0);
+                    surfaceData.normalTS     = float3(0, 0, 1);
+                    surfaceData.emission     = float3(0, 0, 0);
+                    surfaceData.specular     = float3(0, 0, 0);
 
                     finalColor = UniversalFragmentPBR(inputData, surfaceData).rgb;
                 #endif
 
-                finalColor = MixFog(finalColor, IN.fogFactor);
+                finalColor = MixFog(finalColor, IN.positionWSAndFog.w);
                 return float4(finalColor, 1.0);
             }
             ENDHLSL
@@ -316,11 +306,72 @@ Shader "Bloodsport/ToonOutlinePixel"
             Name "DepthNormals"
             Tags { "LightMode"="DepthNormals" }
             ZWrite On
+            Cull Back
 
             HLSLPROGRAM
-            #pragma vertex DepthNormalsVertex
-            #pragma fragment DepthNormalsFragment
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthNormalsPass.hlsl"
+            #pragma vertex vertDepthNormals
+            #pragma fragment fragDepthNormals
+
+            struct AttributesDN
+            {
+                float4 positionOS : POSITION;
+                float3 normalOS   : NORMAL;
+            };
+
+            struct VaryingsDN
+            {
+                float4 positionHCS : SV_POSITION;
+                float3 normalWS    : TEXCOORD0;
+            };
+
+            VaryingsDN vertDepthNormals(AttributesDN IN)
+            {
+                VaryingsDN OUT;
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+                OUT.normalWS    = TransformObjectToWorldNormal(IN.normalOS);
+                return OUT;
+            }
+
+            half4 fragDepthNormals(VaryingsDN IN) : SV_Target
+            {
+                return half4(normalize(IN.normalWS), 0.0);
+            }
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "DepthOnly"
+            Tags { "LightMode"="DepthOnly" }
+            ZWrite On
+            ColorMask R
+            Cull Back
+
+            HLSLPROGRAM
+            #pragma vertex vertDepthOnly
+            #pragma fragment fragDepthOnly
+
+            struct AttributesDO
+            {
+                float4 positionOS : POSITION;
+            };
+
+            struct VaryingsDO
+            {
+                float4 positionHCS : SV_POSITION;
+            };
+
+            VaryingsDO vertDepthOnly(AttributesDO IN)
+            {
+                VaryingsDO OUT;
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+                return OUT;
+            }
+
+            half fragDepthOnly(VaryingsDO IN) : SV_Target
+            {
+                return 0;
+            }
             ENDHLSL
         }
 
@@ -331,10 +382,58 @@ Shader "Bloodsport/ToonOutlinePixel"
             ZWrite On
             ZTest LEqual
             ColorMask 0
+            Cull Back
+
             HLSLPROGRAM
-            #pragma vertex ShadowPassVertex
-            #pragma fragment ShadowPassFragment
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
+            #pragma vertex vertShadow
+            #pragma fragment fragShadow
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+
+            float3 _LightDirection;
+            float3 _LightPosition;
+
+            struct AttributesSC
+            {
+                float4 positionOS : POSITION;
+                float3 normalOS   : NORMAL;
+            };
+
+            struct VaryingsSC
+            {
+                float4 positionHCS : SV_POSITION;
+            };
+
+            VaryingsSC vertShadow(AttributesSC IN)
+            {
+                VaryingsSC OUT;
+
+                float3 positionWS = TransformObjectToWorld(IN.positionOS.xyz);
+                float3 normalWS   = TransformObjectToWorldNormal(IN.normalOS);
+
+                #if defined(_CASTING_PUNCTUAL_LIGHT_SHADOW)
+                    float3 lightDirectionWS = normalize(_LightPosition - positionWS);
+                #else
+                    float3 lightDirectionWS = _LightDirection;
+                #endif
+
+                float4 positionHCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
+
+                #if UNITY_REVERSED_Z
+                    positionHCS.z = min(positionHCS.z, UNITY_NEAR_CLIP_VALUE);
+                #else
+                    positionHCS.z = max(positionHCS.z, UNITY_NEAR_CLIP_VALUE);
+                #endif
+
+                OUT.positionHCS = positionHCS;
+                return OUT;
+            }
+
+            half4 fragShadow(VaryingsSC IN) : SV_Target
+            {
+                return 0;
+            }
             ENDHLSL
         }
     }

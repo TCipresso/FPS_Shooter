@@ -17,6 +17,7 @@ Shader "Bloodsport/OutlinedToonPixel"
         _ShapeEmission   ("Shape Emission Strength", Range(0,5)) = 1.5
 
         [Toggle(_TOON_SHADING)] _UseToonShading ("Toon Shading", Float) = 1
+        [Toggle(_RECEIVE_SHADOWS_ON)] _ReceiveShadows ("Receive Shadows", Float) = 1
         _ToonSteps             ("Toon Steps",              Range(2, 8))   = 3
         _ToonRampSmoothness    ("Toon Ramp Smoothness",    Range(0, 1))   = 0.0
         _ShadowTint            ("Toon Shadow Tint",        Color)         = (0.35, 0.35, 0.45, 1)
@@ -133,6 +134,7 @@ Shader "Bloodsport/OutlinedToonPixel"
             #pragma fragment frag
 
             #pragma shader_feature_local _TOON_SHADING
+            #pragma shader_feature_local _RECEIVE_SHADOWS_ON
 
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
@@ -279,7 +281,11 @@ Shader "Bloodsport/OutlinedToonPixel"
                 float ditherValue = BayerDitherWorld(inputData.positionWS, normalWS);
 
                 Light mainLight = GetMainLight(inputData.shadowCoord);
-                float mainAtten = mainLight.shadowAttenuation * mainLight.distanceAttenuation;
+                float mainShadowAtten = mainLight.shadowAttenuation;
+                #if !defined(_RECEIVE_SHADOWS_ON)
+                    mainShadowAtten = 1.0;
+                #endif
+                float mainAtten = mainShadowAtten * mainLight.distanceAttenuation;
                 totalLight += mainLight.color * ToonRampShade(dot(normalWS, mainLight.direction), mainAtten, ditherValue);
 
                 float3 halfDir = normalize(mainLight.direction + viewDirWS);
@@ -296,7 +302,11 @@ Shader "Bloodsport/OutlinedToonPixel"
                     uint pixelLightCount = GetAdditionalLightsCount();
                     LIGHT_LOOP_BEGIN(pixelLightCount)
                         Light light = GetAdditionalLight(lightIndex, inputData.positionWS, half4(1, 1, 1, 1));
-                        float atten = light.distanceAttenuation * light.shadowAttenuation;
+                        float lightShadowAtten = light.shadowAttenuation;
+                        #if !defined(_RECEIVE_SHADOWS_ON)
+                            lightShadowAtten = 1.0;
+                        #endif
+                        float atten = light.distanceAttenuation * lightShadowAtten;
                         totalLight += light.color * ToonRampShade(dot(normalWS, light.direction), atten, ditherValue);
                     LIGHT_LOOP_END
                 #endif
