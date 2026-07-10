@@ -16,6 +16,19 @@ Shader "Bloodsport/Outlined"
         _ShapeMetallic   ("Shape Metallic",      Range(0,1)) = 0.3
         _ShapeEmission   ("Shape Emission Strength", Range(0,5)) = 1.5
 
+        [Toggle(_TOON_SHADING)] _UseToonShading ("Toon Shading", Float) = 1
+        _ToonSteps             ("Toon Steps",              Range(2, 8))   = 3
+        _ToonRampSmoothness    ("Toon Ramp Smoothness",    Range(0, 1))   = 0.0
+        _ShadowTint            ("Toon Shadow Tint",        Color)         = (0.35, 0.35, 0.45, 1)
+
+        _SpecularColor         ("Toon Specular Color",     Color)         = (1, 1, 1, 1)
+        _SpecularToonSize      ("Toon Specular Size",      Range(0, 1))   = 0.05
+        _SpecularToonSmoothness("Toon Specular Smoothness",Range(0, 1))   = 0.1
+
+        _RimColor              ("Toon Rim Color",          Color)         = (1, 1, 1, 1)
+        _RimThreshold           ("Toon Rim Threshold",      Range(0, 1))   = 0.7
+        _RimIntensity           ("Toon Rim Intensity",      Range(0, 2))   = 0.0
+
         _OutlineColor    ("Outline Color",       Color)      = (0, 0, 0, 1)
         _OutlineWidth    ("Outline Width",       Range(0, 0.2)) = 0.03
         _OutlineConstScreenSize ("Constant Screen Size", Range(0,1)) = 1.0
@@ -52,6 +65,16 @@ Shader "Bloodsport/Outlined"
                 float  _ShapeSmoothness;
                 float  _ShapeMetallic;
                 float  _ShapeEmission;
+
+                float  _ToonSteps;
+                float  _ToonRampSmoothness;
+                float4 _ShadowTint;
+                float4 _SpecularColor;
+                float  _SpecularToonSize;
+                float  _SpecularToonSmoothness;
+                float4 _RimColor;
+                float  _RimThreshold;
+                float  _RimIntensity;
 
                 float4 _OutlineColor;
                 float  _OutlineWidth;
@@ -107,6 +130,8 @@ Shader "Bloodsport/Outlined"
             #pragma vertex vert
             #pragma fragment frag
 
+            #pragma shader_feature_local _TOON_SHADING
+
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
             #pragma multi_compile _ _FORWARD_PLUS
@@ -129,6 +154,16 @@ Shader "Bloodsport/Outlined"
                 float  _ShapeSmoothness;
                 float  _ShapeMetallic;
                 float  _ShapeEmission;
+
+                float  _ToonSteps;
+                float  _ToonRampSmoothness;
+                float4 _ShadowTint;
+                float4 _SpecularColor;
+                float  _SpecularToonSize;
+                float  _SpecularToonSmoothness;
+                float4 _RimColor;
+                float  _RimThreshold;
+                float  _RimIntensity;
 
                 float4 _OutlineColor;
                 float  _OutlineWidth;
@@ -193,6 +228,45 @@ Shader "Bloodsport/Outlined"
                 return xProj * weights.x + yProj * weights.y + zProj * weights.z;
             }
 
+            float3 ToonRamp(float NdotL, float atten, float3 shadowTint)
+            {
+                float ramp = saturate(NdotL) * atten;
+                float steps = max(_ToonSteps, 1.0);
+                float stepped = floor(ramp * steps) / max(steps - 1.0, 1.0);
+                stepped = saturate(lerp(stepped, ramp, _ToonRampSmoothness));
+                return lerp(shadowTint, float3(1, 1, 1), stepped);
+            }
+
+            float3 ComputeToonLighting(InputData inputData, float3 albedo, float3 normalWS, float3 viewDirWS)
+            {
+                float3 totalLight = float3(0, 0, 0);
+
+                Light mainLight = GetMainLight(inputData.shadowCoord);
+                float mainAtten = mainLight.shadowAttenuation * mainLight.distanceAttenuation;
+                totalLight += mainLight.color * ToonRamp(dot(normalWS, mainLight.direction), mainAtten, _ShadowTint.rgb);
+
+                float3 halfDir = normalize(mainLight.direction + viewDirWS);
+                float NdotH = saturate(dot(normalWS, halfDir));
+                float specEdge = 1.0 - _SpecularToonSize;
+                float specMask = smoothstep(specEdge - _SpecularToonSmoothness, specEdge + _SpecularToonSmoothness, NdotH);
+                totalLight += _SpecularColor.rgb * specMask * mainAtten;
+
+                float rim = 1.0 - saturate(dot(normalWS, viewDirWS));
+                float rimMask = smoothstep(_RimThreshold - 0.05, _RimThreshold + 0.05, rim);
+                totalLight += _RimColor.rgb * rimMask * _RimIntensity;
+
+                #if defined(_ADDITIONAL_LIGHTS)
+                    uint pixelLightCount = GetAdditionalLightsCount();
+                    LIGHT_LOOP_BEGIN(pixelLightCount)
+                        Light light = GetAdditionalLight(lightIndex, inputData.positionWS, half4(1, 1, 1, 1));
+                        float atten = light.distanceAttenuation * light.shadowAttenuation;
+                        totalLight += light.color * ToonRamp(dot(normalWS, light.direction), atten, _ShadowTint.rgb);
+                    LIGHT_LOOP_END
+                #endif
+
+                return albedo * totalLight;
+            }
+
             float4 frag(Varyings IN) : SV_Target
             {
                 float2 screenUV = IN.positionHCS.xy / _ScaledScreenParams.xy;
@@ -224,10 +298,11 @@ Shader "Bloodsport/Outlined"
                 float3 emission   = _ShapeColor.rgb * shapeMask * _ShapeEmission;
 
                 float3 viewDirWS = normalize(GetCameraPositionWS() - IN.positionWS);
+                float3 normalWS  = normalize(IN.normalWS);
 
                 InputData inputData               = (InputData)0;
                 inputData.positionWS              = IN.positionWS;
-                inputData.normalWS                = normalize(IN.normalWS);
+                inputData.normalWS                = normalWS;
                 inputData.viewDirectionWS         = viewDirWS;
                 inputData.shadowCoord             = TransformWorldToShadowCoord(IN.positionWS);
                 inputData.fogCoord                = 0;
@@ -236,17 +311,24 @@ Shader "Bloodsport/Outlined"
                 inputData.normalizedScreenSpaceUV = screenUV;
                 inputData.shadowMask              = float4(1,1,1,1);
 
-                SurfaceData surfaceData  = (SurfaceData)0;
-                surfaceData.albedo       = albedo;
-                surfaceData.metallic     = metallic;
-                surfaceData.smoothness   = smoothness;
-                surfaceData.alpha        = 1.0;
-                surfaceData.occlusion    = 1.0;
-                surfaceData.normalTS     = float3(0,0,1);
-                surfaceData.emission     = emission;
-                surfaceData.specular     = float3(0,0,0);
+                float3 finalColor;
 
-                float3 finalColor = UniversalFragmentPBR(inputData, surfaceData).rgb;
+                #if defined(_TOON_SHADING)
+                    finalColor = ComputeToonLighting(inputData, albedo, normalWS, viewDirWS) + emission;
+                #else
+                    SurfaceData surfaceData  = (SurfaceData)0;
+                    surfaceData.albedo       = albedo;
+                    surfaceData.metallic     = metallic;
+                    surfaceData.smoothness   = smoothness;
+                    surfaceData.alpha        = 1.0;
+                    surfaceData.occlusion    = 1.0;
+                    surfaceData.normalTS     = float3(0,0,1);
+                    surfaceData.emission     = emission;
+                    surfaceData.specular     = float3(0,0,0);
+
+                    finalColor = UniversalFragmentPBR(inputData, surfaceData).rgb;
+                #endif
+
                 finalColor = MixFog(finalColor, IN.fogFactor);
                 return float4(finalColor, 1.0);
             }

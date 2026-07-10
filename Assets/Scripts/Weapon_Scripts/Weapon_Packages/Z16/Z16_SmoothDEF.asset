@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5cb4844a83ccf945bcb4bc288bfd193, type: 3}
+  m_Name: Z16_SmoothDEF
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinitionSO
+  weaponName: Z16SMooth
+  weaponType: 2
+  prefab: {fileID: 8185120064484440468, guid: 4c7656018d7ce234bb4c4e351a0f2632, type: 3}
+  positionOffset: {x: -0.42, y: -0.03, z: -1.69}
+  rotationOffset: {x: 0, y: 0, z: 0}
+  bulletData: {fileID: 11400000, guid: 5bb6425b3383d22408b5e8d13fc0b5a9, type: 2}
+  baseDamage: 35
+  baseRpm: 600
+  baseRange: 99999
+  rareBonus: 0.05
+  epicBonus: 0.1
+  legendaryBonus: 0.15
+  contrabandBonus: 0.25

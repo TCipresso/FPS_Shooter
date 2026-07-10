@@ -42,7 +42,6 @@ GameObject:
   - component: {fileID: 8536396352085289574}
   - component: {fileID: 3181912744345920342}
   - component: {fileID: 2145740238659732068}
-  - component: {fileID: 1022946802317947505}
   - component: {fileID: 5489905723570387883}
   - component: {fileID: 2919324646647247575}
   m_Layer: 0
@@ -118,39 +117,6 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &1022946802317947505
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7668686849717164370}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d8de574267c9f2468e9a81ca60a57cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BasicGrunt
-  maxHealth: 100
-  currentHealth: 0
-  goldBounty: 100
-  moveSpeed: 10
-  attackDamage: 25
-  attackRange: 1.5
-  attackCooldown: 1.5
-  isGrunt: 1
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  canClimb: 1
-  climbSpeed: 30
-  rayOffset: {x: 0, y: -2.25, z: 0}
-  rayLength: 2.18
-  launchForce: 30
-  ragdollForce: 8
-  skeletonRoot: {fileID: 2769214003864653106}
-  headTransform: {fileID: 1402225284564797892}
-  enemyId: BasicGrunt
-  verboseLogging: 0
 --- !u!136 &5489905723570387883
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -275,7 +241,7 @@ PrefabInstance:
     - target: {fileID: -5234106749925997848, guid: 8a2028c2bd4652c47bd3d038148549bf, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 30d3a7f4d7914fd4eaca96c1caafad91, type: 2}
+      objectReference: {fileID: 2100000, guid: 3e77a4091d2229a4d9bb8ac2b610f275, type: 2}
     - target: {fileID: -5195048882033904264, guid: 8a2028c2bd4652c47bd3d038148549bf, type: 3}
       propertyPath: m_Layer
       value: 13
@@ -482,7 +448,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
-  zombie: {fileID: 1022946802317947505}
+  zombie: {fileID: 0}
   limbMultiplier: 1
   isHeadshot: 1
 --- !u!1 &1604370832261559730 stripped
@@ -525,7 +491,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
-  zombie: {fileID: 1022946802317947505}
+  zombie: {fileID: 0}
   limbMultiplier: 1
   isHeadshot: 0
 --- !u!1 &1723658847813910478 stripped
@@ -568,7 +534,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
-  zombie: {fileID: 1022946802317947505}
+  zombie: {fileID: 0}
   limbMultiplier: 1
   isHeadshot: 0
 --- !u!1 &2549589665341912208 stripped
@@ -609,14 +575,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
-  zombie: {fileID: 1022946802317947505}
+  zombie: {fileID: 0}
   limbMultiplier: 1
   isHeadshot: 0
---- !u!4 &2769214003864653106 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5465940246521907071, guid: 8a2028c2bd4652c47bd3d038148549bf, type: 3}
-  m_PrefabInstance: {fileID: 7905174998788131405}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &4079720332848529094 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -3086436065929644917, guid: 8a2028c2bd4652c47bd3d038148549bf, type: 3}
@@ -657,7 +618,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
-  zombie: {fileID: 1022946802317947505}
+  zombie: {fileID: 0}
   limbMultiplier: 1
   isHeadshot: 0
 --- !u!1 &5058058294300557408 stripped
@@ -700,7 +661,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
-  zombie: {fileID: 1022946802317947505}
+  zombie: {fileID: 0}
   limbMultiplier: 1
   isHeadshot: 0
 --- !u!1 &5344712390098995264 stripped
@@ -743,7 +704,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
-  zombie: {fileID: 1022946802317947505}
+  zombie: {fileID: 0}
   limbMultiplier: 1
   isHeadshot: 0
 --- !u!137 &6550597135434188965 stripped
@@ -791,7 +752,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
-  zombie: {fileID: 1022946802317947505}
+  zombie: {fileID: 0}
   limbMultiplier: 1
   isHeadshot: 0
 --- !u!1 &7022724900575901468 stripped
@@ -859,7 +820,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
-  zombie: {fileID: 1022946802317947505}
+  zombie: {fileID: 0}
   limbMultiplier: 1
   isHeadshot: 0
 --- !u!4 &7655674864605179302 stripped
@@ -907,7 +868,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
-  zombie: {fileID: 1022946802317947505}
+  zombie: {fileID: 0}
   limbMultiplier: 1
   isHeadshot: 0
 --- !u!1 &8046789851796310027 stripped
@@ -950,6 +911,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 239fb63fdab3d7145a6e5431e897fc13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitBox
-  zombie: {fileID: 1022946802317947505}
+  zombie: {fileID: 0}
   limbMultiplier: 1
   isHeadshot: 0

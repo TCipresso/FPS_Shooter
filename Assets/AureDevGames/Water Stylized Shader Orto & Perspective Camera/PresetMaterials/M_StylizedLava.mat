@@ -76,7 +76,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SurfaceFoamTexture:
-        m_Texture: {fileID: 2800000, guid: 201c88b071ee1ab49a42d47a51409268, type: 3}
+        m_Texture: {fileID: 2800000, guid: c58aa24ed73fba846b5000ddda992872, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -137,9 +137,9 @@ Material:
     - _SkyboxForce: 2.5
     - _Steps: 50
     - _SurfaceFoamDirection: 1
-    - _SurfaceFoamDistorsion: 1.6
+    - _SurfaceFoamDistorsion: 0.21
     - _SurfaceFoamSpeed: 0
-    - _SurfaceFoamTiling: 1.11
+    - _SurfaceFoamTiling: 0.2
     - _TileSize: 200
     - _Value: 1
     - _WORLD_SPACE_UV: 1
@@ -149,8 +149,8 @@ Material:
     - _WaveLength: 1.82
     - _WaveRiverLength: 0
     - _WaveRiverWidth: 0
-    - _WaveSpeed: 0.2
-    - _WaveSteepness: 0
+    - _WaveSpeed: 0.35
+    - _WaveSteepness: 1.92
     - _WaveStepness: 0.35
     - _WaveTileSize: 0
     m_Colors:
@@ -172,6 +172,6 @@ Material:
     - _TopColor: {r: 0, g: 0.17848217, b: 0.5622641, a: 0.44705883}
     - _UV: {r: 0, g: 0, b: 0, a: 0}
     - _UVRipples: {r: 0, g: 0, b: 0, a: 0}
-    - _WaveDirections: {r: 1, g: 1, b: 1, a: 1}
+    - _WaveDirections: {r: 1, g: 46.8, b: 62.63, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
