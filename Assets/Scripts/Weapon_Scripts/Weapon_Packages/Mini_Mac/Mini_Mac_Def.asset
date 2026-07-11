@@ -13,40 +13,16 @@ MonoBehaviour:
   m_Name: Mini_Mac_Def
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinitionSO
   weaponName: Mini Mac
-  weaponType: 1
-  prefab: {fileID: 2925203945551275606, guid: 283f639c6c87a7c48be4d8338b28d18d, type: 3}
-  positionOffset: {x: -0.377, y: -0.088, z: -1.901}
-  rotationOffset: {x: 0, y: 0, z: 0}
-  bulletData: {fileID: 11400000, guid: 5bb6425b3383d22408b5e8d13fc0b5a9, type: 2}
-  baseDamage: 20
-  baseRpm: 1000
-  baseMagSize: 30
-  baseReserveAmmo: 300
-  baseRange: 999
-  baseReloadTime: 2
-  rareBonus: 0.05
-  epicBonus: 0.1
-  legendaryBonus: 0.15
-  contrabandBonus: 0.25
-  attachmentSlots:
-  - slotName: Sight
-    pool:
-    - {fileID: 11400000, guid: ff08894598770df428783931aab4c19d, type: 2}
-    - {fileID: 11400000, guid: ac72673388dee494fb4098708340afb3, type: 2}
-    - {fileID: 11400000, guid: 040ffb625d0d4634188184b58ff59ae6, type: 2}
-    - {fileID: 11400000, guid: 3be629cf955cb9d4f8f475c1454fe2c3, type: 2}
-  - slotName: Rail
-    pool:
-    - {fileID: 11400000, guid: d349a4beb07772e43888ae3dab615469, type: 2}
-    - {fileID: 11400000, guid: 0ce42caa7c81f3c4d9dd09ed9b400d05, type: 2}
-    - {fileID: 11400000, guid: 82edf47512939944f925713af67b97b7, type: 2}
-  - slotName: Grip
-    pool:
-    - {fileID: 11400000, guid: f1c0fc277834b954181104aa9beb34f6, type: 2}
-    - {fileID: 11400000, guid: 763316e31bcffc54e9dadab0d9366be0, type: 2}
-  - slotName: Barrel
-    pool:
-    - {fileID: 11400000, guid: 4e8602c64a69c8143a063c7ca0e0cd51, type: 2}
-    - {fileID: 11400000, guid: 32d4f7c22bb919641aa629a7189e3ca6, type: 2}
-    - {fileID: 11400000, guid: 73d19733cd52e4346a8b76d32737a899, type: 2}
-    - {fileID: 11400000, guid: 00ea4b9f72ea5ee48bc05851170246bd, type: 2}
+  category: 1
+  maxLevel: 5
+  damageGrowthPerLevel: 0.1
+  rpmGrowthPerLevel: 0.1
+  rangeGrowthPerLevel: 0.1
+  powerUpDurationPerLevel: 10
+  packedMaterial: {fileID: 2100000, guid: 867427d3767955d40b6cb6b5da8d07a3, type: 2}
+  levelTintColors:
+  - {r: 1, g: 0, b: 0.049137115, a: 0}
+  - {r: 0, g: 1, b: 0.077199936, a: 0}
+  - {r: 0.9322767, g: 1, b: 0, a: 0}
+  - {r: 0, g: 1, b: 0.8406646, a: 0}
+  tintPropertyName: _BaseColor

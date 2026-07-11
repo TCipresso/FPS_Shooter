@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -7,51 +8,81 @@ public class WeaponInventory : MonoBehaviour
     [Header("References")]
     public Transform weaponHolder;
     public PlayerStats playerStats;
-
-    [Header("Inventory Settings")]
-    public int maxSlots = 2;
-
-    [Header("IK")]
     public IKWeaponHandler ikHandler;
 
     [Header("Input")]
     public InputActionReference fireAction;
-    public InputActionReference scrollAction;
-    public InputActionReference slot1Action;
-    public InputActionReference slot2Action;
 
-    [Header("Default Loadout")]
-    public List<WeaponDefinitionSO> defaultWeapons = new List<WeaponDefinitionSO>();
+    [Header("Weapons (drag pre-placed, disabled weapon children here)")]
+    public List<WeaponEntry> weapons = new List<WeaponEntry>();
 
-    public List<GameObject> equippedWeapons = new List<GameObject>();
-    public List<WeaponData> equippedData = new List<WeaponData>();
-    public List<int> weaponLevels = new List<int>();
+    private Dictionary<WeaponDefinitionSO, WeaponEntry> weaponLookup = new Dictionary<WeaponDefinitionSO, WeaponEntry>();
+    private WeaponEntry currentBaseEntry;
+    private WeaponEntry activePowerUpEntry;
+    private Coroutine powerUpRoutine;
 
-    private int activeSlot = 0;
+    void Awake()
+    {
+        weaponLookup.Clear();
+        WeaponEntry defaultEntry = null;
+
+        foreach (WeaponEntry entry in weapons)
+        {
+            if (entry == null || entry.weaponBase == null || entry.weaponRoot == null || entry.definition == null)
+            {
+                Debug.LogWarning("[WeaponInventory] Skipping invalid WeaponEntry.");
+                continue;
+            }
+
+            weaponLookup[entry.definition] = entry;
+
+            if (entry.weaponBase.skinRenderer != null)
+                entry.originalMaterials = (Material[])entry.weaponBase.skinRenderer.sharedMaterials.Clone();
+
+            if (entry.isDefaultBase)
+            {
+                if (defaultEntry != null)
+                    Debug.LogWarning($"[WeaponInventory] Multiple entries marked as default base. Using {defaultEntry.definition.weaponName}, ignoring {entry.definition.weaponName}.");
+                else
+                    defaultEntry = entry;
+            }
+        }
+
+        if (defaultEntry == null)
+            Debug.LogWarning("[WeaponInventory] No entry marked isDefaultBase - check one entry's box in the Inspector.");
+
+        currentBaseEntry = defaultEntry;
+    }
 
     void Start()
     {
-        foreach (WeaponDefinitionSO def in defaultWeapons)
+        foreach (WeaponEntry entry in weapons)
         {
-            if (def != null)
-                TryAddWeaponInstance(new WeaponInstance(def, WeaponRarity.Common));
+            if (entry?.weaponRoot == null) continue;
+
+            entry.weaponRoot.SetActive(false);
+
+            if (entry.weaponBase == null) continue;
+
+            if (BulletPool.Instance != null && entry.weaponBase.bulletData != null && entry.weaponBase.bulletData.trailPrefab != null)
+                BulletPool.Instance.EnsurePoolSize(entry.weaponBase.bulletData.trailPoolKey, entry.weaponBase.bulletData.trailPrefab.gameObject, entry.weaponBase.bulletData.trailPoolSize);
+        }
+
+        if (currentBaseEntry != null)
+        {
+            currentBaseEntry.currentLevel = currentBaseEntry.baseLevel;
+            SetActiveEntry(currentBaseEntry);
         }
     }
 
     void OnEnable()
     {
         if (fireAction != null) fireAction.action.Enable();
-        if (scrollAction != null) scrollAction.action.Enable();
-        if (slot1Action != null) slot1Action.action.Enable();
-        if (slot2Action != null) slot2Action.action.Enable();
     }
 
     void OnDisable()
     {
         if (fireAction != null) fireAction.action.Disable();
-        if (scrollAction != null) scrollAction.action.Disable();
-        if (slot1Action != null) slot1Action.action.Disable();
-        if (slot2Action != null) slot2Action.action.Disable();
     }
 
     void Update()
@@ -64,246 +95,210 @@ public class WeaponInventory : MonoBehaviour
                 : fireAction.action.WasPressedThisFrame();
 
             if (shouldFire)
-                FireActiveWeapon();
+                active?.Shoot();
             else if (fireAction.action.WasReleasedThisFrame())
-                GetActiveWeaponBase()?.StopRecoil();
+                active?.StopRecoil();
         }
-
-        if (scrollAction != null)
-        {
-            float scroll = scrollAction.action.ReadValue<float>();
-            if (scroll > 0f) CycleSlot(-1);
-            else if (scroll < 0f) CycleSlot(1);
-        }
-
-        if (slot1Action != null && slot1Action.action.WasPressedThisFrame()) SetActiveSlot(0);
-        if (slot2Action != null && slot2Action.action.WasPressedThisFrame()) SetActiveSlot(1);
     }
 
-    void FireActiveWeapon()
+    public void SetBaseWeapon(WeaponDefinitionSO def)
     {
-        WeaponBase weapon = GetActiveWeaponBase();
-        if (weapon == null) return;
-        weapon.Shoot();
-    }
-
-    public bool TryAddWeapon(WeaponData data)
-    {
-        if (data == null || data.prefab == null)
+        if (!weaponLookup.TryGetValue(def, out WeaponEntry entry))
         {
-            Debug.LogWarning("[WeaponInventory] WeaponData or prefab is null.");
-            return false;
-        }
-
-        if (equippedData.Contains(data))
-        {
-            Debug.Log($"[WeaponInventory] Already carrying {data.weaponName}.");
-            return false;
-        }
-
-        if (equippedWeapons.Count < maxSlots)
-        {
-            AddWeaponToSlot(data);
-            return true;
-        }
-
-        Debug.Log($"[WeaponInventory] Inventory full. Swapping slot {activeSlot} with {data.weaponName}.");
-        SwapWeapon(data, activeSlot);
-        return true;
-    }
-
-    void AddWeaponToSlot(WeaponData data)
-    {
-        GameObject instance = InstantiateWeapon(data);
-        equippedWeapons.Add(instance);
-        equippedData.Add(data);
-        weaponLevels.Add(1);
-
-        int newSlot = equippedWeapons.Count - 1;
-        SetActiveSlot(newSlot);
-
-        Debug.Log($"[WeaponInventory] Added {data.weaponName} to slot {newSlot}.");
-    }
-
-    void SwapWeapon(WeaponData data, int slot)
-    {
-        Destroy(equippedWeapons[slot]);
-        equippedWeapons.RemoveAt(slot);
-        equippedData.RemoveAt(slot);
-        weaponLevels.RemoveAt(slot);
-
-        GameObject instance = InstantiateWeapon(data);
-        equippedWeapons.Insert(slot, instance);
-        equippedData.Insert(slot, data);
-        weaponLevels.Insert(slot, 1);
-
-        SetActiveSlot(slot);
-
-        Debug.Log($"[WeaponInventory] Swapped slot {slot} to {data.weaponName}.");
-    }
-
-    public void UpgradeWeaponInSlot(int slot, WeaponData newWeaponData)
-    {
-        if (slot < 0 || slot >= equippedWeapons.Count) return;
-        if (weaponLevels[slot] >= 10)
-        {
-            Debug.LogWarning($"[WeaponInventory] Slot {slot} already at max level.");
+            Debug.LogWarning($"[WeaponInventory] Cannot set base weapon, no entry for {def?.weaponName}.");
             return;
         }
 
-        weaponLevels[slot]++;
-        int newLevel = weaponLevels[slot];
+        currentBaseEntry = entry;
 
-        Destroy(equippedWeapons[slot]);
-
-        GameObject instance = InstantiateWeapon(newWeaponData);
-        equippedWeapons[slot] = instance;
-        equippedData[slot] = newWeaponData;
-
-        SetActiveSlot(slot);
-
-        Debug.Log($"[WeaponInventory] Upgraded slot {slot} to level {newLevel}.");
+        if (activePowerUpEntry == null)
+            SetActiveEntry(entry);
     }
 
-    GameObject InstantiateWeapon(WeaponData data)
+    public void PickupPowerUp(WeaponDefinitionSO def)
     {
-        GameObject instance = Instantiate(data.prefab, weaponHolder);
-        instance.transform.localPosition = data.positionOffset;
-        instance.transform.localRotation = Quaternion.Euler(data.rotationOffset);
-        instance.SetActive(false);
-
-        WeaponBase wb = instance.GetComponentInChildren<WeaponBase>();
-        if (wb != null && BulletPool.Instance != null && wb.bulletData != null && wb.bulletData.trailPrefab != null)
-            BulletPool.Instance.EnsurePoolSize(wb.bulletData.trailPoolKey, wb.bulletData.trailPrefab.gameObject, wb.bulletData.trailPoolSize);
-
-        if (wb != null && playerStats != null)
-            wb.ApplyAttackSpeed(playerStats.attackSpeed);
-
-        return instance;
-    }
-
-    public void TryAddWeaponInstance(WeaponInstance instance)
-    {
-        if (instance == null || instance.definition == null || instance.definition.prefab == null)
+        if (!weaponLookup.TryGetValue(def, out WeaponEntry entry))
         {
-            Debug.LogWarning("[WeaponInventory] Invalid WeaponInstance.");
+            Debug.LogWarning($"[WeaponInventory] Cannot pick up power-up, no entry for {def?.weaponName}.");
             return;
         }
 
-        if (equippedWeapons.Count < maxSlots)
-            AddWeaponInstanceToSlot(instance);
+        ActivatePowerUp(entry);
+    }
+
+    // Zero-lookup path: index maps directly into the weapons list, no dictionary hit.
+    public void PickupPowerUpByIndex(int index)
+    {
+        if (index < 0 || index >= weapons.Count)
+        {
+            Debug.LogWarning($"[WeaponInventory] PickupPowerUpByIndex: index {index} out of range.");
+            return;
+        }
+
+        ActivatePowerUp(weapons[index]);
+    }
+
+    void ActivatePowerUp(WeaponEntry entry)
+    {
+        if (entry?.weaponRoot == null || entry.definition == null) return;
+
+        if (activePowerUpEntry == entry)
+        {
+            // Already active - stack another level on top, temporary only.
+            entry.currentLevel = Mathf.Min(entry.currentLevel + 1, entry.definition.maxLevel);
+        }
         else
-            SwapWeaponInstance(instance, activeSlot);
-    }
-
-    void AddWeaponInstanceToSlot(WeaponInstance instance)
-    {
-        GameObject go = InstantiateWeaponInstance(instance);
-        equippedWeapons.Add(go);
-        equippedData.Add(null);
-        weaponLevels.Add(1);
-
-        int newSlot = equippedWeapons.Count - 1;
-        SetActiveSlot(newSlot);
-
-        Debug.Log($"[WeaponInventory] Picked up {instance.definition.weaponName} ({instance.rarity})");
-    }
-
-    void SwapWeaponInstance(WeaponInstance instance, int slot)
-    {
-        Destroy(equippedWeapons[slot]);
-        equippedWeapons.RemoveAt(slot);
-        equippedData.RemoveAt(slot);
-        weaponLevels.RemoveAt(slot);
-
-        GameObject go = InstantiateWeaponInstance(instance);
-        equippedWeapons.Insert(slot, go);
-        equippedData.Insert(slot, null);
-        weaponLevels.Insert(slot, 1);
-
-        SetActiveSlot(slot);
-
-        Debug.Log($"[WeaponInventory] Swapped slot {slot} to {instance.definition.weaponName} ({instance.rarity})");
-    }
-
-    GameObject InstantiateWeaponInstance(WeaponInstance instance)
-    {
-        WeaponDefinitionSO def = instance.definition;
-        GameObject go = Instantiate(def.prefab, weaponHolder);
-        go.transform.localPosition = def.positionOffset;
-        go.transform.localRotation = Quaternion.Euler(def.rotationOffset);
-        go.SetActive(false);
-
-        WeaponBase wb = go.GetComponentInChildren<WeaponBase>();
-        if (wb != null)
         {
-            wb.Equip(instance);
-
-            if (BulletPool.Instance != null && def.bulletData != null && def.bulletData.trailPrefab != null)
-                BulletPool.Instance.EnsurePoolSize(def.bulletData.trailPoolKey, def.bulletData.trailPrefab.gameObject, def.bulletData.trailPoolSize);
-
-            if (playerStats != null)
-                wb.ApplyAttackSpeed(playerStats.attackSpeed);
+            // Fresh pickup - starts at level 1 regardless of baseLevel. Purely temporary.
+            entry.currentLevel = 1;
         }
 
-        return go;
+        activePowerUpEntry = entry;
+        SetActiveEntry(entry);
+
+        if (powerUpRoutine != null)
+            StopCoroutine(powerUpRoutine);
+        powerUpRoutine = StartCoroutine(PowerUpCountdown(entry));
     }
 
-    public void SetActiveSlot(int slot)
+    IEnumerator PowerUpCountdown(WeaponEntry entry)
     {
-        if (slot < 0 || slot >= equippedWeapons.Count) return;
-
-        for (int i = 0; i < equippedWeapons.Count; i++)
-            equippedWeapons[i].SetActive(false);
-
-        equippedWeapons[slot].SetActive(true);
-        activeSlot = slot;
-
-        WeaponBase wb = equippedWeapons[slot].GetComponentInChildren<WeaponBase>();
-        if (wb != null)
+        while (true)
         {
-            wb.LoadRecoilValues();
-            if (playerStats != null)
+            yield return new WaitForSeconds(entry.definition.powerUpDurationPerLevel);
+
+            if (activePowerUpEntry != entry)
+                yield break;
+
+            if (entry.currentLevel > 1)
             {
-                wb.ApplyAttackSpeed(playerStats.attackSpeed);
-                wb.critChance = playerStats.critChance;
-                wb.critMultiplier = playerStats.critMultiplier;
+                entry.currentLevel--;
+                ApplyLevel(entry);
             }
+            else
+            {
+                RevertToBaseWeapon();
+                yield break;
+            }
+        }
+    }
+
+    void RevertToBaseWeapon()
+    {
+        activePowerUpEntry = null;
+        powerUpRoutine = null;
+
+        if (currentBaseEntry != null)
+            SetActiveEntry(currentBaseEntry);
+    }
+
+    public void LevelUpWeapon(WeaponDefinitionSO def)
+    {
+        if (!weaponLookup.TryGetValue(def, out WeaponEntry entry))
+        {
+            Debug.LogWarning($"[WeaponInventory] Cannot level up, no entry for {def?.weaponName}.");
+            return;
+        }
+
+        entry.baseLevel = Mathf.Min(entry.baseLevel + 1, entry.definition.maxLevel);
+
+        WeaponEntry active = activePowerUpEntry ?? currentBaseEntry;
+        if (active == entry)
+        {
+            entry.currentLevel = entry.baseLevel;
+            ApplyLevel(entry);
+        }
+    }
+
+    void SetActiveEntry(WeaponEntry entry)
+    {
+        if (entry?.weaponRoot == null) return;
+
+        foreach (WeaponEntry w in weapons)
+        {
+            if (w?.weaponRoot != null)
+                w.weaponRoot.SetActive(false);
+        }
+
+        entry.weaponRoot.SetActive(true);
+        ApplyLevel(entry);
+
+        entry.weaponBase.LoadRecoilValues();
+        if (playerStats != null)
+        {
+            entry.weaponBase.ApplyAttackSpeed(playerStats.attackSpeed);
+            entry.weaponBase.critChance = playerStats.critChance;
+            entry.weaponBase.critMultiplier = playerStats.critMultiplier;
         }
 
         if (ikHandler != null)
-            ikHandler.UpdateIKTargets(equippedWeapons[slot]);
-
-        if (equippedData[slot] != null)
-            Debug.Log($"[WeaponInventory] Equipped slot {slot}: {equippedData[slot].weaponName}.");
+            ikHandler.UpdateIKTargets(entry.weaponRoot);
     }
 
-    public void SwitchToSlot(int slot) => SetActiveSlot(slot);
-
-    void CycleSlot(int direction)
+    void ApplyLevel(WeaponEntry entry)
     {
-        if (equippedWeapons.Count <= 1) return;
-        int newSlot = (activeSlot + direction + equippedWeapons.Count) % equippedWeapons.Count;
-        SetActiveSlot(newSlot);
+        if (entry?.weaponBase == null || entry.definition == null) return;
+
+        entry.weaponBase.ApplyLevel(entry.definition, entry.currentLevel);
+
+        if (playerStats != null)
+            entry.weaponBase.ApplyAttackSpeed(playerStats.attackSpeed);
+
+        ApplyWeaponSkin(entry);
+    }
+
+    static MaterialPropertyBlock sharedPropertyBlock;
+
+    void ApplyWeaponSkin(WeaponEntry entry)
+    {
+        Renderer renderer = entry.weaponBase.skinRenderer;
+        WeaponDefinitionSO def = entry.definition;
+
+        if (renderer == null) return;
+
+        if (entry.currentLevel <= 1 || def.packedMaterial == null)
+        {
+            if (entry.originalMaterials != null)
+                renderer.sharedMaterials = entry.originalMaterials;
+            renderer.SetPropertyBlock(null);
+            return;
+        }
+
+        int slotCount = renderer.sharedMaterials.Length;
+        Material[] packedSet = new Material[slotCount];
+        for (int i = 0; i < slotCount; i++)
+            packedSet[i] = def.packedMaterial;
+        renderer.sharedMaterials = packedSet;
+
+        if (sharedPropertyBlock == null)
+            sharedPropertyBlock = new MaterialPropertyBlock();
+
+        renderer.GetPropertyBlock(sharedPropertyBlock);
+
+        int tintIndex = entry.currentLevel - 2;
+        Color tint = (def.levelTintColors != null && tintIndex >= 0 && tintIndex < def.levelTintColors.Length)
+            ? def.levelTintColors[tintIndex]
+            : Color.white;
+
+        sharedPropertyBlock.SetColor(def.tintPropertyName, tint);
+        renderer.SetPropertyBlock(sharedPropertyBlock);
     }
 
     public WeaponBase GetActiveWeaponBase()
     {
-        if (equippedWeapons.Count == 0) return null;
-        return equippedWeapons[activeSlot].GetComponentInChildren<WeaponBase>();
+        if (activePowerUpEntry != null)
+            return activePowerUpEntry.weaponBase;
+
+        return currentBaseEntry != null ? currentBaseEntry.weaponBase : null;
     }
 
-    public WeaponData GetActiveWeaponData()
+    public int GetBaseLevel(WeaponDefinitionSO def)
     {
-        if (equippedData.Count == 0) return null;
-        return equippedData[activeSlot];
+        return weaponLookup.TryGetValue(def, out WeaponEntry entry) ? entry.baseLevel : 0;
     }
 
-    public int GetWeaponLevel(int slot)
+    public int GetCurrentLevel(WeaponDefinitionSO def)
     {
-        if (slot < 0 || slot >= weaponLevels.Count) return 0;
-        return weaponLevels[slot];
+        return weaponLookup.TryGetValue(def, out WeaponEntry entry) ? entry.currentLevel : 0;
     }
-
-    public WeaponUpgradeData GetWeaponUpgradeData(int slot) => null;
 }

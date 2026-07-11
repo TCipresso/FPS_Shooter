@@ -306,8 +306,7 @@ public abstract class ZombieBase : MonoBehaviour
 
         if (verboseLogging) Debug.Log($"[{gameObject.name}] Died.");
 
-        if (WeaponDropManager.Instance != null)
-            WeaponDropManager.Instance.TryDrop(transform.position);
+        
 
         StartCoroutine(SpawnRagdollThenReturn(lastHitDirection, ragdollForce * lastRagdollForceMultiplier));
     }

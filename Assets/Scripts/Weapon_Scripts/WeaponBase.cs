@@ -6,6 +6,9 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Muzzle")]
     public Transform muzzlePoint;
 
+    [Header("Skin")]
+    public Renderer skinRenderer;
+
     [Header("Muzzle Flash")]
     public ParticleSystem muzzleFlash;
     public ParticleSystem casingEject;
@@ -82,8 +85,21 @@ public abstract class WeaponBase : MonoBehaviour
     protected PlayerStats playerStats;
     protected PlayerFpsController fpsController;
 
+    private int level1Damage;
+    private float level1Range;
+    private float level1Rpm;
+    private bool level1Captured = false;
+
     protected virtual void Awake()
     {
+        if (!level1Captured)
+        {
+            level1Damage = damage;
+            level1Range = range;
+            level1Rpm = rpm;
+            level1Captured = true;
+        }
+
         baseRpm = rpm;
         fpsLook = FindFirstObjectByType<FPSLook>();
         mainCamera = Camera.main;
@@ -408,19 +424,18 @@ public abstract class WeaponBase : MonoBehaviour
 
     public void StopRecoil() { }
 
-    public void Equip(WeaponInstance instance)
+    public void ApplyLevel(WeaponDefinitionSO def, int level)
     {
-        if (instance == null || instance.definition == null) return;
+        if (def == null) return;
 
-        WeaponDefinitionSO def = instance.definition;
+        int clampedLevel = Mathf.Clamp(level, 1, def.maxLevel);
 
-        bulletData = def.bulletData;
-        damage = instance.finalDamage;
-        range = instance.finalRange;
-        rpm = instance.finalRpm;
-        baseRpm = instance.finalRpm;
+        damage = Mathf.RoundToInt(level1Damage * (1f + def.damageGrowthPerLevel * (clampedLevel - 1)));
+        range = level1Range * (1f + def.rangeGrowthPerLevel * (clampedLevel - 1));
+        baseRpm = level1Rpm * (1f + def.rpmGrowthPerLevel * (clampedLevel - 1));
+        rpm = baseRpm;
 
-        Debug.Log($"[WeaponBase] Equipped {def.weaponName} | Rarity: {instance.rarity} | Damage: {damage} | Range: {range} | RPM: {rpm}");
+        Debug.Log($"[WeaponBase] {def.weaponName} set to level {clampedLevel} | Damage: {damage} | Range: {range} | RPM: {rpm}");
     }
 
     protected Vector3 GetAimDirection(float spreadX, float spreadY)
