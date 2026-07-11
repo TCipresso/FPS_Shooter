@@ -13471,6 +13471,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3282480155471214155, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
+      propertyPath: baseEnemiesPerRound
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3282480155471214155, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
+      propertyPath: stageScenes.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3282480155471214155, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
+      propertyPath: 'stageScenes.Array.data[0]'
+      value: Stage_02
+      objectReference: {fileID: 0}
     - target: {fileID: 8462118818809269826, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
       propertyPath: m_Name
       value: GameManager

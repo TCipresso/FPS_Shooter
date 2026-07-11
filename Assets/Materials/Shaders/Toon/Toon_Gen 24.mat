@@ -7,11 +7,12 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Toon_Gen 16
+  m_Name: Toon_Gen 24
   m_Shader: {fileID: 4800000, guid: 0e32a9fa8e6a8894098943bf466889ab, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _RECEIVE_SHADOWS_ON
   - _TOON_SHADING
   m_InvalidKeywords:
   - _USE_RAMP_TEX
@@ -106,7 +107,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DitherCellSize: 0.1
+    - _DitherCellSize: 0.176
     - _DitherPixelSize: 4
     - _DstBlend: 0
     - _DstBlendAlpha: 0
@@ -121,38 +122,38 @@ Material:
     - _OutlineWidth: 0.03
     - _Parallax: 0.005
     - _QueueOffset: 0
-    - _ReceiveShadows: 0
+    - _ReceiveShadows: 1
     - _RimIntensity: 0
-    - _RimThreshold: 1
-    - _ShapeContrast: 1.5
+    - _RimThreshold: 0
+    - _ShapeContrast: 0.5
     - _ShapeEmission: 2.62
-    - _ShapeMetallic: 0.3
-    - _ShapeOpacity: 0.685
-    - _ShapeScale: 0.19
-    - _ShapeSmoothness: 0.9
+    - _ShapeMetallic: 0
+    - _ShapeOpacity: 0.454
+    - _ShapeScale: 0.1
+    - _ShapeSmoothness: 0
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _SpecularToonSize: 0.071
-    - _SpecularToonSmoothness: 0.062
+    - _SpecularToonSize: 0
+    - _SpecularToonSmoothness: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
     - _ToonRampSmoothness: 0
-    - _ToonSteps: 4
+    - _ToonSteps: 2
     - _UseRampTexture: 1
     - _UseToonShading: 1
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.5943396, g: 0.44818127, b: 0.19904771, a: 1}
+    - _BaseColor: {r: 0.5849056, g: 0.5849056, b: 0.5849056, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _RimColor: {r: 0.4811321, g: 0.4811321, b: 0.4811321, a: 1}
-    - _ShadowTint: {r: 0.1792453, g: 0.1792453, b: 0.1792453, a: 1}
-    - _ShapeColor: {r: 0.24528301, g: 0.1593761, b: 0.054378778, a: 1}
+    - _ShadowTint: {r: 0, g: 0, b: 0, a: 1}
+    - _ShapeColor: {r: 0.3018868, g: 0.3018868, b: 0.3018868, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _SpecularColor: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 1}
   m_BuildTextureStacks: []

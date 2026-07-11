@@ -115,7 +115,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _HorizonGlowIntensity: 0.3
+    - _HorizonGlowIntensity: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
@@ -128,8 +128,8 @@ Material:
     - _SrcBlendAlpha: 1
     - _SunEdgeSoftness: 0.3
     - _SunGlowFalloff: 8
-    - _SunGlowIntensity: 0
-    - _SunIntensity: 20
+    - _SunGlowIntensity: 0.08
+    - _SunIntensity: 3.2
     - _SunSize: 10
     - _Surface: 0
     - _WorkflowMode: 1
@@ -142,9 +142,9 @@ Material:
     - _CloudShadowColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _HorizonColor: {r: 0.1792453, g: 0.112451054, b: 0.16016124, a: 1}
+    - _HorizonColor: {r: 0.1792453, g: 0, b: 0.007966478, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _SunTint: {r: 0.3773585, g: 0.2260591, b: 0.3474505, a: 1}
+    - _SunTint: {r: 1, g: 0, b: 0, a: 1}
     - _TopColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
