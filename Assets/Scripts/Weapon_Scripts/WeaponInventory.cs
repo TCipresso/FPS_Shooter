@@ -115,6 +115,47 @@ public class WeaponInventory : MonoBehaviour
             SetActiveEntry(entry);
     }
 
+    public void PickupBaseWeaponBoost()
+    {
+        WeaponEntry entry = currentBaseEntry;
+        if (entry == null || entry.definition == null) return;
+
+        if (activePowerUpEntry == entry)
+            entry.currentLevel = Mathf.Min(entry.currentLevel + 1, entry.definition.maxLevel);
+        else
+            entry.currentLevel = Mathf.Min(entry.baseLevel + 1, entry.definition.maxLevel);
+
+        activePowerUpEntry = entry;
+        ApplyLevel(entry);
+
+        if (powerUpRoutine != null)
+            StopCoroutine(powerUpRoutine);
+        powerUpRoutine = StartCoroutine(BaseWeaponBoostCountdown(entry));
+    }
+
+    IEnumerator BaseWeaponBoostCountdown(WeaponEntry entry)
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(entry.definition.powerUpDurationPerLevel);
+
+            if (activePowerUpEntry != entry)
+                yield break;
+
+            if (entry.currentLevel > entry.baseLevel)
+            {
+                entry.currentLevel--;
+                ApplyLevel(entry);
+            }
+            else
+            {
+                activePowerUpEntry = null;
+                powerUpRoutine = null;
+                yield break;
+            }
+        }
+    }
+
     public void PickupPowerUp(WeaponDefinitionSO def)
     {
         if (!weaponLookup.TryGetValue(def, out WeaponEntry entry))
