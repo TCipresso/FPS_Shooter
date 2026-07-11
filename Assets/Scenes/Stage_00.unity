@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 29cd027eb0f4c8b41a5b43ec4d066670, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 6e986f80173e01348a2b11e09a693001, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -1352,6 +1352,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 4783b1c7c73873e4dbc57902203d3c3a, type: 3}
   m_PrefabInstance: {fileID: 57277060}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &59551513 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7758423886348715228, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
+  m_PrefabInstance: {fileID: 600624346}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &66727889
 GameObject:
@@ -4562,6 +4567,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 4783b1c7c73873e4dbc57902203d3c3a, type: 3}
   m_PrefabInstance: {fileID: 175412274}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &186980265 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1291644270637494043, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
+  m_PrefabInstance: {fileID: 600624346}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &188665712
 GameObject:
   m_ObjectHideFlags: 0
@@ -4792,10 +4802,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StageSetup
   spawnPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 59551513}
+  - {fileID: 186980265}
+  - {fileID: 2143261327}
+  - {fileID: 884223083}
   interactableSpawnChance: 0.6
   interactables: []
 --- !u!4 &209599816
@@ -18250,6 +18260,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 880337497}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &884223083 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2098092270927181990, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
+  m_PrefabInstance: {fileID: 600624346}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &894745031
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -41351,6 +41366,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2137609432}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &2143261327 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2183957287003287985, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
+  m_PrefabInstance: {fileID: 600624346}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2143809683
 GameObject:
   m_ObjectHideFlags: 0

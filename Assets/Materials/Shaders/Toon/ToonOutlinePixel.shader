@@ -11,7 +11,7 @@ Shader "Bloodsport/ToonOutlinePixel"
         _ToonSteps             ("Toon Steps",              Range(2, 8))   = 3
         _ToonRampSmoothness    ("Toon Ramp Smoothness",    Range(0, 1))   = 0.0
         _ShadowTint            ("Toon Shadow Tint",        Color)         = (0.35, 0.35, 0.45, 1)
-        _DitherCellSize        ("Band Edge Cell Size (object units)", Range(0.01, 1)) = 0.1
+        _DitherCellSize        ("Band Edge Cell Size (object units)", Range(0.0001, 1)) = 0.1
         _ShadowReceiveBias      ("Shadow Receive Bias",     Range(0, 0.1)) = 0.02
 
         _SpecularColor         ("Toon Specular Color",     Color)         = (1, 1, 1, 1)
