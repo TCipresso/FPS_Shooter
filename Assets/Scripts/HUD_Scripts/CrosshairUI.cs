@@ -14,7 +14,6 @@ public class CrosshairUI : MonoBehaviour
     public float spreadLerpSpeed = 10f;
 
     [Header("ADS Settings")]
-    public float adsSpread = 0f;
     public float adsAlpha = 0f;
 
     [Header("ADS Crosshair Swap")]
@@ -94,11 +93,10 @@ public class CrosshairUI : MonoBehaviour
         if (activeWeapon == null) return;
 
         bool isAiming = activeWeapon.isAiming;
+        bool adsActiveForCrosshair = isAiming && activeWeapon.hideCrosshairAds;
         float bloom = activeWeapon.currentBloom;
 
-        float targetSpread = isAiming
-            ? Mathf.Max(adsSpread, minSpread)
-            : Mathf.Max(baseSpread + bloom * bloomSpreadMultiplier, minSpread);
+        float targetSpread = Mathf.Max(baseSpread + bloom * bloomSpreadMultiplier, minSpread);
 
         _currentSpread = Mathf.Lerp(_currentSpread, targetSpread, spreadLerpSpeed * Time.deltaTime);
 
@@ -125,12 +123,10 @@ public class CrosshairUI : MonoBehaviour
         }
         _reticleOffset = Vector2.Lerp(_reticleOffset, targetOffset, recoilReturnSpeed * Time.deltaTime);
 
-        // Alpha
-        float targetLineAlpha = isAiming
-            ? (activeWeapon.adsFadeCrosshair || _fadeToNothing ? 0f : adsAlpha)
-            : 1f;
+        // Alpha - fades out only if this weapon wants ADS to hide the crosshair. Otherwise always fully visible, exactly like hip-fire.
+        float targetLineAlpha = adsActiveForCrosshair ? 0f : 1f;
 
-        Color targetColor = isAiming ? adsColor : normalColor;
+        Color targetColor = adsActiveForCrosshair ? adsColor : normalColor;
         targetColor.a = targetLineAlpha;
 
         foreach (Image img in _lineImgs)
@@ -138,14 +134,14 @@ public class CrosshairUI : MonoBehaviour
 
         if (adsCrosshair != null)
         {
-            float targetAdsAlpha = isAiming && !_fadeToNothing && adsCrosshair.sprite != null ? 1f : 0f;
+            float targetAdsAlpha = adsActiveForCrosshair && !_fadeToNothing && adsCrosshair.sprite != null ? 1f : 0f;
             Color ac = adsCrosshair.color;
             ac.a = Mathf.Lerp(ac.a, targetAdsAlpha, adsSwapFadeSpeed * Time.deltaTime);
             adsCrosshair.color = ac;
             adsCrosshair.rectTransform.anchoredPosition = _reticleOffset;
         }
 
-        if (isAiming)
+        if (adsActiveForCrosshair)
         {
             foreach (RectTransform rt in _lineRTs)
                 rt.anchoredPosition += _reticleOffset;

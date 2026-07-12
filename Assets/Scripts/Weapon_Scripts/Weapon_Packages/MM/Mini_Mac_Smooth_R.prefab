@@ -241,13 +241,14 @@ MonoBehaviour:
   critMultiplier: 2
   baseAccuracy: 1
   bloomPerShot: 0.5
-  bloomDecaySpeed: 3
   maxBloom: 4
+  bloomDecaySpeed: 10
   currentBloom: 0
+  adsBloomPerShot: 0.5
+  adsMaxBloom: 1
   adsFOVReduction: 15
-  adsBloomMultiplier: 0.25
-  adsTransitionSpeed: 10
-  adsFadeCrosshair: 1
+  adsTransitionSpeed: 50
+  hideCrosshairAds: 0
   isAiming: 0
   animator: {fileID: 706164784896150214}
   walkStopDelay: 0.1

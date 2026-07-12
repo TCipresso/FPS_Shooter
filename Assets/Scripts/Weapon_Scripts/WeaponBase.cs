@@ -54,18 +54,21 @@ public abstract class WeaponBase : MonoBehaviour
     [Range(0f, 1f)] public float critChance = 0.1f;
     public float critMultiplier = 2f;
 
-    [Header("Accuracy")]
+    [Header("Accuracy - Hip Fire")]
     public float baseAccuracy = 1f;
     public float bloomPerShot = 0.5f;
-    public float bloomDecaySpeed = 3f;
     public float maxBloom = 4f;
+    public float bloomDecaySpeed = 3f;
     [HideInInspector] public float currentBloom = 0f;
+
+    [Header("Accuracy - ADS")]
+    public float adsBloomPerShot = 0.15f;
+    public float adsMaxBloom = 1f;
 
     [Header("ADS")]
     public float adsFOVReduction = 15f;
-    public float adsBloomMultiplier = 0.25f;
     public float adsTransitionSpeed = 10f;
-    public bool adsFadeCrosshair = false;
+    public bool hideCrosshairAds = false;
     [HideInInspector] public bool isAiming = false;
 
     [Header("Animation")]
@@ -136,6 +139,7 @@ public abstract class WeaponBase : MonoBehaviour
         if (fpsController != null && animator != null)
         {
             isAiming = fpsController.input.AimHeld;
+            currentBloom = Mathf.Min(currentBloom, isAiming ? adsMaxBloom : maxBloom);
 
             if (isAiming)
                 fpsController.IsSprinting = false;
@@ -442,9 +446,8 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (mainCamera == null) return muzzlePoint.forward;
 
-        float bloomScale = isAiming ? adsBloomMultiplier : 1f;
-        float totalX = spreadX + Random.Range(-currentBloom, currentBloom) * bloomScale;
-        float totalY = spreadY + Random.Range(-currentBloom, currentBloom) * bloomScale;
+        float totalX = spreadX + Random.Range(-currentBloom, currentBloom);
+        float totalY = spreadY + Random.Range(-currentBloom, currentBloom);
 
         Quaternion spreadRotation = Quaternion.AngleAxis(totalY, mainCamera.transform.up)
                                   * Quaternion.AngleAxis(totalX, mainCamera.transform.right);
@@ -467,7 +470,10 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected void AddBloom()
     {
-        currentBloom = Mathf.Min(currentBloom + bloomPerShot, maxBloom);
+        if (isAiming)
+            currentBloom = Mathf.Min(currentBloom + adsBloomPerShot, adsMaxBloom);
+        else
+            currentBloom = Mathf.Min(currentBloom + bloomPerShot, maxBloom);
     }
 
     protected void TriggerCockAnimation()

@@ -39,6 +39,11 @@ public class WeaponInventory : MonoBehaviour
 
             weaponLookup[entry.definition] = entry;
 
+            if (entry.baseLevel <= 0)
+                entry.baseLevel = 1;
+            if (entry.currentLevel <= 0)
+                entry.currentLevel = entry.baseLevel;
+
             foreach (WeaponBase wb in entry.weaponBases)
             {
                 if (wb == null) continue;
@@ -128,6 +133,7 @@ public class WeaponInventory : MonoBehaviour
         }
 
         currentBaseEntry = entry;
+        entry.currentLevel = entry.baseLevel;
 
         if (activePowerUpEntry == null)
             SetActiveEntry(entry);
@@ -135,8 +141,36 @@ public class WeaponInventory : MonoBehaviour
 
     public void PickupBaseWeaponBoost()
     {
-        WeaponEntry entry = currentBaseEntry;
-        if (entry == null || entry.definition == null) return;
+        if (currentBaseEntry == null) return;
+        ActivateBaseLevelPowerUp(currentBaseEntry);
+    }
+
+    public void PickupBaseLevelPowerUp(WeaponDefinitionSO def)
+    {
+        if (!weaponLookup.TryGetValue(def, out WeaponEntry entry))
+        {
+            Debug.LogWarning($"[WeaponInventory] Cannot pick up base-level power-up, no entry for {def?.weaponName}.");
+            return;
+        }
+
+        ActivateBaseLevelPowerUp(entry);
+    }
+
+    // Zero-lookup path for base-type power-ups (e.g. Z16), same pattern as PickupPowerUpByIndex.
+    public void PickupBaseLevelPowerUpByIndex(int index)
+    {
+        if (index < 0 || index >= weapons.Count)
+        {
+            Debug.LogWarning($"[WeaponInventory] PickupBaseLevelPowerUpByIndex: index {index} out of range.");
+            return;
+        }
+
+        ActivateBaseLevelPowerUp(weapons[index]);
+    }
+
+    void ActivateBaseLevelPowerUp(WeaponEntry entry)
+    {
+        if (entry?.weaponRoot == null || entry.definition == null) return;
 
         if (activePowerUpEntry == entry)
             entry.currentLevel = Mathf.Min(entry.currentLevel + 1, entry.definition.maxLevel);
@@ -144,14 +178,14 @@ public class WeaponInventory : MonoBehaviour
             entry.currentLevel = Mathf.Min(entry.baseLevel + 1, entry.definition.maxLevel);
 
         activePowerUpEntry = entry;
-        ApplyLevel(entry);
+        SetActiveEntry(entry);
 
         if (powerUpRoutine != null)
             StopCoroutine(powerUpRoutine);
-        powerUpRoutine = StartCoroutine(BaseWeaponBoostCountdown(entry));
+        powerUpRoutine = StartCoroutine(BaseLevelPowerUpCountdown(entry));
     }
 
-    IEnumerator BaseWeaponBoostCountdown(WeaponEntry entry)
+    IEnumerator BaseLevelPowerUpCountdown(WeaponEntry entry)
     {
         while (true)
         {
@@ -167,8 +201,7 @@ public class WeaponInventory : MonoBehaviour
             }
             else
             {
-                activePowerUpEntry = null;
-                powerUpRoutine = null;
+                RevertToBaseWeapon();
                 yield break;
             }
         }
@@ -248,7 +281,10 @@ public class WeaponInventory : MonoBehaviour
         powerUpRoutine = null;
 
         if (currentBaseEntry != null)
+        {
+            currentBaseEntry.currentLevel = currentBaseEntry.baseLevel;
             SetActiveEntry(currentBaseEntry);
+        }
     }
 
     public void LevelUpWeapon(WeaponDefinitionSO def)
