@@ -54,6 +54,15 @@ public class EnemySpawnManager : MonoBehaviour
         if (pool.enemyQueue.Count == 0) { Debug.LogWarning($"[EnemySpawnManager] Pool empty: {enemyId}"); return null; }
 
         GameObject enemy = pool.enemyQueue.Dequeue();
+
+        Rigidbody erb = enemy.GetComponent<Rigidbody>();
+        if (erb != null)
+        {
+            erb.isKinematic = true;
+            erb.linearVelocity = Vector3.zero;
+            erb.angularVelocity = Vector3.zero;
+        }
+
         enemy.transform.position = position;
         enemy.transform.rotation = rotation;
 

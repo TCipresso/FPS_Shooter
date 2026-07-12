@@ -18,6 +18,10 @@ public class RoundManager : MonoBehaviour
     public int roundsPerStage = 4;
     public float spawnInterval = 0.5f;
 
+    [Header("Spawn Point Safety")]
+    public LayerMask enemyLayerMask;
+    public float spawnPointCheckRadius = 0.6f;
+
     [Header("Stage Scenes")]
     [Tooltip("Scene names to load in order. Loops when exhausted.")]
     public List<string> stageScenes = new List<string>();
@@ -86,7 +90,8 @@ public class RoundManager : MonoBehaviour
         foreach (string id in shuffled)
         {
             if (currentSpawnPoints.Count == 0) yield break;
-            Transform spawnPoint = currentSpawnPoints[Random.Range(0, currentSpawnPoints.Count)];
+
+            Transform spawnPoint = PickFreeSpawnPoint();
             GameObject enemy = EnemySpawnManager.Instance.SpawnEnemy(id, spawnPoint.position, spawnPoint.rotation);
 
             if (enemy != null)
@@ -100,6 +105,24 @@ public class RoundManager : MonoBehaviour
 
             yield return new WaitForSeconds(spawnInterval);
         }
+    }
+
+    Transform PickFreeSpawnPoint()
+    {
+        List<Transform> shuffled = new List<Transform>(currentSpawnPoints);
+        for (int i = shuffled.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (shuffled[i], shuffled[j]) = (shuffled[j], shuffled[i]);
+        }
+
+        foreach (Transform sp in shuffled)
+        {
+            if (!Physics.CheckSphere(sp.position, spawnPointCheckRadius, enemyLayerMask))
+                return sp;
+        }
+
+        return shuffled[0];
     }
 
     List<string> GetShuffledEnemyList(int count)

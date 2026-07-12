@@ -76,6 +76,8 @@ public abstract class ZombieBase : MonoBehaviour
     Dictionary<PlayerStats, float> goldMultipliers = new Dictionary<PlayerStats, float>();
     int totalDamageDealt = 0;
 
+    Coroutine kinematicReleaseRoutine;
+
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -134,6 +136,7 @@ public abstract class ZombieBase : MonoBehaviour
     protected virtual void FixedUpdate()
     {
         if (isDead || player == null) return;
+        if (rb.isKinematic) return;
         if (State == ZombieState.Engage)
             GruntMove();
     }
@@ -284,8 +287,19 @@ public abstract class ZombieBase : MonoBehaviour
         animator?.SetBool("IsWalking", false);
         animator?.SetBool("IsAttacking", false);
 
-        rb.isKinematic = false;
         rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        if (kinematicReleaseRoutine != null)
+            StopCoroutine(kinematicReleaseRoutine);
+        kinematicReleaseRoutine = StartCoroutine(ReleaseKinematicNextFixedUpdate());
+    }
+
+    IEnumerator ReleaseKinematicNextFixedUpdate()
+    {
+        yield return new WaitForFixedUpdate();
+        rb.isKinematic = false;
+        kinematicReleaseRoutine = null;
     }
 
     void HandleDeath()
@@ -305,8 +319,6 @@ public abstract class ZombieBase : MonoBehaviour
         }
 
         if (verboseLogging) Debug.Log($"[{gameObject.name}] Died.");
-
-        
 
         StartCoroutine(SpawnRagdollThenReturn(lastHitDirection, ragdollForce * lastRagdollForceMultiplier));
     }
