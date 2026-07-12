@@ -17,6 +17,7 @@ public class WeaponInventory : MonoBehaviour
     public List<WeaponEntry> weapons = new List<WeaponEntry>();
 
     private Dictionary<WeaponDefinitionSO, WeaponEntry> weaponLookup = new Dictionary<WeaponDefinitionSO, WeaponEntry>();
+    private Dictionary<WeaponBase, Material[]> originalMaterialsCache = new Dictionary<WeaponBase, Material[]>();
     private WeaponEntry currentBaseEntry;
     private WeaponEntry activePowerUpEntry;
     private Coroutine powerUpRoutine;
@@ -24,11 +25,13 @@ public class WeaponInventory : MonoBehaviour
     void Awake()
     {
         weaponLookup.Clear();
+        originalMaterialsCache.Clear();
         WeaponEntry defaultEntry = null;
 
         foreach (WeaponEntry entry in weapons)
         {
-            if (entry == null || entry.weaponBase == null || entry.weaponRoot == null || entry.definition == null)
+            if (entry == null || entry.weaponRoot == null || entry.definition == null
+                || entry.weaponBases == null || entry.weaponBases.Count == 0)
             {
                 Debug.LogWarning("[WeaponInventory] Skipping invalid WeaponEntry.");
                 continue;
@@ -36,8 +39,12 @@ public class WeaponInventory : MonoBehaviour
 
             weaponLookup[entry.definition] = entry;
 
-            if (entry.weaponBase.skinRenderer != null)
-                entry.originalMaterials = (Material[])entry.weaponBase.skinRenderer.sharedMaterials.Clone();
+            foreach (WeaponBase wb in entry.weaponBases)
+            {
+                if (wb == null) continue;
+                if (wb.skinRenderer != null && !originalMaterialsCache.ContainsKey(wb))
+                    originalMaterialsCache[wb] = (Material[])wb.skinRenderer.sharedMaterials.Clone();
+            }
 
             if (entry.isDefaultBase)
             {
@@ -62,10 +69,13 @@ public class WeaponInventory : MonoBehaviour
 
             entry.weaponRoot.SetActive(false);
 
-            if (entry.weaponBase == null) continue;
+            foreach (WeaponBase wb in entry.weaponBases)
+            {
+                if (wb == null) continue;
 
-            if (BulletPool.Instance != null && entry.weaponBase.bulletData != null && entry.weaponBase.bulletData.trailPrefab != null)
-                BulletPool.Instance.EnsurePoolSize(entry.weaponBase.bulletData.trailPoolKey, entry.weaponBase.bulletData.trailPrefab.gameObject, entry.weaponBase.bulletData.trailPoolSize);
+                if (BulletPool.Instance != null && wb.bulletData != null && wb.bulletData.trailPrefab != null)
+                    BulletPool.Instance.EnsurePoolSize(wb.bulletData.trailPoolKey, wb.bulletData.trailPrefab.gameObject, wb.bulletData.trailPoolSize);
+            }
         }
 
         if (currentBaseEntry != null)
@@ -87,17 +97,25 @@ public class WeaponInventory : MonoBehaviour
 
     void Update()
     {
-        if (fireAction != null)
-        {
-            WeaponBase active = GetActiveWeaponBase();
-            bool shouldFire = active != null && active.isAutomatic
-                ? fireAction.action.IsPressed()
-                : fireAction.action.WasPressedThisFrame();
+        if (fireAction == null) return;
 
-            if (shouldFire)
-                active?.Shoot();
-            else if (fireAction.action.WasReleasedThisFrame())
-                active?.StopRecoil();
+        List<WeaponBase> activeBases = GetActiveWeaponBases();
+        if (activeBases == null || activeBases.Count == 0) return;
+
+        WeaponBase primary = activeBases[0];
+        bool shouldFire = primary != null && primary.isAutomatic
+            ? fireAction.action.IsPressed()
+            : fireAction.action.WasPressedThisFrame();
+
+        if (shouldFire)
+        {
+            foreach (WeaponBase wb in activeBases)
+                wb?.Shoot();
+        }
+        else if (fireAction.action.WasReleasedThisFrame())
+        {
+            foreach (WeaponBase wb in activeBases)
+                wb?.StopRecoil();
         }
     }
 
@@ -264,12 +282,19 @@ public class WeaponInventory : MonoBehaviour
         entry.weaponRoot.SetActive(true);
         ApplyLevel(entry);
 
-        entry.weaponBase.LoadRecoilValues();
+        WeaponBase primary = entry.Primary;
+        if (primary != null)
+            primary.LoadRecoilValues();
+
         if (playerStats != null)
         {
-            entry.weaponBase.ApplyAttackSpeed(playerStats.attackSpeed);
-            entry.weaponBase.critChance = playerStats.critChance;
-            entry.weaponBase.critMultiplier = playerStats.critMultiplier;
+            foreach (WeaponBase wb in entry.weaponBases)
+            {
+                if (wb == null) continue;
+                wb.ApplyAttackSpeed(playerStats.attackSpeed);
+                wb.critChance = playerStats.critChance;
+                wb.critMultiplier = playerStats.critMultiplier;
+            }
         }
 
         if (ikHandler != null)
@@ -278,12 +303,17 @@ public class WeaponInventory : MonoBehaviour
 
     void ApplyLevel(WeaponEntry entry)
     {
-        if (entry?.weaponBase == null || entry.definition == null) return;
+        if (entry?.weaponBases == null || entry.definition == null) return;
 
-        entry.weaponBase.ApplyLevel(entry.definition, entry.currentLevel);
+        foreach (WeaponBase wb in entry.weaponBases)
+        {
+            if (wb == null) continue;
 
-        if (playerStats != null)
-            entry.weaponBase.ApplyAttackSpeed(playerStats.attackSpeed);
+            wb.ApplyLevel(entry.definition, entry.currentLevel);
+
+            if (playerStats != null)
+                wb.ApplyAttackSpeed(playerStats.attackSpeed);
+        }
 
         ApplyWeaponSkin(entry);
     }
@@ -292,45 +322,54 @@ public class WeaponInventory : MonoBehaviour
 
     void ApplyWeaponSkin(WeaponEntry entry)
     {
-        Renderer renderer = entry.weaponBase.skinRenderer;
         WeaponDefinitionSO def = entry.definition;
 
-        if (renderer == null) return;
-
-        if (entry.currentLevel <= 1 || def.packedMaterial == null)
+        foreach (WeaponBase wb in entry.weaponBases)
         {
-            if (entry.originalMaterials != null)
-                renderer.sharedMaterials = entry.originalMaterials;
-            renderer.SetPropertyBlock(null);
-            return;
+            if (wb == null) continue;
+
+            Renderer renderer = wb.skinRenderer;
+            if (renderer == null) continue;
+
+            if (entry.currentLevel <= 1 || def.packedMaterial == null)
+            {
+                if (originalMaterialsCache.TryGetValue(wb, out Material[] original))
+                    renderer.sharedMaterials = original;
+                renderer.SetPropertyBlock(null);
+                continue;
+            }
+
+            int slotCount = renderer.sharedMaterials.Length;
+            Material[] packedSet = new Material[slotCount];
+            for (int i = 0; i < slotCount; i++)
+                packedSet[i] = def.packedMaterial;
+            renderer.sharedMaterials = packedSet;
+
+            if (sharedPropertyBlock == null)
+                sharedPropertyBlock = new MaterialPropertyBlock();
+
+            renderer.GetPropertyBlock(sharedPropertyBlock);
+
+            int tintIndex = entry.currentLevel - 2;
+            Color tint = (def.levelTintColors != null && tintIndex >= 0 && tintIndex < def.levelTintColors.Length)
+                ? def.levelTintColors[tintIndex]
+                : Color.white;
+
+            sharedPropertyBlock.SetColor(def.tintPropertyName, tint);
+            renderer.SetPropertyBlock(sharedPropertyBlock);
         }
-
-        int slotCount = renderer.sharedMaterials.Length;
-        Material[] packedSet = new Material[slotCount];
-        for (int i = 0; i < slotCount; i++)
-            packedSet[i] = def.packedMaterial;
-        renderer.sharedMaterials = packedSet;
-
-        if (sharedPropertyBlock == null)
-            sharedPropertyBlock = new MaterialPropertyBlock();
-
-        renderer.GetPropertyBlock(sharedPropertyBlock);
-
-        int tintIndex = entry.currentLevel - 2;
-        Color tint = (def.levelTintColors != null && tintIndex >= 0 && tintIndex < def.levelTintColors.Length)
-            ? def.levelTintColors[tintIndex]
-            : Color.white;
-
-        sharedPropertyBlock.SetColor(def.tintPropertyName, tint);
-        renderer.SetPropertyBlock(sharedPropertyBlock);
     }
 
     public WeaponBase GetActiveWeaponBase()
     {
-        if (activePowerUpEntry != null)
-            return activePowerUpEntry.weaponBase;
+        WeaponEntry active = activePowerUpEntry ?? currentBaseEntry;
+        return active?.Primary;
+    }
 
-        return currentBaseEntry != null ? currentBaseEntry.weaponBase : null;
+    public List<WeaponBase> GetActiveWeaponBases()
+    {
+        WeaponEntry active = activePowerUpEntry ?? currentBaseEntry;
+        return active?.weaponBases;
     }
 
     public int GetBaseLevel(WeaponDefinitionSO def)

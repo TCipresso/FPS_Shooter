@@ -6,6 +6,7 @@ public class PlayerStats : MonoBehaviour
     public FPSLook look;
     public WeaponInventory weaponInventory;
     public PickupZone pickupZone;
+    //public AugmentDraftUI augmentDraftUI;
     public PlayerHealth playerHealth;
 
     [Header("Combat Stats")]
@@ -32,7 +33,7 @@ public class PlayerStats : MonoBehaviour
 
     void Awake()
     {
-       // Application.targetFrameRate = 300;
+        // Application.targetFrameRate = 300;
     }
 
     void Start()
@@ -58,9 +59,12 @@ public class PlayerStats : MonoBehaviour
 
     void ApplyCombatStats()
     {
-        WeaponBase wb = weaponInventory?.GetActiveWeaponBase();
-        if (wb != null)
+        var actives = weaponInventory?.GetActiveWeaponBases();
+        if (actives == null) return;
+
+        foreach (WeaponBase wb in actives)
         {
+            if (wb == null) continue;
             wb.critChance = critChance;
             wb.critMultiplier = critMultiplier;
         }
@@ -69,8 +73,12 @@ public class PlayerStats : MonoBehaviour
     public void AddAttackSpeed(float amount)
     {
         attackSpeed += amount;
-        WeaponBase wb = weaponInventory?.GetActiveWeaponBase();
-        if (wb != null) wb.ApplyAttackSpeed(attackSpeed);
+        var actives = weaponInventory?.GetActiveWeaponBases();
+        if (actives != null)
+        {
+            foreach (WeaponBase wb in actives)
+                wb?.ApplyAttackSpeed(attackSpeed);
+        }
         Debug.Log($"[PlayerStats] Attack Speed: {attackSpeed * 100:F0}%");
     }
 
@@ -112,7 +120,7 @@ public class PlayerStats : MonoBehaviour
         {
             currentXP -= XPToNextLevel;
             level++;
-            //OnLevelUp();
+            OnLevelUp();
         }
     }
 
@@ -135,11 +143,11 @@ public class PlayerStats : MonoBehaviour
         Debug.Log($"[PlayerStats] Pickup Range: {pickupRange * 100:F0}%");
     }
 
-    /*void OnLevelUp()
+    void OnLevelUp()
     {
         Debug.Log($"[PlayerStats] LEVEL UP! Now level {level} | Next level needs {XPToNextLevel} XP");
-        if (augmentDraftUI != null) augmentDraftUI.OpenAugmentDraft();
-    }*/
+       // if (augmentDraftUI != null) augmentDraftUI.OpenAugmentDraft();
+    }
 
     //
 

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
@@ -8,14 +9,14 @@ public class WeaponEntry
 
     public WeaponDefinitionSO definition;
 
-    [Tooltip("The root GameObject of the weapon (parent of everything - mesh, muzzle, WeaponBase). This is what gets enabled/disabled.")]
+    [Tooltip("The root GameObject of the weapon (parent of everything under it - mesh, muzzle, WeaponBase). This is what gets enabled/disabled.")]
     public GameObject weaponRoot;
 
-    [Tooltip("The WeaponBase component, wherever it lives in this weapon's hierarchy.")]
-    public WeaponBase weaponBase;
+    [Tooltip("Usually just one WeaponBase. For dual-wield weapons (e.g. Mac-10 left + right), add both here - level, stats, and skin apply to all of them together.")]
+    public List<WeaponBase> weaponBases = new List<WeaponBase>();
 
     [HideInInspector] public int baseLevel = 1;
     [HideInInspector] public int currentLevel = 1;
 
-    [System.NonSerialized] public Material[] originalMaterials;
+    public WeaponBase Primary => weaponBases.Count > 0 ? weaponBases[0] : null;
 }
