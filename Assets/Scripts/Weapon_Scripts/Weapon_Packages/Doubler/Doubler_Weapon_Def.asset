@@ -13,15 +13,16 @@ MonoBehaviour:
   m_Name: Doubler_Weapon_Def
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinitionSO
   weaponName: Doubler
-  weaponType: 3
-  prefab: {fileID: 6850122235405207352, guid: 359978e2d679e0a469996927ab439517, type: 3}
-  positionOffset: {x: -0.48, y: 0, z: -1.95}
-  rotationOffset: {x: 0, y: 0, z: 0}
-  bulletData: {fileID: 11400000, guid: 8a289beee63f85145aad87a8045799f1, type: 2}
-  baseDamage: 200
-  baseRpm: 150
-  baseRange: 100
-  rareBonus: 0.05
-  epicBonus: 0.1
-  legendaryBonus: 0.15
-  contrabandBonus: 0.25
+  category: 3
+  maxLevel: 5
+  damageGrowthPerLevel: 0.1
+  rpmGrowthPerLevel: 0.1
+  rangeGrowthPerLevel: 0.1
+  powerUpDurationPerLevel: 10
+  packedMaterial: {fileID: 2100000, guid: c1d0524384fed3a41b49a0f41bdd18ac, type: 2}
+  levelTintColors:
+  - {r: 1, g: 0, b: 0, a: 0}
+  - {r: 0.0126776695, g: 1, b: 0, a: 0}
+  - {r: 0.74963903, g: 0, b: 1, a: 0}
+  - {r: 0, g: 0.20360231, b: 1, a: 0}
+  tintPropertyName: _GlowColor

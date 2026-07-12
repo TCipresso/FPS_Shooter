@@ -2759,6 +2759,13 @@ MonoBehaviour:
     - {fileID: 627142145785945863}
     baseLevel: 0
     currentLevel: 0
+  - isDefaultBase: 0
+    definition: {fileID: 11400000, guid: 70e69f58da8342644943f5c0d3dc3487, type: 2}
+    weaponRoot: {fileID: 3610156938786648270}
+    weaponBases:
+    - {fileID: 7779756829573333741}
+    baseLevel: 0
+    currentLevel: 0
 --- !u!114 &3423140975808738288
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5408,6 +5415,7 @@ Transform:
   m_Children:
   - {fileID: 4209003024023789105}
   - {fileID: 3744679685626006914}
+  - {fileID: 351804824037175077}
   m_Father: {fileID: 5767150529298546491}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3816118456088211945
@@ -6404,6 +6412,88 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1001 &375224792307585643
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4975192303071148699}
+    m_Modifications:
+    - target: {fileID: 131955046742555982, guid: 8960de711e65bc2428618757a57de724, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.38
+      objectReference: {fileID: 0}
+    - target: {fileID: 131955046742555982, guid: 8960de711e65bc2428618757a57de724, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.009999603
+      objectReference: {fileID: 0}
+    - target: {fileID: 131955046742555982, guid: 8960de711e65bc2428618757a57de724, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -2.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 131955046742555982, guid: 8960de711e65bc2428618757a57de724, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 131955046742555982, guid: 8960de711e65bc2428618757a57de724, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 131955046742555982, guid: 8960de711e65bc2428618757a57de724, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 131955046742555982, guid: 8960de711e65bc2428618757a57de724, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 131955046742555982, guid: 8960de711e65bc2428618757a57de724, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 131955046742555982, guid: 8960de711e65bc2428618757a57de724, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 131955046742555982, guid: 8960de711e65bc2428618757a57de724, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3975775146326876837, guid: 8960de711e65bc2428618757a57de724, type: 3}
+      propertyPath: m_Name
+      value: Doubler_Smooth
+      objectReference: {fileID: 0}
+    - target: {fileID: 3975775146326876837, guid: 8960de711e65bc2428618757a57de724, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8960de711e65bc2428618757a57de724, type: 3}
+--- !u!4 &351804824037175077 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 131955046742555982, guid: 8960de711e65bc2428618757a57de724, type: 3}
+  m_PrefabInstance: {fileID: 375224792307585643}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &3610156938786648270 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3975775146326876837, guid: 8960de711e65bc2428618757a57de724, type: 3}
+  m_PrefabInstance: {fileID: 375224792307585643}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7779756829573333741 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7980993630318530694, guid: 8960de711e65bc2428618757a57de724, type: 3}
+  m_PrefabInstance: {fileID: 375224792307585643}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a72c39cc8515394399b161a46c2aca0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Doubler
 --- !u!1001 &4297884347889889417
 PrefabInstance:
   m_ObjectHideFlags: 0
