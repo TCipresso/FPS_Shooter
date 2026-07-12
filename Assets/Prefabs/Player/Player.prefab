@@ -1695,7 +1695,7 @@ MonoBehaviour:
   adsColor: {r: 1, g: 1, b: 1, a: 1}
   weaponInventory: {fileID: 5863405062406140053}
   weaponRecoil: {fileID: 3816118456088211945}
-  recoilFollowStrength: 1
+  recoilFollowStrength: 0
   recoilFollowPixelScale: 500
   recoilReturnSpeed: 100000000
 --- !u!1 &1927462799430193061
@@ -4386,7 +4386,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2134561588560292058
 RectTransform:
   m_ObjectHideFlags: 0
