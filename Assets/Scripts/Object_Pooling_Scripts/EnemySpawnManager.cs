@@ -10,11 +10,9 @@ public class EnemySpawnManager : MonoBehaviour
     {
         public string enemyId;
         public GameObject enemyPrefab;
-        public GameObject ragdollPrefab;
         public int poolSize = 20;
 
         [HideInInspector] public Queue<GameObject> enemyQueue = new Queue<GameObject>();
-        [HideInInspector] public Queue<GameObject> ragdollQueue = new Queue<GameObject>();
     }
 
     [Header("Enemy Pools")]
@@ -38,11 +36,6 @@ public class EnemySpawnManager : MonoBehaviour
                 DontDestroyOnLoad(enemy);
                 enemy.SetActive(false);
                 pool.enemyQueue.Enqueue(enemy);
-
-                GameObject ragdoll = Instantiate(pool.ragdollPrefab, Vector3.zero, Quaternion.identity);
-                DontDestroyOnLoad(ragdoll);
-                ragdoll.SetActive(false);
-                pool.ragdollQueue.Enqueue(ragdoll);
             }
         }
     }
@@ -55,13 +48,12 @@ public class EnemySpawnManager : MonoBehaviour
 
         GameObject enemy = pool.enemyQueue.Dequeue();
 
+        // Kinematic-guard the teleport so RigidbodyInterpolation doesn't smear
+        // the mesh from the old position to the new one over a frame. ZombieBase
+        // releases this itself on its next FixedUpdate (see ResetEnemy).
         Rigidbody erb = enemy.GetComponent<Rigidbody>();
         if (erb != null)
-        {
             erb.isKinematic = true;
-            erb.linearVelocity = Vector3.zero;
-            erb.angularVelocity = Vector3.zero;
-        }
 
         enemy.transform.position = position;
         enemy.transform.rotation = rotation;
@@ -78,24 +70,6 @@ public class EnemySpawnManager : MonoBehaviour
         }
 
         return enemy;
-    }
-
-    public GameObject SpawnRagdoll(string enemyId, Vector3 position, Quaternion rotation, Vector3 hitDirection, float force, string hitBone = "")
-    {
-        EnemyPool pool = enemyPools.Find(p => p.enemyId == enemyId);
-        if (pool == null) return null;
-        if (pool.ragdollQueue.Count == 0) return null;
-
-        GameObject ragdoll = pool.ragdollQueue.Dequeue();
-        ragdoll.transform.position = position;
-        ragdoll.transform.rotation = rotation;
-        ragdoll.SetActive(true);
-
-        RagdollCorpse corpse = ragdoll.GetComponent<RagdollCorpse>();
-        if (corpse != null)
-            corpse.Launch(hitDirection, force, hitBone, () => ReturnRagdoll(enemyId, ragdoll));
-
-        return ragdoll;
     }
 
     public void DebugSpawnNearPlayer(string enemyId, int count, float radius = 5f)
@@ -118,14 +92,5 @@ public class EnemySpawnManager : MonoBehaviour
 
         enemy.SetActive(false);
         pool.enemyQueue.Enqueue(enemy);
-    }
-
-    void ReturnRagdoll(string enemyId, GameObject ragdoll)
-    {
-        EnemyPool pool = enemyPools.Find(p => p.enemyId == enemyId);
-        if (pool == null) return;
-
-        ragdoll.SetActive(false);
-        pool.ragdollQueue.Enqueue(ragdoll);
     }
 }

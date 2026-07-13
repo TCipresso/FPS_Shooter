@@ -3,53 +3,68 @@ using System.Collections;
 
 public class ZombieHitFlash : MonoBehaviour
 {
-    [Header("Body Hit")]
-    public Color bodyHitColor = Color.white;
-    public float bodyHitDuration = 0.08f;
+    [SerializeField] SkinnedMeshRenderer[] renderers;
+    [SerializeField] Color bodyFlashColor = Color.white;
+    [SerializeField] Color headshotFlashColor = Color.red;
+    [SerializeField] float flashDuration = 0.08f;
 
-    [Header("Crit Hit")]
-    public Color critHitColor = Color.red;
-    public float critHitDuration = 0.12f;
+    MaterialPropertyBlock mpb;
+    Coroutine flashRoutine;
 
-    [Header("References")]
-    public Renderer[] renderers;
-
-    MaterialPropertyBlock propBlock;
     static readonly int FlashColorID = Shader.PropertyToID("_FlashColor");
     static readonly int FlashAmountID = Shader.PropertyToID("_FlashAmount");
-    Coroutine flashCoroutine;
 
     void Awake()
     {
-        propBlock = new MaterialPropertyBlock();
+        mpb = new MaterialPropertyBlock();
+        if (renderers == null || renderers.Length == 0)
+            renderers = GetComponentsInChildren<SkinnedMeshRenderer>();
     }
 
-    public void Flash(bool isCrit)
+    public void Flash(bool isHeadshot)
     {
-        if (flashCoroutine != null)
-            StopCoroutine(flashCoroutine);
-        flashCoroutine = StartCoroutine(DoFlash(
-            isCrit ? critHitColor : bodyHitColor,
-            isCrit ? critHitDuration : bodyHitDuration));
+        if (!gameObject.activeInHierarchy) return;
+
+        Color color = isHeadshot ? headshotFlashColor : bodyFlashColor;
+
+        if (flashRoutine != null) StopCoroutine(flashRoutine);
+        flashRoutine = StartCoroutine(FlashCoroutine(color));
     }
 
-    IEnumerator DoFlash(Color color, float duration)
+    // Call this whenever the zombie is reset for pool reuse. Guarantees the
+    // flash is cleared even if the previous flash coroutine got cut off
+    // mid-fade by the object being deactivated (e.g. died while flashing).
+    public void ForceReset()
     {
-        SetFlash(color, 1f);
-        yield return new WaitForSeconds(duration);
+        if (flashRoutine != null)
+        {
+            StopCoroutine(flashRoutine);
+            flashRoutine = null;
+        }
+        SetFlash(Color.white, 0f);
+    }
+
+    IEnumerator FlashCoroutine(Color color)
+    {
+        float t = 0f;
+        while (t < flashDuration)
+        {
+            t += Time.deltaTime;
+            SetFlash(color, 1f - (t / flashDuration));
+            yield return null;
+        }
         SetFlash(color, 0f);
-        flashCoroutine = null;
+        flashRoutine = null;
     }
 
     void SetFlash(Color color, float amount)
     {
-        Debug.Log($"SetFlash called — amount: {amount}, color: {color}");
         foreach (var r in renderers)
         {
-            r.GetPropertyBlock(propBlock);
-            propBlock.SetColor(FlashColorID, color);
-            propBlock.SetFloat(FlashAmountID, amount);
-            r.SetPropertyBlock(propBlock);
+            r.GetPropertyBlock(mpb);
+            mpb.SetColor(FlashColorID, color);
+            mpb.SetFloat(FlashAmountID, amount);
+            r.SetPropertyBlock(mpb);
         }
     }
 }

@@ -11,8 +11,6 @@ public abstract class ZombieBase : MonoBehaviour
     public int maxHealth = 100;
     public int currentHealth;
 
-    string lastHitBone = "";
-
     [Header("Gold")]
     public int goldBounty = 100;
 
@@ -37,13 +35,6 @@ public abstract class ZombieBase : MonoBehaviour
     public float launchForce = 8f;
     bool wasClimbing = false;
 
-    [Header("Ragdoll")]
-    public float ragdollForce = 8f;
-    float lastRagdollForceMultiplier = 1f;
-
-    [Header("Skeleton")]
-    public Transform skeletonRoot;
-
     [Header("Health Bar")]
     public Transform headTransform;
 
@@ -55,6 +46,11 @@ public abstract class ZombieBase : MonoBehaviour
 
     [Header("Debug")]
     public bool verboseLogging = false;
+
+    [Header("Attack Failsafe")]
+    [Tooltip("If OnAttackComplete (Animation Event) hasn't fired within this many seconds of entering Attack state, force the zombie out of Attack anyway. Prevents a permanent softlock if an animation event is missing/misconfigured on a given model.")]
+    public float attackFailsafeDuration = 2f;
+    float attackStateEnteredTime = -1f;
 
     public ZombieState State { get; private set; } = ZombieState.Idle;
 
@@ -69,14 +65,19 @@ public abstract class ZombieBase : MonoBehaviour
     protected float lastAttackTime;
     protected bool isDead = false;
 
+    public bool IsDead => isDead;
+
     float attackCooldownTimer = 0f;
-    Vector3 lastHitDirection = Vector3.back;
 
     Dictionary<PlayerStats, int> damageContributors = new Dictionary<PlayerStats, int>();
     Dictionary<PlayerStats, float> goldMultipliers = new Dictionary<PlayerStats, float>();
     int totalDamageDealt = 0;
 
-    Coroutine kinematicReleaseRoutine;
+    // Set true by ResetEnemy() right after spawn positioning. Consumed on the
+    // next FixedUpdate to release the kinematic teleport-guard. FixedUpdate is
+    // guaranteed to run every physics step this object is active, unlike a
+    // coroutine, which silently stops if the object gets disabled before it resumes.
+    bool pendingKinematicRelease = false;
 
     protected virtual void Awake()
     {
@@ -129,12 +130,27 @@ public abstract class ZombieBase : MonoBehaviour
                 break;
 
             case ZombieState.Attack:
+                if (attackStateEnteredTime >= 0f && Time.time - attackStateEnteredTime >= attackFailsafeDuration)
+                {
+                    if (verboseLogging)
+                        Debug.LogWarning($"[{gameObject.name}] Attack failsafe triggered - OnAttackComplete never fired (missing/broken Animation Event). Forcing state recovery.");
+                    OnAttackComplete();
+                }
                 break;
         }
     }
 
     protected virtual void FixedUpdate()
     {
+        if (pendingKinematicRelease)
+        {
+            rb.isKinematic = false;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            pendingKinematicRelease = false;
+            return;
+        }
+
         if (isDead || player == null) return;
         if (rb.isKinematic) return;
         if (State == ZombieState.Engage)
@@ -143,6 +159,7 @@ public abstract class ZombieBase : MonoBehaviour
 
     protected void SetState(ZombieState newState)
     {
+        Debug.Log($"[{gameObject.name}] SetState: {State} -> {newState} at t={Time.time:F2}");
         State = newState;
 
         switch (newState)
@@ -150,18 +167,17 @@ public abstract class ZombieBase : MonoBehaviour
             case ZombieState.Idle:
                 rb.linearVelocity = Vector3.zero;
                 animator?.SetBool("IsWalking", false);
-                animator?.SetBool("IsAttacking", false);
                 break;
 
             case ZombieState.Engage:
                 animator?.SetBool("IsWalking", true);
-                animator?.SetBool("IsAttacking", false);
                 break;
 
             case ZombieState.Attack:
                 rb.linearVelocity = Vector3.zero;
                 animator?.SetBool("IsWalking", false);
                 animator?.SetTrigger("Attack");
+                attackStateEnteredTime = Time.time;
                 break;
         }
     }
@@ -176,6 +192,7 @@ public abstract class ZombieBase : MonoBehaviour
 
     public virtual void OnAttackComplete()
     {
+        attackStateEnteredTime = -1f;
         attackCooldownTimer = attackCooldown;
         float dist = player != null ? Vector3.Distance(transform.position, player.position) : float.MaxValue;
         SetState(dist <= engageRange ? ZombieState.Engage : ZombieState.Idle);
@@ -210,33 +227,9 @@ public abstract class ZombieBase : MonoBehaviour
         rb.MovePosition(rb.position + move * Time.fixedDeltaTime);
     }
 
-    void CopyPoseToRagdoll(GameObject ragdoll)
-    {
-        if (skeletonRoot == null) return;
-
-        Transform[] liveJoints = skeletonRoot.GetComponentsInChildren<Transform>();
-        Transform[] ragdollJoints = ragdoll.GetComponentsInChildren<Transform>();
-
-        Dictionary<string, Transform> ragdollMap = new Dictionary<string, Transform>();
-        foreach (Transform t in ragdollJoints)
-            ragdollMap[t.name] = t;
-
-        foreach (Transform liveJoint in liveJoints)
-        {
-            if (ragdollMap.TryGetValue(liveJoint.name, out Transform ragdollJoint))
-            {
-                ragdollJoint.position = liveJoint.position;
-                ragdollJoint.rotation = liveJoint.rotation;
-            }
-        }
-    }
-
     public virtual void TakeDamage(int amount, PlayerStats dealer, float weaponMultiplier = 1f, Vector3 hitDirection = default, float ragdollForceMultiplier = 1f, string hitBone = "")
     {
         if (isDead) return;
-        if (hitDirection != default) lastHitDirection = hitDirection;
-        lastRagdollForceMultiplier = ragdollForceMultiplier;
-        if (!string.IsNullOrEmpty(hitBone)) lastHitBone = hitBone;
 
         int actualDamage = Mathf.Min(amount, currentHealth);
         currentHealth -= actualDamage;
@@ -275,31 +268,25 @@ public abstract class ZombieBase : MonoBehaviour
     {
         isDead = false;
         currentHealth = maxHealth;
-        lastHitDirection = Vector3.back;
         damageContributors.Clear();
         goldMultipliers.Clear();
         totalDamageDealt = 0;
         lastAttackTime = 0f;
         attackCooldownTimer = 0f;
         wasClimbing = false;
+        attackStateEnteredTime = -1f;
         State = ZombieState.Idle;
 
         animator?.SetBool("IsWalking", false);
-        animator?.SetBool("IsAttacking", false);
 
-        rb.linearVelocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
+        ZombieHitFlash flash = GetComponent<ZombieHitFlash>();
+        flash?.ForceReset();
 
-        if (kinematicReleaseRoutine != null)
-            StopCoroutine(kinematicReleaseRoutine);
-        kinematicReleaseRoutine = StartCoroutine(ReleaseKinematicNextFixedUpdate());
-    }
-
-    IEnumerator ReleaseKinematicNextFixedUpdate()
-    {
-        yield return new WaitForFixedUpdate();
-        rb.isKinematic = false;
-        kinematicReleaseRoutine = null;
+        // rb.isKinematic is expected to already be true here (set by the spawner
+        // right before repositioning, to avoid an interpolated teleport smear).
+        // Flag the release instead of coroutine-waiting for it, so it can't be
+        // silently dropped if this object gets disabled/re-enabled quickly.
+        pendingKinematicRelease = true;
     }
 
     void HandleDeath()
@@ -320,19 +307,8 @@ public abstract class ZombieBase : MonoBehaviour
 
         if (verboseLogging) Debug.Log($"[{gameObject.name}] Died.");
 
-        StartCoroutine(SpawnRagdollThenReturn(lastHitDirection, ragdollForce * lastRagdollForceMultiplier));
-    }
-
-    IEnumerator SpawnRagdollThenReturn(Vector3 hitDirection, float force)
-    {
-        yield return new WaitForEndOfFrame();
-
-        if (EnemySpawnManager.Instance != null)
-        {
-            GameObject corpse = EnemySpawnManager.Instance.SpawnRagdoll(enemyId, transform.position, transform.rotation, hitDirection, force, lastHitBone);
-            if (corpse != null)
-                CopyPoseToRagdoll(corpse);
-        }
+        if (KillMarkerPool.Instance != null)
+            KillMarkerPool.Instance.Spawn(transform.position, goldBounty);
 
         OnDeath?.Invoke();
     }

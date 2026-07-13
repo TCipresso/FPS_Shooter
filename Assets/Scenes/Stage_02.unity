@@ -20484,6 +20484,10 @@ MonoBehaviour:
   maxEnemiesPerRound: 40
   roundsPerStage: 4
   spawnInterval: 0.5
+  enemyLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  spawnPointCheckRadius: 0.6
   stageScenes: []
   stageChangeDelay: 5
   healthMultiplierPerStage: 1
