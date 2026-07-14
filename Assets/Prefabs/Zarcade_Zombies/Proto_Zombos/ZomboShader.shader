@@ -96,15 +96,31 @@ Shader "Bloodsport/ZomboShader"
                 float distToCam   = distance(positionWS, GetCameraPositionWS());
                 float distFade    = saturate(distToCam / max(_OutlineMaxDist, 0.001));
 
-                if (_OutlineWidth <= 0.0 || distFade >= 1.0)
-                {
-                    OUT.positionHCS = float4(0.0, 0.0, 0.0, -1.0);
-                    return OUT;
-                }
+                // No per-vertex kill branch here. Writing an invalid clip position
+                // (w = -1) for some vertices of a triangle while its neighbors get
+                // valid positions creates mixed triangles that smear across the
+                // screen after near-plane clipping - the black streak bug on
+                // skinned meshes straddling _OutlineMaxDist. Instead the width
+                // fades continuously to zero, which collapses far outlines onto
+                // the mesh surface with no discontinuity.
 
-                float3 normalWS = normalize(TransformObjectToWorldNormal(IN.normalOS));
-                float widthWS   = lerp(_OutlineWidth, _OutlineWidth * (distToCam * 0.1), _OutlineConstScreenSize);
-                widthWS *= (1.0 - distFade * 0.5);
+                float3 rawNormalOS = IN.normalOS;
+                float normalLenSq = dot(rawNormalOS, rawNormalOS);
+
+                // A degenerate (zero-length) normal on some skinned vertex would
+                // make normalize() return NaN, which then gets pushed through
+                // the position offset below. Falling back to a safe default
+                // normal avoids the NaN entirely.
+                float3 normalWS = (normalLenSq > 1e-8)
+                    ? normalize(TransformObjectToWorldNormal(rawNormalOS))
+                    : float3(0.0, 1.0, 0.0);
+
+                float widthWS = lerp(_OutlineWidth, _OutlineWidth * (distToCam * 0.1), _OutlineConstScreenSize);
+                widthWS *= saturate(1.0 - distFade);
+
+                // Clamp as a second safety net in case distToCam is ever huge
+                // for a frame (e.g. camera not yet positioned on a load frame)
+                widthWS = clamp(widthWS, 0.0, _OutlineWidth * 10.0);
 
                 OUT.positionHCS = TransformWorldToHClip(positionWS + normalWS * widthWS);
                 return OUT;
