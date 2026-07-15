@@ -5,15 +5,32 @@ public class PlayerStats : MonoBehaviour
     [Header("References")]
     public FPSLook look;
     public WeaponInventory weaponInventory;
-    public PickupZone pickupZone;
     //public AugmentDraftUI augmentDraftUI;
     public PlayerHealth playerHealth;
 
     [Header("Combat Stats")]
+    public float damageMultiplier = 1f;
     [Range(0f, 5f)] public float attackSpeed = 1f;
     [Range(0f, 1f)] public float critChance = 0.1f;
     public float critMultiplier = 1.5f;
     public float luck = 0f;
+
+    [Header("Ability Stats")]
+    public float abilityDamageMultiplier = 1f;
+    public float abilityCooldownMultiplier = 1f;
+
+    [Header("Movement Stats")]
+    public float moveSpeed = 5f;
+    public int jumpCount = 1;
+    public int dashCount = 1;
+
+    [Header("Health")]
+    public int maxHealth = 100;
+    public int currentHealth = 100;
+    public float healthRegen = 1f;
+    public float regenDelay = 5f;
+    float timeSinceLastDamage = 0f;
+    float regenAccumulator = 0f;
 
     [Header("Gold")]
     public int gold = 500;
@@ -23,22 +40,30 @@ public class PlayerStats : MonoBehaviour
     public int goldOnHit => Mathf.RoundToInt(baseGoldOnHit * goldGainMultiplier);
     public int goldOnKill => Mathf.RoundToInt(baseGoldOnKill * goldGainMultiplier);
 
-    [Header("XP & Leveling")]
-    public int currentXP = 0;
-    public int level = 1;
-    public int baseXPToLevel = 100;
-    public float xpGainMultiplier = 1f;
-    public float pickupRange = 1f;
-    public int XPToNextLevel => Mathf.RoundToInt(baseXPToLevel * level * level);
+    [Header("Power-Ups")]
+    [Range(0f, 1f)] public float powerUpDropChance = 0.05f;
 
     void Awake()
     {
         // Application.targetFrameRate = 300;
+        currentHealth = maxHealth;
     }
 
-    void Start()
+    void Update()
     {
-        if (pickupZone != null) pickupZone.ApplyRange(pickupRange);
+        timeSinceLastDamage += Time.deltaTime;
+
+        if (currentHealth >= maxHealth || healthRegen <= 0f) return;
+        if (timeSinceLastDamage < regenDelay) return;
+
+        regenAccumulator += healthRegen * Time.deltaTime;
+
+        if (regenAccumulator >= 1f)
+        {
+            int healAmount = Mathf.FloorToInt(regenAccumulator);
+            regenAccumulator -= healAmount;
+            Heal(healAmount);
+        }
     }
 
     //
@@ -82,7 +107,82 @@ public class PlayerStats : MonoBehaviour
         Debug.Log($"[PlayerStats] Attack Speed: {attackSpeed * 100:F0}%");
     }
 
-    // 
+    public void AddDamageMultiplier(float amount)
+    {
+        damageMultiplier += amount;
+        Debug.Log($"[PlayerStats] Damage Multiplier: {damageMultiplier:F2}x");
+    }
+
+    //
+
+    public void AddAbilityDamageMultiplier(float amount)
+    {
+        abilityDamageMultiplier += amount;
+        Debug.Log($"[PlayerStats] Ability Damage Multiplier: {abilityDamageMultiplier:F2}x");
+    }
+
+    public void AddAbilityCooldownReduction(float amount)
+    {
+        abilityCooldownMultiplier = Mathf.Max(0.1f, abilityCooldownMultiplier - amount);
+        Debug.Log($"[PlayerStats] Ability Cooldown Multiplier: {abilityCooldownMultiplier:F2}x");
+    }
+
+    //
+
+    public void AddMoveSpeed(float amount)
+    {
+        moveSpeed += amount;
+        Debug.Log($"[PlayerStats] Move Speed: {moveSpeed:F2}");
+    }
+
+    public void AddJumpCount(int amount)
+    {
+        jumpCount += amount;
+        Debug.Log($"[PlayerStats] Jump Count: {jumpCount}");
+    }
+
+    public void AddDashCount(int amount)
+    {
+        dashCount += amount;
+        Debug.Log($"[PlayerStats] Dash Count: {dashCount}");
+    }
+
+    //
+
+    public void AddMaxHealth(int amount)
+    {
+        maxHealth += amount;
+        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+        Debug.Log($"[PlayerStats] Max Health: {maxHealth}");
+    }
+
+    public void AddHealthRegen(float amount)
+    {
+        healthRegen += amount;
+        Debug.Log($"[PlayerStats] Health Regen: {healthRegen:F2}/s");
+    }
+
+    public void ReduceRegenDelay(float amount)
+    {
+        regenDelay = Mathf.Max(0f, regenDelay - amount);
+        Debug.Log($"[PlayerStats] Regen Delay: {regenDelay:F2}s");
+    }
+
+    public void TakeDamage(int amount)
+    {
+        currentHealth = Mathf.Max(0, currentHealth - amount);
+        timeSinceLastDamage = 0f;
+        regenAccumulator = 0f;
+        Debug.Log($"[PlayerStats] -{amount} HP | {currentHealth}/{maxHealth}");
+    }
+
+    public void Heal(int amount)
+    {
+        currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
+        Debug.Log($"[PlayerStats] +{amount} HP | {currentHealth}/{maxHealth}");
+    }
+
+    //
 
     public void AddGold(int amount)
     {
@@ -108,27 +208,7 @@ public class PlayerStats : MonoBehaviour
         Debug.Log($"[PlayerStats] Gold Gain: {goldGainMultiplier:F2}x");
     }
 
-    // 
-
-    public void AddXP(int amount)
-    {
-        int gained = Mathf.RoundToInt(amount * xpGainMultiplier);
-        currentXP += gained;
-        Debug.Log($"[PlayerStats] +{gained} XP | {currentXP}/{XPToNextLevel} | Level {level}");
-
-        while (currentXP >= XPToNextLevel)
-        {
-            currentXP -= XPToNextLevel;
-            level++;
-            OnLevelUp();
-        }
-    }
-
-    public void AddXPGain(float amount)
-    {
-        xpGainMultiplier += amount;
-        Debug.Log($"[PlayerStats] XP Gain: {xpGainMultiplier:F2}x");
-    }
+    //
 
     public void AddLuck(float amount)
     {
@@ -136,17 +216,10 @@ public class PlayerStats : MonoBehaviour
         Debug.Log($"[PlayerStats] Luck: {luck:F2}");
     }
 
-    public void AddPickupRange(float amount)
+    public void AddPowerUpDropChance(float amount)
     {
-        pickupRange += amount;
-        if (pickupZone != null) pickupZone.ApplyRange(pickupRange);
-        Debug.Log($"[PlayerStats] Pickup Range: {pickupRange * 100:F0}%");
-    }
-
-    void OnLevelUp()
-    {
-        Debug.Log($"[PlayerStats] LEVEL UP! Now level {level} | Next level needs {XPToNextLevel} XP");
-       // if (augmentDraftUI != null) augmentDraftUI.OpenAugmentDraft();
+        powerUpDropChance = Mathf.Clamp01(powerUpDropChance + amount);
+        Debug.Log($"[PlayerStats] Power-Up Drop Chance: {powerUpDropChance * 100:F0}%");
     }
 
     //
