@@ -2525,7 +2525,7 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 0
   goldBounty: 100
-  moveSpeed: 6
+  moveSpeed: 8
   attackDamage: 50
   attackRange: 5
   attackCooldown: 1.2
@@ -2539,6 +2539,8 @@ MonoBehaviour:
   rayOffset: {x: 0, y: -0.9, z: 0}
   rayLength: 0.6
   launchForce: 8
+  pathMoveSpeed: 20
+  waypointReachDistance: 0.5
   headTransform: {fileID: 0}
   enemyId: Zombo
   animator: {fileID: 8093525320350008512}

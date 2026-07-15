@@ -12,9 +12,11 @@ public class RoundManager : MonoBehaviour
     public List<string> enemyIds = new List<string>();
 
     [Header("Round Settings")]
-    public int baseEnemiesPerRound = 10;
-    public int enemiesAddedPerRound = 3;
-    public int maxEnemiesPerRound = 40;
+    public int baseRoundBank = 10;
+    public int bankAddedPerRound = 3;
+    public int bankAddedPerStage = 10;
+    public int maxRoundBank = 150;
+    public int maxAliveAtOnce = 12;
     public int roundsPerStage = 4;
     public float spawnInterval = 0.5f;
 
@@ -40,11 +42,13 @@ public class RoundManager : MonoBehaviour
 
     int currentRound = 0;
     int currentStage = 1;
-    int enemiesRemainingAlive = 0;
+    int enemiesCurrentlyAlive = 0;
+    int enemiesRemainingInBank = 0;
     bool roundActive = false;
     int lastSceneIndex = -1;
 
     List<Transform> currentSpawnPoints = new List<Transform>();
+    bool waitingForPlayer = false;
 
     void Awake()
     {
@@ -56,11 +60,12 @@ public class RoundManager : MonoBehaviour
     IEnumerator Start()
     {
         yield return null;
-        if (currentRound == 0)
+        if (currentRound == 0 && !waitingForPlayer)
         {
             StageSetup setup = FindFirstObjectByType<StageSetup>();
             if (setup != null)
                 currentSpawnPoints = setup.spawnPoints;
+            waitingForPlayer = true;
             StartCoroutine(WaitForPlayerThenStart());
         }
     }
@@ -68,6 +73,8 @@ public class RoundManager : MonoBehaviour
     public void OnSceneReady(List<Transform> spawnPoints)
     {
         currentSpawnPoints = spawnPoints;
+        if (waitingForPlayer) return;
+        waitingForPlayer = true;
         StartCoroutine(WaitForPlayerThenStart());
     }
 
@@ -75,39 +82,43 @@ public class RoundManager : MonoBehaviour
     {
         while (FindFirstObjectByType<PlayerStats>() == null)
             yield return null;
+        waitingForPlayer = false;
         StartRound();
     }
 
     void StartRound()
     {
         currentRound++;
-        enemiesRemainingAlive = 0;
-        int enemyCount = Mathf.Min(baseEnemiesPerRound + enemiesAddedPerRound * (currentRound - 1), maxEnemiesPerRound);
+        enemiesCurrentlyAlive = 0;
+        enemiesRemainingInBank = Mathf.Min(baseRoundBank + bankAddedPerRound * (currentRound - 1) + bankAddedPerStage * (currentStage - 1), maxRoundBank);
         roundActive = true;
 
-        Debug.Log($"[RoundManager] Stage {currentStage} | Round {currentRound} | Enemies: {enemyCount}");
+        Debug.Log($"[RoundManager] Stage {currentStage} | Round {currentRound} | Bank: {enemiesRemainingInBank} | Max Alive: {maxAliveAtOnce}");
         if (roundText != null) roundText.text = $"Round {currentRound}";
-        StartCoroutine(SpawnRoutine(enemyCount));
+        StartCoroutine(SpawnRoutine());
     }
 
-    IEnumerator SpawnRoutine(int count)
+    IEnumerator SpawnRoutine()
     {
-        List<string> shuffled = GetShuffledEnemyList(count);
-
-        foreach (string id in shuffled)
+        while (enemiesRemainingInBank > 0)
         {
             if (currentSpawnPoints.Count == 0) yield break;
 
-            Transform spawnPoint = PickFreeSpawnPoint();
-            GameObject enemy = EnemySpawnManager.Instance.SpawnEnemy(id, spawnPoint);
-
-            if (enemy != null)
+            if (enemiesCurrentlyAlive < maxAliveAtOnce)
             {
-                ApplyScaling(enemy);
-                ZombieBase zombie = enemy.GetComponent<ZombieBase>();
-                if (zombie != null)
-                    zombie.OnDeath += OnEnemyDied;
-                enemiesRemainingAlive++;
+                string id = enemyIds[Random.Range(0, enemyIds.Count)];
+                Transform spawnPoint = PickFreeSpawnPoint();
+                GameObject enemy = EnemySpawnManager.Instance.SpawnEnemy(id, spawnPoint);
+
+                if (enemy != null)
+                {
+                    ApplyScaling(enemy);
+                    ZombieBase zombie = enemy.GetComponent<ZombieBase>();
+                    if (zombie != null)
+                        zombie.OnDeath += OnEnemyDied;
+                    enemiesCurrentlyAlive++;
+                    enemiesRemainingInBank--;
+                }
             }
 
             yield return new WaitForSeconds(spawnInterval);
@@ -132,20 +143,6 @@ public class RoundManager : MonoBehaviour
         return shuffled[0];
     }
 
-    List<string> GetShuffledEnemyList(int count)
-    {
-        List<string> list = new List<string>();
-        for (int i = 0; i < count; i++)
-            list.Add(enemyIds[Random.Range(0, enemyIds.Count)]);
-
-        for (int i = list.Count - 1; i > 0; i--)
-        {
-            int j = Random.Range(0, i + 1);
-            (list[i], list[j]) = (list[j], list[i]);
-        }
-        return list;
-    }
-
     void ApplyScaling(GameObject enemy)
     {
         ZombieBase zombie = enemy.GetComponent<ZombieBase>();
@@ -162,8 +159,8 @@ public class RoundManager : MonoBehaviour
 
     void OnEnemyDied()
     {
-        enemiesRemainingAlive--;
-        if (enemiesRemainingAlive <= 0 && roundActive)
+        enemiesCurrentlyAlive--;
+        if (enemiesCurrentlyAlive <= 0 && enemiesRemainingInBank <= 0 && roundActive)
         {
             roundActive = false;
             OnRoundComplete();

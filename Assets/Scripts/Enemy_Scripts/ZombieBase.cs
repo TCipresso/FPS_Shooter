@@ -36,6 +36,7 @@ public abstract class ZombieBase : MonoBehaviour
     bool wasClimbing = false;
 
     [Header("Path Following")]
+    public float pathMoveSpeed = 6f;
     public float waypointReachDistance = 0.5f;
     List<Transform> currentPath;
     int pathIndex = 0;
@@ -215,7 +216,7 @@ public abstract class ZombieBase : MonoBehaviour
 
     void GruntMove()
     {
-        MoveToward(player.position);
+        MoveToward(player.position, moveSpeed);
     }
 
     void FollowPath()
@@ -238,10 +239,10 @@ public abstract class ZombieBase : MonoBehaviour
             return;
         }
 
-        MoveToward(target.position);
+        MoveToward(target.position, pathMoveSpeed);
     }
 
-    void MoveToward(Vector3 targetPosition)
+    void MoveToward(Vector3 targetPosition, float speed)
     {
         Vector3 dir = targetPosition - transform.position;
         dir.y = 0f;
@@ -266,7 +267,7 @@ public abstract class ZombieBase : MonoBehaviour
 
         wasClimbing = hitWall;
 
-        Vector3 move = hitWall ? Vector3.up * climbSpeed : dir * moveSpeed;
+        Vector3 move = hitWall ? Vector3.up * climbSpeed : dir * speed;
         rb.MovePosition(rb.position + move * Time.fixedDeltaTime);
     }
 
