@@ -5,7 +5,7 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody))]
 public abstract class ZombieBase : MonoBehaviour
 {
-    public enum ZombieState { Idle, Engage, Attack }
+    public enum ZombieState { Idle, Engage, Attack, FollowingPath }
 
     [Header("Stats")]
     public int maxHealth = 100;
@@ -34,6 +34,11 @@ public abstract class ZombieBase : MonoBehaviour
     public float rayLength = 0.6f;
     public float launchForce = 8f;
     bool wasClimbing = false;
+
+    [Header("Path Following")]
+    public float waypointReachDistance = 0.5f;
+    List<Transform> currentPath;
+    int pathIndex = 0;
 
     [Header("Health Bar")]
     public Transform headTransform;
@@ -72,10 +77,6 @@ public abstract class ZombieBase : MonoBehaviour
     Dictionary<PlayerStats, float> goldMultipliers = new Dictionary<PlayerStats, float>();
     int totalDamageDealt = 0;
 
-    // Set true by ResetEnemy() right after spawn positioning. Consumed on the
-    // next FixedUpdate to release the kinematic teleport-guard. FixedUpdate is
-    // guaranteed to run every physics step this object is active, unlike a
-    // coroutine, which silently stops if the object gets disabled before it resumes.
     bool pendingKinematicRelease = false;
 
     protected virtual void Awake()
@@ -106,6 +107,12 @@ public abstract class ZombieBase : MonoBehaviour
 
     public void ClearDeathListeners() => OnDeath = null;
 
+    public void SetPath(List<Transform> path)
+    {
+        currentPath = path;
+        pathIndex = 0;
+    }
+
     protected virtual void Update()
     {
         if (isDead) return;
@@ -117,6 +124,9 @@ public abstract class ZombieBase : MonoBehaviour
 
         switch (State)
         {
+            case ZombieState.FollowingPath:
+                break;
+
             case ZombieState.Idle:
                 if (dist <= engageRange)
                     SetState(ZombieState.Engage);
@@ -151,6 +161,13 @@ public abstract class ZombieBase : MonoBehaviour
 
         if (isDead || player == null) return;
         if (rb.isKinematic) return;
+
+        if (State == ZombieState.FollowingPath)
+        {
+            FollowPath();
+            return;
+        }
+
         if (State == ZombieState.Engage)
             GruntMove();
     }
@@ -198,7 +215,35 @@ public abstract class ZombieBase : MonoBehaviour
 
     void GruntMove()
     {
-        Vector3 dir = player.position - transform.position;
+        MoveToward(player.position);
+    }
+
+    void FollowPath()
+    {
+        if (currentPath == null || pathIndex >= currentPath.Count)
+        {
+            float dist = player != null ? Vector3.Distance(transform.position, player.position) : float.MaxValue;
+            State = dist <= engageRange ? ZombieState.Engage : ZombieState.Idle;
+            animator?.SetBool("IsWalking", true);
+            return;
+        }
+
+        Transform target = currentPath[pathIndex];
+        Vector3 toTarget = target.position - transform.position;
+        toTarget.y = 0f;
+
+        if (toTarget.magnitude <= waypointReachDistance)
+        {
+            pathIndex++;
+            return;
+        }
+
+        MoveToward(target.position);
+    }
+
+    void MoveToward(Vector3 targetPosition)
+    {
+        Vector3 dir = targetPosition - transform.position;
         dir.y = 0f;
         if (dir.sqrMagnitude < 0.0001f) return;
         dir.Normalize();
@@ -273,18 +318,24 @@ public abstract class ZombieBase : MonoBehaviour
         attackCooldownTimer = 0f;
         wasClimbing = false;
         attackStateEnteredTime = -1f;
-        State = ZombieState.Idle;
+        pathIndex = 0;
 
         animator?.SetBool("IsWalking", false);
 
         ZombieHitFlash flash = GetComponent<ZombieHitFlash>();
         flash?.ForceReset();
 
-        // rb.isKinematic is expected to already be true here (set by the spawner
-        // right before repositioning, to avoid an interpolated teleport smear).
-        // Flag the release instead of coroutine-waiting for it, so it can't be
-        // silently dropped if this object gets disabled/re-enabled quickly.
         pendingKinematicRelease = true;
+
+        if (currentPath != null && currentPath.Count > 0)
+        {
+            State = ZombieState.FollowingPath;
+            animator?.SetBool("IsWalking", true);
+        }
+        else
+        {
+            State = ZombieState.Idle;
+        }
     }
 
     void HandleDeath()

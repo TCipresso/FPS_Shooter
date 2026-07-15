@@ -2416,7 +2416,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3069949777406901561}
   - component: {fileID: 8093525320350008512}
-  - component: {fileID: 4272484050971579070}
   - component: {fileID: 7589569074051037362}
   - component: {fileID: 9038756591870614281}
   - component: {fileID: 7497293881786287883}
@@ -2467,20 +2466,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &4272484050971579070
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8913859183118908093}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eba32d773ad368d4c9279637e74e296e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SteppedAnimator
-  animator: {fileID: 8093525320350008512}
-  targetFrameRate: 12
 --- !u!114 &7589569074051037362
 MonoBehaviour:
   m_ObjectHideFlags: 0

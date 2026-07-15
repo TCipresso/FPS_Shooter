@@ -61,13 +61,20 @@ public class RoundManager : MonoBehaviour
             StageSetup setup = FindFirstObjectByType<StageSetup>();
             if (setup != null)
                 currentSpawnPoints = setup.spawnPoints;
-            StartRound();
+            StartCoroutine(WaitForPlayerThenStart());
         }
     }
 
     public void OnSceneReady(List<Transform> spawnPoints)
     {
         currentSpawnPoints = spawnPoints;
+        StartCoroutine(WaitForPlayerThenStart());
+    }
+
+    IEnumerator WaitForPlayerThenStart()
+    {
+        while (FindFirstObjectByType<PlayerStats>() == null)
+            yield return null;
         StartRound();
     }
 
@@ -92,7 +99,7 @@ public class RoundManager : MonoBehaviour
             if (currentSpawnPoints.Count == 0) yield break;
 
             Transform spawnPoint = PickFreeSpawnPoint();
-            GameObject enemy = EnemySpawnManager.Instance.SpawnEnemy(id, spawnPoint.position, spawnPoint.rotation);
+            GameObject enemy = EnemySpawnManager.Instance.SpawnEnemy(id, spawnPoint);
 
             if (enemy != null)
             {
