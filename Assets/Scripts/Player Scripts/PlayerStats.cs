@@ -6,7 +6,9 @@ public class PlayerStats : MonoBehaviour
 {
     [Header("References")]
     public FPSLook look;
+    public PlayerFpsController fpsController;
     public WeaponInventory weaponInventory;
+    public GameObject gameOverScreen;
     //public AugmentDraftUI augmentDraftUI;
 
     [Header("Combat Stats")]
@@ -19,6 +21,7 @@ public class PlayerStats : MonoBehaviour
     [Header("Ability Stats")]
     public float abilityDamageMultiplier = 1f;
     public float abilityCooldownMultiplier = 1f;
+    public float aoeSize = 1f;
 
     [Header("Movement Stats")]
     public float moveSpeed = 5f;
@@ -35,7 +38,11 @@ public class PlayerStats : MonoBehaviour
 
     [Header("Lives")]
     public int lives = 3;
-    public float downDuration = 3f;
+    public float downDuration = 5f;
+    public float reviveInvulnerabilityDuration = 5f;
+    public GameObject reviveAura;
+
+    public bool IsInvulnerable { get; private set; }
 
     [Header("Hit Indicator")]
     public CanvasGroup hitIndicator;
@@ -158,6 +165,12 @@ public class PlayerStats : MonoBehaviour
         Debug.Log($"[PlayerStats] Ability Cooldown Multiplier: {abilityCooldownMultiplier:F2}x");
     }
 
+    public void AddAoeSize(float amount)
+    {
+        aoeSize += amount;
+        Debug.Log($"[PlayerStats] AoE Size: {aoeSize * 100:F0}%");
+    }
+
     //
 
     public void AddMoveSpeed(float amount)
@@ -201,7 +214,7 @@ public class PlayerStats : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
-        if (IsDown || IsGameOver) return;
+        if (IsDown || IsGameOver || IsInvulnerable) return;
 
         currentHealth = Mathf.Max(0, currentHealth - amount);
         timeSinceLastDamage = 0f;
@@ -252,6 +265,7 @@ public class PlayerStats : MonoBehaviour
         IsDown = true;
         lives--;
         PlaySound(downSound);
+        EnterDownedState();
         onDown.Invoke();
         Debug.Log($"[PlayerStats] Player is down. Lives remaining: {lives}");
 
@@ -270,6 +284,9 @@ public class PlayerStats : MonoBehaviour
     void GameOver()
     {
         IsGameOver = true;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        if (gameOverScreen != null) gameOverScreen.SetActive(true);
         onGameOver.Invoke();
         Debug.Log("[PlayerStats] Game Over.");
     }
@@ -281,8 +298,34 @@ public class PlayerStats : MonoBehaviour
         currentHealth = maxHealth;
         timeSinceLastDamage = 0f;
         regenAccumulator = 0f;
+        ExitDownedState();
         onRevive.Invoke();
         Debug.Log($"[PlayerStats] Player revived. Lives remaining: {lives}");
+
+        StartCoroutine(ReviveInvulnerabilityRoutine());
+    }
+
+    IEnumerator ReviveInvulnerabilityRoutine()
+    {
+        IsInvulnerable = true;
+        if (reviveAura != null) reviveAura.SetActive(true);
+
+        yield return new WaitForSeconds(reviveInvulnerabilityDuration);
+
+        IsInvulnerable = false;
+        if (reviveAura != null) reviveAura.SetActive(false);
+    }
+
+    void EnterDownedState()
+    {
+        if (fpsController != null) fpsController.IsDowned = true;
+        if (look != null) look.CanLook = false;
+    }
+
+    void ExitDownedState()
+    {
+        if (fpsController != null) fpsController.IsDowned = false;
+        if (look != null) look.CanLook = true;
     }
 
     public void AddLife(int amount = 1)

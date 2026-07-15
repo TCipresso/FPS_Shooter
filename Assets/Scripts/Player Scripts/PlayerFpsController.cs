@@ -52,6 +52,10 @@ public class PlayerFpsController : NetworkBehaviour
     [SerializeField] private float slideCameraDrop = 0.8f;
     [SerializeField] private float cameraLerpSpeed = 12f;
 
+    [Header("Downed")]
+    [SerializeField] private float downedCameraDrop = 1.2f;
+    public bool IsDowned { get; set; }
+
     [Header("Audio")]
     [SerializeField] private PlayerMovementAudio movementAudio;
 
@@ -134,6 +138,20 @@ public class PlayerFpsController : NetworkBehaviour
     {
         if (!isLocalPlayer) return;
         if (input == null) return;
+
+        if (IsDowned)
+        {
+            horizontalVelocity = Vector3.zero;
+
+            if (controller.isGrounded)
+                verticalVelocity = groundedStickForce;
+            else
+                verticalVelocity += gravity * Time.deltaTime;
+
+            controller.Move(new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime);
+            UpdateCameraSlideDip();
+            return;
+        }
 
         TickTimers();
 
@@ -365,7 +383,9 @@ public class PlayerFpsController : NetworkBehaviour
 
         Vector3 targetPos = cameraDefaultLocalPos;
 
-        if (IsSliding)
+        if (IsDowned)
+            targetPos.y -= downedCameraDrop;
+        else if (IsSliding)
             targetPos.y -= slideCameraDrop;
 
         cameraHolder.localPosition = Vector3.Lerp(
