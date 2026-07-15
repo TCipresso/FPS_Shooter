@@ -121,14 +121,33 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected virtual void OnEnable()
     {
+        isAiming = false;
+        isCocking = false;
+        isFiring = false;
+        currentBloom = 0f;
+        walkStopTimer = 0f;
+
         if (animator != null)
         {
+            animator.Rebind();
+            animator.Update(0f);
+
             animator.SetBool("IsWalking", false);
             animator.SetBool("IsSprinting", false);
             animator.SetBool("IsAiming", false);
             animator.ResetTrigger("Cock");
             animator.Play("Idle", 0, 0f);
         }
+    }
+
+    protected virtual void OnDisable()
+    {
+        StopAllCoroutines();
+        isAiming = false;
+        isCocking = false;
+        isFiring = false;
+        currentBloom = 0f;
+        walkStopTimer = 0f;
     }
 
     protected virtual void Update()
@@ -309,10 +328,15 @@ public abstract class WeaponBase : MonoBehaviour
         StopAllCoroutines();
         isCocking = false;
         isAiming = false;
+        isFiring = false;
         currentBloom = 0f;
+        walkStopTimer = 0f;
 
         if (animator != null)
         {
+            animator.Rebind();
+            animator.Update(0f);
+
             animator.SetBool("IsWalking", false);
             animator.SetBool("IsSprinting", false);
             animator.SetBool("IsAiming", false);
