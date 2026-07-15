@@ -322,17 +322,6 @@ public class WeaponInventory : MonoBehaviour
         if (primary != null)
             primary.LoadRecoilValues();
 
-        if (playerStats != null)
-        {
-            foreach (WeaponBase wb in entry.weaponBases)
-            {
-                if (wb == null) continue;
-                wb.ApplyAttackSpeed(playerStats.attackSpeed);
-                wb.critChance = playerStats.critChance;
-                wb.critMultiplier = playerStats.critMultiplier;
-            }
-        }
-
         if (ikHandler != null)
             ikHandler.UpdateIKTargets(entry.weaponRoot);
     }
@@ -346,9 +335,6 @@ public class WeaponInventory : MonoBehaviour
             if (wb == null) continue;
 
             wb.ApplyLevel(entry.definition, entry.currentLevel);
-
-            if (playerStats != null)
-                wb.ApplyAttackSpeed(playerStats.attackSpeed);
         }
 
         ApplyWeaponSkin(entry);

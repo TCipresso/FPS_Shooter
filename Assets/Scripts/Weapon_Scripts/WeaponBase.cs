@@ -115,6 +115,8 @@ public abstract class WeaponBase : MonoBehaviour
             Debug.LogWarning($"[{gameObject.name}] Main Camera not found in scene.");
         if (bulletData == null)
             Debug.LogWarning($"[{gameObject.name}] No BulletDataSO assigned.");
+        if (playerStats == null)
+            Debug.LogWarning($"[{gameObject.name}] PlayerStats not found in scene.");
         if (universalAnimator == null)
             universalAnimator = GameObject.Find("WeaponAnims")?.GetComponent<Animator>();
     }
@@ -152,6 +154,9 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected virtual void Update()
     {
+        if (playerStats != null)
+            rpm = baseRpm * playerStats.attackSpeed;
+
         if (currentBloom > 0f)
             currentBloom = Mathf.Max(0f, currentBloom - bloomDecaySpeed * Time.deltaTime);
 
@@ -372,13 +377,17 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (bulletData == null) return;
 
+        int scaledDamage = playerStats != null
+            ? Mathf.RoundToInt(damage * playerStats.damageMultiplier)
+            : damage;
+
         switch (bulletData.bulletType)
         {
             case BulletType.Hitscan:
-                FireHitscan(damage, range);
+                FireHitscan(scaledDamage, range);
                 break;
             case BulletType.Projectile:
-                FireProjectile(damage);
+                FireProjectile(scaledDamage);
                 break;
         }
     }
@@ -487,8 +496,11 @@ public abstract class WeaponBase : MonoBehaviour
 
     public int ApplyCrit(int damage)
     {
-        if (Random.value <= critChance)
-            return Mathf.RoundToInt(damage * critMultiplier);
+        float chance = playerStats != null ? playerStats.critChance : critChance;
+        float multiplier = playerStats != null ? playerStats.critMultiplier : critMultiplier;
+
+        if (Random.value <= chance)
+            return Mathf.RoundToInt(damage * multiplier);
         return damage;
     }
 
