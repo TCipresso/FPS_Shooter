@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
 using System.Collections;
-using TMPro;
 
 public class PlayerStats : MonoBehaviour
 {
@@ -9,7 +8,6 @@ public class PlayerStats : MonoBehaviour
     public FPSLook look;
     public WeaponInventory weaponInventory;
     //public AugmentDraftUI augmentDraftUI;
-    public TMP_Text hpText;
 
     [Header("Combat Stats")]
     public float damageMultiplier = 1f;
@@ -79,7 +77,6 @@ public class PlayerStats : MonoBehaviour
     void Start()
     {
         if (hitIndicator != null) hitIndicator.alpha = 0f;
-        UpdateHPText();
     }
 
     void Update()
@@ -215,7 +212,6 @@ public class PlayerStats : MonoBehaviour
         onHit.Invoke();
 
         Debug.Log($"[PlayerStats] -{amount} HP | {currentHealth}/{maxHealth}");
-        UpdateHPText();
 
         if (currentHealth <= 0)
             Down();
@@ -225,12 +221,6 @@ public class PlayerStats : MonoBehaviour
     {
         currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
         Debug.Log($"[PlayerStats] +{amount} HP | {currentHealth}/{maxHealth}");
-        UpdateHPText();
-    }
-
-    void UpdateHPText()
-    {
-        if (hpText != null) hpText.text = $"{currentHealth}/{maxHealth}";
     }
 
     void FlashHitIndicator()
@@ -291,7 +281,6 @@ public class PlayerStats : MonoBehaviour
         currentHealth = maxHealth;
         timeSinceLastDamage = 0f;
         regenAccumulator = 0f;
-        UpdateHPText();
         onRevive.Invoke();
         Debug.Log($"[PlayerStats] Player revived. Lives remaining: {lives}");
     }
