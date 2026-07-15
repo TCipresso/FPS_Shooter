@@ -61,7 +61,6 @@ public abstract class ZombieBase : MonoBehaviour
     CapsuleCollider col;
     protected Transform player;
     protected PlayerStats playerStats;
-    protected PlayerHealth playerHealth;
     protected float lastAttackTime;
     protected bool isDead = false;
 
@@ -98,7 +97,6 @@ public abstract class ZombieBase : MonoBehaviour
         if (playerStats != null)
         {
             player = playerStats.transform;
-            playerHealth = playerStats.GetComponent<PlayerHealth>();
         }
         else
         {
@@ -185,9 +183,9 @@ public abstract class ZombieBase : MonoBehaviour
     public virtual void OnHitFrame()
     {
         float dist = player != null ? Vector3.Distance(transform.position, player.position) : -1f;
-        if (player == null || playerHealth == null) return;
+        if (player == null || playerStats == null) return;
         if (dist <= hitFrameRange)
-            playerHealth.TakeHit();
+            playerStats.TakeDamage(attackDamage);
     }
 
     public virtual void OnAttackComplete()

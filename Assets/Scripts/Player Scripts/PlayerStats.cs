@@ -1,4 +1,7 @@
 using UnityEngine;
+using UnityEngine.Events;
+using System.Collections;
+using TMPro;
 
 public class PlayerStats : MonoBehaviour
 {
@@ -6,7 +9,7 @@ public class PlayerStats : MonoBehaviour
     public FPSLook look;
     public WeaponInventory weaponInventory;
     //public AugmentDraftUI augmentDraftUI;
-    public PlayerHealth playerHealth;
+    public TMP_Text hpText;
 
     [Header("Combat Stats")]
     public float damageMultiplier = 1f;
@@ -32,6 +35,29 @@ public class PlayerStats : MonoBehaviour
     float timeSinceLastDamage = 0f;
     float regenAccumulator = 0f;
 
+    [Header("Lives")]
+    public int lives = 3;
+    public float downDuration = 3f;
+
+    [Header("Hit Indicator")]
+    public CanvasGroup hitIndicator;
+    public float hitFlashMax = 0.6f;
+    public float hitFlashOutSpeed = 3f;
+
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip hitSound;
+    public AudioClip downSound;
+
+    [Header("Events")]
+    public UnityEvent onHit;
+    public UnityEvent onDown;
+    public UnityEvent onRevive;
+    public UnityEvent onGameOver;
+
+    public bool IsDown { get; private set; }
+    public bool IsGameOver { get; private set; }
+
     [Header("Gold")]
     public int gold = 500;
     public int baseGoldOnHit = 0;
@@ -47,12 +73,20 @@ public class PlayerStats : MonoBehaviour
     {
         // Application.targetFrameRate = 300;
         currentHealth = maxHealth;
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
+    }
+
+    void Start()
+    {
+        if (hitIndicator != null) hitIndicator.alpha = 0f;
+        UpdateHPText();
     }
 
     void Update()
     {
         timeSinceLastDamage += Time.deltaTime;
 
+        if (IsDown || IsGameOver) return;
         if (currentHealth >= maxHealth || healthRegen <= 0f) return;
         if (timeSinceLastDamage < regenDelay) return;
 
@@ -170,16 +204,102 @@ public class PlayerStats : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
+        if (IsDown || IsGameOver) return;
+
         currentHealth = Mathf.Max(0, currentHealth - amount);
         timeSinceLastDamage = 0f;
         regenAccumulator = 0f;
+
+        FlashHitIndicator();
+        PlaySound(hitSound);
+        onHit.Invoke();
+
         Debug.Log($"[PlayerStats] -{amount} HP | {currentHealth}/{maxHealth}");
+        UpdateHPText();
+
+        if (currentHealth <= 0)
+            Down();
     }
 
     public void Heal(int amount)
     {
         currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
         Debug.Log($"[PlayerStats] +{amount} HP | {currentHealth}/{maxHealth}");
+        UpdateHPText();
+    }
+
+    void UpdateHPText()
+    {
+        if (hpText != null) hpText.text = $"{currentHealth}/{maxHealth}";
+    }
+
+    void FlashHitIndicator()
+    {
+        if (hitIndicator == null) return;
+        StopCoroutine(nameof(HitFlashRoutine));
+        StartCoroutine(nameof(HitFlashRoutine));
+    }
+
+    IEnumerator HitFlashRoutine()
+    {
+        hitIndicator.alpha = hitFlashMax;
+        while (hitIndicator.alpha > 0f)
+        {
+            hitIndicator.alpha = Mathf.MoveTowards(hitIndicator.alpha, 0f, hitFlashOutSpeed * Time.deltaTime);
+            yield return null;
+        }
+        hitIndicator.alpha = 0f;
+    }
+
+    void PlaySound(AudioClip clip)
+    {
+        if (audioSource == null || clip == null) return;
+        audioSource.PlayOneShot(clip);
+    }
+
+    void Down()
+    {
+        IsDown = true;
+        lives--;
+        PlaySound(downSound);
+        onDown.Invoke();
+        Debug.Log($"[PlayerStats] Player is down. Lives remaining: {lives}");
+
+        if (lives <= 0)
+            GameOver();
+        else
+            StartCoroutine(DownRoutine());
+    }
+
+    IEnumerator DownRoutine()
+    {
+        yield return new WaitForSeconds(downDuration);
+        Revive();
+    }
+
+    void GameOver()
+    {
+        IsGameOver = true;
+        onGameOver.Invoke();
+        Debug.Log("[PlayerStats] Game Over.");
+    }
+
+    public void Revive()
+    {
+        if (IsGameOver) return;
+        IsDown = false;
+        currentHealth = maxHealth;
+        timeSinceLastDamage = 0f;
+        regenAccumulator = 0f;
+        UpdateHPText();
+        onRevive.Invoke();
+        Debug.Log($"[PlayerStats] Player revived. Lives remaining: {lives}");
+    }
+
+    public void AddLife(int amount = 1)
+    {
+        lives += amount;
+        Debug.Log($"[PlayerStats] Lives: {lives}");
     }
 
     //
@@ -220,25 +340,5 @@ public class PlayerStats : MonoBehaviour
     {
         powerUpDropChance = Mathf.Clamp01(powerUpDropChance + amount);
         Debug.Log($"[PlayerStats] Power-Up Drop Chance: {powerUpDropChance * 100:F0}%");
-    }
-
-    //
-
-    public void TakeHit()
-    {
-        if (playerHealth != null)
-            playerHealth.TakeHit();
-    }
-
-    public void AddLife(int amount = 1)
-    {
-        if (playerHealth != null)
-            playerHealth.AddLife(amount);
-    }
-
-    public void AddHitsToDown(int amount = 1)
-    {
-        if (playerHealth != null)
-            playerHealth.AddHit(amount);
     }
 }
