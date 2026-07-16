@@ -25,9 +25,10 @@ public class RoundManager : MonoBehaviour
     public float spawnPointCheckRadius = 0.6f;
 
     [Header("Stage Scenes")]
-    [Tooltip("Scene names to load in order. Loops when exhausted.")]
     public List<string> stageScenes = new List<string>();
-    public float stageChangeDelay = 5f;
+
+    [Header("Stage Portals")]
+    public List<GameObject> portalPrefabs = new List<GameObject>();
 
     [Header("Stage Scaling")]
     public float healthMultiplierPerStage = 1.3f;
@@ -48,6 +49,8 @@ public class RoundManager : MonoBehaviour
     int lastSceneIndex = -1;
 
     List<Transform> currentSpawnPoints = new List<Transform>();
+    List<Transform> currentPortalSpawnPoints = new List<Transform>();
+    List<GameObject> activeStagePortals = new List<GameObject>();
     bool waitingForPlayer = false;
 
     void Awake()
@@ -64,15 +67,19 @@ public class RoundManager : MonoBehaviour
         {
             StageSetup setup = FindFirstObjectByType<StageSetup>();
             if (setup != null)
+            {
                 currentSpawnPoints = setup.spawnPoints;
+                currentPortalSpawnPoints = setup.portalSpawnPoints;
+            }
             waitingForPlayer = true;
             StartCoroutine(WaitForPlayerThenStart());
         }
     }
 
-    public void OnSceneReady(List<Transform> spawnPoints)
+    public void OnSceneReady(List<Transform> spawnPoints, List<Transform> portalSpawnPoints)
     {
         currentSpawnPoints = spawnPoints;
+        currentPortalSpawnPoints = portalSpawnPoints;
         if (waitingForPlayer) return;
         waitingForPlayer = true;
         StartCoroutine(WaitForPlayerThenStart());
@@ -172,9 +179,41 @@ public class RoundManager : MonoBehaviour
         Debug.Log($"[RoundManager] Round {currentRound} complete.");
 
         if (currentRound % roundsPerStage == 0)
-            StartCoroutine(StageChangeRoutine());
+            SpawnStagePortals();
         else
             StartRound();
+    }
+
+    void SpawnStagePortals()
+    {
+        if (portalPrefabs.Count == 0 || currentPortalSpawnPoints.Count == 0)
+        {
+            Debug.LogWarning("[RoundManager] No portal prefabs or portal spawn points assigned, staying on current stage.");
+            StartRound();
+            return;
+        }
+
+        List<Transform> shuffledPoints = new List<Transform>(currentPortalSpawnPoints);
+        for (int i = shuffledPoints.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (shuffledPoints[i], shuffledPoints[j]) = (shuffledPoints[j], shuffledPoints[i]);
+        }
+
+        List<GameObject> shuffledPrefabs = new List<GameObject>(portalPrefabs);
+        for (int i = shuffledPrefabs.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (shuffledPrefabs[i], shuffledPrefabs[j]) = (shuffledPrefabs[j], shuffledPrefabs[i]);
+        }
+
+        int count = Mathf.Min(shuffledPrefabs.Count, shuffledPoints.Count);
+        activeStagePortals.Clear();
+        for (int i = 0; i < count; i++)
+        {
+            GameObject portal = Instantiate(shuffledPrefabs[i], shuffledPoints[i].position, shuffledPoints[i].rotation);
+            activeStagePortals.Add(portal);
+        }
     }
 
     int PickNextSceneIndex()
@@ -191,11 +230,13 @@ public class RoundManager : MonoBehaviour
         return candidates[Random.Range(0, candidates.Count)];
     }
 
-    IEnumerator StageChangeRoutine()
+    public void OnStagePortalEntered()
     {
+        foreach (GameObject portal in activeStagePortals)
+            if (portal != null) Destroy(portal);
+        activeStagePortals.Clear();
+
         currentStage++;
-        Debug.Log($"[RoundManager] Loading next stage in {stageChangeDelay}s...");
-        yield return new WaitForSeconds(stageChangeDelay);
 
         if (stageScenes.Count > 0)
         {
