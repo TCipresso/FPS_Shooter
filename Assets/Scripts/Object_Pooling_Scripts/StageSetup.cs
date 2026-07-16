@@ -6,6 +6,8 @@ public class StageSetup : MonoBehaviour
     public List<Transform> spawnPoints = new List<Transform>();
     [Header("Portal Spawn Points")]
     public List<Transform> portalSpawnPoints = new List<Transform>();
+    [Header("Pickup Spawn Points")]
+    public List<Transform> pickupSpawnPoints = new List<Transform>();
     [Header("Interactables")]
     [Range(0f, 1f)] public float interactableSpawnChance = 0.6f;
     public List<GameObject> interactables = new List<GameObject>();
@@ -26,7 +28,7 @@ public class StageSetup : MonoBehaviour
             else Debug.LogWarning("[StageSetup] No GameObject tagged Player found.");
         }
         else Debug.LogWarning("[StageSetup] No PlayerTransSpot found in scene.");
-        RoundManager.Instance.OnSceneReady(spawnPoints, portalSpawnPoints);
+        RoundManager.Instance.OnSceneReady(spawnPoints, portalSpawnPoints, pickupSpawnPoints);
     }
     void DisableAllInteractables()
     {

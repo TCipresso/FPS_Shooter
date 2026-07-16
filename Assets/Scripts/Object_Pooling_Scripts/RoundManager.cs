@@ -30,6 +30,18 @@ public class RoundManager : MonoBehaviour
     [Header("Stage Portals")]
     public List<GameObject> portalPrefabs = new List<GameObject>();
 
+    [Header("Money Power Ups")]
+    public GameObject moneyPickupPrefab;
+    public int minMoneyPickups = 10;
+    public int maxMoneyPickups = 15;
+    public int moneyClusterCount = 3;
+    public float clusterRadius = 2.5f;
+
+    [Header("Weapon Power Ups")]
+    public List<GameObject> weaponPowerUpPrefabs = new List<GameObject>();
+    [Range(0f, 1f)] public float extraWeaponPowerUpChance = 0.5f;
+    public float weaponPowerUpOffsetRadius = 1.2f;
+
     [Header("Stage Scaling")]
     public float healthMultiplierPerStage = 1.3f;
     public float damageMultiplierPerStage = 1.2f;
@@ -50,7 +62,9 @@ public class RoundManager : MonoBehaviour
 
     List<Transform> currentSpawnPoints = new List<Transform>();
     List<Transform> currentPortalSpawnPoints = new List<Transform>();
+    List<Transform> currentPickupSpawnPoints = new List<Transform>();
     List<GameObject> activeStagePortals = new List<GameObject>();
+    List<GameObject> activePowerUps = new List<GameObject>();
     bool waitingForPlayer = false;
 
     void Awake()
@@ -70,16 +84,18 @@ public class RoundManager : MonoBehaviour
             {
                 currentSpawnPoints = setup.spawnPoints;
                 currentPortalSpawnPoints = setup.portalSpawnPoints;
+                currentPickupSpawnPoints = setup.pickupSpawnPoints;
             }
             waitingForPlayer = true;
             StartCoroutine(WaitForPlayerThenStart());
         }
     }
 
-    public void OnSceneReady(List<Transform> spawnPoints, List<Transform> portalSpawnPoints)
+    public void OnSceneReady(List<Transform> spawnPoints, List<Transform> portalSpawnPoints, List<Transform> pickupSpawnPoints)
     {
         currentSpawnPoints = spawnPoints;
         currentPortalSpawnPoints = portalSpawnPoints;
+        currentPickupSpawnPoints = pickupSpawnPoints;
         if (waitingForPlayer) return;
         waitingForPlayer = true;
         StartCoroutine(WaitForPlayerThenStart());
@@ -100,9 +116,65 @@ public class RoundManager : MonoBehaviour
         enemiesRemainingInBank = Mathf.Min(baseRoundBank + bankAddedPerRound * (currentRound - 1) + bankAddedPerStage * (currentStage - 1), maxRoundBank);
         roundActive = true;
 
+        ClearPowerUps();
+        SpawnMoneyPickups();
+        SpawnWeaponPowerUps();
+
         Debug.Log($"[RoundManager] Stage {currentStage} | Round {currentRound} | Bank: {enemiesRemainingInBank} | Max Alive: {maxAliveAtOnce}");
         if (roundText != null) roundText.text = $"Round {currentRound}";
         StartCoroutine(SpawnRoutine());
+    }
+
+    void ClearPowerUps()
+    {
+        foreach (GameObject pu in activePowerUps)
+            if (pu != null) Destroy(pu);
+        activePowerUps.Clear();
+    }
+
+    void SpawnMoneyPickups()
+    {
+        if (moneyPickupPrefab == null || currentPickupSpawnPoints.Count == 0) return;
+
+        List<Transform> shuffledPoints = new List<Transform>(currentPickupSpawnPoints);
+        for (int i = shuffledPoints.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (shuffledPoints[i], shuffledPoints[j]) = (shuffledPoints[j], shuffledPoints[i]);
+        }
+
+        int clusterCount = Mathf.Min(moneyClusterCount, shuffledPoints.Count);
+        int totalMoney = Random.Range(minMoneyPickups, maxMoneyPickups + 1);
+
+        for (int i = 0; i < totalMoney; i++)
+        {
+            Transform clusterCenter = shuffledPoints[i % clusterCount];
+            Vector2 offset = Random.insideUnitCircle * clusterRadius;
+            Vector3 spawnPos = clusterCenter.position + new Vector3(offset.x, 0f, offset.y);
+            GameObject money = Instantiate(moneyPickupPrefab, spawnPos, Quaternion.identity);
+            activePowerUps.Add(money);
+        }
+    }
+
+    void SpawnWeaponPowerUps()
+    {
+        if (weaponPowerUpPrefabs.Count == 0 || currentPickupSpawnPoints.Count == 0) return;
+
+        Transform spawnPoint = currentPickupSpawnPoints[Random.Range(0, currentPickupSpawnPoints.Count)];
+        GameObject chosenWeapon = weaponPowerUpPrefabs[Random.Range(0, weaponPowerUpPrefabs.Count)];
+        float chance = extraWeaponPowerUpChance;
+
+        GameObject first = Instantiate(chosenWeapon, spawnPoint.position, Quaternion.identity);
+        activePowerUps.Add(first);
+
+        while (Random.value < chance)
+        {
+            Vector2 offset = Random.insideUnitCircle * weaponPowerUpOffsetRadius;
+            Vector3 spawnPos = spawnPoint.position + new Vector3(offset.x, 0f, offset.y);
+            GameObject extra = Instantiate(chosenWeapon, spawnPos, Quaternion.identity);
+            activePowerUps.Add(extra);
+            chance *= extraWeaponPowerUpChance;
+        }
     }
 
     IEnumerator SpawnRoutine()
