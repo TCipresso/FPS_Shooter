@@ -1,0 +1,19 @@
+public enum PlayerStatType
+{
+    MaxHealth,
+    HealthRegen,
+    RegenDelay,
+    CritChance,
+    CritMultiplier,
+    AttackSpeed,
+    DamageMultiplier,
+    AbilityDamageMultiplier,
+    AbilityCooldownReduction,
+    AoeSize,
+    MoveSpeed,
+    JumpCount,
+    DashCount,
+    Luck,
+    GoldGain,
+    PowerUpDropChance
+}
