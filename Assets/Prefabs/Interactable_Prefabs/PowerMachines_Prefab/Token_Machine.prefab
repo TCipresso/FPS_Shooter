@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7082688713346757937}
   - component: {fileID: 8518953310057575688}
   m_Layer: 0
-  m_Name: Power_Machine
+  m_Name: Token_Machine
   m_TagString: Buyable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -127,8 +127,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PowerMachine
   cost: 1000
-  itemName: Power
-  power: {fileID: 0}
+  itemName: Motion
+  token: {fileID: 11400000, guid: 358a78dbeaac5964d8857ca20db827e9, type: 2}
 --- !u!1 &4935651395233962824
 GameObject:
   m_ObjectHideFlags: 0
