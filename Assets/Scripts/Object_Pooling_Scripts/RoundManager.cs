@@ -42,6 +42,11 @@ public class RoundManager : MonoBehaviour
     [Range(0f, 1f)] public float extraWeaponPowerUpChance = 0.5f;
     public float weaponPowerUpOffsetRadius = 1.2f;
 
+    [Header("Zombie Drops")]
+    [Range(0f, 1f)] public float zombieMoneyDropChance = 0.15f;
+    [Range(0f, 1f)] public float zombieWeaponDropChance = 0.03f;
+    public float zombieDropGroundOffset = 0.1f;
+
     [Header("Stage Scaling")]
     public float healthMultiplierPerStage = 1.3f;
     public float damageMultiplierPerStage = 1.2f;
@@ -64,7 +69,6 @@ public class RoundManager : MonoBehaviour
     List<Transform> currentPortalSpawnPoints = new List<Transform>();
     List<Transform> currentPickupSpawnPoints = new List<Transform>();
     List<GameObject> activeStagePortals = new List<GameObject>();
-    List<GameObject> activePowerUps = new List<GameObject>();
     bool waitingForPlayer = false;
 
     void Awake()
@@ -116,20 +120,12 @@ public class RoundManager : MonoBehaviour
         enemiesRemainingInBank = Mathf.Min(baseRoundBank + bankAddedPerRound * (currentRound - 1) + bankAddedPerStage * (currentStage - 1), maxRoundBank);
         roundActive = true;
 
-        ClearPowerUps();
         SpawnMoneyPickups();
         SpawnWeaponPowerUps();
 
         Debug.Log($"[RoundManager] Stage {currentStage} | Round {currentRound} | Bank: {enemiesRemainingInBank} | Max Alive: {maxAliveAtOnce}");
         if (roundText != null) roundText.text = $"Round {currentRound}";
         StartCoroutine(SpawnRoutine());
-    }
-
-    void ClearPowerUps()
-    {
-        foreach (GameObject pu in activePowerUps)
-            if (pu != null) Destroy(pu);
-        activePowerUps.Clear();
     }
 
     void SpawnMoneyPickups()
@@ -151,8 +147,7 @@ public class RoundManager : MonoBehaviour
             Transform clusterCenter = shuffledPoints[i % clusterCount];
             Vector2 offset = Random.insideUnitCircle * clusterRadius;
             Vector3 spawnPos = clusterCenter.position + new Vector3(offset.x, 0f, offset.y);
-            GameObject money = Instantiate(moneyPickupPrefab, spawnPos, Quaternion.identity);
-            activePowerUps.Add(money);
+            Instantiate(moneyPickupPrefab, spawnPos, Quaternion.identity);
         }
     }
 
@@ -164,15 +159,13 @@ public class RoundManager : MonoBehaviour
         GameObject chosenWeapon = weaponPowerUpPrefabs[Random.Range(0, weaponPowerUpPrefabs.Count)];
         float chance = extraWeaponPowerUpChance;
 
-        GameObject first = Instantiate(chosenWeapon, spawnPoint.position, Quaternion.identity);
-        activePowerUps.Add(first);
+        Instantiate(chosenWeapon, spawnPoint.position, Quaternion.identity);
 
         while (Random.value < chance)
         {
             Vector2 offset = Random.insideUnitCircle * weaponPowerUpOffsetRadius;
             Vector3 spawnPos = spawnPoint.position + new Vector3(offset.x, 0f, offset.y);
-            GameObject extra = Instantiate(chosenWeapon, spawnPos, Quaternion.identity);
-            activePowerUps.Add(extra);
+            Instantiate(chosenWeapon, spawnPos, Quaternion.identity);
             chance *= extraWeaponPowerUpChance;
         }
     }
@@ -194,7 +187,7 @@ public class RoundManager : MonoBehaviour
                     ApplyScaling(enemy);
                     ZombieBase zombie = enemy.GetComponent<ZombieBase>();
                     if (zombie != null)
-                        zombie.OnDeath += OnEnemyDied;
+                        zombie.OnDeath += () => OnEnemyDied(zombie.transform.position);
                     enemiesCurrentlyAlive++;
                     enemiesRemainingInBank--;
                 }
@@ -236,13 +229,31 @@ public class RoundManager : MonoBehaviour
         zombie.moveSpeed *= Mathf.Pow(speedMultiplierPerStage, scalingStep);
     }
 
-    void OnEnemyDied()
+    void OnEnemyDied(Vector3 deathPosition)
     {
         enemiesCurrentlyAlive--;
+        TryDropPickup(deathPosition);
         if (enemiesCurrentlyAlive <= 0 && enemiesRemainingInBank <= 0 && roundActive)
         {
             roundActive = false;
             OnRoundComplete();
+        }
+    }
+
+    void TryDropPickup(Vector3 position)
+    {
+        position += Vector3.up * zombieDropGroundOffset;
+        float roll = Random.value;
+
+        if (roll < zombieWeaponDropChance)
+        {
+            if (weaponPowerUpPrefabs.Count == 0) return;
+            Instantiate(weaponPowerUpPrefabs[Random.Range(0, weaponPowerUpPrefabs.Count)], position, Quaternion.identity);
+        }
+        else if (roll < zombieWeaponDropChance + zombieMoneyDropChance)
+        {
+            if (moneyPickupPrefab == null) return;
+            Instantiate(moneyPickupPrefab, position, Quaternion.identity);
         }
     }
 

@@ -270,6 +270,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PowerUpPickup
   weaponIndex: 1
   isBaseTypeWeapon: 0
+  lifetime: 30
+  flashWarningTime: 10
+  flashInterval: 0.15
+  model: {fileID: 7637129079561401371}
 --- !u!1 &7637129079561401371
 GameObject:
   m_ObjectHideFlags: 0
