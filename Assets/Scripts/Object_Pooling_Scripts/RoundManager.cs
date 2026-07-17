@@ -76,6 +76,8 @@ public class RoundManager : MonoBehaviour
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        lastSceneIndex = stageScenes.IndexOf(SceneManager.GetActiveScene().name);
     }
 
     IEnumerator Start()

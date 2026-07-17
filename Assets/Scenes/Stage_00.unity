@@ -14150,7 +14150,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3282480155471214155, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
       propertyPath: stageScenes.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3282480155471214155, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
       propertyPath: zombieDropGroundOffset
@@ -14166,10 +14166,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3282480155471214155, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
       propertyPath: 'stageScenes.Array.data[0]'
-      value: Stage_02
+      value: Stage_01
       objectReference: {fileID: 0}
     - target: {fileID: 3282480155471214155, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
       propertyPath: 'stageScenes.Array.data[1]'
+      value: Stage_02
+      objectReference: {fileID: 0}
+    - target: {fileID: 3282480155471214155, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
+      propertyPath: 'stageScenes.Array.data[2]'
       value: Stage_03
       objectReference: {fileID: 0}
     - target: {fileID: 3282480155471214155, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
@@ -32031,10 +32035,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4935651395233962824, guid: 498cba6beec8db34c9522cde10238bec, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 498cba6beec8db34c9522cde10238bec, type: 3}
 --- !u!1 &1533376794
 GameObject:
