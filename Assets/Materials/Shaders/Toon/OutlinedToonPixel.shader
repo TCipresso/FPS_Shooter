@@ -265,9 +265,19 @@ Shader "Bloodsport/OutlinedToonPixel"
                 return BayerMatrix4x4[y * 4 + x] / 16.0;
             }
 
-            float3 ToonRampShade(float NdotL, float atten, float ditherValue)
+            // NOTE: this no longer takes "atten" as an input. Attenuation
+            // (distance falloff + shadow) is now applied OUTSIDE this function
+            // as a smooth continuous multiplier, not baked into the quantized
+            // step. Baking distance attenuation into the step caused point/spot
+            // lights to plateau to full white over a wide radius (since
+            // attenuation blows past the top step threshold quickly near the
+            // source), then hard-cliff at the step boundary - producing the
+            // overbright halo + blocky dithered edge. NdotL alone varies slowly
+            // and smoothly across a surface regardless of light type, so it's
+            // the only thing that should drive the discrete band selection.
+            float3 ToonRampShade(float NdotL, float ditherValue)
             {
-                float ramp = saturate(NdotL) * atten;
+                float ramp = saturate(NdotL);
                 float steps = max(_ToonSteps, 1.0);
                 float dither = (ditherValue - 0.5) / steps;
                 float stepped = floor((ramp + dither) * steps) / max(steps - 1.0, 1.0);
@@ -286,7 +296,7 @@ Shader "Bloodsport/OutlinedToonPixel"
                     mainShadowAtten = 1.0;
                 #endif
                 float mainAtten = mainShadowAtten * mainLight.distanceAttenuation;
-                totalLight += mainLight.color * ToonRampShade(dot(normalWS, mainLight.direction), mainAtten, ditherValue);
+                totalLight += mainLight.color * mainAtten * ToonRampShade(dot(normalWS, mainLight.direction), ditherValue);
 
                 float3 halfDir = normalize(mainLight.direction + viewDirWS);
                 float NdotH = saturate(dot(normalWS, halfDir));
@@ -306,8 +316,13 @@ Shader "Bloodsport/OutlinedToonPixel"
                         #if !defined(_RECEIVE_SHADOWS_ON)
                             lightShadowAtten = 1.0;
                         #endif
+                        // atten (distance falloff * shadow) is applied as a smooth
+                        // multiplier on the finished step color, not fed into the
+                        // step quantization itself. This is what lets point/spot
+                        // lights fade continuously with distance instead of
+                        // plateauing to full white over a wide radius.
                         float atten = light.distanceAttenuation * lightShadowAtten;
-                        totalLight += light.color * ToonRampShade(dot(normalWS, light.direction), atten, ditherValue);
+                        totalLight += light.color * atten * ToonRampShade(dot(normalWS, light.direction), ditherValue);
                     LIGHT_LOOP_END
                 #endif
 
