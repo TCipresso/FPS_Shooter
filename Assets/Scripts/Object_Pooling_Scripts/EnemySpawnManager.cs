@@ -1,8 +1,10 @@
 using UnityEngine;
 using System.Collections.Generic;
+
 public class EnemySpawnManager : MonoBehaviour
 {
     public static EnemySpawnManager Instance { get; private set; }
+
     [System.Serializable]
     public class EnemyPool
     {
@@ -11,8 +13,12 @@ public class EnemySpawnManager : MonoBehaviour
         public int poolSize = 20;
         [HideInInspector] public Queue<GameObject> enemyQueue = new Queue<GameObject>();
     }
+
     [Header("Enemy Pools")]
     public List<EnemyPool> enemyPools = new List<EnemyPool>();
+
+    Dictionary<string, EnemyPool> poolLookup = new Dictionary<string, EnemyPool>();
+
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -20,10 +26,12 @@ public class EnemySpawnManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         InitializePools();
     }
+
     void InitializePools()
     {
         foreach (EnemyPool pool in enemyPools)
         {
+            poolLookup[pool.enemyId] = pool;
             for (int i = 0; i < pool.poolSize; i++)
             {
                 GameObject enemy = Instantiate(pool.enemyPrefab, Vector3.zero, Quaternion.identity);
@@ -33,10 +41,11 @@ public class EnemySpawnManager : MonoBehaviour
             }
         }
     }
+
     GameObject SpawnEnemyInternal(string enemyId, Vector3 position, Quaternion rotation)
     {
-        EnemyPool pool = enemyPools.Find(p => p.enemyId == enemyId);
-        if (pool == null) { Debug.LogWarning($"[EnemySpawnManager] No pool for: {enemyId}"); return null; }
+        if (!poolLookup.TryGetValue(enemyId, out EnemyPool pool))
+        { Debug.LogWarning($"[EnemySpawnManager] No pool for: {enemyId}"); return null; }
         if (pool.enemyQueue.Count == 0) { Debug.LogWarning($"[EnemySpawnManager] Pool empty: {enemyId}"); return null; }
         GameObject enemy = pool.enemyQueue.Dequeue();
         Rigidbody erb = enemy.GetComponent<Rigidbody>();
@@ -49,11 +58,11 @@ public class EnemySpawnManager : MonoBehaviour
         enemy.SetActive(true);
         return enemy;
     }
+
     public GameObject SpawnEnemy(string enemyId, Transform spawnPoint)
     {
         GameObject enemy = SpawnEnemyInternal(enemyId, spawnPoint.position, spawnPoint.rotation);
         if (enemy == null) return null;
-
         ZombieBase zombie = enemy.GetComponent<ZombieBase>();
         if (zombie != null)
         {
@@ -64,11 +73,11 @@ public class EnemySpawnManager : MonoBehaviour
         }
         return enemy;
     }
+
     public GameObject SpawnEnemy(string enemyId, Vector3 position, Quaternion rotation)
     {
         GameObject enemy = SpawnEnemyInternal(enemyId, position, rotation);
         if (enemy == null) return null;
-
         ZombieBase zombie = enemy.GetComponent<ZombieBase>();
         if (zombie != null)
         {
@@ -78,6 +87,7 @@ public class EnemySpawnManager : MonoBehaviour
         }
         return enemy;
     }
+
     public void DebugSpawnNearPlayer(string enemyId, int count, float radius = 5f)
     {
         PlayerStats player = FindFirstObjectByType<PlayerStats>();
@@ -89,10 +99,10 @@ public class EnemySpawnManager : MonoBehaviour
             SpawnEnemy(enemyId, spawnPos, Quaternion.identity);
         }
     }
+
     void ReturnEnemy(string enemyId, GameObject enemy)
     {
-        EnemyPool pool = enemyPools.Find(p => p.enemyId == enemyId);
-        if (pool == null) return;
+        if (!poolLookup.TryGetValue(enemyId, out EnemyPool pool)) return;
         enemy.SetActive(false);
         pool.enemyQueue.Enqueue(enemy);
     }

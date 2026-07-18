@@ -26,20 +26,16 @@ public class BulletPool : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
         Instance = this;
-
         foreach (PoolEntry entry in poolEntries)
         {
             Queue<GameObject> pool = new Queue<GameObject>();
             prefabLookup[entry.key] = entry.prefab;
-
             for (int i = 0; i < entry.initialSize; i++)
             {
                 GameObject obj = CreateNew(entry.prefab);
                 pool.Enqueue(obj);
             }
-
             pools[entry.key] = pool;
         }
     }
@@ -53,52 +49,35 @@ public class BulletPool : MonoBehaviour
 
     public GameObject Get(string key, Vector3 position, Quaternion rotation)
     {
-        if (!pools.ContainsKey(key))
+        if (!pools.TryGetValue(key, out Queue<GameObject> pool))
         {
             Debug.LogWarning($"[BulletPool] No pool found for key: {key}");
             return null;
         }
 
-        Queue<GameObject> pool = pools[key];
+        GameObject obj = pool.Count > 0 ? pool.Dequeue() : CreateNew(prefabLookup[key]);
 
-        GameObject obj;
-        if (pool.Count > 0)
-            obj = pool.Dequeue();
-        else
-        {
-            // Pool exhausted, create a new one
-            obj = CreateNew(prefabLookup[key]);
-            Debug.Log($"[BulletPool] Pool '{key}' exhausted, creating new instance.");
-        }
-
-        obj.transform.position = position;
-        obj.transform.rotation = rotation;
+        obj.transform.SetPositionAndRotation(position, rotation);
         obj.SetActive(true);
-
         IPoolable poolable = obj.GetComponent<IPoolable>();
         if (poolable != null) poolable.OnSpawn();
-
         return obj;
     }
 
     public void EnsurePoolSize(string key, GameObject prefab, int desiredSize)
     {
-        if (!pools.ContainsKey(key))
+        if (!pools.TryGetValue(key, out Queue<GameObject> pool))
         {
-            pools[key] = new Queue<GameObject>();
+            pool = new Queue<GameObject>();
+            pools[key] = pool;
             prefabLookup[key] = prefab;
         }
-
-        Queue<GameObject> pool = pools[key];
         int current = pool.Count;
-
         if (current < desiredSize)
         {
             int toAdd = desiredSize - current;
             for (int i = 0; i < toAdd; i++)
                 pool.Enqueue(CreateNew(prefabLookup[key]));
-
-            Debug.Log($"[BulletPool] Grew pool '{key}' by {toAdd} to {desiredSize}.");
         }
     }
 
@@ -109,10 +88,8 @@ public class BulletPool : MonoBehaviour
             Destroy(obj);
             return;
         }
-
         IPoolable poolable = obj.GetComponent<IPoolable>();
         if (poolable != null) poolable.OnReturnToPool();
-
         obj.SetActive(false);
         obj.transform.SetParent(transform);
         pools[key].Enqueue(obj);

@@ -15,7 +15,7 @@ public class Doubler : WeaponBase
         PlayMuzzleFlash();
         ApplyRecoil();
         AddBloom();
-        AddBloom();
+       // AddBloom();
         Fire(damage);
     }
 }

@@ -1,15 +1,15 @@
 using UnityEngine;
-using System.Collections;
 
 public class ZombieHitFlash : MonoBehaviour
 {
-    [SerializeField] SkinnedMeshRenderer[] renderers;
+    [SerializeField] MeshRenderer[] renderers;
     [SerializeField] Color bodyFlashColor = Color.white;
     [SerializeField] Color headshotFlashColor = Color.red;
     [SerializeField] float flashDuration = 0.08f;
 
     MaterialPropertyBlock mpb;
-    Coroutine flashRoutine;
+    float flashTimer;
+    Color activeColor;
 
     static readonly int FlashColorID = Shader.PropertyToID("_FlashColor");
     static readonly int FlashAmountID = Shader.PropertyToID("_FlashAmount");
@@ -18,53 +18,51 @@ public class ZombieHitFlash : MonoBehaviour
     {
         mpb = new MaterialPropertyBlock();
         if (renderers == null || renderers.Length == 0)
-            renderers = GetComponentsInChildren<SkinnedMeshRenderer>();
+            renderers = GetComponentsInChildren<MeshRenderer>();
+        enabled = false;
     }
 
     public void Flash(bool isHeadshot)
     {
         if (!gameObject.activeInHierarchy) return;
-
-        Color color = isHeadshot ? headshotFlashColor : bodyFlashColor;
-
-        if (flashRoutine != null) StopCoroutine(flashRoutine);
-        flashRoutine = StartCoroutine(FlashCoroutine(color));
+        activeColor = isHeadshot ? headshotFlashColor : bodyFlashColor;
+        flashTimer = flashDuration;
+        enabled = true;
+        ApplyFlash(1f);
     }
 
-    // Call this whenever the zombie is reset for pool reuse. Guarantees the
-    // flash is cleared even if the previous flash coroutine got cut off
-    // mid-fade by the object being deactivated (e.g. died while flashing).
     public void ForceReset()
     {
-        if (flashRoutine != null)
-        {
-            StopCoroutine(flashRoutine);
-            flashRoutine = null;
-        }
-        SetFlash(Color.white, 0f);
+        flashTimer = 0f;
+        enabled = false;
+        ClearFlash();
     }
 
-    IEnumerator FlashCoroutine(Color color)
+    void Update()
     {
-        float t = 0f;
-        while (t < flashDuration)
+        flashTimer -= Time.deltaTime;
+
+        if (flashTimer <= 0f)
         {
-            t += Time.deltaTime;
-            SetFlash(color, 1f - (t / flashDuration));
-            yield return null;
+            ClearFlash();
+            enabled = false;
+            return;
         }
-        SetFlash(color, 0f);
-        flashRoutine = null;
+
+        ApplyFlash(flashTimer / flashDuration);
     }
 
-    void SetFlash(Color color, float amount)
+    void ApplyFlash(float amount)
+    {
+        mpb.SetColor(FlashColorID, activeColor);
+        mpb.SetFloat(FlashAmountID, amount);
+        foreach (var r in renderers)
+            r.SetPropertyBlock(mpb);
+    }
+
+    void ClearFlash()
     {
         foreach (var r in renderers)
-        {
-            r.GetPropertyBlock(mpb);
-            mpb.SetColor(FlashColorID, color);
-            mpb.SetFloat(FlashAmountID, amount);
-            r.SetPropertyBlock(mpb);
-        }
+            r.SetPropertyBlock(null);
     }
 }

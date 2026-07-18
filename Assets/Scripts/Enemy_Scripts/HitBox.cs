@@ -4,7 +4,6 @@ public class HitBox : MonoBehaviour
 {
     [Header("References")]
     public ZombieBase zombie;
-
     [Header("Damage")]
     [Tooltip("Limb damage modifier. Use 1 for head/body, 0.75 for legs etc.")]
     public float limbMultiplier = 1f;
@@ -16,36 +15,30 @@ public class HitBox : MonoBehaviour
             zombie = GetComponentInParent<ZombieBase>();
     }
 
-    public void TakeDamage(int amount, PlayerStats dealer, float weaponMultiplier = 1f, Vector3 hitDirection = default, float ragdollForceMultiplier = 1f)
+    public void TakeDamage(int amount, PlayerStats dealer, WeaponBase weapon, float weaponMultiplier = 1f, Vector3 hitDirection = default, float ragdollForceMultiplier = 1f)
     {
         if (zombie == null) return;
 
         int finalDamage = Mathf.RoundToInt(amount * limbMultiplier);
-        bool isCrit = false;
-        WeaponBase weapon = dealer?.GetComponentInChildren<WeaponBase>() ?? FindFirstObjectByType<WeaponBase>();
 
         if (isHeadshot && weapon != null)
         {
             finalDamage = Mathf.RoundToInt(finalDamage * weapon.critMultiplier);
-            isCrit = true;
         }
         else if (weapon != null)
         {
-            int rolled = weapon.ApplyCrit(finalDamage);
-            isCrit = rolled != finalDamage;
-            finalDamage = rolled;
+            finalDamage = weapon.ApplyCrit(finalDamage);
         }
 
         zombie.TakeDamage(finalDamage, dealer, weaponMultiplier, hitDirection, ragdollForceMultiplier, gameObject.name);
     }
 
-    public void TakeDamageWithHitPoint(int amount, PlayerStats dealer, Vector3 hitPoint, float weaponMultiplier = 1f, Vector3 hitDirection = default, float ragdollForceMultiplier = 1f)
+    public void TakeDamageWithHitPoint(int amount, PlayerStats dealer, WeaponBase weapon, Vector3 hitPoint, float weaponMultiplier = 1f, Vector3 hitDirection = default, float ragdollForceMultiplier = 1f)
     {
-        if (zombie == null) { Debug.LogError("[HitBox] zombie is null!"); return; }
+        if (zombie == null) return;
 
         int finalDamage = Mathf.RoundToInt(amount * limbMultiplier);
         bool isCrit = false;
-        WeaponBase weapon = dealer?.GetComponentInChildren<WeaponBase>() ?? FindFirstObjectByType<WeaponBase>();
 
         if (isHeadshot && weapon != null)
         {
@@ -60,9 +53,8 @@ public class HitBox : MonoBehaviour
         }
 
         zombie.TakeDamage(finalDamage, dealer, weaponMultiplier, hitDirection, ragdollForceMultiplier);
+        zombie.hitFlash?.Flash(isCrit);
 
-        ZombieHitFlash flash = zombie.GetComponent<ZombieHitFlash>();
-        if (flash != null) flash.Flash(isCrit);
         if (HitMarkerPool.Instance != null)
             HitMarkerPool.Instance.Spawn(hitPoint, isCrit);
     }

@@ -69,6 +69,7 @@ public class RoundManager : MonoBehaviour
     List<Transform> currentPortalSpawnPoints = new List<Transform>();
     List<Transform> currentPickupSpawnPoints = new List<Transform>();
     List<GameObject> activeStagePortals = new List<GameObject>();
+    List<Transform> spawnShuffleCache = new List<Transform>();
     bool waitingForPlayer = false;
 
     void Awake()
@@ -125,9 +126,16 @@ public class RoundManager : MonoBehaviour
         SpawnMoneyPickups();
         SpawnWeaponPowerUps();
 
-        Debug.Log($"[RoundManager] Stage {currentStage} | Round {currentRound} | Bank: {enemiesRemainingInBank} | Max Alive: {maxAliveAtOnce}");
         if (roundText != null) roundText.text = $"Round {currentRound}";
         StartCoroutine(SpawnRoutine());
+    }
+
+    GameObject SpawnPickup(GameObject prefab, Vector3 position)
+    {
+        if (prefab == null) return null;
+        if (PickupPool.Instance != null)
+            return PickupPool.Instance.Spawn(prefab, position, Quaternion.identity);
+        return Instantiate(prefab, position, Quaternion.identity);
     }
 
     void SpawnMoneyPickups()
@@ -149,7 +157,7 @@ public class RoundManager : MonoBehaviour
             Transform clusterCenter = shuffledPoints[i % clusterCount];
             Vector2 offset = Random.insideUnitCircle * clusterRadius;
             Vector3 spawnPos = clusterCenter.position + new Vector3(offset.x, 0f, offset.y);
-            Instantiate(moneyPickupPrefab, spawnPos, Quaternion.identity);
+            SpawnPickup(moneyPickupPrefab, spawnPos);
         }
     }
 
@@ -161,13 +169,13 @@ public class RoundManager : MonoBehaviour
         GameObject chosenWeapon = weaponPowerUpPrefabs[Random.Range(0, weaponPowerUpPrefabs.Count)];
         float chance = extraWeaponPowerUpChance;
 
-        Instantiate(chosenWeapon, spawnPoint.position, Quaternion.identity);
+        SpawnPickup(chosenWeapon, spawnPoint.position);
 
         while (Random.value < chance)
         {
             Vector2 offset = Random.insideUnitCircle * weaponPowerUpOffsetRadius;
             Vector3 spawnPos = spawnPoint.position + new Vector3(offset.x, 0f, offset.y);
-            Instantiate(chosenWeapon, spawnPos, Quaternion.identity);
+            SpawnPickup(chosenWeapon, spawnPos);
             chance *= extraWeaponPowerUpChance;
         }
     }
@@ -201,20 +209,21 @@ public class RoundManager : MonoBehaviour
 
     Transform PickFreeSpawnPoint()
     {
-        List<Transform> shuffled = new List<Transform>(currentSpawnPoints);
-        for (int i = shuffled.Count - 1; i > 0; i--)
+        spawnShuffleCache.Clear();
+        spawnShuffleCache.AddRange(currentSpawnPoints);
+        for (int i = spawnShuffleCache.Count - 1; i > 0; i--)
         {
             int j = Random.Range(0, i + 1);
-            (shuffled[i], shuffled[j]) = (shuffled[j], shuffled[i]);
+            (spawnShuffleCache[i], spawnShuffleCache[j]) = (spawnShuffleCache[j], spawnShuffleCache[i]);
         }
 
-        foreach (Transform sp in shuffled)
+        foreach (Transform sp in spawnShuffleCache)
         {
             if (!Physics.CheckSphere(sp.position, spawnPointCheckRadius, enemyLayerMask))
                 return sp;
         }
 
-        return shuffled[0];
+        return spawnShuffleCache[0];
     }
 
     void ApplyScaling(GameObject enemy)
@@ -250,19 +259,16 @@ public class RoundManager : MonoBehaviour
         if (roll < zombieWeaponDropChance)
         {
             if (weaponPowerUpPrefabs.Count == 0) return;
-            Instantiate(weaponPowerUpPrefabs[Random.Range(0, weaponPowerUpPrefabs.Count)], position, Quaternion.identity);
+            SpawnPickup(weaponPowerUpPrefabs[Random.Range(0, weaponPowerUpPrefabs.Count)], position);
         }
         else if (roll < zombieWeaponDropChance + zombieMoneyDropChance)
         {
-            if (moneyPickupPrefab == null) return;
-            Instantiate(moneyPickupPrefab, position, Quaternion.identity);
+            SpawnPickup(moneyPickupPrefab, position);
         }
     }
 
     void OnRoundComplete()
     {
-        Debug.Log($"[RoundManager] Round {currentRound} complete.");
-
         if (currentRound % roundsPerStage == 0)
             SpawnStagePortals();
         else
@@ -286,9 +292,9 @@ public class RoundManager : MonoBehaviour
         }
 
         List<GameObject> shuffledPrefabs = new List<GameObject>(portalPrefabs);
-        for (int i = shuffledPrefabs.Count - 1; i > 0; i--)
+        for (int i = 0; i < shuffledPrefabs.Count - 1; i++)
         {
-            int j = Random.Range(0, i + 1);
+            int j = Random.Range(i, shuffledPrefabs.Count);
             (shuffledPrefabs[i], shuffledPrefabs[j]) = (shuffledPrefabs[j], shuffledPrefabs[i]);
         }
 
@@ -320,6 +326,9 @@ public class RoundManager : MonoBehaviour
         foreach (GameObject portal in activeStagePortals)
             if (portal != null) Destroy(portal);
         activeStagePortals.Clear();
+
+        if (PickupPool.Instance != null)
+            PickupPool.Instance.ReturnAllActive();
 
         currentStage++;
 

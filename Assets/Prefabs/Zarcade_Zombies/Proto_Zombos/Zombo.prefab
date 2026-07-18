@@ -1228,7 +1228,7 @@ SkinnedMeshRenderer:
   m_MaskInteraction: 0
   serializedVersion: 2
   m_Quality: 0
-  m_UpdateWhenOffscreen: 1
+  m_UpdateWhenOffscreen: 0
   m_SkinnedMotionVectors: 1
   m_Mesh: {fileID: 4564413273688523518, guid: a848b403a2ce07945a3c20db59abd175, type: 3}
   m_Bones:
@@ -2455,7 +2455,7 @@ Animator:
   m_Enabled: 1
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: a9aad01c8e6b119459b7572aa648f7d3, type: 2}
-  m_CullingMode: 0
+  m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
@@ -2544,6 +2544,7 @@ MonoBehaviour:
   headTransform: {fileID: 0}
   enemyId: Zombo
   animator: {fileID: 8093525320350008512}
+  hitFlash: {fileID: 0}
   verboseLogging: 0
   attackFailsafeDuration: 2
 --- !u!136 &3016674505527029132

@@ -81,6 +81,7 @@ public abstract class WeaponBase : MonoBehaviour
     [HideInInspector] public bool isFiring = false;
 
     float walkStopTimer = 0f;
+    float fireResetTime = 0f;
 
     protected FPSLook fpsLook;
     protected Camera mainCamera;
@@ -157,6 +158,9 @@ public abstract class WeaponBase : MonoBehaviour
         if (playerStats != null)
             rpm = baseRpm * playerStats.attackSpeed;
 
+        if (isFiring && Time.time >= fireResetTime)
+            isFiring = false;
+
         if (currentBloom > 0f)
             currentBloom = Mathf.Max(0f, currentBloom - bloomDecaySpeed * Time.deltaTime);
 
@@ -192,7 +196,6 @@ public abstract class WeaponBase : MonoBehaviour
 
     public abstract void Shoot();
 
-    // Stub so any existing call sites compile
     public virtual void Reload() { }
 
     private void FireHitscan(int damage, float range)
@@ -229,7 +232,6 @@ public abstract class WeaponBase : MonoBehaviour
         }
     }
 
-    // Flat spread version — no bloom added, angles are exact
     private void FireHitscanPelletExact(int damage, float range, float spreadX, float spreadY)
     {
         Vector3 origin = GetAimOrigin();
@@ -247,10 +249,13 @@ public abstract class WeaponBase : MonoBehaviour
         if (didHit)
         {
             endPoint = hit.point;
+            bool hitZombie = false;
+
             HitBox hitBox = hit.collider.GetComponent<HitBox>();
             if (hitBox != null)
             {
-                hitBox.TakeDamageWithHitPoint(damage, playerStats, hit.point,
+                hitZombie = true;
+                hitBox.TakeDamageWithHitPoint(damage, playerStats, this, hit.point,
                     playerStats != null ? playerStats.goldGainMultiplier : 1f,
                     direction, ragdollForceMultiplier);
             }
@@ -259,6 +264,7 @@ public abstract class WeaponBase : MonoBehaviour
                 ZombieBase zombie = hit.collider.GetComponent<ZombieBase>();
                 if (zombie != null)
                 {
+                    hitZombie = true;
                     zombie.TakeDamage(ApplyCrit(damage), playerStats,
                         playerStats != null ? playerStats.goldGainMultiplier : 1f,
                         direction, ragdollForceMultiplier, hit.collider.name);
@@ -266,7 +272,7 @@ public abstract class WeaponBase : MonoBehaviour
                         HitMarkerPool.Instance.Spawn(hit.point, false);
                 }
             }
-            SpawnImpactEffect(hit);
+            SpawnImpactEffect(hit, hitZombie);
         }
         else
         {
@@ -289,10 +295,13 @@ public abstract class WeaponBase : MonoBehaviour
         if (didHit)
         {
             endPoint = hit.point;
+            bool hitZombie = false;
+
             HitBox hitBox = hit.collider.GetComponent<HitBox>();
             if (hitBox != null)
             {
-                hitBox.TakeDamageWithHitPoint(damage, playerStats, hit.point,
+                hitZombie = true;
+                hitBox.TakeDamageWithHitPoint(damage, playerStats, this, hit.point,
                     playerStats != null ? playerStats.goldGainMultiplier : 1f,
                     direction, ragdollForceMultiplier);
             }
@@ -301,6 +310,7 @@ public abstract class WeaponBase : MonoBehaviour
                 ZombieBase zombie = hit.collider.GetComponent<ZombieBase>();
                 if (zombie != null)
                 {
+                    hitZombie = true;
                     zombie.TakeDamage(ApplyCrit(damage), playerStats,
                         playerStats != null ? playerStats.goldGainMultiplier : 1f,
                         direction, ragdollForceMultiplier, hit.collider.name);
@@ -308,7 +318,7 @@ public abstract class WeaponBase : MonoBehaviour
                         HitMarkerPool.Instance.Spawn(hit.point, false);
                 }
             }
-            SpawnImpactEffect(hit);
+            SpawnImpactEffect(hit, hitZombie);
         }
         else
         {
@@ -360,11 +370,18 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (audioSource == null) return;
 
-        WeaponSound ws = sounds.Find(s => s.name == soundName);
-        if (ws != null && ws.clip != null)
-            audioSource.PlayOneShot(ws.clip);
-        else
-            Debug.LogWarning($"[{gameObject.name}] Sound not found: {soundName}");
+        for (int i = 0; i < sounds.Count; i++)
+        {
+            WeaponSound ws = sounds[i];
+            if (ws != null && ws.name == soundName)
+            {
+                if (ws.clip != null)
+                    audioSource.PlayOneShot(ws.clip);
+                return;
+            }
+        }
+
+        Debug.LogWarning($"[{gameObject.name}] Sound not found: {soundName}");
     }
 
     protected void PlayFireSound()
@@ -412,10 +429,9 @@ public abstract class WeaponBase : MonoBehaviour
         casingEject.Play();
     }
 
-    protected void SpawnImpactEffect(RaycastHit hit)
+    protected void SpawnImpactEffect(RaycastHit hit, bool isZombie)
     {
         if (ImpactEffectPool.Instance == null) return;
-        bool isZombie = hit.collider.GetComponent<ZombieBase>() != null;
         if (isZombie)
             ImpactEffectPool.Instance.SpawnZombie(hit.point, hit.normal);
         else
@@ -471,8 +487,6 @@ public abstract class WeaponBase : MonoBehaviour
         range = level1Range * (1f + def.rangeGrowthPerLevel * (clampedLevel - 1));
         baseRpm = level1Rpm * (1f + def.rpmGrowthPerLevel * (clampedLevel - 1));
         rpm = baseRpm;
-
-        Debug.Log($"[WeaponBase] {def.weaponName} set to level {clampedLevel} | Damage: {damage} | Range: {range} | RPM: {rpm}");
     }
 
     protected Vector3 GetAimDirection(float spreadX, float spreadY)
@@ -529,14 +543,7 @@ public abstract class WeaponBase : MonoBehaviour
             fpsController.SuppressSprintOnShoot(0.3f);
         }
         animator.Play(FireClipName, 2, 0f);
-        StartCoroutine(ResetFiring());
-    }
-
-    System.Collections.IEnumerator ResetFiring()
-    {
-        AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(0);
-        yield return new WaitForSeconds(info.length);
-        isFiring = false;
+        fireResetTime = Time.time + animator.GetCurrentAnimatorStateInfo(0).length;
     }
 
     protected void TriggerReloadAnimation() { }

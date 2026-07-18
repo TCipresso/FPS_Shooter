@@ -10,13 +10,14 @@ public class KillMarkerPool : MonoBehaviour
     public int poolSize = 20;
 
     Queue<GameObject> pool = new Queue<GameObject>();
+    System.Action<GameObject> returnAction;
 
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject);
-
+        returnAction = Return;
         for (int i = 0; i < poolSize; i++)
         {
             GameObject marker = Instantiate(killMarkerPrefab, Vector3.zero, Quaternion.identity);
@@ -29,18 +30,12 @@ public class KillMarkerPool : MonoBehaviour
     public void Spawn(Vector3 position, int goldValue = 0, Quaternion? rotation = null)
     {
         if (pool.Count == 0)
-        {
-            Debug.LogWarning("[KillMarkerPool] Pool exhausted - consider raising poolSize.");
             return;
-        }
-
         GameObject marker = pool.Dequeue();
         marker.transform.position = position;
         marker.transform.rotation = rotation ?? Quaternion.identity;
-
         KillMarkerEffect effect = marker.GetComponent<KillMarkerEffect>();
-        effect?.Init(Return);
-
+        effect?.Init(returnAction);
         marker.SetActive(true);
     }
 

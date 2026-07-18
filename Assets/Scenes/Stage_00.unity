@@ -14110,7 +14110,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3282480155471214155, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
       propertyPath: maxAliveAtOnce
-      value: 40
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 3282480155471214155, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
       propertyPath: roundsPerStage
@@ -14223,7 +14223,7 @@ PrefabInstance:
     - target: {fileID: 5454375575835001155, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
       propertyPath: enemyPools.Array.data[0].enemyPrefab
       value: 
-      objectReference: {fileID: 8913859183118908093, guid: c5a6b0032b76af3439e93a357738d441, type: 3}
+      objectReference: {fileID: 8913859183118908093, guid: 4f5404d36e69283489ce3aeec5da2919, type: 3}
     - target: {fileID: 7758423886348715228, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
       propertyPath: m_LocalPosition.y
       value: -105.95
@@ -14271,6 +14271,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8462118818809269826, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
       insertIndex: -1
       addedObject: {fileID: 897598790}
+    - targetCorrespondingSourceObject: {fileID: 8462118818809269826, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 897598796}
     - targetCorrespondingSourceObject: {fileID: 6123777507152256152, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
       insertIndex: -1
       addedObject: {fileID: 712704667}
@@ -19588,6 +19591,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KillMarkerPool
   killMarkerPrefab: {fileID: 6350203987023523720, guid: 1d1898ccac54b1147baf916f234e27a6, type: 3}
   poolSize: 50
+--- !u!114 &897598796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 897598783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d498929da04328141a8a2972b035da2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PickupPool
+  poolEntries:
+  - prefab: {fileID: 6139368518178653575, guid: f516e34371f70c84899552b7110daf39, type: 3}
+    initialSize: 25
+  - prefab: {fileID: 6777996846194819660, guid: ebfe5555a2c8e4e40a0dd878bafe5306, type: 3}
+    initialSize: 20
+  - prefab: {fileID: 1380108670509042577, guid: a3346efd91a7edc4f9d4be8bc3554aab, type: 3}
+    initialSize: 20
+  - prefab: {fileID: 2503810848399880533, guid: 5f9f5ba7e798f0e4c97701a5b759c2d9, type: 3}
+    initialSize: 20
 --- !u!1001 &898791265
 PrefabInstance:
   m_ObjectHideFlags: 0

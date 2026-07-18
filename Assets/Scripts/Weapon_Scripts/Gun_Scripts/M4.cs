@@ -15,7 +15,7 @@ public class M4 : WeaponBase
         PlayMuzzleFlash();
         ApplyRecoil();
         AddBloom();
-        AddBloom();
+        //AddBloom();
         Fire(damage);
     }
 }

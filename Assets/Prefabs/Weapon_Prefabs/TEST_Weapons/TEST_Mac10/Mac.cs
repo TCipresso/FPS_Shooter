@@ -15,7 +15,7 @@ public class Mac : WeaponBase
         PlayMuzzleFlash();
         ApplyRecoil();
         AddBloom();
-        AddBloom();
+       // AddBloom();
         Fire(damage);
     }
 }

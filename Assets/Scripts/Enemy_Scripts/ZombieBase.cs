@@ -26,6 +26,10 @@ public abstract class ZombieBase : MonoBehaviour
     [Header("Detection")]
     public float engageRange = 15f;
 
+    [Header("AI Tick")]
+    public float aiTickInterval = 0.1f;
+    float nextAiTick;
+
     [Header("Climbing")]
     public LayerMask groundLayer;
     public bool canClimb = true;
@@ -41,27 +45,26 @@ public abstract class ZombieBase : MonoBehaviour
     List<Transform> currentPath;
     int pathIndex = 0;
 
-    [Header("Health Bar")]
-    public Transform headTransform;
-
     [Header("Identity")]
     public string enemyId;
 
     [Header("Animation")]
-    public Animator animator;
+    public ZombieFlipbook flipbook;
+
+    [Header("Cached References")]
+    public ZombieHitFlash hitFlash;
 
     [Header("Debug")]
     public bool verboseLogging = false;
 
     [Header("Attack Failsafe")]
-    [Tooltip("If OnAttackComplete (Animation Event) hasn't fired within this many seconds of entering Attack state, force the zombie out of Attack anyway. Prevents a permanent softlock if an animation event is missing/misconfigured on a given model.")]
+    [Tooltip("If OnAttackComplete hasn't fired within this many seconds of entering Attack state, force the zombie out of Attack anyway. Prevents a permanent softlock if the flipbook attack frames are missing/misconfigured.")]
     public float attackFailsafeDuration = 2f;
     float attackStateEnteredTime = -1f;
 
     public ZombieState State { get; private set; } = ZombieState.Idle;
 
     public event System.Action OnDeath;
-    public event System.Action<int, int> OnHealthChanged;
 
     protected Rigidbody rb;
     CapsuleCollider col;
@@ -74,11 +77,25 @@ public abstract class ZombieBase : MonoBehaviour
 
     float attackCooldownTimer = 0f;
 
+    float engageRangeSqr;
+    float attackRangeSqr;
+    float hitFrameRangeSqr;
+    float waypointReachDistanceSqr;
+
     Dictionary<PlayerStats, int> damageContributors = new Dictionary<PlayerStats, int>();
     Dictionary<PlayerStats, float> goldMultipliers = new Dictionary<PlayerStats, float>();
     int totalDamageDealt = 0;
 
     bool pendingKinematicRelease = false;
+
+    static PlayerStats sharedPlayer;
+
+    static PlayerStats ResolvePlayer()
+    {
+        if (sharedPlayer == null)
+            sharedPlayer = FindFirstObjectByType<PlayerStats>();
+        return sharedPlayer;
+    }
 
     protected virtual void Awake()
     {
@@ -89,21 +106,32 @@ public abstract class ZombieBase : MonoBehaviour
         rb.useGravity = true;
         rb.freezeRotation = true;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
-        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+
+        if (hitFlash == null)
+            hitFlash = GetComponent<ZombieHitFlash>();
+
+        if (flipbook == null)
+            flipbook = GetComponentInChildren<ZombieFlipbook>();
+
+        CacheSquaredRanges();
+        nextAiTick = Time.time + Random.value * aiTickInterval;
+    }
+
+    void CacheSquaredRanges()
+    {
+        engageRangeSqr = engageRange * engageRange;
+        attackRangeSqr = attackRange * attackRange;
+        hitFrameRangeSqr = hitFrameRange * hitFrameRange;
+        waypointReachDistanceSqr = waypointReachDistance * waypointReachDistance;
     }
 
     protected virtual void Start()
     {
         currentHealth = maxHealth;
-        playerStats = FindFirstObjectByType<PlayerStats>();
+        playerStats = ResolvePlayer();
         if (playerStats != null)
-        {
             player = playerStats.transform;
-        }
-        else
-        {
-            Debug.LogWarning($"[{gameObject.name}] PlayerStats not found in scene.");
-        }
     }
 
     public void ClearDeathListeners() => OnDeath = null;
@@ -121,30 +149,34 @@ public abstract class ZombieBase : MonoBehaviour
         if (attackCooldownTimer > 0f)
             attackCooldownTimer -= Time.deltaTime;
 
-        float dist = player != null ? Vector3.Distance(transform.position, player.position) : float.MaxValue;
+        if (State == ZombieState.Attack)
+        {
+            if (attackStateEnteredTime >= 0f && Time.time - attackStateEnteredTime >= attackFailsafeDuration)
+            {
+                if (verboseLogging)
+                    Debug.LogWarning($"[{gameObject.name}] Attack failsafe triggered - OnAttackComplete never fired (missing/broken flipbook attack setup). Forcing state recovery.");
+                OnAttackComplete();
+            }
+            return;
+        }
+
+        if (State == ZombieState.FollowingPath) return;
+
+        if (Time.time < nextAiTick) return;
+        nextAiTick = Time.time + aiTickInterval;
+
+        float sqrDist = player != null ? (transform.position - player.position).sqrMagnitude : float.MaxValue;
 
         switch (State)
         {
-            case ZombieState.FollowingPath:
-                break;
-
             case ZombieState.Idle:
-                if (dist <= engageRange)
+                if (sqrDist <= engageRangeSqr)
                     SetState(ZombieState.Engage);
                 break;
 
             case ZombieState.Engage:
-                if (dist <= attackRange && attackCooldownTimer <= 0f)
+                if (sqrDist <= attackRangeSqr && attackCooldownTimer <= 0f)
                     SetState(ZombieState.Attack);
-                break;
-
-            case ZombieState.Attack:
-                if (attackStateEnteredTime >= 0f && Time.time - attackStateEnteredTime >= attackFailsafeDuration)
-                {
-                    if (verboseLogging)
-                        Debug.LogWarning($"[{gameObject.name}] Attack failsafe triggered - OnAttackComplete never fired (missing/broken Animation Event). Forcing state recovery.");
-                    OnAttackComplete();
-                }
                 break;
         }
     }
@@ -175,24 +207,24 @@ public abstract class ZombieBase : MonoBehaviour
 
     protected void SetState(ZombieState newState)
     {
-        Debug.Log($"[{gameObject.name}] SetState: {State} -> {newState} at t={Time.time:F2}");
+        if (verboseLogging)
+            Debug.Log($"[{gameObject.name}] SetState: {State} -> {newState} at t={Time.time:F2}");
         State = newState;
 
         switch (newState)
         {
             case ZombieState.Idle:
                 rb.linearVelocity = Vector3.zero;
-                animator?.SetBool("IsWalking", false);
+                flipbook?.SetWalking(false);
                 break;
 
             case ZombieState.Engage:
-                animator?.SetBool("IsWalking", true);
+                flipbook?.SetWalking(true);
                 break;
 
             case ZombieState.Attack:
                 rb.linearVelocity = Vector3.zero;
-                animator?.SetBool("IsWalking", false);
-                animator?.SetTrigger("Attack");
+                flipbook?.TriggerAttack();
                 attackStateEnteredTime = Time.time;
                 break;
         }
@@ -200,9 +232,9 @@ public abstract class ZombieBase : MonoBehaviour
 
     public virtual void OnHitFrame()
     {
-        float dist = player != null ? Vector3.Distance(transform.position, player.position) : -1f;
         if (player == null || playerStats == null) return;
-        if (dist <= hitFrameRange)
+        float sqrDist = (transform.position - player.position).sqrMagnitude;
+        if (sqrDist <= hitFrameRangeSqr)
             playerStats.TakeDamage(attackDamage);
     }
 
@@ -210,8 +242,8 @@ public abstract class ZombieBase : MonoBehaviour
     {
         attackStateEnteredTime = -1f;
         attackCooldownTimer = attackCooldown;
-        float dist = player != null ? Vector3.Distance(transform.position, player.position) : float.MaxValue;
-        SetState(dist <= engageRange ? ZombieState.Engage : ZombieState.Idle);
+        float sqrDist = player != null ? (transform.position - player.position).sqrMagnitude : float.MaxValue;
+        SetState(sqrDist <= engageRangeSqr ? ZombieState.Engage : ZombieState.Idle);
     }
 
     void GruntMove()
@@ -223,9 +255,9 @@ public abstract class ZombieBase : MonoBehaviour
     {
         if (currentPath == null || pathIndex >= currentPath.Count)
         {
-            float dist = player != null ? Vector3.Distance(transform.position, player.position) : float.MaxValue;
-            State = dist <= engageRange ? ZombieState.Engage : ZombieState.Idle;
-            animator?.SetBool("IsWalking", true);
+            float sqrDist = player != null ? (transform.position - player.position).sqrMagnitude : float.MaxValue;
+            State = sqrDist <= engageRangeSqr ? ZombieState.Engage : ZombieState.Idle;
+            flipbook?.SetWalking(true);
             return;
         }
 
@@ -233,7 +265,7 @@ public abstract class ZombieBase : MonoBehaviour
         Vector3 toTarget = target.position - transform.position;
         toTarget.y = 0f;
 
-        if (toTarget.magnitude <= waypointReachDistance)
+        if (toTarget.sqrMagnitude <= waypointReachDistanceSqr)
         {
             pathIndex++;
             return;
@@ -278,12 +310,10 @@ public abstract class ZombieBase : MonoBehaviour
         int actualDamage = Mathf.Min(amount, currentHealth);
         currentHealth -= actualDamage;
 
-        OnHealthChanged?.Invoke(currentHealth, maxHealth);
-
         if (dealer != null)
         {
-            if (damageContributors.ContainsKey(dealer))
-                damageContributors[dealer] += actualDamage;
+            if (damageContributors.TryGetValue(dealer, out int existing))
+                damageContributors[dealer] = existing + actualDamage;
             else
                 damageContributors[dealer] = actualDamage;
 
@@ -321,21 +351,29 @@ public abstract class ZombieBase : MonoBehaviour
         attackStateEnteredTime = -1f;
         pathIndex = 0;
 
-        animator?.SetBool("IsWalking", false);
+        CacheSquaredRanges();
+        nextAiTick = Time.time + Random.value * aiTickInterval;
 
-        ZombieHitFlash flash = GetComponent<ZombieHitFlash>();
-        flash?.ForceReset();
+        if (playerStats == null)
+        {
+            playerStats = ResolvePlayer();
+            if (playerStats != null)
+                player = playerStats.transform;
+        }
+
+        hitFlash?.ForceReset();
 
         pendingKinematicRelease = true;
 
         if (currentPath != null && currentPath.Count > 0)
         {
             State = ZombieState.FollowingPath;
-            animator?.SetBool("IsWalking", true);
+            flipbook?.SetWalking(true);
         }
         else
         {
             State = ZombieState.Idle;
+            flipbook?.ForceIdle();
         }
     }
 
@@ -350,7 +388,7 @@ public abstract class ZombieBase : MonoBehaviour
             PlayerStats contributor = kvp.Key;
             int damageDealt = kvp.Value;
             float proportion = (float)damageDealt / maxHealth;
-            float multiplier = goldMultipliers.ContainsKey(contributor) ? goldMultipliers[contributor] : 1f;
+            float multiplier = goldMultipliers.TryGetValue(contributor, out float m) ? m : 1f;
             int goldAwarded = Mathf.RoundToInt(goldBounty * proportion * multiplier * contributor.goldGainMultiplier);
             contributor.AddGold(goldAwarded);
         }
@@ -393,6 +431,6 @@ public abstract class ZombieBase : MonoBehaviour
     protected bool IsPlayerInRange(float range)
     {
         if (player == null) return false;
-        return Vector3.Distance(transform.position, player.position) <= range;
+        return (transform.position - player.position).sqrMagnitude <= range * range;
     }
 }
