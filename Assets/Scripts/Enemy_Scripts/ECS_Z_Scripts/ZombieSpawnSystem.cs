@@ -34,7 +34,8 @@ public partial struct ZombieSpawnSystem : ISystem
         {
             float2 offset = random.NextFloat2Direction() * random.NextFloat(0f, config.SpawnRadius);
             float3 pos = playerPosition.Value + new float3(offset.x, 0f, offset.y);
-            em.SetComponentData(spawned[i], LocalTransform.FromPosition(pos));
+            LocalTransform current = em.GetComponentData<LocalTransform>(spawned[i]);
+            em.SetComponentData(spawned[i], current.WithPosition(pos));
         }
         spawned.Dispose();
 

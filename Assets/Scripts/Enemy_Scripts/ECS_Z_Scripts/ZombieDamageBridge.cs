@@ -96,12 +96,16 @@ public static class ZombieDamageBridge
                                     continue;
 
                                 float3 closestPoint = origin + dir * projT;
-                                float perpDist = math.distance(closestPoint, entry.Position);
-                                if (perpDist <= radius && projT < bestT)
+                                float2 horizontalDelta = new float2(closestPoint.x - entry.Position.x, closestPoint.z - entry.Position.z);
+                                float horizontalDist = math.length(horizontalDelta);
+                                float feetY = entry.Position.y - entry.GroundOffset;
+                                bool withinHeight = closestPoint.y >= feetY - 0.05f && closestPoint.y <= feetY + entry.Height;
+
+                                if (horizontalDist <= radius && withinHeight && projT < bestT)
                                 {
                                     bestT = projT;
                                     result = entry.Entity;
-                                    hitPosition = entry.Position;
+                                    hitPosition = closestPoint;
                                     found = true;
                                 }
                             } while (gridSingleton.Grid.TryGetNextValue(out entry, ref iterator));
@@ -141,10 +145,14 @@ public static class ZombieDamageBridge
                 {
                     do
                     {
-                        float dist = math.distance(entry.Position, worldPosition);
-                        if (dist < closestDist)
+                        float2 horizontalDelta = new float2(worldPosition.x - entry.Position.x, worldPosition.z - entry.Position.z);
+                        float horizontalDist = math.length(horizontalDelta);
+                        float feetY = entry.Position.y - entry.GroundOffset;
+                        bool withinHeight = worldPosition.y >= feetY - 0.05f && worldPosition.y <= feetY + entry.Height;
+
+                        if (withinHeight && horizontalDist < closestDist)
                         {
-                            closestDist = dist;
+                            closestDist = horizontalDist;
                             result = entry.Entity;
                             found = true;
                         }

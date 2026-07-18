@@ -20,6 +20,21 @@ public struct ZombieContactCooldown : IComponentData
     public float Value;
 }
 
+public struct ZombieHitboxHeight : IComponentData
+{
+    public float Value;
+}
+
+public struct ZombieVerticalVelocity : IComponentData
+{
+    public float Value;
+}
+
+public struct ZombieGroundOffset : IComponentData
+{
+    public float Value;
+}
+
 public struct PlayerPosition : IComponentData
 {
     public float3 Value;
@@ -59,10 +74,21 @@ public struct ZombieGridEntry
 {
     public Entity Entity;
     public float3 Position;
+    public float Height;
+    public float GroundOffset;
 }
 
 public struct ZombieGridSingleton : IComponentData
 {
     public NativeParallelMultiHashMap<int3, ZombieGridEntry> Grid;
     public float CellSize;
+}
+
+public struct ZombieWallConfig : IComponentData
+{
+    public int WallLayerMask;
+    public float CheckDistance;
+    public float ClimbSpeed;
+    public int GroundLayerMask;
+    public float GroundCheckDistance;
 }
