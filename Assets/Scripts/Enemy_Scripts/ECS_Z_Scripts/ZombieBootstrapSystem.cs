@@ -13,7 +13,7 @@ public partial struct ZombieBootstrapSystem : ISystem
         state.EntityManager.AddComponentData(singleton, new ZombieGridSingleton
         {
             Grid = new NativeParallelMultiHashMap<int3, ZombieGridEntry>(1024, Allocator.Persistent),
-            CellSize = 2.5f
+            CellSize = 3f
         });
     }
 

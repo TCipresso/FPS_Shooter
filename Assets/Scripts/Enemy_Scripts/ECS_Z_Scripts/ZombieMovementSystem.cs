@@ -67,7 +67,7 @@ public partial struct ZombieMovementSystem : ISystem
             PlayerPosition = playerPosition.Value,
             Grid = gridSingleton.Grid,
             CellSize = cellSize,
-            SeparationRadius = 1.5f,
+            SeparationRadius = 2f,
             SeparationStrength = 2f,
             WallCheckDistance = wallCheckDistance,
             WallCheckRadius = wallCheckRadius,
