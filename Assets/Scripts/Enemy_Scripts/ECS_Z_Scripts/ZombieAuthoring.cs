@@ -20,6 +20,7 @@ public class ZombieAuthoring : MonoBehaviour
             AddComponent(entity, new ZombieHitboxHeight { Value = authoring.hitboxHeight });
             AddComponent(entity, new ZombieVerticalVelocity { Value = 0f });
             AddComponent(entity, new ZombieGroundOffset { Value = authoring.groundOffset });
+            AddComponent(entity, new ZombieClimbState { WasBlocked = false, WasWallBlocked = false });
         }
     }
 }

@@ -167,7 +167,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   checkDistance: 3
-  climbSpeed: 1
+  checkRadius: 3
+  climbSpeed: 3
+  ledgeLaunchSpeed: 15
+  maxStackHeight: 1
   groundLayerMask:
     serializedVersion: 2
     m_Bits: 64

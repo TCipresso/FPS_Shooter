@@ -30,6 +30,12 @@ public struct ZombieVerticalVelocity : IComponentData
     public float Value;
 }
 
+public struct ZombieClimbState : IComponentData
+{
+    public bool WasBlocked;
+    public bool WasWallBlocked;
+}
+
 public struct ZombieGroundOffset : IComponentData
 {
     public float Value;
@@ -88,7 +94,10 @@ public struct ZombieWallConfig : IComponentData
 {
     public int WallLayerMask;
     public float CheckDistance;
+    public float CheckRadius;
     public float ClimbSpeed;
+    public float LedgeLaunchSpeed;
+    public float MaxStackHeight;
     public int GroundLayerMask;
     public float GroundCheckDistance;
 }

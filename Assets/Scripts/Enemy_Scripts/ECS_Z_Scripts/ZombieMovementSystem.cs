@@ -35,23 +35,32 @@ public partial struct ZombieMovementSystem : ISystem
 
         int wallLayerMask = 0;
         float wallCheckDistance = 0.6f;
+        float wallCheckRadius = 0.4f;
         float climbSpeed = 4f;
+        float ledgeLaunchSpeed = 6f;
+        float maxStackHeight = 8f;
         int groundLayerMask = 0;
         float groundCheckDistance = 15f;
         if (SystemAPI.TryGetSingleton<ZombieWallConfig>(out ZombieWallConfig wallConfig))
         {
             wallLayerMask = wallConfig.WallLayerMask;
             wallCheckDistance = wallConfig.CheckDistance;
+            wallCheckRadius = wallConfig.CheckRadius;
             climbSpeed = wallConfig.ClimbSpeed;
+            ledgeLaunchSpeed = wallConfig.LedgeLaunchSpeed;
+            maxStackHeight = wallConfig.MaxStackHeight;
             groundLayerMask = wallConfig.GroundLayerMask;
             groundCheckDistance = wallConfig.GroundCheckDistance;
         }
+
 
         NativeArray<RaycastCommand> wallCommands = new NativeArray<RaycastCommand>(zombieCount, Allocator.TempJob);
         NativeArray<RaycastHit> wallResults = new NativeArray<RaycastHit>(zombieCount, Allocator.TempJob);
         NativeArray<RaycastCommand> groundCommands = new NativeArray<RaycastCommand>(zombieCount, Allocator.TempJob);
         NativeArray<RaycastHit> groundResults = new NativeArray<RaycastHit>(zombieCount, Allocator.TempJob);
         NativeArray<float3> desiredMoveDirections = new NativeArray<float3>(zombieCount, Allocator.TempJob);
+        NativeArray<bool> zombieBlockedFlags = new NativeArray<bool>(zombieCount, Allocator.TempJob);
+        NativeArray<float> zombieStandHeights = new NativeArray<float>(zombieCount, Allocator.TempJob);
 
         JobHandle desiredMoveHandle = new ZombieDesiredMoveJob
         {
@@ -61,12 +70,16 @@ public partial struct ZombieMovementSystem : ISystem
             SeparationRadius = 1.5f,
             SeparationStrength = 2f,
             WallCheckDistance = wallCheckDistance,
+            WallCheckRadius = wallCheckRadius,
             WallLayerMask = wallLayerMask,
+            MaxStackHeight = maxStackHeight,
             GroundLayerMask = groundLayerMask,
             GroundCheckDistance = groundCheckDistance,
             WallCommands = wallCommands,
             GroundCommands = groundCommands,
-            DesiredMoveDirections = desiredMoveDirections
+            DesiredMoveDirections = desiredMoveDirections,
+            ZombieBlockedFlags = zombieBlockedFlags,
+            ZombieStandHeights = zombieStandHeights
         }.ScheduleParallel(buildHandle);
 
         JobHandle wallHandle = RaycastCommand.ScheduleBatch(wallCommands, wallResults, 32, desiredMoveHandle);
@@ -81,6 +94,8 @@ public partial struct ZombieMovementSystem : ISystem
             DesiredMoveDirections = desiredMoveDirections,
             WallResults = wallResults,
             GroundResults = groundResults,
+            ZombieBlockedFlags = zombieBlockedFlags,
+            ZombieStandHeights = zombieStandHeights,
             PlayerPosition = playerPosition.Value,
             DeltaTime = SystemAPI.Time.DeltaTime,
             PlayerDamageWriter = playerDamageWriter,
@@ -89,7 +104,8 @@ public partial struct ZombieMovementSystem : ISystem
             ContactCooldownDuration = 1f,
             GravityAcceleration = 20f,
             TerminalFallSpeed = -30f,
-            ClimbSpeed = climbSpeed
+            ClimbSpeed = climbSpeed,
+            LedgeLaunchSpeed = ledgeLaunchSpeed
         }.ScheduleParallel(raycastHandle);
 
         JobHandle disposeWallCommands = wallCommands.Dispose(applyHandle);
@@ -97,11 +113,13 @@ public partial struct ZombieMovementSystem : ISystem
         JobHandle disposeGroundCommands = groundCommands.Dispose(applyHandle);
         JobHandle disposeGroundResults = groundResults.Dispose(applyHandle);
         JobHandle disposeDirections = desiredMoveDirections.Dispose(applyHandle);
+        JobHandle disposeBlockedFlags = zombieBlockedFlags.Dispose(applyHandle);
+        JobHandle disposeStandHeights = zombieStandHeights.Dispose(applyHandle);
 
         JobHandle disposeHandleA = JobHandle.CombineDependencies(disposeWallCommands, disposeWallResults, disposeGroundCommands);
-        JobHandle disposeHandleB = JobHandle.CombineDependencies(disposeGroundResults, disposeDirections);
+        JobHandle disposeHandleB = JobHandle.CombineDependencies(disposeGroundResults, disposeDirections, disposeBlockedFlags);
 
-        state.Dependency = JobHandle.CombineDependencies(disposeHandleA, disposeHandleB);
+        state.Dependency = JobHandle.CombineDependencies(disposeHandleA, disposeHandleB, disposeStandHeights);
     }
 }
 
@@ -129,14 +147,23 @@ partial struct ZombieDesiredMoveJob : IJobEntity
     public float SeparationRadius;
     public float SeparationStrength;
     public float WallCheckDistance;
+    public float WallCheckRadius;
     public int WallLayerMask;
+    public float MaxStackHeight;
     public int GroundLayerMask;
     public float GroundCheckDistance;
     [NativeDisableParallelForRestriction] public NativeArray<RaycastCommand> WallCommands;
     [NativeDisableParallelForRestriction] public NativeArray<RaycastCommand> GroundCommands;
     [NativeDisableParallelForRestriction] public NativeArray<float3> DesiredMoveDirections;
+    [NativeDisableParallelForRestriction] public NativeArray<bool> ZombieBlockedFlags;
+    [NativeDisableParallelForRestriction] public NativeArray<float> ZombieStandHeights;
 
-    const float GroundRayUpOffset = 3f;
+    const float GroundRayUpOffset = 10f;
+    const float GroundLookAhead = 0.5f;
+    const float StandFootprintRadius = 0.6f;
+    const float ClimbHeightThreshold = 0.3f;
+    const float ForwardDotThreshold = 0.95f;
+    const float StandTolerance = 0.3f;
 
     void Execute(Entity entity, [EntityIndexInQuery] int index, in LocalTransform transform, in ZombieHitboxHeight hitboxHeight, in ZombieGroundOffset groundOffset)
     {
@@ -146,7 +173,12 @@ partial struct ZombieDesiredMoveJob : IJobEntity
         float distToPlayer = math.length(toPlayer);
         float3 chaseDir = distToPlayer > 0.0001f ? toPlayer / distToPlayer : float3.zero;
 
+        float chestHeight = (position.y - groundOffset.Value) + hitboxHeight.Value * 0.5f;
+
         float3 separation = float3.zero;
+        bool zombieBlocked = false;
+        float closestBlockerDist = WallCheckDistance;
+        float zombieStandHeight = float.NegativeInfinity;
         int3 cell = (int3)math.floor(position / CellSize);
         int cellRadius = (int)math.ceil(SeparationRadius / CellSize);
         for (int dx = -cellRadius; dx <= cellRadius; dx++)
@@ -165,11 +197,38 @@ partial struct ZombieDesiredMoveJob : IJobEntity
                             float dist = math.length(away);
                             if (dist > 0.0001f && dist < SeparationRadius)
                                 separation += (away / dist) * (SeparationRadius - dist);
+
+                            float3 towardEntry = entry.Position - position;
+                            towardEntry.y = 0f;
+                            float distToEntry = math.length(towardEntry);
+                            float neighborTop = entry.Position.y - entry.GroundOffset + entry.Height;
+
+                            bool isStandingSupport = distToEntry <= StandFootprintRadius;
+
+                            if (!isStandingSupport && distToEntry > 0.0001f && distToEntry <= closestBlockerDist && neighborTop > chestHeight + ClimbHeightThreshold)
+                            {
+                                float3 dirToEntry = towardEntry / distToEntry;
+                                if (math.dot(dirToEntry, chaseDir) > ForwardDotThreshold)
+                                {
+                                    zombieBlocked = true;
+                                    closestBlockerDist = distToEntry;
+                                }
+                            }
+
+                            if (isStandingSupport)
+                            {
+                                float myFeet = position.y - groundOffset.Value;
+                                if (neighborTop <= myFeet + StandTolerance && neighborTop > zombieStandHeight)
+                                    zombieStandHeight = neighborTop;
+                            }
                         }
                     } while (Grid.TryGetNextValue(out entry, ref iterator));
                 }
             }
         }
+
+        ZombieBlockedFlags[index] = zombieBlocked;
+        ZombieStandHeights[index] = zombieStandHeight;
 
         float3 moveDir = chaseDir + separation * SeparationStrength;
         float moveLen = math.length(moveDir);
@@ -178,16 +237,14 @@ partial struct ZombieDesiredMoveJob : IJobEntity
 
         DesiredMoveDirections[index] = moveDir;
 
-        float chestHeight = (position.y - groundOffset.Value) + hitboxHeight.Value * 0.5f;
         Vector3 wallRayOrigin = new Vector3(position.x, chestHeight, position.z);
         QueryParameters wallQueryParams = new QueryParameters(WallLayerMask, false, QueryTriggerInteraction.Ignore, false);
 
-        if (moveLen > 0.0001f)
-            WallCommands[index] = new RaycastCommand(wallRayOrigin, (Vector3)moveDir, wallQueryParams, WallCheckDistance);
-        else
-            WallCommands[index] = new RaycastCommand(wallRayOrigin, Vector3.forward, wallQueryParams, 0f);
+        Vector3 wallCheckDir = distToPlayer > 0.0001f ? (Vector3)chaseDir : Vector3.forward;
+        WallCommands[index] = new RaycastCommand(wallRayOrigin, wallCheckDir, wallQueryParams, WallCheckDistance);
 
-        Vector3 groundRayOrigin = new Vector3(position.x, position.y + GroundRayUpOffset, position.z);
+        float3 groundCheckPos = position + chaseDir * GroundLookAhead;
+        Vector3 groundRayOrigin = new Vector3(groundCheckPos.x, position.y + GroundRayUpOffset, groundCheckPos.z);
         QueryParameters groundQueryParams = new QueryParameters(GroundLayerMask, false, QueryTriggerInteraction.Ignore, false);
         GroundCommands[index] = new RaycastCommand(groundRayOrigin, Vector3.down, groundQueryParams, GroundRayUpOffset + GroundCheckDistance);
     }
@@ -200,6 +257,8 @@ partial struct ZombieApplyMovementJob : IJobEntity
     [ReadOnly] public NativeArray<float3> DesiredMoveDirections;
     [ReadOnly] public NativeArray<RaycastHit> WallResults;
     [ReadOnly] public NativeArray<RaycastHit> GroundResults;
+    [ReadOnly] public NativeArray<bool> ZombieBlockedFlags;
+    [ReadOnly] public NativeArray<float> ZombieStandHeights;
     public float3 PlayerPosition;
     public float DeltaTime;
     public NativeQueue<PlayerDamageEvent>.ParallelWriter PlayerDamageWriter;
@@ -209,22 +268,35 @@ partial struct ZombieApplyMovementJob : IJobEntity
     public float GravityAcceleration;
     public float TerminalFallSpeed;
     public float ClimbSpeed;
+    public float LedgeLaunchSpeed;
 
-    void Execute([EntityIndexInQuery] int index, ref LocalTransform transform, in ZombieMoveSpeed moveSpeed, ref ZombieContactCooldown cooldown, ref ZombieVerticalVelocity verticalVelocity, in ZombieGroundOffset groundOffset)
+    void Execute([EntityIndexInQuery] int index, ref LocalTransform transform, in ZombieMoveSpeed moveSpeed, ref ZombieContactCooldown cooldown, ref ZombieVerticalVelocity verticalVelocity, ref ZombieClimbState climbState, in ZombieGroundOffset groundOffset)
     {
         float3 position = transform.Position;
         float3 moveDir = DesiredMoveDirections[index];
         RaycastHit wallHit = WallResults[index];
         RaycastHit groundHit = GroundResults[index];
-        bool blocked = wallHit.colliderInstanceID != 0;
-        bool hasGround = groundHit.colliderInstanceID != 0;
+        bool physicsGround = groundHit.colliderInstanceID != 0;
+        float zombieStandHeight = ZombieStandHeights[index];
+        bool zombieGround = zombieStandHeight > float.NegativeInfinity;
+
+        bool wallBlockedThisFrame = wallHit.colliderInstanceID != 0;
+        bool blocked = wallBlockedThisFrame || ZombieBlockedFlags[index];
+        bool hasGround = physicsGround || zombieGround;
+        float physicsLandingY = physicsGround ? groundHit.point.y + groundOffset.Value : float.NegativeInfinity;
+        float zombieLandingY = zombieGround ? zombieStandHeight + groundOffset.Value : float.NegativeInfinity;
+        float combinedLandingY = math.max(physicsLandingY, zombieLandingY);
+        bool justClearedWall = climbState.WasWallBlocked && !wallBlockedThisFrame;
+        bool justCleared = climbState.WasBlocked && !blocked;
+        climbState.WasWallBlocked = wallBlockedThisFrame;
+        climbState.WasBlocked = blocked;
 
         float3 toPlayer = PlayerPosition - position;
         toPlayer.y = 0f;
         float distToPlayer = math.length(toPlayer);
         float3 chaseDir = distToPlayer > 0.0001f ? toPlayer / distToPlayer : float3.zero;
 
-        float3 horizontalMove = moveDir * moveSpeed.Value * DeltaTime;
+        float3 horizontalMove = blocked ? float3.zero : moveDir * moveSpeed.Value * DeltaTime;
         float newY;
 
         if (blocked)
@@ -232,14 +304,27 @@ partial struct ZombieApplyMovementJob : IJobEntity
             verticalVelocity.Value = ClimbSpeed;
             newY = position.y + verticalVelocity.Value * DeltaTime;
         }
-        else if (hasGround)
+        else
         {
-            float landingY = groundHit.point.y + groundOffset.Value;
-            if (position.y > landingY)
+            if (justClearedWall)
+                verticalVelocity.Value = LedgeLaunchSpeed;
+            else if (justCleared)
+                verticalVelocity.Value = 0f;
+
+            if (hasGround)
             {
-                verticalVelocity.Value = math.max(verticalVelocity.Value - GravityAcceleration * DeltaTime, TerminalFallSpeed);
-                newY = position.y + verticalVelocity.Value * DeltaTime;
-                if (newY <= landingY)
+                float landingY = combinedLandingY;
+                if (position.y > landingY || verticalVelocity.Value > 0f)
+                {
+                    verticalVelocity.Value = math.max(verticalVelocity.Value - GravityAcceleration * DeltaTime, TerminalFallSpeed);
+                    newY = position.y + verticalVelocity.Value * DeltaTime;
+                    if (newY <= landingY && verticalVelocity.Value <= 0f)
+                    {
+                        newY = landingY;
+                        verticalVelocity.Value = 0f;
+                    }
+                }
+                else
                 {
                     newY = landingY;
                     verticalVelocity.Value = 0f;
@@ -247,14 +332,9 @@ partial struct ZombieApplyMovementJob : IJobEntity
             }
             else
             {
-                newY = landingY;
-                verticalVelocity.Value = 0f;
+                verticalVelocity.Value = math.max(verticalVelocity.Value - GravityAcceleration * DeltaTime, TerminalFallSpeed);
+                newY = position.y + verticalVelocity.Value * DeltaTime;
             }
-        }
-        else
-        {
-            verticalVelocity.Value = math.max(verticalVelocity.Value - GravityAcceleration * DeltaTime, TerminalFallSpeed);
-            newY = position.y + verticalVelocity.Value * DeltaTime;
         }
 
         transform.Position = new float3(position.x + horizontalMove.x, newY, position.z + horizontalMove.z);
