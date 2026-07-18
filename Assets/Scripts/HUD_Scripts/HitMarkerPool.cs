@@ -46,6 +46,7 @@ public class HitMarkerPool : MonoBehaviour
 
     RectTransform _markerRT;
     Image[] _lines = new Image[4];
+    RectTransform[] _lineRects = new RectTransform[4];
 
     int[] _bagOrder;
     int _bagIndex;
@@ -74,6 +75,10 @@ public class HitMarkerPool : MonoBehaviour
             line.transform.SetParent(root.transform, false);
             _lines[i] = line.GetComponent<Image>();
             _lines[i].color = normalColor;
+
+            RectTransform rt = line.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
+            _lineRects[i] = rt;
         }
 
         root.SetActive(false);
@@ -158,25 +163,23 @@ public class HitMarkerPool : MonoBehaviour
         float arm = armLength * _currentScale;
         float gap = gapFromCenter * _currentScale;
         float thick = lineThickness * _currentScale;
+        float offset = gap + arm * 0.5f;
+
         Color c = _activeColor;
         c.a = Mathf.Clamp01(_alpha);
 
-        (Vector2 anchor, Vector2 pos, Vector2 size)[] configs =
-        {
-            (new Vector2(0.5f, 0.5f), new Vector2(-(gap + arm * 0.5f), 0f), new Vector2(arm, thick)),
-            (new Vector2(0.5f, 0.5f), new Vector2( (gap + arm * 0.5f), 0f), new Vector2(arm, thick)),
-            (new Vector2(0.5f, 0.5f), new Vector2(0f,  (gap + arm * 0.5f)), new Vector2(thick, arm)),
-            (new Vector2(0.5f, 0.5f), new Vector2(0f, -(gap + arm * 0.5f)), new Vector2(thick, arm)),
-        };
+        SetLine(0, new Vector2(-offset, 0f), new Vector2(arm, thick), c);
+        SetLine(1, new Vector2(offset, 0f), new Vector2(arm, thick), c);
+        SetLine(2, new Vector2(0f, offset), new Vector2(thick, arm), c);
+        SetLine(3, new Vector2(0f, -offset), new Vector2(thick, arm), c);
+    }
 
-        for (int i = 0; i < 4; i++)
-        {
-            RectTransform rt = _lines[i].GetComponent<RectTransform>();
-            rt.anchorMin = rt.anchorMax = rt.pivot = configs[i].anchor;
-            rt.anchoredPosition = configs[i].pos;
-            rt.sizeDelta = configs[i].size;
-            _lines[i].color = c;
-        }
+    void SetLine(int index, Vector2 pos, Vector2 size, Color c)
+    {
+        RectTransform rt = _lineRects[index];
+        rt.anchoredPosition = pos;
+        rt.sizeDelta = size;
+        _lines[index].color = c;
     }
 
     void PlayHitSound(bool isCrit)

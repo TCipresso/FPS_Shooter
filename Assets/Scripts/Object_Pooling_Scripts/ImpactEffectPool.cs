@@ -14,6 +14,13 @@ public class ImpactEffectPool : MonoBehaviour
 
     ParticleSystem[] worldPool;
     ParticleSystem[] zombiePool;
+    Transform[] worldTransforms;
+    Transform[] zombieTransforms;
+    float[] worldDeactivateAt;
+    float[] zombieDeactivateAt;
+    float worldEffectDuration;
+    float zombieEffectDuration;
+
     int worldIndex = 0;
     int zombieIndex = 0;
 
@@ -22,67 +29,90 @@ public class ImpactEffectPool : MonoBehaviour
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
 
-        worldPool = BuildPool(worldImpactPrefab, worldPoolSize);
-        zombiePool = BuildPool(zombieImpactPrefab, zombiePoolSize);
+        worldEffectDuration = GetEffectDuration(worldImpactPrefab);
+        zombieEffectDuration = GetEffectDuration(zombieImpactPrefab);
+
+        BuildPool(worldImpactPrefab, worldPoolSize, out worldPool, out worldTransforms, out worldDeactivateAt);
+        BuildPool(zombieImpactPrefab, zombiePoolSize, out zombiePool, out zombieTransforms, out zombieDeactivateAt);
     }
 
-    ParticleSystem[] BuildPool(ParticleSystem prefab, int size)
+    float GetEffectDuration(ParticleSystem prefab)
     {
-        if (prefab == null) return null;
-        ParticleSystem[] pool = new ParticleSystem[size];
+        if (prefab == null) return 1f;
+
+        ParticleSystem.MainModule main = prefab.main;
+        float lifetime = main.startLifetime.mode == ParticleSystemCurveMode.Constant
+            ? main.startLifetime.constant
+            : main.startLifetime.constantMax;
+
+        return main.duration + lifetime;
+    }
+
+    void BuildPool(ParticleSystem prefab, int size, out ParticleSystem[] pool, out Transform[] transforms, out float[] deactivateAt)
+    {
+        pool = null;
+        transforms = null;
+        deactivateAt = null;
+        if (prefab == null) return;
+
+        pool = new ParticleSystem[size];
+        transforms = new Transform[size];
+        deactivateAt = new float[size];
+
         for (int i = 0; i < size; i++)
         {
             ParticleSystem ps = Instantiate(prefab, transform);
             ps.gameObject.SetActive(false);
             pool[i] = ps;
+            transforms[i] = ps.transform;
+            deactivateAt[i] = -1f;
         }
-        return pool;
     }
 
     public void SpawnWorld(Vector3 point, Vector3 normal)
     {
-        Spawn(worldPool, ref worldIndex, point, normal);
+        Spawn(worldPool, worldTransforms, worldDeactivateAt, ref worldIndex, worldEffectDuration, point, normal);
     }
 
     public void SpawnZombie(Vector3 point, Vector3 normal)
     {
-        Spawn(zombiePool, ref zombieIndex, point, normal);
+        Spawn(zombiePool, zombieTransforms, zombieDeactivateAt, ref zombieIndex, zombieEffectDuration, point, normal);
     }
 
-    void Spawn(ParticleSystem[] pool, ref int index, Vector3 point, Vector3 normal)
+    void Spawn(ParticleSystem[] pool, Transform[] transforms, float[] deactivateAt, ref int index, float duration, Vector3 point, Vector3 normal)
     {
         if (pool == null || pool.Length == 0) return;
 
         ParticleSystem ps = pool[index];
-        index = (index + 1) % pool.Length;
+        Transform t = transforms[index];
 
-        // Move and orient
-        ps.transform.position = point;
-        ps.transform.rotation = Quaternion.LookRotation(normal);
+        t.SetPositionAndRotation(point, Quaternion.LookRotation(normal));
 
-        // Reset and play
         ps.gameObject.SetActive(true);
         ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         ps.Play();
+
+        deactivateAt[index] = Time.time + duration;
+        index = (index + 1) % pool.Length;
     }
 
     void Update()
     {
-        // Disable particle systems that have finished playing.
-        // Cheap — just an IsAlive check per pool entry.
-        DeactivateFinished(worldPool);
-        DeactivateFinished(zombiePool);
+        DeactivateFinished(worldPool, worldDeactivateAt);
+        DeactivateFinished(zombiePool, zombieDeactivateAt);
     }
 
-    void DeactivateFinished(ParticleSystem[] pool)
+    void DeactivateFinished(ParticleSystem[] pool, float[] deactivateAt)
     {
         if (pool == null) return;
+
         for (int i = 0; i < pool.Length; i++)
         {
-            ParticleSystem ps = pool[i];
-            if (ps == null) continue;
-            if (ps.gameObject.activeSelf && !ps.IsAlive(true))
-                ps.gameObject.SetActive(false);
+            if (deactivateAt[i] < 0f) continue;
+            if (Time.time < deactivateAt[i]) continue;
+
+            pool[i].gameObject.SetActive(false);
+            deactivateAt[i] = -1f;
         }
     }
 }

@@ -45,7 +45,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8913859183118908093}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dd8cff3bd7aa8b44ab8f0ed5b6cee790, type: 3}
   m_Name: 
@@ -114,7 +114,6 @@ MonoBehaviour:
   launchForce: 8
   pathMoveSpeed: 20
   waypointReachDistance: 0.5
-  headTransform: {fileID: 0}
   enemyId: Zombo
   flipbook: {fileID: 5277546713998826338}
   hitFlash: {fileID: 7589569074051037362}
@@ -183,7 +182,7 @@ MonoBehaviour:
   - {fileID: 6020652563862056029, guid: 1eebb3bc12b116443bbf3e63f244815b, type: 3}
   - {fileID: -3547877460048935430, guid: 1eebb3bc12b116443bbf3e63f244815b, type: 3}
   - {fileID: -3377275325506189266, guid: 1eebb3bc12b116443bbf3e63f244815b, type: 3}
-  walkFps: 10
+  walkFps: 5
   walkHeadOffsets: []
   attackFrames:
   - {fileID: -6100106738889866101, guid: 1eebb3bc12b116443bbf3e63f244815b, type: 3}
@@ -258,11 +257,11 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 91cde3202f90a384aa13600c8a5ec036, type: 2}
-  - {fileID: 2100000, guid: e6f5c48e2fb96c4409bebb55cf5355be, type: 2}
-  - {fileID: 2100000, guid: c41168877bf272f41a6a008545d72d7c, type: 2}
-  - {fileID: 2100000, guid: e6f5c48e2fb96c4409bebb55cf5355be, type: 2}
-  - {fileID: 2100000, guid: 5ea24ca6716a89a4da0e237108a55c39, type: 2}
+  - {fileID: 2100000, guid: 2cc1af834a8144340b5459b8209a4d7c, type: 2}
+  - {fileID: 2100000, guid: 2cc1af834a8144340b5459b8209a4d7c, type: 2}
+  - {fileID: 2100000, guid: 2cc1af834a8144340b5459b8209a4d7c, type: 2}
+  - {fileID: 2100000, guid: 2cc1af834a8144340b5459b8209a4d7c, type: 2}
+  - {fileID: 2100000, guid: 2cc1af834a8144340b5459b8209a4d7c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

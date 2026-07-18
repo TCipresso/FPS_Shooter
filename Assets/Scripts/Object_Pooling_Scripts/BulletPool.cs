@@ -13,11 +13,19 @@ public class BulletPool : MonoBehaviour
         public int initialSize = 10;
     }
 
+    class PooledItem
+    {
+        public GameObject GameObject;
+        public Transform Transform;
+        public IPoolable Poolable;
+    }
+
     [Header("Pool Entries")]
     public List<PoolEntry> poolEntries = new List<PoolEntry>();
 
-    Dictionary<string, Queue<GameObject>> pools = new Dictionary<string, Queue<GameObject>>();
+    Dictionary<string, Queue<PooledItem>> pools = new Dictionary<string, Queue<PooledItem>>();
     Dictionary<string, GameObject> prefabLookup = new Dictionary<string, GameObject>();
+    Dictionary<GameObject, PooledItem> itemLookup = new Dictionary<GameObject, PooledItem>();
 
     void Awake()
     {
@@ -27,51 +35,57 @@ public class BulletPool : MonoBehaviour
             return;
         }
         Instance = this;
+
         foreach (PoolEntry entry in poolEntries)
         {
-            Queue<GameObject> pool = new Queue<GameObject>();
+            Queue<PooledItem> pool = new Queue<PooledItem>();
             prefabLookup[entry.key] = entry.prefab;
             for (int i = 0; i < entry.initialSize; i++)
-            {
-                GameObject obj = CreateNew(entry.prefab);
-                pool.Enqueue(obj);
-            }
+                pool.Enqueue(CreateNew(entry.prefab));
             pools[entry.key] = pool;
         }
     }
 
-    GameObject CreateNew(GameObject prefab)
+    PooledItem CreateNew(GameObject prefab)
     {
         GameObject obj = Instantiate(prefab, transform);
         obj.SetActive(false);
-        return obj;
+
+        PooledItem item = new PooledItem
+        {
+            GameObject = obj,
+            Transform = obj.transform,
+            Poolable = obj.GetComponent<IPoolable>()
+        };
+
+        itemLookup[obj] = item;
+        return item;
     }
 
     public GameObject Get(string key, Vector3 position, Quaternion rotation)
     {
-        if (!pools.TryGetValue(key, out Queue<GameObject> pool))
+        if (!pools.TryGetValue(key, out Queue<PooledItem> pool))
         {
             Debug.LogWarning($"[BulletPool] No pool found for key: {key}");
             return null;
         }
 
-        GameObject obj = pool.Count > 0 ? pool.Dequeue() : CreateNew(prefabLookup[key]);
-
-        obj.transform.SetPositionAndRotation(position, rotation);
-        obj.SetActive(true);
-        IPoolable poolable = obj.GetComponent<IPoolable>();
-        if (poolable != null) poolable.OnSpawn();
-        return obj;
+        PooledItem item = pool.Count > 0 ? pool.Dequeue() : CreateNew(prefabLookup[key]);
+        item.Transform.SetPositionAndRotation(position, rotation);
+        item.GameObject.SetActive(true);
+        item.Poolable?.OnSpawn();
+        return item.GameObject;
     }
 
     public void EnsurePoolSize(string key, GameObject prefab, int desiredSize)
     {
-        if (!pools.TryGetValue(key, out Queue<GameObject> pool))
+        if (!pools.TryGetValue(key, out Queue<PooledItem> pool))
         {
-            pool = new Queue<GameObject>();
+            pool = new Queue<PooledItem>();
             pools[key] = pool;
             prefabLookup[key] = prefab;
         }
+
         int current = pool.Count;
         if (current < desiredSize)
         {
@@ -83,15 +97,20 @@ public class BulletPool : MonoBehaviour
 
     public void Return(string key, GameObject obj)
     {
-        if (!pools.ContainsKey(key))
+        if (!pools.TryGetValue(key, out Queue<PooledItem> pool))
         {
             Destroy(obj);
             return;
         }
-        IPoolable poolable = obj.GetComponent<IPoolable>();
-        if (poolable != null) poolable.OnReturnToPool();
-        obj.SetActive(false);
-        obj.transform.SetParent(transform);
-        pools[key].Enqueue(obj);
+
+        if (!itemLookup.TryGetValue(obj, out PooledItem item))
+        {
+            Destroy(obj);
+            return;
+        }
+
+        item.Poolable?.OnReturnToPool();
+        item.GameObject.SetActive(false);
+        pool.Enqueue(item);
     }
 }

@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.Entities;
+using float3 = Unity.Mathematics.float3;
 
 public abstract class WeaponBase : MonoBehaviour
 {
@@ -24,6 +26,9 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Damage / Range")]
     public int damage = 25;
     public float range = 50f;
+
+    [Header("Swarm Hit Detection")]
+    public float swarmHitRadius = 0.4f;
 
     [Header("Ragdoll")]
     public float ragdollForceMultiplier = 1f;
@@ -242,37 +247,31 @@ public abstract class WeaponBase : MonoBehaviour
         Ray ray = new Ray(origin, direction);
         Vector3 endPoint;
 
-        bool didHit = bulletData.hitMask != 0
+        bool didHitWorld = bulletData.hitMask != 0
             ? Physics.Raycast(ray, out RaycastHit hit, range, bulletData.hitMask)
             : Physics.Raycast(ray, out hit, range);
 
-        if (didHit)
+        float searchDistance = didHitWorld ? hit.distance : range;
+
+        bool hitZombie = ZombieDamageBridge.TryFindNearestZombieAlongRay(
+            (float3)origin, (float3)direction, searchDistance, swarmHitRadius,
+            out Entity zombie, out float3 zombieHitPos);
+
+        if (hitZombie)
+        {
+            endPoint = (Vector3)zombieHitPos;
+            ZombieDamageBridge.DamageZombie(zombie, ApplyCrit(damage));
+
+            if (HitMarkerPool.Instance != null)
+                HitMarkerPool.Instance.Spawn(endPoint, false);
+
+            if (ImpactEffectPool.Instance != null)
+                ImpactEffectPool.Instance.SpawnZombie(endPoint, -direction);
+        }
+        else if (didHitWorld)
         {
             endPoint = hit.point;
-            bool hitZombie = false;
-
-            HitBox hitBox = hit.collider.GetComponent<HitBox>();
-            if (hitBox != null)
-            {
-                hitZombie = true;
-                hitBox.TakeDamageWithHitPoint(damage, playerStats, this, hit.point,
-                    playerStats != null ? playerStats.goldGainMultiplier : 1f,
-                    direction, ragdollForceMultiplier);
-            }
-            else
-            {
-                ZombieBase zombie = hit.collider.GetComponent<ZombieBase>();
-                if (zombie != null)
-                {
-                    hitZombie = true;
-                    zombie.TakeDamage(ApplyCrit(damage), playerStats,
-                        playerStats != null ? playerStats.goldGainMultiplier : 1f,
-                        direction, ragdollForceMultiplier, hit.collider.name);
-                    if (HitMarkerPool.Instance != null)
-                        HitMarkerPool.Instance.Spawn(hit.point, false);
-                }
-            }
-            SpawnImpactEffect(hit, hitZombie);
+            SpawnImpactEffect(hit, false);
         }
         else
         {
@@ -288,37 +287,31 @@ public abstract class WeaponBase : MonoBehaviour
         Ray ray = new Ray(origin, direction);
         Vector3 endPoint;
 
-        bool didHit = bulletData.hitMask != 0
+        bool didHitWorld = bulletData.hitMask != 0
             ? Physics.Raycast(ray, out RaycastHit hit, range, bulletData.hitMask)
             : Physics.Raycast(ray, out hit, range);
 
-        if (didHit)
+        float searchDistance = didHitWorld ? hit.distance : range;
+
+        bool hitZombie = ZombieDamageBridge.TryFindNearestZombieAlongRay(
+            (float3)origin, (float3)direction, searchDistance, swarmHitRadius,
+            out Entity zombie, out float3 zombieHitPos);
+
+        if (hitZombie)
+        {
+            endPoint = (Vector3)zombieHitPos;
+            ZombieDamageBridge.DamageZombie(zombie, ApplyCrit(damage));
+
+            if (HitMarkerPool.Instance != null)
+                HitMarkerPool.Instance.Spawn(endPoint, false);
+
+            if (ImpactEffectPool.Instance != null)
+                ImpactEffectPool.Instance.SpawnZombie(endPoint, -direction);
+        }
+        else if (didHitWorld)
         {
             endPoint = hit.point;
-            bool hitZombie = false;
-
-            HitBox hitBox = hit.collider.GetComponent<HitBox>();
-            if (hitBox != null)
-            {
-                hitZombie = true;
-                hitBox.TakeDamageWithHitPoint(damage, playerStats, this, hit.point,
-                    playerStats != null ? playerStats.goldGainMultiplier : 1f,
-                    direction, ragdollForceMultiplier);
-            }
-            else
-            {
-                ZombieBase zombie = hit.collider.GetComponent<ZombieBase>();
-                if (zombie != null)
-                {
-                    hitZombie = true;
-                    zombie.TakeDamage(ApplyCrit(damage), playerStats,
-                        playerStats != null ? playerStats.goldGainMultiplier : 1f,
-                        direction, ragdollForceMultiplier, hit.collider.name);
-                    if (HitMarkerPool.Instance != null)
-                        HitMarkerPool.Instance.Spawn(hit.point, false);
-                }
-            }
-            SpawnImpactEffect(hit, hitZombie);
+            SpawnImpactEffect(hit, false);
         }
         else
         {
