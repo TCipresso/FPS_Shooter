@@ -101,7 +101,7 @@ public static class ZombieDamageBridge
                                 float feetY = entry.Position.y - entry.GroundOffset;
                                 bool withinHeight = closestPoint.y >= feetY - 0.05f && closestPoint.y <= feetY + entry.Height;
 
-                                if (horizontalDist <= radius && withinHeight && projT < bestT)
+                                if (horizontalDist <= entry.Radius + radius && withinHeight && projT < bestT)
                                 {
                                     bestT = projT;
                                     result = entry.Entity;
@@ -150,7 +150,7 @@ public static class ZombieDamageBridge
                         float feetY = entry.Position.y - entry.GroundOffset;
                         bool withinHeight = worldPosition.y >= feetY - 0.05f && worldPosition.y <= feetY + entry.Height;
 
-                        if (withinHeight && horizontalDist < closestDist)
+                        if (withinHeight && horizontalDist <= entry.Radius + radius && horizontalDist < closestDist)
                         {
                             closestDist = horizontalDist;
                             result = entry.Entity;

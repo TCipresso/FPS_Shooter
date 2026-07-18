@@ -67,7 +67,7 @@ public partial struct ZombieMovementSystem : ISystem
             PlayerPosition = playerPosition.Value,
             Grid = gridSingleton.Grid,
             CellSize = cellSize,
-            SeparationRadius = 2f,
+            SeparationRadius = 3f,
             SeparationStrength = 2f,
             WallCheckDistance = wallCheckDistance,
             WallCheckRadius = wallCheckRadius,
@@ -130,10 +130,10 @@ partial struct BuildGridJob : IJobEntity
     public NativeParallelMultiHashMap<int3, ZombieGridEntry>.ParallelWriter GridWriter;
     public float CellSize;
 
-    void Execute(Entity entity, in LocalTransform transform, in ZombieHitboxHeight hitboxHeight, in ZombieGroundOffset groundOffset)
+    void Execute(Entity entity, in LocalTransform transform, in ZombieHitboxHeight hitboxHeight, in ZombieHitboxRadius hitboxRadius, in ZombieGroundOffset groundOffset)
     {
         int3 cell = (int3)math.floor(transform.Position / CellSize);
-        GridWriter.Add(cell, new ZombieGridEntry { Entity = entity, Position = transform.Position, Height = hitboxHeight.Value, GroundOffset = groundOffset.Value });
+        GridWriter.Add(cell, new ZombieGridEntry { Entity = entity, Position = transform.Position, Height = hitboxHeight.Value, Radius = hitboxRadius.Value, GroundOffset = groundOffset.Value });
     }
 }
 

@@ -25,6 +25,11 @@ public struct ZombieHitboxHeight : IComponentData
     public float Value;
 }
 
+public struct ZombieHitboxRadius : IComponentData
+{
+    public float Value;
+}
+
 public struct ZombieVerticalVelocity : IComponentData
 {
     public float Value;
@@ -81,6 +86,7 @@ public struct ZombieGridEntry
     public Entity Entity;
     public float3 Position;
     public float Height;
+    public float Radius;
     public float GroundOffset;
 }
 
