@@ -25,6 +25,7 @@ public class FPSInput : NetworkBehaviour
     public bool ManeuverPressed { get; private set; }
 
     float jumpBufferCounter;
+
     public bool JumpBuffered => jumpBufferCounter > 0f;
 
     public override void OnStartLocalPlayer()
@@ -67,6 +68,7 @@ public class FPSInput : NetworkBehaviour
         Move = moveAction ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
         Look = lookAction ? lookAction.action.ReadValue<Vector2>() : Vector2.zero;
         Move = Vector2.ClampMagnitude(Move, 1f);
+
         JumpHeld = jumpAction && jumpAction.action.IsPressed();
         SprintHeld = sprintAction && sprintAction.action.IsPressed();
         CrouchHeld = crouchAction && crouchAction.action.IsPressed();

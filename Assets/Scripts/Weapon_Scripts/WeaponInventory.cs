@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Mirror;
 
-public class WeaponInventory : MonoBehaviour
+public class WeaponInventory : NetworkBehaviour
 {
     [Header("References")]
     public Transform weaponHolder;
@@ -90,18 +91,20 @@ public class WeaponInventory : MonoBehaviour
         }
     }
 
-    void OnEnable()
+    public override void OnStartLocalPlayer()
     {
         if (fireAction != null) fireAction.action.Enable();
     }
 
     void OnDisable()
     {
+        if (!isLocalPlayer) return;
         if (fireAction != null) fireAction.action.Disable();
     }
 
     void Update()
     {
+        if (!isLocalPlayer) return;
         if (fireAction == null) return;
 
         List<WeaponBase> activeBases = GetActiveWeaponBases();

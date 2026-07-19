@@ -1,15 +1,10 @@
 using UnityEngine;
+using Mirror;
 
-public class PlayerPersistence : MonoBehaviour
+public class PlayerPersistence : NetworkBehaviour
 {
-    void Awake()
+    public override void OnStartLocalPlayer()
     {
-        PlayerPersistence[] existing = FindObjectsByType<PlayerPersistence>(FindObjectsSortMode.None);
-        if (existing.Length > 1)
-        {
-            Destroy(gameObject);
-            return;
-        }
         DontDestroyOnLoad(gameObject);
     }
 }

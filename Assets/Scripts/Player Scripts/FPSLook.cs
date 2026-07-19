@@ -37,6 +37,17 @@ public class FPSLook : NetworkBehaviour
     float baseFOV;
     float currentDashFOV;
 
+    public override void OnStartClient()
+    {
+        if (isLocalPlayer) return;
+
+        if (playerCamera != null)
+            playerCamera.gameObject.SetActive(false);
+
+        if (overlayCamera != null)
+            overlayCamera.gameObject.SetActive(false);
+    }
+
     public override void OnStartLocalPlayer()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -45,12 +56,21 @@ public class FPSLook : NetworkBehaviour
         if (playerCamera != null)
         {
             playerCamera.gameObject.SetActive(true);
+            playerCamera.enabled = true;
+
+            AudioListener listener = playerCamera.GetComponent<AudioListener>();
+            if (listener != null)
+                listener.enabled = true;
+
             baseFOV = playerCamera.fieldOfView;
             currentDashFOV = baseFOV;
         }
 
         if (overlayCamera != null)
+        {
             overlayCamera.gameObject.SetActive(true);
+            overlayCamera.enabled = true;
+        }
 
         SyncOverlayFOV();
     }

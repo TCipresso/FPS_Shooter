@@ -145,10 +145,16 @@ public class PlayerFpsController : NetworkBehaviour
             controller.enabled = false;
     }
 
+    public override void OnStartLocalPlayer()
+    {
+        controller.enabled = true;
+    }
+
     void Update()
     {
         if (!isLocalPlayer) return;
         if (input == null) return;
+        if (!controller.enabled) return;
 
         if (IsDowned)
         {

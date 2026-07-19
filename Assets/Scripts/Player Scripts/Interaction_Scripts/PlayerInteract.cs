@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
+using Mirror;
 
-public class PlayerInteract : MonoBehaviour
+public class PlayerInteract : NetworkBehaviour
 {
     [Header("References")]
     public Camera playerCamera;
@@ -17,7 +18,7 @@ public class PlayerInteract : MonoBehaviour
     [Header("Interactable Tags")]
     public List<string> interactableTags = new List<string> { "Buyable" };
 
-    void OnEnable()
+    public override void OnStartLocalPlayer()
     {
         if (interactAction != null)
             interactAction.action.Enable();
@@ -25,12 +26,15 @@ public class PlayerInteract : MonoBehaviour
 
     void OnDisable()
     {
+        if (!isLocalPlayer) return;
         if (interactAction != null)
             interactAction.action.Disable();
     }
 
     void Update()
     {
+        if (!isLocalPlayer) return;
+
         CheckForInteractable();
         if (interactAction != null && interactAction.action.WasPressedThisFrame())
             TryInteract();
@@ -39,36 +43,31 @@ public class PlayerInteract : MonoBehaviour
     void CheckForInteractable()
     {
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-
         if (Physics.Raycast(ray, out RaycastHit hit, interactRange))
         {
             // If we hit a zombie, update the target
             // If we hit something else, leave the current target alone
             ZombieBase zombie = hit.collider.GetComponentInParent<ZombieBase>();
             //if (zombie != null)
-               // EnemyHealthBarManager.Instance?.SetTarget(zombie);
-
+            // EnemyHealthBarManager.Instance?.SetTarget(zombie);
             // Existing interact logic
             if (!IsInteractableTag(hit.collider.tag))
             {
                 ClearPrompt();
                 return;
             }
-
             Buyable buyable = hit.collider.GetComponent<Buyable>();
             if (buyable != null)
             {
                 ShowPrompt(buyable.interactPrompt);
                 return;
             }
-
             Interactable interactable = hit.collider.GetComponent<Interactable>();
             if (interactable != null)
             {
                 ShowPrompt(interactable.interactPrompt);
                 return;
             }
-
             Debug.Log("Tag matched but no Buyable or Interactable component found on: " + hit.collider.gameObject.name);
         }
         else
@@ -76,7 +75,6 @@ public class PlayerInteract : MonoBehaviour
             // Raycast hit nothing at all — now it's safe to clear the health bar
             //EnemyHealthBarManager.Instance?.ClearTarget();
         }
-
         ClearPrompt();
     }
 
@@ -85,17 +83,14 @@ public class PlayerInteract : MonoBehaviour
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         if (!Physics.Raycast(ray, out RaycastHit hit, interactRange))
             return;
-
         if (!IsInteractableTag(hit.collider.tag))
             return;
-
         Buyable buyable = hit.collider.GetComponent<Buyable>();
         if (buyable != null)
         {
             buyable.TryPurchase(stats);
             return;
         }
-
         Interactable interactable = hit.collider.GetComponent<Interactable>();
         if (interactable != null)
         {

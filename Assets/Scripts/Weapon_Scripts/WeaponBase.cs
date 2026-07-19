@@ -110,21 +110,33 @@ public abstract class WeaponBase : MonoBehaviour
         }
 
         baseRpm = rpm;
-        fpsLook = FindFirstObjectByType<FPSLook>();
-        mainCamera = Camera.main;
-        playerStats = FindFirstObjectByType<PlayerStats>();
-        fpsController = FindFirstObjectByType<PlayerFpsController>();
+        ResolveOwningPlayerReferences();
 
         if (fpsLook == null)
-            Debug.LogWarning($"[{gameObject.name}] FPSLook not found in scene.");
+            Debug.LogWarning($"[{gameObject.name}] FPSLook not found on owning player.");
         if (mainCamera == null)
-            Debug.LogWarning($"[{gameObject.name}] Main Camera not found in scene.");
+            Debug.LogWarning($"[{gameObject.name}] Main Camera not found.");
         if (bulletData == null)
             Debug.LogWarning($"[{gameObject.name}] No BulletDataSO assigned.");
         if (playerStats == null)
-            Debug.LogWarning($"[{gameObject.name}] PlayerStats not found in scene.");
+            Debug.LogWarning($"[{gameObject.name}] PlayerStats not found on owning player.");
         if (universalAnimator == null)
             universalAnimator = GameObject.Find("WeaponAnims")?.GetComponent<Animator>();
+    }
+
+    // Resolves references from this weapon's own player hierarchy instead of a scene-wide
+    // search, so with multiple players in the scene each weapon always binds to its own
+    // player's components rather than whichever instance Unity happens to find first.
+    void ResolveOwningPlayerReferences()
+    {
+        if (fpsLook == null)
+            fpsLook = GetComponentInParent<FPSLook>();
+        if (playerStats == null)
+            playerStats = GetComponentInParent<PlayerStats>();
+        if (fpsController == null)
+            fpsController = GetComponentInParent<PlayerFpsController>();
+        if (mainCamera == null)
+            mainCamera = Camera.main;
     }
 
     protected virtual void OnEnable()
@@ -134,6 +146,10 @@ public abstract class WeaponBase : MonoBehaviour
         isFiring = false;
         currentBloom = 0f;
         walkStopTimer = 0f;
+
+        // Weapons can be enabled well after Awake (equip swap), and on the local player
+        // the main camera may not have been activated yet at Awake time - refresh here.
+        ResolveOwningPlayerReferences();
 
         if (animator != null)
         {
@@ -443,6 +459,8 @@ public abstract class WeaponBase : MonoBehaviour
     public void LoadRecoilValues()
     {
         if (weaponRecoil == null)
+            weaponRecoil = GetComponentInParent<WeaponRecoil>();
+        if (weaponRecoil == null)
             weaponRecoil = FindFirstObjectByType<WeaponRecoil>();
 
         if (weaponRecoil != null)
@@ -452,6 +470,8 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected void ApplyRecoil()
     {
+        if (weaponRecoil == null)
+            weaponRecoil = GetComponentInParent<WeaponRecoil>();
         if (weaponRecoil == null)
             weaponRecoil = FindFirstObjectByType<WeaponRecoil>();
 

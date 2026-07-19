@@ -14,12 +14,11 @@ public class PlayerAudio : MonoBehaviour
 
     Queue<AudioClip> _walkBag = new Queue<AudioClip>();
     Queue<AudioClip> _sprintBag = new Queue<AudioClip>();
-
     PlayerFpsController fpsController;
 
     void Awake()
     {
-        fpsController = FindFirstObjectByType<PlayerFpsController>();
+        fpsController = GetComponentInParent<PlayerFpsController>();
     }
 
     public void PlayWalkFootstep()
