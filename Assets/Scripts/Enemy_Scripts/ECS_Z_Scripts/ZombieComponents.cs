@@ -103,6 +103,7 @@ public struct ZombieWallConfig : IComponentData
     public float CheckRadius;
     public float ClimbSpeed;
     public float LedgeLaunchSpeed;
+    public float ZombieClimbDistance;
     public float MaxStackHeight;
     public int GroundLayerMask;
     public float GroundCheckDistance;

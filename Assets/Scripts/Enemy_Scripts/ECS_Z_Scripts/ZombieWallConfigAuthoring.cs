@@ -8,6 +8,7 @@ public class ZombieWallConfigAuthoring : MonoBehaviour
     public float checkRadius = 0.4f;
     public float climbSpeed = 4f;
     public float ledgeLaunchSpeed = 6f;
+    public float zombieClimbDistance = 2f;
     public float maxStackHeight = 8f;
     public LayerMask groundLayerMask;
     public float groundCheckDistance = 15f;
@@ -24,6 +25,7 @@ public class ZombieWallConfigAuthoring : MonoBehaviour
                 CheckRadius = authoring.checkRadius,
                 ClimbSpeed = authoring.climbSpeed,
                 LedgeLaunchSpeed = authoring.ledgeLaunchSpeed,
+                ZombieClimbDistance = authoring.zombieClimbDistance,
                 MaxStackHeight = authoring.maxStackHeight,
                 GroundLayerMask = authoring.groundLayerMask.value,
                 GroundCheckDistance = authoring.groundCheckDistance

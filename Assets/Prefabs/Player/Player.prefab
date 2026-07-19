@@ -1385,6 +1385,8 @@ MonoBehaviour:
   lateralStrength: 0.005
   backwardStrength: 0.005
   smoothSpeed: 5
+  maxLateral: 0.15
+  maxBackward: 0.2
 --- !u!1 &1387780742237089516
 GameObject:
   m_ObjectHideFlags: 0
@@ -3449,18 +3451,23 @@ MonoBehaviour:
   groundedStickForce: -4
   coyoteTime: 0.25
   jumpCount: 1
-  slideBoostSpeed: 50
-  slideFriction: 65
+  slideBoostSpeed: 75
+  slideFriction: 10
+  downhillFrictionScale: 0.01
+  uphillSlideFriction: 5
   slideMinSpeed: 3
-  slideCooldown: 0.5
+  slideCooldown: 0
   slideHeight: 1
   slideHeightLerpSpeed: 1
   slideJumpUpSpeed: 30
-  slideJumpForwardBoost: 0
-  slideAirgraceTime: 0.2
-  slideDropForce: -14
-  slideGravityScale: 18
-  slideSlopeThreshold: 8
+  slideJumpForwardBoost: 15
+  slideGravityScale: 30
+  maxSlideSpeed: 150
+  slideSteerStrength: 100
+  slideGroundSnapDistance: 2
+  slideStickForce: 1
+  slideLedgeLaunchBoost: 6
+  slideBufferTime: 0.2
   dashSpeed: 100
   dashDuration: 0.15
   dashCooldown: 1

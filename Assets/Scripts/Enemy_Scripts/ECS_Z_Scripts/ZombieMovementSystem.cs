@@ -38,6 +38,7 @@ public partial struct ZombieMovementSystem : ISystem
         float wallCheckRadius = 0.4f;
         float climbSpeed = 4f;
         float ledgeLaunchSpeed = 6f;
+        float zombieClimbDistance = 2f;
         float maxStackHeight = 8f;
         int groundLayerMask = 0;
         float groundCheckDistance = 15f;
@@ -48,6 +49,7 @@ public partial struct ZombieMovementSystem : ISystem
             wallCheckRadius = wallConfig.CheckRadius;
             climbSpeed = wallConfig.ClimbSpeed;
             ledgeLaunchSpeed = wallConfig.LedgeLaunchSpeed;
+            zombieClimbDistance = wallConfig.ZombieClimbDistance;
             maxStackHeight = wallConfig.MaxStackHeight;
             groundLayerMask = wallConfig.GroundLayerMask;
             groundCheckDistance = wallConfig.GroundCheckDistance;
@@ -72,6 +74,7 @@ public partial struct ZombieMovementSystem : ISystem
             WallCheckDistance = wallCheckDistance,
             WallCheckRadius = wallCheckRadius,
             WallLayerMask = wallLayerMask,
+            ZombieClimbDistance = zombieClimbDistance,
             MaxStackHeight = maxStackHeight,
             GroundLayerMask = groundLayerMask,
             GroundCheckDistance = groundCheckDistance,
@@ -149,6 +152,7 @@ partial struct ZombieDesiredMoveJob : IJobEntity
     public float WallCheckDistance;
     public float WallCheckRadius;
     public int WallLayerMask;
+    public float ZombieClimbDistance;
     public float MaxStackHeight;
     public int GroundLayerMask;
     public float GroundCheckDistance;
@@ -177,7 +181,7 @@ partial struct ZombieDesiredMoveJob : IJobEntity
 
         float3 separation = float3.zero;
         bool zombieBlocked = false;
-        float closestBlockerDist = WallCheckDistance;
+        float closestBlockerDist = ZombieClimbDistance;
         float zombieStandHeight = float.NegativeInfinity;
         int3 cell = (int3)math.floor(position / CellSize);
         int cellRadius = (int)math.ceil(SeparationRadius / CellSize);
