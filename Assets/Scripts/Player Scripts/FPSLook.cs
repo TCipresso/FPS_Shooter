@@ -37,15 +37,33 @@ public class FPSLook : NetworkBehaviour
     float baseFOV;
     float currentDashFOV;
 
+    [SyncVar] float syncedPitch;
+    [SyncVar] float syncedYaw;
+    float lookSendTimer;
+    float lastSentPitch;
+    float lastSentYaw;
+    public float remoteLookLerpSpeed = 12f;
+
     public override void OnStartClient()
     {
         if (isLocalPlayer) return;
 
         if (playerCamera != null)
-            playerCamera.gameObject.SetActive(false);
+        {
+            playerCamera.enabled = false;
+
+            AudioListener listener = playerCamera.GetComponent<AudioListener>();
+            if (listener != null)
+                listener.enabled = false;
+
+            playerCamera.gameObject.SetActive(true);
+        }
 
         if (overlayCamera != null)
-            overlayCamera.gameObject.SetActive(false);
+        {
+            overlayCamera.enabled = false;
+            overlayCamera.gameObject.SetActive(true);
+        }
     }
 
     public override void OnStartLocalPlayer()
@@ -77,12 +95,71 @@ public class FPSLook : NetworkBehaviour
 
     void LateUpdate()
     {
-        if (!isLocalPlayer) return;
+        if (!isLocalPlayer)
+        {
+            ApplyRemoteLook();
+            return;
+        }
 
         HandleRotation();
         HandleStrafeTilt();
         HandleFOV();
         SyncOverlayFOV();
+        SendLook();
+    }
+
+    void SendLook()
+    {
+        if (!NetworkClient.active) return;
+
+        if (lookSendTimer > 0f)
+        {
+            lookSendTimer -= Time.deltaTime;
+            return;
+        }
+
+        float yaw = transform.eulerAngles.y;
+
+        bool pitchChanged = Mathf.Abs(rotationX - lastSentPitch) > 0.25f;
+        bool yawChanged = Mathf.Abs(Mathf.DeltaAngle(yaw, lastSentYaw)) > 0.25f;
+
+        if (!pitchChanged && !yawChanged) return;
+
+        lastSentPitch = rotationX;
+        lastSentYaw = yaw;
+        lookSendTimer = 0.05f;
+        CmdSetLook(rotationX, yaw);
+    }
+
+    [Command]
+    void CmdSetLook(float pitch, float yaw)
+    {
+        syncedPitch = pitch;
+        syncedYaw = yaw;
+    }
+
+    void ApplyRemoteLook()
+    {
+        Quaternion yawTarget = Quaternion.Euler(0f, syncedYaw, 0f);
+        transform.rotation = Quaternion.Slerp(
+            transform.rotation,
+            yawTarget,
+            remoteLookLerpSpeed * Time.deltaTime
+        );
+
+        if (playerCamera == null) return;
+
+        Quaternion pitchTarget = Quaternion.Euler(syncedPitch, 0f, 0f);
+        Quaternion smoothed = Quaternion.Slerp(
+            playerCamera.transform.localRotation,
+            pitchTarget,
+            remoteLookLerpSpeed * Time.deltaTime
+        );
+
+        playerCamera.transform.localRotation = smoothed;
+
+        if (overlayCamera != null)
+            overlayCamera.transform.localRotation = smoothed;
     }
 
     void HandleRotation()

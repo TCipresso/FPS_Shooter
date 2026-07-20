@@ -14,6 +14,9 @@ public class WeaponInventory : NetworkBehaviour
     [Header("Input")]
     public InputActionReference fireAction;
 
+    [Header("Networking")]
+    public string remoteWeaponLayer = "Default";
+
     [Header("Weapons (drag pre-placed, disabled weapon children here)")]
     public List<WeaponEntry> weapons = new List<WeaponEntry>();
 
@@ -22,6 +25,9 @@ public class WeaponInventory : NetworkBehaviour
     private WeaponEntry currentBaseEntry;
     private WeaponEntry activePowerUpEntry;
     private Coroutine powerUpRoutine;
+
+    [SyncVar(hook = nameof(OnActiveWeaponIndexChanged))]
+    private int syncedActiveWeaponIndex = -1;
 
     void Awake()
     {
@@ -50,6 +56,8 @@ public class WeaponInventory : NetworkBehaviour
                 if (wb == null) continue;
                 if (wb.skinRenderer != null && !originalMaterialsCache.ContainsKey(wb))
                     originalMaterialsCache[wb] = (Material[])wb.skinRenderer.sharedMaterials.Clone();
+
+                wb.onShotFired += HandleShotFired;
             }
 
             if (entry.isDefaultBase)
@@ -65,6 +73,30 @@ public class WeaponInventory : NetworkBehaviour
             Debug.LogWarning("[WeaponInventory] No entry marked isDefaultBase - check one entry's box in the Inspector.");
 
         currentBaseEntry = defaultEntry;
+    }
+
+    void OnDestroy()
+    {
+        foreach (WeaponEntry entry in weapons)
+        {
+            if (entry?.weaponBases == null) continue;
+
+            foreach (WeaponBase wb in entry.weaponBases)
+            {
+                if (wb != null)
+                    wb.onShotFired -= HandleShotFired;
+            }
+        }
+    }
+
+    public override void OnStartClient()
+    {
+        if (isLocalPlayer) return;
+        if (weaponHolder == null) return;
+
+        int layer = LayerMask.NameToLayer(remoteWeaponLayer);
+        if (layer >= 0)
+            SetLayerRecursively(weaponHolder, layer);
     }
 
     void Start()
@@ -84,10 +116,22 @@ public class WeaponInventory : NetworkBehaviour
             }
         }
 
-        if (currentBaseEntry != null)
+        bool isLocalOrOffline = !NetworkClient.active || isLocalPlayer;
+
+        if (isLocalOrOffline)
         {
-            currentBaseEntry.currentLevel = currentBaseEntry.baseLevel;
-            SetActiveEntry(currentBaseEntry);
+            if (currentBaseEntry != null)
+            {
+                currentBaseEntry.currentLevel = currentBaseEntry.baseLevel;
+                SetActiveEntry(currentBaseEntry);
+            }
+        }
+        else
+        {
+            int index = syncedActiveWeaponIndex >= 0
+                ? syncedActiveWeaponIndex
+                : weapons.IndexOf(currentBaseEntry);
+            ActivateEntryVisualByIndex(index);
         }
     }
 
@@ -104,7 +148,7 @@ public class WeaponInventory : NetworkBehaviour
 
     void Update()
     {
-        if (!isLocalPlayer) return;
+        if (NetworkClient.active && !isLocalPlayer) return;
         if (fireAction == null) return;
 
         List<WeaponBase> activeBases = GetActiveWeaponBases();
@@ -125,6 +169,84 @@ public class WeaponInventory : NetworkBehaviour
             foreach (WeaponBase wb in activeBases)
                 wb?.StopRecoil();
         }
+    }
+
+    void HandleShotFired(WeaponBase wb)
+    {
+        if (!NetworkClient.active || !isLocalPlayer) return;
+
+        for (int e = 0; e < weapons.Count; e++)
+        {
+            WeaponEntry entry = weapons[e];
+            if (entry?.weaponBases == null) continue;
+
+            int b = entry.weaponBases.IndexOf(wb);
+            if (b >= 0)
+            {
+                CmdFireEffects(e, b);
+                return;
+            }
+        }
+    }
+
+    [Command]
+    void CmdFireEffects(int entryIndex, int baseIndex)
+    {
+        RpcFireEffects(entryIndex, baseIndex);
+    }
+
+    [ClientRpc(includeOwner = false)]
+    void RpcFireEffects(int entryIndex, int baseIndex)
+    {
+        if (isLocalPlayer) return;
+        if (entryIndex < 0 || entryIndex >= weapons.Count) return;
+
+        WeaponEntry entry = weapons[entryIndex];
+        if (entry?.weaponBases == null) return;
+        if (baseIndex < 0 || baseIndex >= entry.weaponBases.Count) return;
+
+        WeaponBase wb = entry.weaponBases[baseIndex];
+        if (wb == null) return;
+
+        wb.PlayRemoteFireEffects();
+    }
+
+    [Command]
+    void CmdSetActiveWeapon(int index)
+    {
+        syncedActiveWeaponIndex = index;
+    }
+
+    void OnActiveWeaponIndexChanged(int oldIndex, int newIndex)
+    {
+        if (isLocalPlayer) return;
+        ActivateEntryVisualByIndex(newIndex);
+    }
+
+    void ActivateEntryVisualByIndex(int index)
+    {
+        if (index < 0 || index >= weapons.Count) return;
+
+        WeaponEntry entry = weapons[index];
+        if (entry?.weaponRoot == null) return;
+
+        foreach (WeaponEntry w in weapons)
+        {
+            if (w?.weaponRoot != null)
+                w.weaponRoot.SetActive(false);
+        }
+
+        entry.weaponRoot.SetActive(true);
+
+        if (ikHandler != null)
+            ikHandler.UpdateIKTargets(entry.weaponRoot);
+    }
+
+    static void SetLayerRecursively(Transform root, int layer)
+    {
+        root.gameObject.layer = layer;
+        for (int i = 0; i < root.childCount; i++)
+            SetLayerRecursively(root.GetChild(i), layer);
     }
 
     public void SetBaseWeapon(WeaponDefinitionSO def)
@@ -327,6 +449,13 @@ public class WeaponInventory : NetworkBehaviour
 
         if (ikHandler != null)
             ikHandler.UpdateIKTargets(entry.weaponRoot);
+
+        if (NetworkClient.active && isLocalPlayer)
+        {
+            int index = weapons.IndexOf(entry);
+            if (index >= 0)
+                CmdSetActiveWeapon(index);
+        }
     }
 
     void ApplyLevel(WeaponEntry entry)

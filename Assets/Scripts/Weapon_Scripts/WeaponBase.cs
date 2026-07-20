@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Entities;
+using Mirror;
 using float3 = Unity.Mathematics.float3;
 
 public abstract class WeaponBase : MonoBehaviour
@@ -85,6 +86,8 @@ public abstract class WeaponBase : MonoBehaviour
     [HideInInspector] public bool isCocking = false;
     [HideInInspector] public bool isFiring = false;
 
+    public System.Action<WeaponBase> onShotFired;
+
     float walkStopTimer = 0f;
     float fireResetTime = 0f;
 
@@ -121,7 +124,7 @@ public abstract class WeaponBase : MonoBehaviour
         if (playerStats == null)
             Debug.LogWarning($"[{gameObject.name}] PlayerStats not found on owning player.");
         if (universalAnimator == null)
-            universalAnimator = GameObject.Find("WeaponAnims")?.GetComponent<Animator>();
+            universalAnimator = FindUniversalAnimatorInOwnHierarchy();
     }
 
     // Resolves references from this weapon's own player hierarchy instead of a scene-wide
@@ -139,6 +142,27 @@ public abstract class WeaponBase : MonoBehaviour
             mainCamera = Camera.main;
     }
 
+    Animator FindUniversalAnimatorInOwnHierarchy()
+    {
+        Transform root = fpsController != null ? fpsController.transform : transform.root;
+
+        Transform[] all = root.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < all.Length; i++)
+        {
+            if (all[i].name == "WeaponAnims")
+                return all[i].GetComponent<Animator>();
+        }
+
+        return null;
+    }
+
+    bool IsOwnerLocalPlayer()
+    {
+        if (fpsController == null) return true;
+        if (!NetworkClient.active) return true;
+        return fpsController.isLocalPlayer;
+    }
+
     protected virtual void OnEnable()
     {
         isAiming = false;
@@ -150,6 +174,9 @@ public abstract class WeaponBase : MonoBehaviour
         // Weapons can be enabled well after Awake (equip swap), and on the local player
         // the main camera may not have been activated yet at Awake time - refresh here.
         ResolveOwningPlayerReferences();
+
+        if (universalAnimator == null)
+            universalAnimator = FindUniversalAnimatorInOwnHierarchy();
 
         if (animator != null)
         {
@@ -184,6 +211,8 @@ public abstract class WeaponBase : MonoBehaviour
 
         if (currentBloom > 0f)
             currentBloom = Mathf.Max(0f, currentBloom - bloomDecaySpeed * Time.deltaTime);
+
+        if (!IsOwnerLocalPlayer()) return;
 
         if (fpsController != null && animator != null)
         {
@@ -403,6 +432,8 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (bulletData == null) return;
 
+        onShotFired?.Invoke(this);
+
         int scaledDamage = playerStats != null
             ? Mathf.RoundToInt(damage * playerStats.damageMultiplier)
             : damage;
@@ -421,6 +452,18 @@ public abstract class WeaponBase : MonoBehaviour
     private void FireProjectile(int damage)
     {
         Debug.LogWarning("[WeaponBase] Projectile firing not yet implemented.");
+    }
+
+    public void PlayRemoteFireEffects()
+    {
+        if (!gameObject.activeInHierarchy) return;
+
+        PlayMuzzleFlash();
+        EjectCasing();
+        PlayFireSound();
+
+        if (animator != null)
+            animator.Play(FireClipName, 2, 0f);
     }
 
     protected void PlayMuzzleFlash()
