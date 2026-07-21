@@ -171,7 +171,7 @@ public class WeaponInventory : NetworkBehaviour
         }
     }
 
-    void HandleShotFired(WeaponBase wb)
+    void HandleShotFired(WeaponBase wb, List<Vector3> endpoints, List<byte> hitTypes)
     {
         if (!NetworkClient.active || !isLocalPlayer) return;
 
@@ -183,20 +183,20 @@ public class WeaponInventory : NetworkBehaviour
             int b = entry.weaponBases.IndexOf(wb);
             if (b >= 0)
             {
-                CmdFireEffects(e, b);
+                CmdFireEffects(e, b, endpoints.ToArray(), hitTypes.ToArray());
                 return;
             }
         }
     }
 
     [Command]
-    void CmdFireEffects(int entryIndex, int baseIndex)
+    void CmdFireEffects(int entryIndex, int baseIndex, Vector3[] endpoints, byte[] hitTypes)
     {
-        RpcFireEffects(entryIndex, baseIndex);
+        RpcFireEffects(entryIndex, baseIndex, endpoints, hitTypes);
     }
 
     [ClientRpc(includeOwner = false)]
-    void RpcFireEffects(int entryIndex, int baseIndex)
+    void RpcFireEffects(int entryIndex, int baseIndex, Vector3[] endpoints, byte[] hitTypes)
     {
         if (isLocalPlayer) return;
         if (entryIndex < 0 || entryIndex >= weapons.Count) return;
@@ -208,7 +208,7 @@ public class WeaponInventory : NetworkBehaviour
         WeaponBase wb = entry.weaponBases[baseIndex];
         if (wb == null) return;
 
-        wb.PlayRemoteFireEffects();
+        wb.PlayRemoteFireEffects(endpoints, hitTypes);
     }
 
     [Command]

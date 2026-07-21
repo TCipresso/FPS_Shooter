@@ -86,7 +86,10 @@ public abstract class WeaponBase : MonoBehaviour
     [HideInInspector] public bool isCocking = false;
     [HideInInspector] public bool isFiring = false;
 
-    public System.Action<WeaponBase> onShotFired;
+    public System.Action<WeaponBase, List<Vector3>, List<byte>> onShotFired;
+
+    readonly List<Vector3> shotEndPoints = new List<Vector3>(16);
+    readonly List<byte> shotHitTypes = new List<byte>(16);
 
     float walkStopTimer = 0f;
     float fireResetTime = 0f;
@@ -323,6 +326,8 @@ public abstract class WeaponBase : MonoBehaviour
             endPoint = origin + direction * range;
         }
         SpawnTrail(muzzlePoint.position, endPoint);
+        shotEndPoints.Add(endPoint);
+        shotHitTypes.Add(hitZombie ? (byte)2 : didHitWorld ? (byte)1 : (byte)0);
     }
 
     private void FireHitscanPellet(int damage, float range, float spreadX, float spreadY)
@@ -363,6 +368,8 @@ public abstract class WeaponBase : MonoBehaviour
             endPoint = origin + direction * range;
         }
         SpawnTrail(muzzlePoint.position, endPoint);
+        shotEndPoints.Add(endPoint);
+        shotHitTypes.Add(hitZombie ? (byte)2 : didHitWorld ? (byte)1 : (byte)0);
     }
 
     public void ApplyAttackSpeed(float attackSpeed)
@@ -432,7 +439,8 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (bulletData == null) return;
 
-        onShotFired?.Invoke(this);
+        shotEndPoints.Clear();
+        shotHitTypes.Clear();
 
         int scaledDamage = playerStats != null
             ? Mathf.RoundToInt(damage * playerStats.damageMultiplier)
@@ -447,6 +455,8 @@ public abstract class WeaponBase : MonoBehaviour
                 FireProjectile(scaledDamage);
                 break;
         }
+
+        onShotFired?.Invoke(this, shotEndPoints, shotHitTypes);
     }
 
     private void FireProjectile(int damage)
@@ -454,7 +464,7 @@ public abstract class WeaponBase : MonoBehaviour
         Debug.LogWarning("[WeaponBase] Projectile firing not yet implemented.");
     }
 
-    public void PlayRemoteFireEffects()
+    public void PlayRemoteFireEffects(Vector3[] endpoints, byte[] hitTypes)
     {
         if (!gameObject.activeInHierarchy) return;
 
@@ -464,6 +474,29 @@ public abstract class WeaponBase : MonoBehaviour
 
         if (animator != null)
             animator.Play(FireClipName, 2, 0f);
+
+        if (endpoints == null) return;
+
+        for (int i = 0; i < endpoints.Length; i++)
+        {
+            Vector3 end = endpoints[i];
+            Vector3 start = muzzlePoint != null ? muzzlePoint.position : end;
+
+            SpawnTrail(start, end);
+
+            byte hitType = hitTypes != null && i < hitTypes.Length ? hitTypes[i] : (byte)0;
+            if (hitType == 0) continue;
+            if (ImpactEffectPool.Instance == null) continue;
+
+            Vector3 dir = (end - start).sqrMagnitude > 0.0001f
+                ? (end - start).normalized
+                : transform.forward;
+
+            if (hitType == 2)
+                ImpactEffectPool.Instance.SpawnZombie(end, -dir);
+            else
+                ImpactEffectPool.Instance.SpawnWorld(end, -dir);
+        }
     }
 
     protected void PlayMuzzleFlash()
