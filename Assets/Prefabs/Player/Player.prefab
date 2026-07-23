@@ -1385,8 +1385,8 @@ MonoBehaviour:
   lateralStrength: 0.005
   backwardStrength: 0.005
   smoothSpeed: 5
-  maxLateral: 0.15
-  maxBackward: 0.2
+  maxLateral: 0.4
+  maxBackward: 0.4
 --- !u!1 &1387780742237089516
 GameObject:
   m_ObjectHideFlags: 0
@@ -3297,7 +3297,7 @@ MonoBehaviour:
   fireAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   remoteWeaponLayer: Default
   weapons:
-  - isDefaultBase: 0
+  - isDefaultBase: 1
     definition: {fileID: 11400000, guid: aa5a3ca35f3847d4db099eb3109baae9, type: 2}
     weaponRoot: {fileID: 3540587281394680971}
     weaponBases:
@@ -3319,7 +3319,7 @@ MonoBehaviour:
     - {fileID: 7779756829573333741}
     baseLevel: 0
     currentLevel: 0
-  - isDefaultBase: 1
+  - isDefaultBase: 0
     definition: {fileID: 11400000, guid: f29230a1f193a3f46b40ddcc65a6f690, type: 2}
     weaponRoot: {fileID: 4391482582920518520}
     weaponBases:
@@ -3425,7 +3425,7 @@ MonoBehaviour:
   slideBoostSpeed: 50
   slideFriction: 10
   downhillFrictionScale: 0.01
-  uphillSlideFriction: 0.1
+  uphillSlideFriction: 0.01
   slideMinSpeed: 3
   slideCooldown: 0.25
   slideHeight: 1
