@@ -3295,37 +3295,33 @@ MonoBehaviour:
   playerStats: {fileID: 40598621636638386}
   ikHandler: {fileID: 0}
   fireAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  swapAction: {fileID: -8062664436889712257, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   remoteWeaponLayer: Default
+  startingWeapons:
+  - {fileID: 11400000, guid: 9893a1614cd866d4dbff8faaa41af4b8, type: 2}
+  - {fileID: 11400000, guid: aa5a3ca35f3847d4db099eb3109baae9, type: 2}
   weapons:
-  - isDefaultBase: 1
-    definition: {fileID: 11400000, guid: aa5a3ca35f3847d4db099eb3109baae9, type: 2}
+  - definition: {fileID: 11400000, guid: aa5a3ca35f3847d4db099eb3109baae9, type: 2}
     weaponRoot: {fileID: 3540587281394680971}
     weaponBases:
     - {fileID: 4987574209306761052}
-    baseLevel: 0
-    currentLevel: 0
-  - isDefaultBase: 0
-    definition: {fileID: 11400000, guid: 9893a1614cd866d4dbff8faaa41af4b8, type: 2}
+    level: 1
+  - definition: {fileID: 11400000, guid: 9893a1614cd866d4dbff8faaa41af4b8, type: 2}
     weaponRoot: {fileID: 4148413334054088110}
     weaponBases:
     - {fileID: 3333029565891492467}
     - {fileID: 627142145785945863}
-    baseLevel: 0
-    currentLevel: 0
-  - isDefaultBase: 0
-    definition: {fileID: 11400000, guid: 70e69f58da8342644943f5c0d3dc3487, type: 2}
+    level: 1
+  - definition: {fileID: 11400000, guid: 70e69f58da8342644943f5c0d3dc3487, type: 2}
     weaponRoot: {fileID: 3610156938786648270}
     weaponBases:
     - {fileID: 7779756829573333741}
-    baseLevel: 0
-    currentLevel: 0
-  - isDefaultBase: 0
-    definition: {fileID: 11400000, guid: f29230a1f193a3f46b40ddcc65a6f690, type: 2}
+    level: 1
+  - definition: {fileID: 11400000, guid: f29230a1f193a3f46b40ddcc65a6f690, type: 2}
     weaponRoot: {fileID: 4391482582920518520}
     weaponBases:
     - {fileID: 8356868250875690882}
-    baseLevel: 0
-    currentLevel: 0
+    level: 1
 --- !u!114 &3423140975808738288
 MonoBehaviour:
   m_ObjectHideFlags: 0

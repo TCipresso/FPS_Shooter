@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -6,6 +5,8 @@ using Mirror;
 
 public class WeaponInventory : NetworkBehaviour
 {
+    public const int SlotCount = 2;
+
     [Header("References")]
     public Transform weaponHolder;
     public PlayerStats playerStats;
@@ -13,18 +14,21 @@ public class WeaponInventory : NetworkBehaviour
 
     [Header("Input")]
     public InputActionReference fireAction;
+    public InputActionReference swapAction;
 
     [Header("Networking")]
     public string remoteWeaponLayer = "Default";
 
+    [Header("Starting Loadout (element 0 = slot 1, element 1 = slot 2)")]
+    public List<WeaponDefinitionSO> startingWeapons = new List<WeaponDefinitionSO>();
+
     [Header("Weapons (drag pre-placed, disabled weapon children here)")]
     public List<WeaponEntry> weapons = new List<WeaponEntry>();
 
+    private readonly WeaponEntry[] slots = new WeaponEntry[SlotCount];
     private Dictionary<WeaponDefinitionSO, WeaponEntry> weaponLookup = new Dictionary<WeaponDefinitionSO, WeaponEntry>();
     private Dictionary<WeaponBase, Material[]> originalMaterialsCache = new Dictionary<WeaponBase, Material[]>();
-    private WeaponEntry currentBaseEntry;
-    private WeaponEntry activePowerUpEntry;
-    private Coroutine powerUpRoutine;
+    private int activeSlot = 0;
 
     [SyncVar(hook = nameof(OnActiveWeaponIndexChanged))]
     private int syncedActiveWeaponIndex = -1;
@@ -33,7 +37,6 @@ public class WeaponInventory : NetworkBehaviour
     {
         weaponLookup.Clear();
         originalMaterialsCache.Clear();
-        WeaponEntry defaultEntry = null;
 
         foreach (WeaponEntry entry in weapons)
         {
@@ -46,10 +49,8 @@ public class WeaponInventory : NetworkBehaviour
 
             weaponLookup[entry.definition] = entry;
 
-            if (entry.baseLevel <= 0)
-                entry.baseLevel = 1;
-            if (entry.currentLevel <= 0)
-                entry.currentLevel = entry.baseLevel;
+            if (entry.level <= 0)
+                entry.level = 1;
 
             foreach (WeaponBase wb in entry.weaponBases)
             {
@@ -59,20 +60,7 @@ public class WeaponInventory : NetworkBehaviour
 
                 wb.onShotFired += HandleShotFired;
             }
-
-            if (entry.isDefaultBase)
-            {
-                if (defaultEntry != null)
-                    Debug.LogWarning($"[WeaponInventory] Multiple entries marked as default base. Using {defaultEntry.definition.weaponName}, ignoring {entry.definition.weaponName}.");
-                else
-                    defaultEntry = entry;
-            }
         }
-
-        if (defaultEntry == null)
-            Debug.LogWarning("[WeaponInventory] No entry marked isDefaultBase - check one entry's box in the Inspector.");
-
-        currentBaseEntry = defaultEntry;
     }
 
     void OnDestroy()
@@ -119,36 +107,60 @@ public class WeaponInventory : NetworkBehaviour
         bool isLocalOrOffline = !NetworkClient.active || isLocalPlayer;
 
         if (isLocalOrOffline)
-        {
-            if (currentBaseEntry != null)
-            {
-                currentBaseEntry.currentLevel = currentBaseEntry.baseLevel;
-                SetActiveEntry(currentBaseEntry);
-            }
-        }
+            InitializeStartingLoadout();
         else
+            ActivateEntryVisualByIndex(syncedActiveWeaponIndex);
+    }
+
+    void InitializeStartingLoadout()
+    {
+        for (int i = 0; i < SlotCount; i++)
+            slots[i] = null;
+
+        for (int i = 0; i < SlotCount && i < startingWeapons.Count; i++)
         {
-            int index = syncedActiveWeaponIndex >= 0
-                ? syncedActiveWeaponIndex
-                : weapons.IndexOf(currentBaseEntry);
-            ActivateEntryVisualByIndex(index);
+            WeaponDefinitionSO def = startingWeapons[i];
+            if (def == null) continue;
+
+            if (!weaponLookup.TryGetValue(def, out WeaponEntry entry))
+            {
+                Debug.LogWarning($"[WeaponInventory] Starting weapon {def.weaponName} has no matching WeaponEntry.");
+                continue;
+            }
+
+            slots[i] = entry;
         }
+
+        for (int i = 0; i < SlotCount; i++)
+        {
+            if (slots[i] == null) continue;
+            EquipSlot(i);
+            return;
+        }
+
+        Debug.LogWarning("[WeaponInventory] No starting weapons assigned.");
     }
 
     public override void OnStartLocalPlayer()
     {
         if (fireAction != null) fireAction.action.Enable();
+        if (swapAction != null) swapAction.action.Enable();
     }
 
     void OnDisable()
     {
         if (!isLocalPlayer) return;
         if (fireAction != null) fireAction.action.Disable();
+        if (swapAction != null) swapAction.action.Disable();
     }
 
     void Update()
     {
         if (NetworkClient.active && !isLocalPlayer) return;
+
+        if (swapAction != null && swapAction.action.WasPressedThisFrame())
+            SwapWeapon();
+
         if (fireAction == null) return;
 
         List<WeaponBase> activeBases = GetActiveWeaponBases();
@@ -249,166 +261,108 @@ public class WeaponInventory : NetworkBehaviour
             SetLayerRecursively(root.GetChild(i), layer);
     }
 
-    public void SetBaseWeapon(WeaponDefinitionSO def)
+    public void SwapWeapon()
     {
+        int next = (activeSlot + 1) % SlotCount;
+        if (slots[next] == null) return;
+        EquipSlot(next);
+    }
+
+    public void EquipSlot(int slot)
+    {
+        if (slot < 0 || slot >= SlotCount) return;
+        if (slots[slot] == null) return;
+
+        activeSlot = slot;
+        SetActiveEntry(slots[slot]);
+    }
+
+    public int AddWeapon(WeaponDefinitionSO def)
+    {
+        if (def == null) return -1;
+
         if (!weaponLookup.TryGetValue(def, out WeaponEntry entry))
         {
-            Debug.LogWarning($"[WeaponInventory] Cannot set base weapon, no entry for {def?.weaponName}.");
-            return;
+            Debug.LogWarning($"[WeaponInventory] Cannot add weapon, no entry for {def.weaponName}.");
+            return -1;
         }
 
-        currentBaseEntry = entry;
-        entry.currentLevel = entry.baseLevel;
-
-        if (activePowerUpEntry == null)
-            SetActiveEntry(entry);
+        return AddEntry(entry);
     }
 
-    public void PickupBaseWeaponBoost()
-    {
-        if (currentBaseEntry == null) return;
-        ActivateBaseLevelPowerUp(currentBaseEntry);
-    }
-
-    public void PickupBaseLevelPowerUp(WeaponDefinitionSO def)
-    {
-        if (!weaponLookup.TryGetValue(def, out WeaponEntry entry))
-        {
-            Debug.LogWarning($"[WeaponInventory] Cannot pick up base-level power-up, no entry for {def?.weaponName}.");
-            return;
-        }
-
-        ActivateBaseLevelPowerUp(entry);
-    }
-
-    // Zero-lookup path for base-type power-ups (e.g. Z16), same pattern as PickupPowerUpByIndex.
-    public void PickupBaseLevelPowerUpByIndex(int index)
+    public int AddWeaponByIndex(int index)
     {
         if (index < 0 || index >= weapons.Count)
         {
-            Debug.LogWarning($"[WeaponInventory] PickupBaseLevelPowerUpByIndex: index {index} out of range.");
-            return;
+            Debug.LogWarning($"[WeaponInventory] AddWeaponByIndex: index {index} out of range.");
+            return -1;
         }
 
-        ActivateBaseLevelPowerUp(weapons[index]);
+        return AddEntry(weapons[index]);
     }
 
-    void ActivateBaseLevelPowerUp(WeaponEntry entry)
+    public bool AddWeaponToSlot(WeaponDefinitionSO def, int slot)
     {
-        if (entry?.weaponRoot == null || entry.definition == null) return;
+        if (def == null) return false;
+        if (slot < 0 || slot >= SlotCount) return false;
 
-        if (activePowerUpEntry == entry)
-            entry.currentLevel = Mathf.Min(entry.currentLevel + 1, entry.definition.maxLevel);
-        else
-            entry.currentLevel = Mathf.Min(entry.baseLevel + 1, entry.definition.maxLevel);
-
-        activePowerUpEntry = entry;
-        SetActiveEntry(entry);
-
-        if (powerUpRoutine != null)
-            StopCoroutine(powerUpRoutine);
-        powerUpRoutine = StartCoroutine(BaseLevelPowerUpCountdown(entry));
-    }
-
-    IEnumerator BaseLevelPowerUpCountdown(WeaponEntry entry)
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(entry.definition.powerUpDurationPerLevel);
-
-            if (activePowerUpEntry != entry)
-                yield break;
-
-            if (entry.currentLevel > entry.baseLevel)
-            {
-                entry.currentLevel--;
-                ApplyLevel(entry);
-            }
-            else
-            {
-                RevertToBaseWeapon();
-                yield break;
-            }
-        }
-    }
-
-    public void PickupPowerUp(WeaponDefinitionSO def)
-    {
         if (!weaponLookup.TryGetValue(def, out WeaponEntry entry))
         {
-            Debug.LogWarning($"[WeaponInventory] Cannot pick up power-up, no entry for {def?.weaponName}.");
-            return;
+            Debug.LogWarning($"[WeaponInventory] Cannot add weapon, no entry for {def.weaponName}.");
+            return false;
         }
 
-        ActivatePowerUp(entry);
+        slots[slot] = entry;
+        EquipSlot(slot);
+        return true;
     }
 
-    // Zero-lookup path: index maps directly into the weapons list, no dictionary hit.
-    public void PickupPowerUpByIndex(int index)
+    int AddEntry(WeaponEntry entry)
     {
-        if (index < 0 || index >= weapons.Count)
+        if (entry?.weaponRoot == null || entry.definition == null) return -1;
+
+        for (int i = 0; i < SlotCount; i++)
         {
-            Debug.LogWarning($"[WeaponInventory] PickupPowerUpByIndex: index {index} out of range.");
-            return;
+            if (slots[i] != entry) continue;
+            EquipSlot(i);
+            return i;
         }
 
-        ActivatePowerUp(weapons[index]);
+        for (int i = 0; i < SlotCount; i++)
+        {
+            if (slots[i] != null) continue;
+            slots[i] = entry;
+            EquipSlot(i);
+            return i;
+        }
+
+        slots[activeSlot] = entry;
+        EquipSlot(activeSlot);
+        return activeSlot;
     }
 
-    void ActivatePowerUp(WeaponEntry entry)
+    public void RemoveWeapon(int slot)
     {
-        if (entry?.weaponRoot == null || entry.definition == null) return;
+        if (slot < 0 || slot >= SlotCount) return;
+        if (slots[slot] == null) return;
 
-        if (activePowerUpEntry == entry)
-        {
-            // Already active - stack another level on top, temporary only.
-            entry.currentLevel = Mathf.Min(entry.currentLevel + 1, entry.definition.maxLevel);
-        }
-        else
-        {
-            // Fresh pickup - starts at level 1 regardless of baseLevel. Purely temporary.
-            entry.currentLevel = 1;
-        }
+        slots[slot] = null;
 
-        activePowerUpEntry = entry;
-        SetActiveEntry(entry);
+        if (slot != activeSlot) return;
 
-        if (powerUpRoutine != null)
-            StopCoroutine(powerUpRoutine);
-        powerUpRoutine = StartCoroutine(PowerUpCountdown(entry));
+        int other = (slot + 1) % SlotCount;
+        if (slots[other] != null)
+            EquipSlot(other);
+        else if (slots[slot] == null && slots[other] == null)
+            SetAllWeaponsInactive();
     }
 
-    IEnumerator PowerUpCountdown(WeaponEntry entry)
+    void SetAllWeaponsInactive()
     {
-        while (true)
+        foreach (WeaponEntry w in weapons)
         {
-            yield return new WaitForSeconds(entry.definition.powerUpDurationPerLevel);
-
-            if (activePowerUpEntry != entry)
-                yield break;
-
-            if (entry.currentLevel > 1)
-            {
-                entry.currentLevel--;
-                ApplyLevel(entry);
-            }
-            else
-            {
-                RevertToBaseWeapon();
-                yield break;
-            }
-        }
-    }
-
-    void RevertToBaseWeapon()
-    {
-        activePowerUpEntry = null;
-        powerUpRoutine = null;
-
-        if (currentBaseEntry != null)
-        {
-            currentBaseEntry.currentLevel = currentBaseEntry.baseLevel;
-            SetActiveEntry(currentBaseEntry);
+            if (w?.weaponRoot != null)
+                w.weaponRoot.SetActive(false);
         }
     }
 
@@ -420,14 +374,10 @@ public class WeaponInventory : NetworkBehaviour
             return;
         }
 
-        entry.baseLevel = Mathf.Min(entry.baseLevel + 1, entry.definition.maxLevel);
+        entry.level = Mathf.Min(entry.level + 1, entry.definition.maxLevel);
 
-        WeaponEntry active = activePowerUpEntry ?? currentBaseEntry;
-        if (active == entry)
-        {
-            entry.currentLevel = entry.baseLevel;
+        if (slots[activeSlot] == entry)
             ApplyLevel(entry);
-        }
     }
 
     void SetActiveEntry(WeaponEntry entry)
@@ -466,7 +416,7 @@ public class WeaponInventory : NetworkBehaviour
         {
             if (wb == null) continue;
 
-            wb.ApplyLevel(entry.definition, entry.currentLevel);
+            wb.ApplyLevel(entry.definition, entry.level);
         }
 
         ApplyWeaponSkin(entry);
@@ -485,7 +435,7 @@ public class WeaponInventory : NetworkBehaviour
             Renderer renderer = wb.skinRenderer;
             if (renderer == null) continue;
 
-            if (entry.currentLevel <= 1 || def.packedMaterial == null)
+            if (entry.level <= 1 || def.packedMaterial == null)
             {
                 if (originalMaterialsCache.TryGetValue(wb, out Material[] original))
                     renderer.sharedMaterials = original;
@@ -504,7 +454,7 @@ public class WeaponInventory : NetworkBehaviour
 
             renderer.GetPropertyBlock(sharedPropertyBlock);
 
-            int tintIndex = entry.currentLevel - 2;
+            int tintIndex = entry.level - 2;
             Color tint = (def.levelTintColors != null && tintIndex >= 0 && tintIndex < def.levelTintColors.Length)
                 ? def.levelTintColors[tintIndex]
                 : Color.white;
@@ -514,25 +464,37 @@ public class WeaponInventory : NetworkBehaviour
         }
     }
 
+    public int ActiveSlot => activeSlot;
+
+    public WeaponEntry GetSlot(int slot)
+    {
+        if (slot < 0 || slot >= SlotCount) return null;
+        return slots[slot];
+    }
+
+    public bool HasWeapon(WeaponDefinitionSO def)
+    {
+        if (def == null) return false;
+        for (int i = 0; i < SlotCount; i++)
+        {
+            if (slots[i] != null && slots[i].definition == def)
+                return true;
+        }
+        return false;
+    }
+
     public WeaponBase GetActiveWeaponBase()
     {
-        WeaponEntry active = activePowerUpEntry ?? currentBaseEntry;
-        return active?.Primary;
+        return slots[activeSlot]?.Primary;
     }
 
     public List<WeaponBase> GetActiveWeaponBases()
     {
-        WeaponEntry active = activePowerUpEntry ?? currentBaseEntry;
-        return active?.weaponBases;
+        return slots[activeSlot]?.weaponBases;
     }
 
-    public int GetBaseLevel(WeaponDefinitionSO def)
+    public int GetLevel(WeaponDefinitionSO def)
     {
-        return weaponLookup.TryGetValue(def, out WeaponEntry entry) ? entry.baseLevel : 0;
-    }
-
-    public int GetCurrentLevel(WeaponDefinitionSO def)
-    {
-        return weaponLookup.TryGetValue(def, out WeaponEntry entry) ? entry.currentLevel : 0;
+        return weaponLookup.TryGetValue(def, out WeaponEntry entry) ? entry.level : 0;
     }
 }
