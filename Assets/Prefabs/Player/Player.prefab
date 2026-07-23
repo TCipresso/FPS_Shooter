@@ -3417,22 +3417,22 @@ MonoBehaviour:
   omniDirectionalSprint: 1
   maxAirSpeed: 100
   conserveAirMomentum: 1
-  jumpHeight: 15
+  jumpHeight: 8
   gravity: -100
   groundedStickForce: -4
   coyoteTime: 0.25
   jumpCount: 1
-  slideBoostSpeed: 75
+  slideBoostSpeed: 50
   slideFriction: 10
   downhillFrictionScale: 0.01
-  uphillSlideFriction: 5
+  uphillSlideFriction: 0.1
   slideMinSpeed: 3
-  slideCooldown: 0
+  slideCooldown: 0.25
   slideHeight: 1
   slideHeightLerpSpeed: 1
   slideJumpUpSpeed: 30
-  slideJumpForwardBoost: 15
-  slideGravityScale: 30
+  slideJumpForwardBoost: 0
+  slideGravityScale: 150
   maxSlideSpeed: 150
   slideSteerStrength: 100
   slideGroundSnapDistance: 2

@@ -367,22 +367,8 @@ public class PlayerFpsController : NetworkBehaviour
             slideBufferCounter = 0f;
         }
 
-        if (IsSliding)
-        {
-            float slideSpeed = slideVelocity.magnitude;
-            bool goingDownhill = IsDownhill();
-            bool tooSlow = slideSpeed < slideMinSpeed && !goingDownhill;
-
-            if (!input.CrouchHeld)
-            {
-                EndSlide();
-            }
-            else if (tooSlow)
-            {
-                slideEndedWhileHeld = true;
-                EndSlide();
-            }
-        }
+        if (IsSliding && !input.CrouchHeld)
+            EndSlide();
     }
 
     bool IsDownhill()
