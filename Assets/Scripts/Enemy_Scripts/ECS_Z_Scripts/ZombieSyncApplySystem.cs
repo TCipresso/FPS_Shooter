@@ -67,7 +67,8 @@ public partial struct ZombieSyncApplySystem : ISystem
         {
             if (idMap.TryGetValue(entry.NetId, out Entity existing) && em.Exists(existing))
             {
-                UpdateInterpolationTarget(em, existing, entry, now);
+                if (!em.HasComponent<ZombieDead>(existing))
+                    UpdateInterpolationTarget(em, existing, entry, now);
                 continue;
             }
 
@@ -145,7 +146,7 @@ public partial struct ZombieSyncApplySystem : ISystem
     {
         float deltaTime = SystemAPI.Time.DeltaTime;
 
-        foreach (var (transform, interp) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<ZombieInterpolation>>().WithAll<ZombieTag>())
+        foreach (var (transform, interp) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<ZombieInterpolation>>().WithAll<ZombieTag>().WithNone<ZombieDead>())
         {
             if (interp.ValueRO.Duration <= 0f)
                 continue;

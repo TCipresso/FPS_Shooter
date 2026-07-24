@@ -102,6 +102,7 @@ public class ZombieNetworkManager : MonoBehaviour
         if (NetworkServer.active)
         {
             SendSnapshots();
+            SendDeaths();
             SendDespawns();
             RecycleExpiredIds();
         }
@@ -149,6 +150,7 @@ public class ZombieNetworkManager : MonoBehaviour
         {
             NetworkClient.RegisterHandler<ZombieSnapshotMessage>(OnClientSnapshot);
             NetworkClient.RegisterHandler<ZombieDespawnMessage>(OnClientDespawn);
+            NetworkClient.RegisterHandler<ZombieDeathMessage>(OnClientDeath);
         }
 
         wasServer = isServer;
@@ -228,6 +230,37 @@ public class ZombieNetworkManager : MonoBehaviour
         }, Channels.Unreliable);
     }
 
+    readonly List<ushort> deathScratch = new List<ushort>();
+
+    void SendDeaths()
+    {
+        NativeQueue<ushort> deaths = entityManager.GetComponentData<ZombieServerDeathQueue>(singletonEntity).Queue;
+        if (deaths.IsEmpty())
+            return;
+
+        deathScratch.Clear();
+        while (deaths.TryDequeue(out ushort netId))
+            deathScratch.Add(netId);
+
+        if (deathScratch.Count == 0)
+            return;
+
+        ZombieDeathMessage message = new ZombieDeathMessage
+        {
+            NetIds = deathScratch.ToArray()
+        };
+
+        foreach (KeyValuePair<int, NetworkConnectionToClient> pair in NetworkServer.connections)
+        {
+            NetworkConnectionToClient conn = pair.Value;
+            if (conn == null) continue;
+            if (conn == NetworkServer.localConnection) continue;
+            if (!conn.isReady) continue;
+
+            conn.Send(message, Channels.Reliable);
+        }
+    }
+
     void SendDespawns()
     {
         NativeQueue<ushort> despawns = entityManager.GetComponentData<ZombieServerDespawnQueue>(singletonEntity).Queue;
@@ -294,6 +327,17 @@ public class ZombieNetworkManager : MonoBehaviour
         if (message.NetIds == null) return;
 
         NativeQueue<ushort> queue = entityManager.GetComponentData<ZombieClientDespawnQueue>(singletonEntity).Queue;
+
+        for (int i = 0; i < message.NetIds.Length; i++)
+            queue.Enqueue(message.NetIds[i]);
+    }
+
+    void OnClientDeath(ZombieDeathMessage message)
+    {
+        if (!EnsureReady()) return;
+        if (message.NetIds == null) return;
+
+        NativeQueue<ushort> queue = entityManager.GetComponentData<ZombieClientDeathQueue>(singletonEntity).Queue;
 
         for (int i = 0; i < message.NetIds.Length; i++)
             queue.Enqueue(message.NetIds[i]);

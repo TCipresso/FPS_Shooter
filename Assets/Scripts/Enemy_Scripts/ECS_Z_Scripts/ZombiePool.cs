@@ -28,6 +28,9 @@ public static class ZombiePool
         if (!em.Exists(entity))
             return;
 
+        if (em.HasComponent<ZombieDead>(entity))
+            em.RemoveComponent<ZombieDead>(entity);
+
         if (em.HasComponent<ZombieNetId>(entity))
             em.SetComponentData(entity, new ZombieNetId { Value = 0 });
 
@@ -37,12 +40,20 @@ public static class ZombiePool
 
     static void ResetState(EntityManager em, Entity entity)
     {
-        if (em.HasComponent<ZombieHealth>(entity))
+        float baseSpeed = 0f;
+        int baseMaxHealth = 0;
+        if (em.HasComponent<ZombieBaseStats>(entity))
         {
-            ZombieHealth health = em.GetComponentData<ZombieHealth>(entity);
-            health.Current = health.Max;
-            em.SetComponentData(entity, health);
+            ZombieBaseStats baseStats = em.GetComponentData<ZombieBaseStats>(entity);
+            baseSpeed = baseStats.BaseMoveSpeed;
+            baseMaxHealth = baseStats.BaseMaxHealth;
         }
+
+        if (em.HasComponent<ZombieHealth>(entity) && baseMaxHealth > 0)
+            em.SetComponentData(entity, new ZombieHealth { Current = baseMaxHealth, Max = baseMaxHealth });
+
+        if (em.HasComponent<ZombieMoveSpeed>(entity) && baseSpeed > 0f)
+            em.SetComponentData(entity, new ZombieMoveSpeed { Value = baseSpeed });
 
         if (em.HasComponent<ZombieVerticalVelocity>(entity))
             em.SetComponentData(entity, new ZombieVerticalVelocity { Value = 0f });

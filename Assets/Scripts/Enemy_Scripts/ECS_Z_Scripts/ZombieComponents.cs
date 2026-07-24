@@ -4,9 +4,20 @@ using Unity.Collections;
 
 public struct ZombieTag : IComponentData { }
 
+public struct ZombieDead : IComponentData
+{
+    public float Timer;
+}
+
 public struct ZombieMoveSpeed : IComponentData
 {
     public float Value;
+}
+
+public struct ZombieBaseStats : IComponentData
+{
+    public float BaseMoveSpeed;
+    public int BaseMaxHealth;
 }
 
 public struct ZombieHealth : IComponentData
@@ -67,9 +78,6 @@ public struct ZombieTarget : IComponentData
 public struct ZombieSpawnConfig : IComponentData
 {
     public Entity Prefab;
-    public int SpawnCount;
-    public float SpawnRadius;
-    public bool HasSpawned;
 }
 
 public struct ZombieDamageEvent

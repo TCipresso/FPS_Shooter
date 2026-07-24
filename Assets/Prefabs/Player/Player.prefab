@@ -905,7 +905,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5414748413537971591
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1477,7 +1477,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3019964847263677341
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1938,7 +1938,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7149703216989260403
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2703,7 +2703,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7304492308672335215
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3053,7 +3053,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7059942600897368458
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3298,8 +3298,8 @@ MonoBehaviour:
   swapAction: {fileID: -8062664436889712257, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   remoteWeaponLayer: Default
   startingWeapons:
-  - {fileID: 11400000, guid: 9893a1614cd866d4dbff8faaa41af4b8, type: 2}
   - {fileID: 11400000, guid: aa5a3ca35f3847d4db099eb3109baae9, type: 2}
+  - {fileID: 11400000, guid: 9893a1614cd866d4dbff8faaa41af4b8, type: 2}
   weapons:
   - definition: {fileID: 11400000, guid: aa5a3ca35f3847d4db099eb3109baae9, type: 2}
     weaponRoot: {fileID: 3540587281394680971}

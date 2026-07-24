@@ -17,6 +17,7 @@ public class ZombieAuthoring : MonoBehaviour
             Entity entity = GetEntity(TransformUsageFlags.Dynamic);
             AddComponent<ZombieTag>(entity);
             AddComponent(entity, new ZombieMoveSpeed { Value = authoring.moveSpeed });
+            AddComponent(entity, new ZombieBaseStats { BaseMoveSpeed = authoring.moveSpeed, BaseMaxHealth = authoring.maxHealth });
             AddComponent(entity, new ZombieHealth { Current = authoring.maxHealth, Max = authoring.maxHealth });
             AddComponent(entity, new ZombieContactCooldown { Value = 0f });
             AddComponent(entity, new ZombieHitboxHeight { Value = authoring.hitboxHeight });

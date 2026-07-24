@@ -18,8 +18,11 @@ public partial struct ZombieDamageSystem : ISystem
 
         state.Dependency.Complete();
 
-        NativeQueue<ushort> despawnQueue = SystemAPI.GetComponent<ZombieServerDespawnQueue>(singletonEntity).Queue;
-        NativeList<Entity> pool = SystemAPI.GetComponent<ZombiePoolSingleton>(singletonEntity).Inactive;
+        NativeQueue<ushort> deathQueue = SystemAPI.GetComponent<ZombieServerDeathQueue>(singletonEntity).Queue;
+
+        float deathDuration = 0.35f;
+        if (SystemAPI.TryGetSingleton<ZombieSpawnTuning>(out ZombieSpawnTuning tuning))
+            deathDuration = tuning.DeathDuration;
 
         EntityManager em = state.EntityManager;
 
@@ -28,6 +31,8 @@ public partial struct ZombieDamageSystem : ISystem
             if (!em.Exists(damageEvent.Target))
                 continue;
             if (!em.HasComponent<ZombieHealth>(damageEvent.Target))
+                continue;
+            if (em.HasComponent<ZombieDead>(damageEvent.Target))
                 continue;
 
             ZombieHealth health = em.GetComponentData<ZombieHealth>(damageEvent.Target);
@@ -39,10 +44,10 @@ public partial struct ZombieDamageSystem : ISystem
                 {
                     ushort netId = em.GetComponentData<ZombieNetId>(damageEvent.Target).Value;
                     if (netId != 0)
-                        despawnQueue.Enqueue(netId);
+                        deathQueue.Enqueue(netId);
                 }
 
-                ZombiePool.Release(em, pool, damageEvent.Target);
+                em.AddComponentData(damageEvent.Target, new ZombieDead { Timer = deathDuration });
             }
             else
             {

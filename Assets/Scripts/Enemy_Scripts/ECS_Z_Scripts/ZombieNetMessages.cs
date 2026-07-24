@@ -82,6 +82,11 @@ public struct ZombieDespawnMessage : NetworkMessage
     public ushort[] NetIds;
 }
 
+public struct ZombieDeathMessage : NetworkMessage
+{
+    public ushort[] NetIds;
+}
+
 public struct ZombieDamageRequestMessage : NetworkMessage
 {
     public ushort NetId;
