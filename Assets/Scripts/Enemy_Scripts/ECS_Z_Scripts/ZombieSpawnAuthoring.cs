@@ -9,15 +9,22 @@ public class ZombieSpawnAuthoring : MonoBehaviour
     [Header("Population")]
     public int maxAlive = 1000;
 
-    [Header("Spawn Rate (per second)")]
-    public float baseSpawnRate = 3f;
-    public float ratePerMinute = 2f;
-    public float maxSpawnRate = 40f;
+    [Header("Round Bank")]
+    public int baseRoundBank = 8;
+    public float bankGrowth = 1.15f;
 
-    [Header("Escalation (per minute of play)")]
-    public float healthPerMinute = 25f;
-    public float speedPerMinute = 0.15f;
+    [Header("Spawn Rate")]
+    public float baseSpawnRate = 1.5f;
+    public float spawnRateGrowth = 1.1f;
+    public float maxSpawnRate = 20f;
+
+    [Header("Escalation (per round)")]
+    public float healthPerRound = 15f;
+    public float speedPerRound = 0.05f;
     public float maxSpeedMultiplier = 2.5f;
+
+    [Header("Pacing")]
+    public float intermissionDuration = 6f;
 
     [Header("Placement")]
     public float spawnRadiusMin = 25f;
@@ -40,25 +47,33 @@ public class ZombieSpawnAuthoring : MonoBehaviour
 
             AddComponent(entity, new ZombieSpawnConfig { Prefab = prefabEntity });
 
-            AddComponent(entity, new ZombieSpawnState
+            AddComponent(entity, new ZombieRoundState
             {
-                ElapsedTime = 0f,
-                SpawnAccumulator = 0f
+                Round = 0,
+                RemainingToSpawn = 0,
+                TotalThisRound = 0,
+                KilledThisRound = 0,
+                SpawnAccumulator = 0f,
+                IntermissionTimer = 0f,
+                InIntermission = false
             });
 
-            AddComponent(entity, new ZombieSpawnTuning
+            AddComponent(entity, new ZombieRoundConfig
             {
                 MaxAlive = authoring.maxAlive,
+                BaseRoundBank = authoring.baseRoundBank,
+                BankGrowth = authoring.bankGrowth,
                 BaseSpawnRate = authoring.baseSpawnRate,
-                RatePerMinute = authoring.ratePerMinute,
+                SpawnRateGrowth = authoring.spawnRateGrowth,
                 MaxSpawnRate = authoring.maxSpawnRate,
+                IntermissionDuration = authoring.intermissionDuration,
                 SpawnRadiusMin = authoring.spawnRadiusMin,
                 SpawnRadiusMax = authoring.spawnRadiusMax,
                 ClusterRadius = authoring.clusterRadius,
                 ClusterRateMultiplier = authoring.clusterRateMultiplier,
                 SpawnAttemptsPerZombie = authoring.spawnAttemptsPerZombie,
-                HealthPerMinute = authoring.healthPerMinute,
-                SpeedPerMinute = authoring.speedPerMinute,
+                HealthPerRound = authoring.healthPerRound,
+                SpeedPerRound = authoring.speedPerRound,
                 MaxSpeedMultiplier = authoring.maxSpeedMultiplier,
                 DeathDuration = authoring.deathDuration
             });

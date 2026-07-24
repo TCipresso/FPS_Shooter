@@ -24,10 +24,11 @@ public partial struct ZombieRoundSystem : ISystem
         if (!authority.ShouldSimulate)
             return;
 
-        if (!SystemAPI.TryGetSingleton<ZombieSpawnConfig>(out ZombieSpawnConfig spawnConfig))
+        if (!SystemAPI.TryGetSingletonEntity<ZombieSpawnConfig>(out Entity spawnConfigEntity))
             return;
-        if (!SystemAPI.TryGetSingleton<ZombieRoundConfig>(out ZombieRoundConfig config))
-            return;
+
+        ZombieSpawnConfig spawnConfig = SystemAPI.GetComponent<ZombieSpawnConfig>(spawnConfigEntity);
+        ZombieRoundConfig config = SystemAPI.GetComponent<ZombieRoundConfig>(spawnConfigEntity);
 
         DynamicBuffer<PlayerTargetElement> players = SystemAPI.GetBuffer<PlayerTargetElement>(singletonEntity);
 
@@ -44,7 +45,7 @@ public partial struct ZombieRoundSystem : ISystem
             return;
         }
 
-        ZombieRoundState round = SystemAPI.GetComponent<ZombieRoundState>(singletonEntity);
+        ZombieRoundState round = SystemAPI.GetComponent<ZombieRoundState>(spawnConfigEntity);
         float deltaTime = SystemAPI.Time.DeltaTime;
 
         if (round.Round == 0)
@@ -56,7 +57,7 @@ public partial struct ZombieRoundSystem : ISystem
             if (round.IntermissionTimer <= 0f)
                 StartRound(ref round, round.Round + 1, config);
 
-            SystemAPI.SetComponent(singletonEntity, round);
+            SystemAPI.SetComponent(spawnConfigEntity, round);
             activePlayers.Dispose();
             return;
         }
@@ -67,7 +68,7 @@ public partial struct ZombieRoundSystem : ISystem
         {
             round.InIntermission = true;
             round.IntermissionTimer = config.IntermissionDuration;
-            SystemAPI.SetComponent(singletonEntity, round);
+            SystemAPI.SetComponent(spawnConfigEntity, round);
             activePlayers.Dispose();
             return;
         }
@@ -87,12 +88,14 @@ public partial struct ZombieRoundSystem : ISystem
 
             if (toSpawn > 0)
             {
-                int spawnedCount = SpawnBatch(ref state, singletonEntity, spawnConfig, config, activePlayers, toSpawn);
+                float healthBonus = config.HealthPerRound * (round.Round - 1);
+                float speedMult = math.min(1f + config.SpeedPerRound * (round.Round - 1), config.MaxSpeedMultiplier);
+                int spawnedCount = SpawnBatch(ref state, singletonEntity, spawnConfig, config, activePlayers, toSpawn, healthBonus, speedMult);
                 round.RemainingToSpawn -= spawnedCount;
             }
         }
 
-        SystemAPI.SetComponent(singletonEntity, round);
+        SystemAPI.SetComponent(spawnConfigEntity, round);
         activePlayers.Dispose();
     }
 
@@ -139,7 +142,7 @@ public partial struct ZombieRoundSystem : ISystem
     }
 
     int SpawnBatch(ref SystemState state, Entity singletonEntity, ZombieSpawnConfig spawnConfig,
-        ZombieRoundConfig config, NativeList<float3> activePlayers, int count)
+        ZombieRoundConfig config, NativeList<float3> activePlayers, int count, float healthBonus, float speedMult)
     {
         EntityManager em = state.EntityManager;
         NativeList<Entity> pool = SystemAPI.GetComponent<ZombiePoolSingleton>(singletonEntity).Inactive;
@@ -165,6 +168,26 @@ public partial struct ZombieRoundSystem : ISystem
 
             LocalTransform transform = em.GetComponentData<LocalTransform>(entity);
             em.SetComponentData(entity, transform.WithPosition(new float3(spawnPos.x, spawnPos.y + groundOffset, spawnPos.z)));
+
+            float baseSpeed = 0f;
+            int baseMaxHealth = 0;
+            if (em.HasComponent<ZombieBaseStats>(entity))
+            {
+                ZombieBaseStats baseStats = em.GetComponentData<ZombieBaseStats>(entity);
+                baseSpeed = baseStats.BaseMoveSpeed;
+                baseMaxHealth = baseStats.BaseMaxHealth;
+            }
+
+            if (em.HasComponent<ZombieHealth>(entity) && baseMaxHealth > 0)
+            {
+                int scaledMax = baseMaxHealth + (int)healthBonus;
+                em.SetComponentData(entity, new ZombieHealth { Current = scaledMax, Max = scaledMax });
+            }
+
+            if (em.HasComponent<ZombieMoveSpeed>(entity) && baseSpeed > 0f)
+            {
+                em.SetComponentData(entity, new ZombieMoveSpeed { Value = baseSpeed * speedMult });
+            }
 
             if (em.HasComponent<ZombieTarget>(entity))
             {

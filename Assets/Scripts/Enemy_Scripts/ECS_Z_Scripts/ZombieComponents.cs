@@ -4,10 +4,6 @@ using Unity.Collections;
 
 public struct ZombieTag : IComponentData { }
 
-public struct ZombieDead : IComponentData
-{
-    public float Timer;
-}
 
 public struct ZombieMoveSpeed : IComponentData
 {

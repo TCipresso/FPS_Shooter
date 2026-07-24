@@ -14,7 +14,7 @@ public class ZombieRoundInfo : MonoBehaviour
     public int AliveCount { get; private set; }
 
     EntityManager entityManager;
-    Entity singletonEntity = Entity.Null;
+    Entity spawnConfigEntity = Entity.Null;
     EntityQuery aliveQuery;
     bool ready;
 
@@ -37,10 +37,10 @@ public class ZombieRoundInfo : MonoBehaviour
 
         entityManager = world.EntityManager;
 
-        EntityQuery query = entityManager.CreateEntityQuery(typeof(ZombieSingletonTag));
+        EntityQuery query = entityManager.CreateEntityQuery(typeof(ZombieRoundState));
         if (query.CalculateEntityCount() == 0) return false;
 
-        singletonEntity = query.GetSingletonEntity();
+        spawnConfigEntity = query.GetSingletonEntity();
         aliveQuery = entityManager.CreateEntityQuery(typeof(ZombieTag));
         ready = true;
         return true;
@@ -49,9 +49,8 @@ public class ZombieRoundInfo : MonoBehaviour
     void Update()
     {
         if (!EnsureReady()) return;
-        if (!entityManager.HasComponent<ZombieRoundState>(singletonEntity)) return;
 
-        ZombieRoundState round = entityManager.GetComponentData<ZombieRoundState>(singletonEntity);
+        ZombieRoundState round = entityManager.GetComponentData<ZombieRoundState>(spawnConfigEntity);
 
         Round = round.Round;
         TotalThisRound = round.TotalThisRound;

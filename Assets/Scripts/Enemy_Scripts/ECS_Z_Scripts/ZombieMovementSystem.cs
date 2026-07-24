@@ -148,7 +148,6 @@ public partial struct ZombieMovementSystem : ISystem
 
 [BurstCompile]
 [WithAll(typeof(ZombieTag))]
-[WithNone(typeof(ZombieDead))]
 partial struct BuildGridJob : IJobEntity
 {
     public NativeParallelMultiHashMap<int3, ZombieGridEntry>.ParallelWriter GridWriter;
@@ -163,7 +162,6 @@ partial struct BuildGridJob : IJobEntity
 
 [BurstCompile]
 [WithAll(typeof(ZombieTag))]
-[WithNone(typeof(ZombieDead))]
 partial struct ZombieDesiredMoveJob : IJobEntity
 {
     [ReadOnly] public NativeArray<PlayerTargetElement> Players;
@@ -328,7 +326,6 @@ partial struct ZombieDesiredMoveJob : IJobEntity
 
 [BurstCompile]
 [WithAll(typeof(ZombieTag))]
-[WithNone(typeof(ZombieDead))]
 partial struct ZombieApplyMovementJob : IJobEntity
 {
     [ReadOnly] public NativeArray<float3> DesiredMoveDirections;

@@ -25,4 +25,10 @@ public struct ZombieRoundConfig : IComponentData
     public float ClusterRadius;
     public float ClusterRateMultiplier;
     public int SpawnAttemptsPerZombie;
+
+    public float HealthPerRound;
+    public float SpeedPerRound;
+    public float MaxSpeedMultiplier;
+
+    public float DeathDuration;
 }

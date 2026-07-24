@@ -93,21 +93,6 @@ public struct ZombieDamageRequestQueue : IComponentData
     public NativeQueue<ZombieDamageRequest> Queue;
 }
 
-public struct ZombieDeathEntry
-{
-    public ushort NetId;
-}
-
-public struct ZombieServerDeathQueue : IComponentData
-{
-    public NativeQueue<ushort> Queue;
-}
-
-public struct ZombieClientDeathQueue : IComponentData
-{
-    public NativeQueue<ushort> Queue;
-}
-
 public struct ZombiePoolSingleton : IComponentData
 {
     public NativeList<Entity> Inactive;

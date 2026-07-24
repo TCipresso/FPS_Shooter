@@ -207,12 +207,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ZombieSpawnAuthoring
   zPrefab: {fileID: 7755736273404113030, guid: 602b855606082f94fa8e5f1a72d4554f, type: 3}
   maxAlive: 1000
+  baseRoundBank: 8
+  bankGrowth: 1.15
   baseSpawnRate: 1
-  ratePerMinute: 1
+  spawnRateGrowth: 1.1
   maxSpawnRate: 10
-  healthPerMinute: 10
-  speedPerMinute: 0.05
+  healthPerRound: 15
+  speedPerRound: 0.05
   maxSpeedMultiplier: 2.5
+  intermissionDuration: 2
   spawnRadiusMin: 25
   spawnRadiusMax: 45
   spawnAttemptsPerZombie: 4

@@ -28,8 +28,6 @@ public static class ZombiePool
         if (!em.Exists(entity))
             return;
 
-        if (em.HasComponent<ZombieDead>(entity))
-            em.RemoveComponent<ZombieDead>(entity);
 
         if (em.HasComponent<ZombieNetId>(entity))
             em.SetComponentData(entity, new ZombieNetId { Value = 0 });

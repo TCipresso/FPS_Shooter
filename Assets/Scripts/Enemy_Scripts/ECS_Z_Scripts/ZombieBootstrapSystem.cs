@@ -42,8 +42,6 @@ public partial struct ZombieBootstrapSystem : ISystem
         state.EntityManager.AddComponentData(singleton, new ZombieClientDespawnQueue { Queue = new NativeQueue<ushort>(Allocator.Persistent) });
         state.EntityManager.AddComponentData(singleton, new ZombieServerDespawnQueue { Queue = new NativeQueue<ushort>(Allocator.Persistent) });
         state.EntityManager.AddComponentData(singleton, new ZombieDamageRequestQueue { Queue = new NativeQueue<ZombieDamageRequest>(Allocator.Persistent) });
-        state.EntityManager.AddComponentData(singleton, new ZombieServerDeathQueue { Queue = new NativeQueue<ushort>(Allocator.Persistent) });
-        state.EntityManager.AddComponentData(singleton, new ZombieClientDeathQueue { Queue = new NativeQueue<ushort>(Allocator.Persistent) });
         state.EntityManager.AddComponentData(singleton, new ZombiePoolSingleton { Inactive = new NativeList<Entity>(512, Allocator.Persistent) });
         state.EntityManager.AddComponentData(singleton, new ZombieRecentDespawns { Map = new NativeParallelHashMap<int, double>(512, Allocator.Persistent) });
         state.EntityManager.AddComponentData(singleton, new ZombieGridSingleton
@@ -74,10 +72,6 @@ public partial struct ZombieBootstrapSystem : ISystem
         foreach (var q in SystemAPI.Query<RefRO<ZombieServerDespawnQueue>>())
             q.ValueRO.Queue.Dispose();
         foreach (var q in SystemAPI.Query<RefRO<ZombieDamageRequestQueue>>())
-            q.ValueRO.Queue.Dispose();
-        foreach (var q in SystemAPI.Query<RefRO<ZombieServerDeathQueue>>())
-            q.ValueRO.Queue.Dispose();
-        foreach (var q in SystemAPI.Query<RefRO<ZombieClientDeathQueue>>())
             q.ValueRO.Queue.Dispose();
         foreach (var p in SystemAPI.Query<RefRO<ZombiePoolSingleton>>())
             p.ValueRO.Inactive.Dispose();
