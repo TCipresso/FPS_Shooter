@@ -11,11 +11,22 @@ public partial struct ZombieMovementSystem : ISystem
 {
     public void OnUpdate(ref SystemState state)
     {
-        if (!SystemAPI.TryGetSingletonEntity<PlayerPosition>(out Entity singletonEntity))
+        if (!SystemAPI.TryGetSingletonEntity<ZombieSingletonTag>(out Entity singletonEntity))
             return;
 
-        PlayerPosition playerPosition = SystemAPI.GetComponent<PlayerPosition>(singletonEntity);
-        if (!playerPosition.IsValid)
+        DynamicBuffer<PlayerTargetElement> playerBuffer = SystemAPI.GetBuffer<PlayerTargetElement>(singletonEntity);
+        ZombieTargetConfig targetConfig = SystemAPI.GetComponent<ZombieTargetConfig>(singletonEntity);
+
+        bool anyPlayerRegistered = false;
+        for (int i = 0; i < playerBuffer.Length; i++)
+        {
+            if (playerBuffer[i].IsRegistered)
+            {
+                anyPlayerRegistered = true;
+                break;
+            }
+        }
+        if (!anyPlayerRegistered)
             return;
 
         ZombieGridSingleton gridSingleton = SystemAPI.GetComponent<ZombieGridSingleton>(singletonEntity);
@@ -32,6 +43,13 @@ public partial struct ZombieMovementSystem : ISystem
             GridWriter = gridSingleton.Grid.AsParallelWriter(),
             CellSize = cellSize
         }.ScheduleParallel(state.Dependency);
+
+        ZombieSimAuthority authority = SystemAPI.GetComponent<ZombieSimAuthority>(singletonEntity);
+        if (!authority.ShouldSimulate)
+        {
+            state.Dependency = buildHandle;
+            return;
+        }
 
         int wallLayerMask = 0;
         float wallCheckDistance = 0.6f;
@@ -66,7 +84,10 @@ public partial struct ZombieMovementSystem : ISystem
 
         JobHandle desiredMoveHandle = new ZombieDesiredMoveJob
         {
-            PlayerPosition = playerPosition.Value,
+            Players = playerBuffer.AsNativeArray(),
+            RecheckInterval = targetConfig.RecheckInterval,
+            SwitchDistanceRatioSq = targetConfig.SwitchDistanceRatio * targetConfig.SwitchDistanceRatio,
+            DeltaTime = SystemAPI.Time.DeltaTime,
             Grid = gridSingleton.Grid,
             CellSize = cellSize,
             SeparationRadius = 3f,
@@ -99,7 +120,6 @@ public partial struct ZombieMovementSystem : ISystem
             GroundResults = groundResults,
             ZombieBlockedFlags = zombieBlockedFlags,
             ZombieStandHeights = zombieStandHeights,
-            PlayerPosition = playerPosition.Value,
             DeltaTime = SystemAPI.Time.DeltaTime,
             PlayerDamageWriter = playerDamageWriter,
             ContactRadius = 1f,
@@ -144,7 +164,10 @@ partial struct BuildGridJob : IJobEntity
 [WithAll(typeof(ZombieTag))]
 partial struct ZombieDesiredMoveJob : IJobEntity
 {
-    public float3 PlayerPosition;
+    [ReadOnly] public NativeArray<PlayerTargetElement> Players;
+    public float RecheckInterval;
+    public float SwitchDistanceRatioSq;
+    public float DeltaTime;
     [ReadOnly] public NativeParallelMultiHashMap<int3, ZombieGridEntry> Grid;
     public float CellSize;
     public float SeparationRadius;
@@ -169,10 +192,57 @@ partial struct ZombieDesiredMoveJob : IJobEntity
     const float ForwardDotThreshold = 0.95f;
     const float StandTolerance = 0.3f;
 
-    void Execute(Entity entity, [EntityIndexInQuery] int index, in LocalTransform transform, in ZombieHitboxHeight hitboxHeight, in ZombieGroundOffset groundOffset)
+    void Execute(Entity entity, [EntityIndexInQuery] int index, in LocalTransform transform, in ZombieHitboxHeight hitboxHeight, in ZombieGroundOffset groundOffset, ref ZombieTarget target)
     {
         float3 position = transform.Position;
-        float3 toPlayer = PlayerPosition - position;
+
+        target.RecheckTimer -= DeltaTime;
+
+        bool currentValid = target.HasTarget
+            && target.Index >= 0
+            && target.Index < Players.Length
+            && Players[target.Index].IsTargetable;
+
+        if (!currentValid || target.RecheckTimer <= 0f)
+        {
+            int bestIndex = -1;
+            float bestDistSq = float.MaxValue;
+
+            for (int i = 0; i < Players.Length; i++)
+            {
+                if (!Players[i].IsTargetable)
+                    continue;
+
+                float3 delta = Players[i].Position - position;
+                delta.y = 0f;
+                float distSq = math.lengthsq(delta);
+
+                if (distSq < bestDistSq)
+                {
+                    bestDistSq = distSq;
+                    bestIndex = i;
+                }
+            }
+
+            if (currentValid && bestIndex != target.Index && bestIndex >= 0)
+            {
+                float3 currentDelta = Players[target.Index].Position - position;
+                currentDelta.y = 0f;
+                float currentDistSq = math.lengthsq(currentDelta);
+
+                if (bestDistSq > currentDistSq * SwitchDistanceRatioSq)
+                    bestIndex = target.Index;
+            }
+
+            target.Index = bestIndex;
+            target.HasTarget = bestIndex >= 0;
+            target.RecheckTimer = RecheckInterval;
+        }
+
+        if (target.HasTarget)
+            target.Position = Players[target.Index].Position;
+
+        float3 toPlayer = target.HasTarget ? target.Position - position : float3.zero;
         toPlayer.y = 0f;
         float distToPlayer = math.length(toPlayer);
         float3 chaseDir = distToPlayer > 0.0001f ? toPlayer / distToPlayer : float3.zero;
@@ -263,7 +333,6 @@ partial struct ZombieApplyMovementJob : IJobEntity
     [ReadOnly] public NativeArray<RaycastHit> GroundResults;
     [ReadOnly] public NativeArray<bool> ZombieBlockedFlags;
     [ReadOnly] public NativeArray<float> ZombieStandHeights;
-    public float3 PlayerPosition;
     public float DeltaTime;
     public NativeQueue<PlayerDamageEvent>.ParallelWriter PlayerDamageWriter;
     public float ContactRadius;
@@ -274,7 +343,7 @@ partial struct ZombieApplyMovementJob : IJobEntity
     public float ClimbSpeed;
     public float LedgeLaunchSpeed;
 
-    void Execute([EntityIndexInQuery] int index, ref LocalTransform transform, in ZombieMoveSpeed moveSpeed, ref ZombieContactCooldown cooldown, ref ZombieVerticalVelocity verticalVelocity, ref ZombieClimbState climbState, in ZombieGroundOffset groundOffset)
+    void Execute([EntityIndexInQuery] int index, ref LocalTransform transform, in ZombieMoveSpeed moveSpeed, ref ZombieContactCooldown cooldown, ref ZombieVerticalVelocity verticalVelocity, ref ZombieClimbState climbState, in ZombieGroundOffset groundOffset, in ZombieTarget target)
     {
         float3 position = transform.Position;
         float3 moveDir = DesiredMoveDirections[index];
@@ -295,7 +364,7 @@ partial struct ZombieApplyMovementJob : IJobEntity
         climbState.WasWallBlocked = wallBlockedThisFrame;
         climbState.WasBlocked = blocked;
 
-        float3 toPlayer = PlayerPosition - position;
+        float3 toPlayer = target.HasTarget ? target.Position - position : float3.zero;
         toPlayer.y = 0f;
         float distToPlayer = math.length(toPlayer);
         float3 chaseDir = distToPlayer > 0.0001f ? toPlayer / distToPlayer : float3.zero;
@@ -349,12 +418,12 @@ partial struct ZombieApplyMovementJob : IJobEntity
             transform.Rotation = math.slerp(transform.Rotation, targetRotation, DeltaTime * 10f);
         }
 
-        if (distToPlayer < ContactRadius)
+        if (target.HasTarget && distToPlayer < ContactRadius)
         {
             cooldown.Value -= DeltaTime;
             if (cooldown.Value <= 0f)
             {
-                PlayerDamageWriter.Enqueue(new PlayerDamageEvent { Amount = ContactDamage });
+                PlayerDamageWriter.Enqueue(new PlayerDamageEvent { PlayerIndex = target.Index, Amount = ContactDamage });
                 cooldown.Value = ContactCooldownDuration;
             }
         }

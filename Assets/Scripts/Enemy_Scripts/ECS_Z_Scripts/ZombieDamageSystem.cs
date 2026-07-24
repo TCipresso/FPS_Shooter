@@ -5,15 +5,23 @@ public partial struct ZombieDamageSystem : ISystem
 {
     public void OnUpdate(ref SystemState state)
     {
-        if (!SystemAPI.TryGetSingletonEntity<ZombieDamageQueue>(out Entity singletonEntity))
+        if (!SystemAPI.TryGetSingletonEntity<ZombieSingletonTag>(out Entity singletonEntity))
+            return;
+
+        ZombieSimAuthority authority = SystemAPI.GetComponent<ZombieSimAuthority>(singletonEntity);
+        if (!authority.ShouldSimulate)
             return;
 
         NativeQueue<ZombieDamageEvent> queue = SystemAPI.GetComponent<ZombieDamageQueue>(singletonEntity).Queue;
         if (queue.IsEmpty())
             return;
 
+        state.Dependency.Complete();
+
+        NativeQueue<ushort> despawnQueue = SystemAPI.GetComponent<ZombieServerDespawnQueue>(singletonEntity).Queue;
+        NativeList<Entity> pool = SystemAPI.GetComponent<ZombiePoolSingleton>(singletonEntity).Inactive;
+
         EntityManager em = state.EntityManager;
-        EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
 
         while (queue.TryDequeue(out ZombieDamageEvent damageEvent))
         {
@@ -26,12 +34,20 @@ public partial struct ZombieDamageSystem : ISystem
             health.Current -= damageEvent.Amount;
 
             if (health.Current <= 0)
-                ecb.DestroyEntity(damageEvent.Target);
-            else
-                em.SetComponentData(damageEvent.Target, health);
-        }
+            {
+                if (em.HasComponent<ZombieNetId>(damageEvent.Target))
+                {
+                    ushort netId = em.GetComponentData<ZombieNetId>(damageEvent.Target).Value;
+                    if (netId != 0)
+                        despawnQueue.Enqueue(netId);
+                }
 
-        ecb.Playback(em);
-        ecb.Dispose();
+                ZombiePool.Release(em, pool, damageEvent.Target);
+            }
+            else
+            {
+                em.SetComponentData(damageEvent.Target, health);
+            }
+        }
     }
 }

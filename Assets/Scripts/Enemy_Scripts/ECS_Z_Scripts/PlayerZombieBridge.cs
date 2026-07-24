@@ -1,41 +1,37 @@
 using UnityEngine;
-using Unity.Entities;
-using Unity.Collections;
 
 public class PlayerZombieBridge : MonoBehaviour
 {
     PlayerStats stats;
-    EntityManager entityManager;
-    Entity singletonEntity;
-    bool ready;
 
-    void Start()
+    public bool IsTargetable
     {
-        stats = GetComponent<PlayerStats>();
-        entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        get
+        {
+            if (stats == null) return false;
+            return !stats.IsDown && !stats.IsGameOver;
+        }
     }
 
-    void Update()
+    void Awake()
     {
-        if (!ready)
-        {
-            EntityQuery query = entityManager.CreateEntityQuery(typeof(PlayerPosition));
-            if (query.CalculateEntityCount() == 0)
-                return;
-            singletonEntity = query.GetSingletonEntity();
-            ready = true;
-        }
+        stats = GetComponent<PlayerStats>();
+    }
 
-        entityManager.SetComponentData(singletonEntity, new PlayerPosition
-        {
-            Value = transform.position,
-            IsValid = true
-        });
+    void OnEnable()
+    {
+        ZombiePlayerRegistry.Instance.Register(this);
+    }
 
-        NativeQueue<PlayerDamageEvent> queue = entityManager.GetComponentData<PlayerDamageQueue>(singletonEntity).Queue;
-        while (queue.TryDequeue(out PlayerDamageEvent damageEvent))
-        {
-            stats.TakeDamage(damageEvent.Amount);
-        }
+    void OnDisable()
+    {
+        if (ZombiePlayerRegistry.Instance != null)
+            ZombiePlayerRegistry.Instance.Unregister(this);
+    }
+
+    public void ApplyContactDamage(int amount)
+    {
+        if (stats == null) return;
+        stats.TakeDamage(amount);
     }
 }

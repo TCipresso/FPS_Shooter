@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class ZombieAuthoring : MonoBehaviour
@@ -23,6 +24,18 @@ public class ZombieAuthoring : MonoBehaviour
             AddComponent(entity, new ZombieVerticalVelocity { Value = 0f });
             AddComponent(entity, new ZombieGroundOffset { Value = authoring.groundOffset });
             AddComponent(entity, new ZombieClimbState { WasBlocked = false, WasWallBlocked = false });
+            AddComponent(entity, new ZombieTarget { Index = -1, Position = float3.zero, HasTarget = false, RecheckTimer = 0f });
+            AddComponent(entity, new ZombieNetId { Value = 0 });
+            AddComponent(entity, new ZombieInterpolation
+            {
+                PrevPosition = float3.zero,
+                TargetPosition = float3.zero,
+                PrevYaw = 0f,
+                TargetYaw = 0f,
+                Elapsed = 0f,
+                Duration = 0f,
+                LastUpdateTime = 0d
+            });
         }
     }
 }

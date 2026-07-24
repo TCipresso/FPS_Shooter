@@ -47,6 +47,21 @@ public static class ZombieDamageBridge
         if (!initialized)
             return;
 
+        if (entityManager.HasComponent<ZombieSimAuthority>(gridSingletonEntity))
+        {
+            ZombieSimAuthority authority = entityManager.GetComponentData<ZombieSimAuthority>(gridSingletonEntity);
+            if (authority.IsNetworked && !authority.IsServer)
+            {
+                if (entityManager.HasComponent<ZombieNetId>(target))
+                {
+                    ushort netId = entityManager.GetComponentData<ZombieNetId>(target).Value;
+                    if (netId != 0)
+                        ZombieNetworkManager.SendDamageRequest(netId, amount);
+                }
+                return;
+            }
+        }
+
         NativeQueue<ZombieDamageEvent> queue = entityManager.GetComponentData<ZombieDamageQueue>(damageQueueSingletonEntity).Queue;
         queue.Enqueue(new ZombieDamageEvent { Target = target, Amount = amount });
     }

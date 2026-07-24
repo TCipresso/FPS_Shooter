@@ -46,10 +46,22 @@ public struct ZombieGroundOffset : IComponentData
     public float Value;
 }
 
-public struct PlayerPosition : IComponentData
+public struct ZombieSingletonTag : IComponentData { }
+
+[InternalBufferCapacity(4)]
+public struct PlayerTargetElement : IBufferElementData
 {
-    public float3 Value;
-    public bool IsValid;
+    public float3 Position;
+    public bool IsRegistered;
+    public bool IsTargetable;
+}
+
+public struct ZombieTarget : IComponentData
+{
+    public int Index;
+    public float3 Position;
+    public bool HasTarget;
+    public float RecheckTimer;
 }
 
 public struct ZombieSpawnConfig : IComponentData
@@ -68,6 +80,7 @@ public struct ZombieDamageEvent
 
 public struct PlayerDamageEvent
 {
+    public int PlayerIndex;
     public int Amount;
 }
 
@@ -94,6 +107,12 @@ public struct ZombieGridSingleton : IComponentData
 {
     public NativeParallelMultiHashMap<int3, ZombieGridEntry> Grid;
     public float CellSize;
+}
+
+public struct ZombieTargetConfig : IComponentData
+{
+    public float RecheckInterval;
+    public float SwitchDistanceRatio;
 }
 
 public struct ZombieWallConfig : IComponentData
