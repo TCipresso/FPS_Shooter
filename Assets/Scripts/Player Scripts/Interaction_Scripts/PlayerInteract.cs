@@ -10,6 +10,7 @@ public class PlayerInteract : NetworkBehaviour
     public Camera playerCamera;
     public PlayerStats stats;
     public TextMeshProUGUI promptText;
+    public WeaponInventory weaponInventory;
 
     [Header("Interact Settings")]
     public float interactRange = 3f;
@@ -17,6 +18,11 @@ public class PlayerInteract : NetworkBehaviour
 
     [Header("Interactable Tags")]
     public List<string> interactableTags = new List<string> { "Buyable" };
+
+    [Header("Weapon Pickup")]
+    [Tooltip("Weapon pickups are detected by component, not tag - but they still need to be on a layer the interact ray can hit.")]
+    public bool pickupsUseSeparateTag = false;
+    public string weaponPickupTag = "WeaponPickup";
 
     public override void OnStartLocalPlayer()
     {
@@ -36,6 +42,7 @@ public class PlayerInteract : NetworkBehaviour
         if (!isLocalPlayer) return;
 
         CheckForInteractable();
+
         if (interactAction != null && interactAction.action.WasPressedThisFrame())
             TryInteract();
     }
@@ -45,36 +52,37 @@ public class PlayerInteract : NetworkBehaviour
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, interactRange))
         {
-            // If we hit a zombie, update the target
-            // If we hit something else, leave the current target alone
-            ZombieBase zombie = hit.collider.GetComponentInParent<ZombieBase>();
-            //if (zombie != null)
-            // EnemyHealthBarManager.Instance?.SetTarget(zombie);
-            // Existing interact logic
+            // Weapon pickups are detected by component, independent of the interactable tag list.
+            WeaponPickup pickup = hit.collider.GetComponentInParent<WeaponPickup>();
+            if (pickup != null)
+            {
+                ShowPrompt(pickup.BuildPrompt());
+                return;
+            }
+
             if (!IsInteractableTag(hit.collider.tag))
             {
                 ClearPrompt();
                 return;
             }
+
             Buyable buyable = hit.collider.GetComponent<Buyable>();
             if (buyable != null)
             {
                 ShowPrompt(buyable.interactPrompt);
                 return;
             }
+
             Interactable interactable = hit.collider.GetComponent<Interactable>();
             if (interactable != null)
             {
                 ShowPrompt(interactable.interactPrompt);
                 return;
             }
+
             Debug.Log("Tag matched but no Buyable or Interactable component found on: " + hit.collider.gameObject.name);
         }
-        else
-        {
-            // Raycast hit nothing at all — now it's safe to clear the health bar
-            //EnemyHealthBarManager.Instance?.ClearTarget();
-        }
+
         ClearPrompt();
     }
 
@@ -83,14 +91,26 @@ public class PlayerInteract : NetworkBehaviour
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         if (!Physics.Raycast(ray, out RaycastHit hit, interactRange))
             return;
+
+        // Weapon pickup takes priority and bypasses the tag gate.
+        WeaponPickup pickup = hit.collider.GetComponentInParent<WeaponPickup>();
+        if (pickup != null)
+        {
+            if (weaponInventory != null)
+                weaponInventory.RequestPickup(pickup);
+            return;
+        }
+
         if (!IsInteractableTag(hit.collider.tag))
             return;
+
         Buyable buyable = hit.collider.GetComponent<Buyable>();
         if (buyable != null)
         {
             buyable.TryPurchase(stats);
             return;
         }
+
         Interactable interactable = hit.collider.GetComponent<Interactable>();
         if (interactable != null)
         {

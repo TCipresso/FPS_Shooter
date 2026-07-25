@@ -33,6 +33,14 @@ public class WeaponInventory : NetworkBehaviour
     [SyncVar(hook = nameof(OnActiveWeaponIndexChanged))]
     private int syncedActiveWeaponIndex = -1;
 
+    [Header("Drop / Pickup")]
+    public WeaponRegistrySO registry;
+    public GameObject weaponPickupPrefab;
+    [Tooltip("Where dropped weapons spawn, relative to the player. Usually a point slightly in front and below the camera.")]
+    public Transform dropOrigin;
+    public float dropForwardOffset = 1.2f;
+    public float dropUpOffset = 0.2f;
+
     void Awake()
     {
         weaponLookup.Clear();
@@ -496,5 +504,116 @@ public class WeaponInventory : NetworkBehaviour
     public int GetLevel(WeaponDefinitionSO def)
     {
         return weaponLookup.TryGetValue(def, out WeaponEntry entry) ? entry.level : 0;
+    }
+    public void RequestPickup(WeaponPickup pickup)
+    {
+        if (pickup == null) return;
+        if (!isLocalPlayer) return;
+
+        CmdPickupWeapon(pickup.netId);
+    }
+
+    [Command]
+    void CmdPickupWeapon(uint pickupNetId)
+    {
+        if (!NetworkServer.spawned.TryGetValue(pickupNetId, out NetworkIdentity pickupIdentity))
+            return;
+
+        WeaponPickup pickup = pickupIdentity.GetComponent<WeaponPickup>();
+        if (pickup == null) return;
+
+        int incomingDefIndex = pickup.defIndex;
+        int incomingLevel = pickup.level;
+
+        WeaponDefinitionSO incomingDef = registry != null ? registry.GetDefinition(incomingDefIndex) : null;
+        if (incomingDef == null) return;
+
+        int targetSlot = activeSlot;
+        WeaponEntry displaced = slots[targetSlot];
+
+        bool hasDisplaced = displaced != null && displaced.definition != null;
+        int displacedDefIndex = hasDisplaced ? registry.GetIndex(displaced.definition) : -1;
+        int displacedLevel = hasDisplaced ? displaced.level : 1;
+
+        NetworkServer.Destroy(pickup.gameObject);
+
+        if (hasDisplaced && displacedDefIndex >= 0)
+            SpawnPickup(displacedDefIndex, displacedLevel);
+
+        RpcApplyPickup(targetSlot, incomingDefIndex, incomingLevel);
+    }
+
+    [ClientRpc]
+    void RpcApplyPickup(int slot, int defIndex, int level)
+    {
+        WeaponDefinitionSO def = registry != null ? registry.GetDefinition(defIndex) : null;
+        if (def == null) return;
+
+        if (!weaponLookup.TryGetValue(def, out WeaponEntry entry))
+        {
+            Debug.LogWarning($"[WeaponInventory] Picked up weapon {def.weaponName} has no matching WeaponEntry on this player.");
+            return;
+        }
+
+        entry.level = Mathf.Clamp(level, 1, entry.definition.maxLevel);
+        slots[slot] = entry;
+        EquipSlot(slot);
+    }
+
+    [Server]
+    void SpawnPickup(int defIndex, int level)
+    {
+        if (weaponPickupPrefab == null)
+        {
+            Debug.LogWarning("[WeaponInventory] No weaponPickupPrefab assigned; cannot drop weapon.");
+            return;
+        }
+
+        Vector3 basePos = dropOrigin != null ? dropOrigin.position : transform.position;
+        Vector3 forward = dropOrigin != null ? dropOrigin.forward : transform.forward;
+        Vector3 spawnPos = basePos + forward * dropForwardOffset + Vector3.up * dropUpOffset;
+
+        GameObject go = Instantiate(weaponPickupPrefab, spawnPos, Quaternion.identity);
+
+        WeaponPickup pickup = go.GetComponent<WeaponPickup>();
+        if (pickup != null)
+        {
+            pickup.registry = registry;
+            NetworkServer.Spawn(go);
+            pickup.Initialize(defIndex, level);
+        }
+        else
+        {
+            Debug.LogWarning("[WeaponInventory] weaponPickupPrefab has no WeaponPickup component.");
+            Destroy(go);
+        }
+    }
+
+    public void RequestDropActive()
+    {
+        if (!isLocalPlayer) return;
+        CmdDropActive();
+    }
+
+    [Command]
+    void CmdDropActive()
+    {
+        WeaponEntry entry = slots[activeSlot];
+        if (entry == null || entry.definition == null) return;
+
+        int defIndex = registry != null ? registry.GetIndex(entry.definition) : -1;
+        if (defIndex < 0) return;
+
+        int level = entry.level;
+
+        SpawnPickup(defIndex, level);
+
+        RpcClearSlot(activeSlot);
+    }
+
+    [ClientRpc]
+    void RpcClearSlot(int slot)
+    {
+        RemoveWeapon(slot);
     }
 }
