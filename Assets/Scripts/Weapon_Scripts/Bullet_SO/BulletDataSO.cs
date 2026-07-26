@@ -40,4 +40,8 @@ public class BulletDataSO : ScriptableObject
     public GameObject explosionEffectPrefab;
     [Tooltip("How long before the explosion effect returns to its pool.")]
     public float explosionEffectDuration = 2f;
+    [Tooltip("Impulse applied to the firing player when caught in their own explosion. 0 = no rocket jump.")]
+    public float explosionSelfKnockback = 18f;
+    [Tooltip("Upward bias mixed into the knockback direction so ground shots launch you up, not just sideways.")]
+    public float explosionKnockbackUpBias = 0.6f;
 }

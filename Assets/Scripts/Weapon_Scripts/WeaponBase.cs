@@ -131,9 +131,6 @@ public abstract class WeaponBase : MonoBehaviour
             universalAnimator = FindUniversalAnimatorInOwnHierarchy();
     }
 
-    // Resolves references from this weapon's own player hierarchy instead of a scene-wide
-    // search, so with multiple players in the scene each weapon always binds to its own
-    // player's components rather than whichever instance Unity happens to find first.
     void ResolveOwningPlayerReferences()
     {
         if (fpsLook == null)
@@ -175,8 +172,6 @@ public abstract class WeaponBase : MonoBehaviour
         currentBloom = 0f;
         walkStopTimer = 0f;
 
-        // Weapons can be enabled well after Awake (equip swap), and on the local player
-        // the main camera may not have been activated yet at Awake time - refresh here.
         ResolveOwningPlayerReferences();
 
         if (universalAnimator == null)
@@ -486,6 +481,12 @@ public abstract class WeaponBase : MonoBehaviour
         Vector3 aimPoint = Physics.Raycast(camOrigin, camDir, out RaycastHit hit, range, mask)
             ? hit.point
             : camOrigin + camDir * range;
+
+        float muzzleForwardOffset = Vector3.Dot(origin - camOrigin, camDir);
+        float aimPointForwardDistance = Vector3.Dot(aimPoint - camOrigin, camDir);
+
+        if (aimPointForwardDistance <= muzzleForwardOffset + 0.75f)
+            return camDir;
 
         Vector3 dir = aimPoint - origin;
         return dir.sqrMagnitude > 0.0001f ? dir.normalized : camDir;

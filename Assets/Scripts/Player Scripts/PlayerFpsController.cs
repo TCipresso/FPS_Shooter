@@ -70,6 +70,7 @@ public class PlayerFpsController : NetworkBehaviour
     public bool IsSliding { get; private set; }
     public bool IsSlideJumping { get; private set; }
     public bool IsDashing { get; private set; }
+    public bool IsKnockedBack { get; private set; }
     public bool IsSprintingSuppressed => sprintSuppressTimer > 0f || (IsSlideJumping && !IsGrounded);
     public bool IsGrounded => controller != null && controller.isGrounded;
 
@@ -181,6 +182,7 @@ public class PlayerFpsController : NetworkBehaviour
         {
             coyoteCounter = coyoteTime;
             IsSlideJumping = false;
+            IsKnockedBack = false;
         }
         else
         {
@@ -542,7 +544,7 @@ public class PlayerFpsController : NetworkBehaviour
                 Vector3 targetVelocity = wishDirection * Mathf.Max(targetSpeed, horizontalVelocity.magnitude);
                 horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, targetVelocity, airAcceleration * Time.deltaTime);
 
-                if (horizontalVelocity.magnitude > maxAirSpeed && !IsSlideJumping)
+                if (horizontalVelocity.magnitude > maxAirSpeed && !IsSlideJumping && !IsKnockedBack)
                     horizontalVelocity = horizontalVelocity.normalized * maxAirSpeed;
             }
             else if (!conserveAirMomentum)
@@ -614,5 +616,28 @@ public class PlayerFpsController : NetworkBehaviour
     public void SetHorizontalVelocity(Vector3 velocity)
     {
         horizontalVelocity = velocity;
+    }
+
+    public void ApplyImpulse(Vector3 impulse)
+    {
+        if (!isLocalPlayer) return;
+        if (IsDowned) return;
+
+        if (IsSliding) EndSlide();
+        if (IsDashing)
+        {
+            IsDashing = false;
+            dashTimer = 0f;
+        }
+
+        horizontalVelocity += new Vector3(impulse.x, 0f, impulse.z);
+
+        if (impulse.y > 0f)
+            verticalVelocity = Mathf.Max(verticalVelocity, 0f) + impulse.y;
+        else
+            verticalVelocity += impulse.y;
+
+        IsKnockedBack = true;
+        IsSlideJumping = false;
     }
 }

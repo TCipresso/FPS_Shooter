@@ -43,15 +43,20 @@ public class ExplosionPool : MonoBehaviour
 
     public void Spawn(GameObject prefab, Vector3 position, float duration)
     {
+        Spawn(prefab, position, Quaternion.identity, duration);
+    }
+
+    public void Spawn(GameObject prefab, Vector3 position, Quaternion rotation, float duration)
+    {
         if (prefab == null) return;
 
         Pool pool = GetOrCreatePool(prefab);
         GameObject go = pool.free.Count > 0 ? pool.free.Dequeue() : Instantiate(prefab);
 
-        go.transform.position = position;
+        go.transform.SetPositionAndRotation(position, rotation);
         go.SetActive(true);
 
-        ParticleSystem ps = go.GetComponent<ParticleSystem>();
+        ParticleSystem ps = go.GetComponentInChildren<ParticleSystem>();
         if (ps != null)
         {
             ps.Clear(true);
@@ -64,16 +69,12 @@ public class ExplosionPool : MonoBehaviour
     void Update()
     {
         float now = Time.time;
-
         for (int i = active.Count - 1; i >= 0; i--)
         {
             if (now < active[i].returnTime) continue;
-
             Active a = active[i];
             active.RemoveAt(i);
-
             if (a.go == null) continue;
-
             a.go.SetActive(false);
             if (pools.TryGetValue(a.prefab, out Pool pool))
                 pool.free.Enqueue(a.go);

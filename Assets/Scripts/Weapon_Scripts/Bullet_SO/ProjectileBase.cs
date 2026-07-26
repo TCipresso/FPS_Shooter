@@ -15,7 +15,16 @@ public class ProjectileBase : MonoBehaviour
     bool applyDamage;
     LayerMask hitMask;
     WeaponBase owner;
+    Transform ownerRoot;
+    PlayerFpsController ownerController;
+    bool firedAirborne;
     BulletDataSO data;
+
+    static readonly RaycastHit[] hitBuffer = new RaycastHit[16];
+    const float castRadius = 0.15f;
+
+    public static bool debugLogging = false;
+    int tickCount;
 
     TrailRenderer trail;
     bool trailCached;
@@ -30,9 +39,16 @@ public class ProjectileBase : MonoBehaviour
         this.damage = damage;
         this.applyDamage = applyDamage;
         this.owner = owner;
+        this.ownerRoot = owner != null ? owner.transform.root : null;
+        this.ownerController = owner != null ? owner.GetComponentInParent<PlayerFpsController>() : null;
+        this.firedAirborne = ownerController != null && !ownerController.IsGrounded;
         this.data = data;
         this.radius = radius;
         this.hitMask = data != null && data.hitMask != 0 ? data.hitMask : ~0;
+        this.tickCount = 0;
+
+        if (debugLogging)
+            Debug.Log($"[PROJ] LAUNCH origin={origin} dir={direction.normalized} speed={speed} mask={(int)this.hitMask} life={life}");
 
         transform.position = origin;
         if (velocity.sqrMagnitude > 0.0001f)
@@ -55,12 +71,52 @@ public class ProjectileBase : MonoBehaviour
         Vector3 dir = speed > 0.0001f ? velocity / speed : transform.forward;
         float stepDist = speed * dt;
 
-        bool didHitWorld = Physics.Raycast(position, dir, out RaycastHit hit, stepDist, hitMask);
-        float searchDist = didHitWorld ? hit.distance : stepDist;
+        int hitCount = Physics.SphereCastNonAlloc(position, castRadius, dir, hitBuffer, stepDist, hitMask);
 
+        if (debugLogging && tickCount < 10)
+        {
+            Debug.Log($"[PROJ] tick={tickCount} pos={position} dir={dir} step={stepDist:F3} hits={hitCount}");
+            for (int i = 0; i < hitCount; i++)
+            {
+                RaycastHit h = hitBuffer[i];
+                string colName = h.collider != null ? h.collider.name : "NULL";
+                int colLayer = h.collider != null ? h.collider.gameObject.layer : -1;
+                bool isOwner = ownerRoot != null && h.collider != null && h.transform.root == ownerRoot;
+                Debug.Log($"[PROJ]   hit[{i}] col={colName} layer={colLayer} dist={h.distance:F3} point={h.point} owner={isOwner}");
+            }
+        }
+        tickCount++;
+
+        bool didHitWorld = false;
+        RaycastHit worldHit = default;
+        float closestDist = stepDist;
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            RaycastHit h = hitBuffer[i];
+            if (h.collider == null) continue;
+            if (ownerRoot != null && h.transform.root == ownerRoot) continue;
+            if (h.distance < closestDist)
+            {
+                closestDist = h.distance;
+                worldHit = h;
+                didHitWorld = true;
+            }
+        }
+
+        if (didHitWorld && worldHit.distance <= 0f)
+        {
+            worldHit.point = position;
+            worldHit.normal = -dir;
+        }
+
+        float searchDist = didHitWorld ? worldHit.distance : stepDist;
+
+        Entity zombie = Entity.Null;
+        float3 zombieHitPos = float3.zero;
         bool hitZombie = ZombieDamageBridge.TryFindNearestZombieAlongRay(
             (float3)position, (float3)dir, searchDist, radius,
-            out Entity zombie, out float3 zombieHitPos);
+            out zombie, out zombieHitPos);
 
         if (hitZombie)
         {
@@ -71,7 +127,7 @@ public class ProjectileBase : MonoBehaviour
 
         if (didHitWorld)
         {
-            DoImpact(hit.point, hit.normal, false, Entity.Null);
+            DoImpact(worldHit.point, worldHit.normal, false, Entity.Null);
             OnDespawn();
             return true;
         }
@@ -98,21 +154,46 @@ public class ProjectileBase : MonoBehaviour
             trail.Clear();
     }
 
+    void ApplySelfKnockback(Vector3 explosionPoint)
+    {
+        if (ownerController == null || data == null) return;
+        if (data.explosionSelfKnockback <= 0f) return;
+        if (ownerController.IsGrounded && !firedAirborne) return;
+
+        Vector3 playerPos = ownerController.transform.position;
+        Vector3 toPlayer = playerPos - explosionPoint;
+        float dist = toPlayer.magnitude;
+        if (dist > data.explosionRadius) return;
+
+        Vector3 pushDir = dist > 0.05f ? toPlayer / dist : Vector3.up;
+
+        Vector3 moveDir = ownerController.transform.forward;
+        Vector3 horizontal = new Vector3(pushDir.x, 0f, pushDir.z);
+        if (horizontal.sqrMagnitude < 0.01f)
+            horizontal = new Vector3(moveDir.x, 0f, moveDir.z).normalized;
+        else
+            horizontal.Normalize();
+
+        pushDir = (horizontal + Vector3.up * data.explosionKnockbackUpBias).normalized;
+
+        ownerController.ApplyImpulse(pushDir * data.explosionSelfKnockback);
+    }
+
     void DoImpact(Vector3 point, Vector3 normal, bool directZombieHit, Entity directZombie)
     {
+        if (debugLogging)
+            Debug.Log($"[PROJ] IMPACT point={point} zombieHit={directZombieHit} explosive={data != null && data.isExplosive} vfx={(data != null && data.explosionEffectPrefab != null)} pool={(ExplosionPool.Instance != null)} applyDamage={applyDamage}");
+
         if (data != null && data.isExplosive)
         {
             if (ExplosionPool.Instance != null && data.explosionEffectPrefab != null)
-                ExplosionPool.Instance.Spawn(data.explosionEffectPrefab, point, data.explosionEffectDuration);
+                ExplosionPool.Instance.Spawn(data.explosionEffectPrefab, point + normal * 0.3f,
+                    Quaternion.FromToRotation(Vector3.up, normal), data.explosionEffectDuration);
 
             if (applyDamage)
             {
-                int hits = ZombieDamageBridge.DamageZombiesInRadius((float3)point, data.explosionRadius, damage);
-                Debug.Log($"[AOE] explode at {point} r={data.explosionRadius} dmg={damage} hits={hits}");
-            }
-            else
-            {
-                Debug.Log("[AOE] explode but applyDamage is FALSE (remote/non-owner copy)");
+                ZombieDamageBridge.DamageZombiesInRadius((float3)point, data.explosionRadius, damage);
+                ApplySelfKnockback(point);
             }
 
             return;
