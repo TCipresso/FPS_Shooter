@@ -65,6 +65,7 @@ public class WeaponInventory : NetworkBehaviour
                     originalMaterialsCache[wb] = (Material[])wb.skinRenderer.sharedMaterials.Clone();
 
                 wb.onShotFired += HandleShotFired;
+                wb.onProjectileFired += HandleProjectileFired;
             }
         }
     }
@@ -78,7 +79,10 @@ public class WeaponInventory : NetworkBehaviour
             foreach (WeaponBase wb in entry.weaponBases)
             {
                 if (wb != null)
+                {
                     wb.onShotFired -= HandleShotFired;
+                    wb.onProjectileFired -= HandleProjectileFired;
+                }
             }
         }
     }
@@ -107,6 +111,10 @@ public class WeaponInventory : NetworkBehaviour
 
                 if (BulletPool.Instance != null && wb.bulletData != null && wb.bulletData.trailPrefab != null)
                     BulletPool.Instance.EnsurePoolSize(wb.bulletData.trailPoolKey, wb.bulletData.trailPrefab.gameObject, wb.bulletData.trailPoolSize);
+
+                if (ProjectilePool.Instance != null && wb.bulletData != null
+                    && wb.bulletData.bulletType == BulletType.Projectile && wb.bulletData.projectilePrefab != null)
+                    ProjectilePool.Instance.EnsurePoolSize(wb.bulletData.projectilePrefab, 8);
             }
         }
 
@@ -227,6 +235,46 @@ public class WeaponInventory : NetworkBehaviour
         if (wb == null) return;
 
         wb.PlayRemoteFireEffects(endpoints, hitTypes);
+    }
+
+    void HandleProjectileFired(WeaponBase wb, Vector3 origin, Vector3 direction)
+    {
+        if (!NetworkClient.active || !isLocalPlayer) return;
+
+        for (int e = 0; e < weapons.Count; e++)
+        {
+            WeaponEntry entry = weapons[e];
+            if (entry?.weaponBases == null) continue;
+
+            int b = entry.weaponBases.IndexOf(wb);
+            if (b >= 0)
+            {
+                CmdSpawnProjectile(e, b, origin, direction);
+                return;
+            }
+        }
+    }
+
+    [Command]
+    void CmdSpawnProjectile(int entryIndex, int baseIndex, Vector3 origin, Vector3 direction)
+    {
+        RpcSpawnProjectile(entryIndex, baseIndex, origin, direction);
+    }
+
+    [ClientRpc(includeOwner = false)]
+    void RpcSpawnProjectile(int entryIndex, int baseIndex, Vector3 origin, Vector3 direction)
+    {
+        if (isLocalPlayer) return;
+        if (entryIndex < 0 || entryIndex >= weapons.Count) return;
+
+        WeaponEntry entry = weapons[entryIndex];
+        if (entry?.weaponBases == null) return;
+        if (baseIndex < 0 || baseIndex >= entry.weaponBases.Count) return;
+
+        WeaponBase wb = entry.weaponBases[baseIndex];
+        if (wb == null) return;
+
+        wb.PlayRemoteProjectile(origin, direction);
     }
 
     [Command]
@@ -506,10 +554,9 @@ public class WeaponInventory : NetworkBehaviour
 
     public void RequestPickup(WeaponPickup pickup)
     {
-        if (pickup == null) { Debug.Log("[PU] pickup is null"); return; }
-        if (!isLocalPlayer) { Debug.Log("[PU] not local player"); return; }
+        if (pickup == null) return;
+        if (!isLocalPlayer) return;
 
-        Debug.Log("[PU] sending Cmd for " + (pickup.definition != null ? pickup.definition.weaponName : "NULL DEF"));
         CmdPickupWeapon(pickup.netId);
     }
 
@@ -517,25 +564,19 @@ public class WeaponInventory : NetworkBehaviour
     void CmdPickupWeapon(uint pickupNetId)
     {
         if (!NetworkServer.spawned.TryGetValue(pickupNetId, out NetworkIdentity pickupIdentity))
-        {
-            Debug.Log("[PU] server: pickup netId not found in spawned");
             return;
-        }
 
         WeaponPickup pickup = pickupIdentity.GetComponent<WeaponPickup>();
-        if (pickup == null) { Debug.Log("[PU] server: no WeaponPickup on spawned object"); return; }
+        if (pickup == null) return;
 
         WeaponDefinitionSO incomingDef = pickup.definition;
-        if (incomingDef == null) { Debug.Log("[PU] server: pickup.definition is null"); return; }
+        if (incomingDef == null) return;
 
         if (!weaponLookup.TryGetValue(incomingDef, out WeaponEntry incomingEntry))
-        {
-            Debug.Log("[PU] server: no pre-placed WeaponEntry on this player for " + incomingDef.weaponName);
             return;
-        }
 
         int incomingIndex = weapons.IndexOf(incomingEntry);
-        if (incomingIndex < 0) { Debug.Log("[PU] server: entry not found in weapons list"); return; }
+        if (incomingIndex < 0) return;
 
         int incomingLevel = pickup.level;
 
@@ -548,7 +589,6 @@ public class WeaponInventory : NetworkBehaviour
         if (hasDisplaced)
             SpawnPickup(displaced.definition, displaced.level);
 
-        Debug.Log("[PU] server: applying " + incomingDef.weaponName + " Lv" + incomingLevel + " to slot " + targetSlot);
         RpcApplyPickup(targetSlot, incomingIndex, incomingLevel);
     }
 

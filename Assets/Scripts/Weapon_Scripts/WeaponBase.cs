@@ -87,6 +87,7 @@ public abstract class WeaponBase : MonoBehaviour
     [HideInInspector] public bool isFiring = false;
 
     public System.Action<WeaponBase, List<Vector3>, List<byte>> onShotFired;
+    public System.Action<WeaponBase, Vector3, Vector3> onProjectileFired;
 
     readonly List<Vector3> shotEndPoints = new List<Vector3>(16);
     readonly List<byte> shotHitTypes = new List<byte>(16);
@@ -461,7 +462,54 @@ public abstract class WeaponBase : MonoBehaviour
 
     private void FireProjectile(int damage)
     {
-        Debug.LogWarning("[WeaponBase] Projectile firing not yet implemented.");
+        if (bulletData == null || bulletData.projectilePrefab == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] No projectilePrefab assigned on BulletDataSO.");
+            return;
+        }
+
+        Vector3 origin;
+        Vector3 direction = GetProjectileLaunch(out origin);
+
+        SpawnProjectileVisual(origin, direction, damage, true);
+        onProjectileFired?.Invoke(this, origin, direction);
+    }
+
+    Vector3 GetProjectileLaunch(out Vector3 origin)
+    {
+        origin = muzzlePoint != null ? muzzlePoint.position : GetAimOrigin();
+
+        Vector3 camOrigin = GetAimOrigin();
+        Vector3 camDir = GetAimDirection(0f, 0f);
+        LayerMask mask = bulletData.hitMask != 0 ? bulletData.hitMask : (LayerMask)(~0);
+
+        Vector3 aimPoint = Physics.Raycast(camOrigin, camDir, out RaycastHit hit, range, mask)
+            ? hit.point
+            : camOrigin + camDir * range;
+
+        Vector3 dir = aimPoint - origin;
+        return dir.sqrMagnitude > 0.0001f ? dir.normalized : camDir;
+    }
+
+    void SpawnProjectileVisual(Vector3 origin, Vector3 direction, int damage, bool applyDamage)
+    {
+        if (ProjectilePool.Instance == null || bulletData == null || bulletData.projectilePrefab == null)
+            return;
+
+        ProjectileBase p = ProjectilePool.Instance.Get(
+            bulletData.projectilePrefab, origin, Quaternion.LookRotation(direction));
+        if (p == null) return;
+
+        float speed = bulletData.projectileSpeed;
+        float life = speed > 0.01f ? range / speed : 3f;
+
+        p.Launch(origin, direction, speed, bulletData.projectileGravityScale,
+            life, damage, applyDamage, this, bulletData, swarmHitRadius);
+    }
+
+    public void PlayRemoteProjectile(Vector3 origin, Vector3 direction)
+    {
+        SpawnProjectileVisual(origin, direction, 0, false);
     }
 
     public void PlayRemoteFireEffects(Vector3[] endpoints, byte[] hitTypes)
