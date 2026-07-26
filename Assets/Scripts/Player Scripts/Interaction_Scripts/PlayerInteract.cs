@@ -53,7 +53,7 @@ public class PlayerInteract : NetworkBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, interactRange))
         {
             // Weapon pickups are detected by component, independent of the interactable tag list.
-            WeaponPickup pickup = hit.collider.GetComponentInParent<WeaponPickup>();
+            WeaponPickup pickup = hit.collider.GetComponentInChildren<WeaponPickup>();
             if (pickup != null)
             {
                 ShowPrompt(pickup.BuildPrompt());
@@ -93,7 +93,7 @@ public class PlayerInteract : NetworkBehaviour
             return;
 
         // Weapon pickup takes priority and bypasses the tag gate.
-        WeaponPickup pickup = hit.collider.GetComponentInParent<WeaponPickup>();
+        WeaponPickup pickup = hit.collider.GetComponentInChildren<WeaponPickup>();
         if (pickup != null)
         {
             if (weaponInventory != null)

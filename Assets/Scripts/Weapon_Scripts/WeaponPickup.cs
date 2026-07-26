@@ -4,58 +4,54 @@ using Mirror;
 [RequireComponent(typeof(NetworkIdentity))]
 public class WeaponPickup : NetworkBehaviour
 {
-    [Header("Registry")]
-    public WeaponRegistrySO registry;
+    [Header("Weapon")]
+    public WeaponDefinitionSO definition;
 
-    [Header("Display")]
-    [Tooltip("MeshFilter on the child that shows the weapon model. Its mesh is swapped per-weapon at runtime.")]
-    public MeshFilter displayMeshFilter;
-    [Tooltip("Renderer on the same child. Receives the weapon's ground materials, then the pack-a-punch skin on top.")]
-    public MeshRenderer displayRenderer;
+    [Header("Skin (Pack-a-Punch)")]
+    [Tooltip("Renderers on this prefab that receive the packed material + level tint once level > 1.")]
+    public Renderer[] skinRenderers;
 
-    [Tooltip("Optional root spun/bobbed for juice. Leave null to keep it static.")]
+    [Header("Juice")]
     public Transform visualRoot;
     public float spinSpeed = 45f;
     public float bobHeight = 0.15f;
     public float bobSpeed = 2f;
 
-    [SyncVar(hook = nameof(OnDefIndexChanged))]
-    public int defIndex = -1;
-
     [SyncVar(hook = nameof(OnLevelChanged))]
     public int level = 1;
 
-    Material[] groundMaterials;
     static MaterialPropertyBlock sharedBlock;
+    Material[][] originalMaterials;
     Vector3 baseLocalPos;
-    bool modelApplied;
-
-    public WeaponDefinitionSO Definition =>
-        registry != null ? registry.GetDefinition(defIndex) : null;
 
     void Awake()
     {
         if (visualRoot != null)
             baseLocalPos = visualRoot.localPosition;
+
+        CacheOriginalMaterials();
+    }
+
+    void CacheOriginalMaterials()
+    {
+        if (skinRenderers == null) return;
+
+        originalMaterials = new Material[skinRenderers.Length][];
+        for (int i = 0; i < skinRenderers.Length; i++)
+        {
+            if (skinRenderers[i] != null)
+                originalMaterials[i] = (Material[])skinRenderers[i].sharedMaterials.Clone();
+        }
     }
 
     [Server]
-    public void Initialize(int weaponDefIndex, int weaponLevel)
+    public void Initialize(int weaponLevel)
     {
-        defIndex = weaponDefIndex;
         level = weaponLevel;
     }
 
     public override void OnStartClient()
     {
-        ApplyModel();
-        ApplySkin();
-    }
-
-    void OnDefIndexChanged(int oldValue, int newValue)
-    {
-        modelApplied = false;
-        ApplyModel();
         ApplySkin();
     }
 
@@ -75,78 +71,47 @@ public class WeaponPickup : NetworkBehaviour
         }
     }
 
-    void ApplyModel()
-    {
-        if (modelApplied) return;
-
-        WeaponDefinitionSO def = Definition;
-        if (def == null || registry == null) return;
-
-        WeaponGroundModel model = registry.GetGroundModel(def);
-        if (model == null) return;
-
-        if (displayMeshFilter != null && model.mesh != null)
-            displayMeshFilter.sharedMesh = model.mesh;
-
-        if (displayRenderer != null && model.materials != null && model.materials.Length > 0)
-        {
-            groundMaterials = (Material[])model.materials.Clone();
-            displayRenderer.sharedMaterials = groundMaterials;
-        }
-
-        Transform t = displayMeshFilter != null ? displayMeshFilter.transform
-                    : displayRenderer != null ? displayRenderer.transform
-                    : null;
-
-        if (t != null)
-        {
-            t.localPosition = model.localPosition;
-            t.localEulerAngles = model.localEuler;
-            t.localScale = model.localScale;
-        }
-
-        modelApplied = true;
-    }
-
     void ApplySkin()
     {
-        if (displayRenderer == null) return;
+        if (skinRenderers == null || definition == null) return;
 
-        WeaponDefinitionSO def = Definition;
-        if (def == null) return;
-
-        if (level <= 1 || def.packedMaterial == null)
+        for (int r = 0; r < skinRenderers.Length; r++)
         {
-            if (groundMaterials != null)
-                displayRenderer.sharedMaterials = groundMaterials;
-            displayRenderer.SetPropertyBlock(null);
-            return;
+            Renderer renderer = skinRenderers[r];
+            if (renderer == null) continue;
+
+            if (level <= 1 || definition.packedMaterial == null)
+            {
+                if (originalMaterials != null && originalMaterials[r] != null)
+                    renderer.sharedMaterials = originalMaterials[r];
+                renderer.SetPropertyBlock(null);
+                continue;
+            }
+
+            int slotCount = renderer.sharedMaterials.Length;
+            Material[] packedSet = new Material[slotCount];
+            for (int i = 0; i < slotCount; i++)
+                packedSet[i] = definition.packedMaterial;
+            renderer.sharedMaterials = packedSet;
+
+            if (sharedBlock == null)
+                sharedBlock = new MaterialPropertyBlock();
+
+            renderer.GetPropertyBlock(sharedBlock);
+
+            int tintIndex = level - 2;
+            Color tint = (definition.levelTintColors != null && tintIndex >= 0 && tintIndex < definition.levelTintColors.Length)
+                ? definition.levelTintColors[tintIndex]
+                : Color.white;
+
+            sharedBlock.SetColor(definition.tintPropertyName, tint);
+            renderer.SetPropertyBlock(sharedBlock);
         }
-
-        int slotCount = displayRenderer.sharedMaterials.Length;
-        Material[] packedSet = new Material[slotCount];
-        for (int i = 0; i < slotCount; i++)
-            packedSet[i] = def.packedMaterial;
-        displayRenderer.sharedMaterials = packedSet;
-
-        if (sharedBlock == null)
-            sharedBlock = new MaterialPropertyBlock();
-
-        displayRenderer.GetPropertyBlock(sharedBlock);
-
-        int tintIndex = level - 2;
-        Color tint = (def.levelTintColors != null && tintIndex >= 0 && tintIndex < def.levelTintColors.Length)
-            ? def.levelTintColors[tintIndex]
-            : Color.white;
-
-        sharedBlock.SetColor(def.tintPropertyName, tint);
-        displayRenderer.SetPropertyBlock(sharedBlock);
     }
 
     public string BuildPrompt()
     {
-        WeaponDefinitionSO def = Definition;
-        string name = def != null ? def.weaponName : "Weapon";
+        string name = definition != null ? definition.weaponName : "Weapon";
         return level > 1
             ? $"Press E to swap for {name} (Lv {level})"
             : $"Press E to swap for {name}";

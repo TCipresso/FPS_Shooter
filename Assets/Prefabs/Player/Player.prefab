@@ -3299,7 +3299,7 @@ MonoBehaviour:
   swapAction: {fileID: -8062664436889712257, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   remoteWeaponLayer: Default
   startingWeapons:
-  - {fileID: 11400000, guid: aa5a3ca35f3847d4db099eb3109baae9, type: 2}
+  - {fileID: 11400000, guid: f29230a1f193a3f46b40ddcc65a6f690, type: 2}
   - {fileID: 11400000, guid: 9893a1614cd866d4dbff8faaa41af4b8, type: 2}
   weapons:
   - definition: {fileID: 11400000, guid: aa5a3ca35f3847d4db099eb3109baae9, type: 2}
@@ -3323,8 +3323,6 @@ MonoBehaviour:
     weaponBases:
     - {fileID: 8356868250875690882}
     level: 1
-  registry: {fileID: 11400000, guid: 16b3e067299c4104f897343263bafcd0, type: 2}
-  weaponPickupPrefab: {fileID: 374372257665721691, guid: 8f0ff9986ccc8fe4ebdaf6b8f940a592, type: 3}
   dropOrigin: {fileID: 2020772634612151981}
   dropForwardOffset: 1.2
   dropUpOffset: 0.2
@@ -3346,7 +3344,7 @@ MonoBehaviour:
   playerCamera: {fileID: 5019949365886161125}
   stats: {fileID: 40598621636638386}
   promptText: {fileID: 5158470345675235857}
-  weaponInventory: {fileID: 0}
+  weaponInventory: {fileID: 5863405062406140053}
   interactRange: 100
   interactAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   interactableTags:

@@ -18,6 +18,10 @@ public class WeaponDefinitionSO : ScriptableObject
     public string weaponName = "Weapon";
     public WeaponType category;
 
+    [Header("Drop Prefab")]
+    [Tooltip("This weapon's own hand-built pickup prefab (must have a WeaponPickup component and be registered as a spawnable prefab in the NetworkManager).")]
+    public GameObject dropPrefab;
+
     [Header("Leveling (Pack-a-Punch style)")]
     [Tooltip("Level 1 stats come from whatever is already set on the pre-placed WeaponBase. This only defines how it scales.")]
     public int maxLevel = 5;
