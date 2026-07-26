@@ -25,5 +25,9 @@ MonoBehaviour:
     m_Bits: 4294967295
   impactEffectOverride: {fileID: 0}
   projectilePrefab: {fileID: 6473194848375008525, guid: 2c98b089e5770414fa2e21e1c8cfc015, type: 3}
-  projectileSpeed: 40
+  projectileSpeed: 100
   projectileGravityScale: 0
+  isExplosive: 1
+  explosionRadius: 4
+  explosionEffectPrefab: {fileID: 1228157160650025061, guid: 6f36cf450d242a24db953b95ae342417, type: 3}
+  explosionEffectDuration: 2

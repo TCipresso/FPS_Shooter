@@ -30,4 +30,14 @@ public class BulletDataSO : ScriptableObject
     public GameObject projectilePrefab;
     public float projectileSpeed = 40f;
     public float projectileGravityScale = 0f;
+
+    [Header("Explosion (AoE)")]
+    [Tooltip("If true, the projectile explodes on impact and damages every zombie in explosionRadius instead of a single target.")]
+    public bool isExplosive = false;
+    [Tooltip("Radius of the explosion damage in world units.")]
+    public float explosionRadius = 4f;
+    [Tooltip("Pooled particle effect spawned at the impact point. Shows on all clients.")]
+    public GameObject explosionEffectPrefab;
+    [Tooltip("How long before the explosion effect returns to its pool.")]
+    public float explosionEffectDuration = 2f;
 }

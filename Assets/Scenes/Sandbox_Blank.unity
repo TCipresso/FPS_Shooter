@@ -2406,6 +2406,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8462118818809269826, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2121246664}
+    - targetCorrespondingSourceObject: {fileID: 8462118818809269826, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2121246668}
     - targetCorrespondingSourceObject: {fileID: 6123777507152256152, guid: 7f4ea6790f3d071419113650e3fde623, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1306016407}
@@ -3762,6 +3765,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f7a2cceafb7fd84dac81f41405e627f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectilePool
+--- !u!114 &2121246668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1306016396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98ec07cbbfc44d84487caf3275b067aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ExplosionPool
 --- !u!1 &2134371252
 GameObject:
   m_ObjectHideFlags: 0

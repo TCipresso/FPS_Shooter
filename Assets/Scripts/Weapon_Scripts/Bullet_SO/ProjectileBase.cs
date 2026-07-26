@@ -17,6 +17,9 @@ public class ProjectileBase : MonoBehaviour
     WeaponBase owner;
     BulletDataSO data;
 
+    TrailRenderer trail;
+    bool trailCached;
+
     public void Launch(Vector3 origin, Vector3 direction, float speed, float gravityScale,
         float life, int damage, bool applyDamage, WeaponBase owner, BulletDataSO data, float radius)
     {
@@ -34,6 +37,14 @@ public class ProjectileBase : MonoBehaviour
         transform.position = origin;
         if (velocity.sqrMagnitude > 0.0001f)
             transform.rotation = Quaternion.LookRotation(velocity);
+
+        if (!trailCached)
+        {
+            trail = GetComponentInChildren<TrailRenderer>();
+            trailCached = true;
+        }
+        if (trail != null)
+            trail.Clear();
     }
 
     public bool Tick(float dt)
@@ -53,26 +64,15 @@ public class ProjectileBase : MonoBehaviour
 
         if (hitZombie)
         {
-            Vector3 end = (Vector3)zombieHitPos;
-
-            if (applyDamage && owner != null)
-            {
-                ZombieDamageBridge.DamageZombie(zombie, owner.ApplyCrit(damage));
-                if (HitMarkerPool.Instance != null)
-                    HitMarkerPool.Instance.Spawn(end, false);
-            }
-
-            if (ImpactEffectPool.Instance != null)
-                ImpactEffectPool.Instance.SpawnZombie(end, -dir);
-
+            DoImpact((Vector3)zombieHitPos, -dir, true, zombie);
+            OnDespawn();
             return true;
         }
 
         if (didHitWorld)
         {
-            if (ImpactEffectPool.Instance != null)
-                ImpactEffectPool.Instance.SpawnWorld(hit.point, hit.normal);
-
+            DoImpact(hit.point, hit.normal, false, Entity.Null);
+            OnDespawn();
             return true;
         }
 
@@ -84,6 +84,49 @@ public class ProjectileBase : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(velocity);
 
         life -= dt;
-        return life <= 0f;
+        if (life <= 0f)
+        {
+            OnDespawn();
+            return true;
+        }
+        return false;
+    }
+
+    void OnDespawn()
+    {
+        if (trail != null)
+            trail.Clear();
+    }
+
+    void DoImpact(Vector3 point, Vector3 normal, bool directZombieHit, Entity directZombie)
+    {
+        if (data != null && data.isExplosive)
+        {
+            if (ExplosionPool.Instance != null && data.explosionEffectPrefab != null)
+                ExplosionPool.Instance.Spawn(data.explosionEffectPrefab, point, data.explosionEffectDuration);
+
+            if (applyDamage)
+                ZombieDamageBridge.DamageZombiesInRadius((float3)point, data.explosionRadius, damage);
+
+            return;
+        }
+
+        if (directZombieHit)
+        {
+            if (applyDamage && owner != null)
+            {
+                ZombieDamageBridge.DamageZombie(directZombie, owner.ApplyCrit(damage));
+                if (HitMarkerPool.Instance != null)
+                    HitMarkerPool.Instance.Spawn(point, false);
+            }
+
+            if (ImpactEffectPool.Instance != null)
+                ImpactEffectPool.Instance.SpawnZombie(point, normal);
+        }
+        else
+        {
+            if (ImpactEffectPool.Instance != null)
+                ImpactEffectPool.Instance.SpawnWorld(point, normal);
+        }
     }
 }

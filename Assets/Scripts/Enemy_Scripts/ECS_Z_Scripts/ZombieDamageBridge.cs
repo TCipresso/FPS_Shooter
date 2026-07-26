@@ -66,6 +66,44 @@ public static class ZombieDamageBridge
         queue.Enqueue(new ZombieDamageEvent { Target = target, Amount = amount });
     }
 
+    public static int DamageZombiesInRadius(float3 center, float radius, int amount)
+    {
+        EnsureInitialized();
+        if (!initialized)
+            return 0;
+
+        ZombieGridSingleton gridSingleton = entityManager.GetComponentData<ZombieGridSingleton>(gridSingletonEntity);
+        float cellSize = gridSingleton.CellSize;
+        int3 centerCell = (int3)math.floor(center / cellSize);
+        int cellRange = (int)math.ceil(radius / cellSize);
+
+        int hitCount = 0;
+
+        for (int dx = -cellRange; dx <= cellRange; dx++)
+        {
+            for (int dz = -cellRange; dz <= cellRange; dz++)
+            {
+                int3 neighborCell = centerCell + new int3(dx, 0, dz);
+                if (gridSingleton.Grid.TryGetFirstValue(neighborCell, out ZombieGridEntry entry, out var iterator))
+                {
+                    do
+                    {
+                        float2 horizontalDelta = new float2(center.x - entry.Position.x, center.z - entry.Position.z);
+                        float horizontalDist = math.length(horizontalDelta);
+
+                        if (horizontalDist <= radius + entry.Radius)
+                        {
+                            DamageZombie(entry.Entity, amount);
+                            hitCount++;
+                        }
+                    } while (gridSingleton.Grid.TryGetNextValue(out entry, ref iterator));
+                }
+            }
+        }
+
+        return hitCount;
+    }
+
     public static bool TryFindNearestZombieAlongRay(float3 origin, float3 direction, float maxDistance, float radius, out Entity result, out float3 hitPosition)
     {
         result = Entity.Null;
