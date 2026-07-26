@@ -76,6 +76,7 @@ public static class ZombieDamageBridge
         float cellSize = gridSingleton.CellSize;
         int3 centerCell = (int3)math.floor(center / cellSize);
         int cellRange = (int)math.ceil(radius / cellSize);
+        int yRange = cellRange + 2;
 
         int hitCount = 0;
 
@@ -83,20 +84,23 @@ public static class ZombieDamageBridge
         {
             for (int dz = -cellRange; dz <= cellRange; dz++)
             {
-                int3 neighborCell = centerCell + new int3(dx, 0, dz);
-                if (gridSingleton.Grid.TryGetFirstValue(neighborCell, out ZombieGridEntry entry, out var iterator))
+                for (int dy = -yRange; dy <= yRange; dy++)
                 {
-                    do
+                    int3 neighborCell = centerCell + new int3(dx, dy, dz);
+                    if (gridSingleton.Grid.TryGetFirstValue(neighborCell, out ZombieGridEntry entry, out var iterator))
                     {
-                        float2 horizontalDelta = new float2(center.x - entry.Position.x, center.z - entry.Position.z);
-                        float horizontalDist = math.length(horizontalDelta);
-
-                        if (horizontalDist <= radius + entry.Radius)
+                        do
                         {
-                            DamageZombie(entry.Entity, amount);
-                            hitCount++;
-                        }
-                    } while (gridSingleton.Grid.TryGetNextValue(out entry, ref iterator));
+                            float2 horizontalDelta = new float2(center.x - entry.Position.x, center.z - entry.Position.z);
+                            float horizontalDist = math.length(horizontalDelta);
+
+                            if (horizontalDist <= radius + entry.Radius)
+                            {
+                                DamageZombie(entry.Entity, amount);
+                                hitCount++;
+                            }
+                        } while (gridSingleton.Grid.TryGetNextValue(out entry, ref iterator));
+                    }
                 }
             }
         }

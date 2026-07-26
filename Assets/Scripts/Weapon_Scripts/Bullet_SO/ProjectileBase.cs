@@ -106,7 +106,14 @@ public class ProjectileBase : MonoBehaviour
                 ExplosionPool.Instance.Spawn(data.explosionEffectPrefab, point, data.explosionEffectDuration);
 
             if (applyDamage)
-                ZombieDamageBridge.DamageZombiesInRadius((float3)point, data.explosionRadius, damage);
+            {
+                int hits = ZombieDamageBridge.DamageZombiesInRadius((float3)point, data.explosionRadius, damage);
+                Debug.Log($"[AOE] explode at {point} r={data.explosionRadius} dmg={damage} hits={hits}");
+            }
+            else
+            {
+                Debug.Log("[AOE] explode but applyDamage is FALSE (remote/non-owner copy)");
+            }
 
             return;
         }
