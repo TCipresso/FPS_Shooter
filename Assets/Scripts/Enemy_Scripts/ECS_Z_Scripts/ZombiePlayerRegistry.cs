@@ -73,6 +73,7 @@ public class ZombiePlayerRegistry : MonoBehaviour
 
         WritePlayerPositions();
         DrainDamage();
+        DrainCredits();
     }
 
     void WritePlayerPositions()
@@ -116,6 +117,26 @@ public class ZombiePlayerRegistry : MonoBehaviour
             if (bridge == null) continue;
 
             bridge.ApplyContactDamage(damageEvent.Amount);
+        }
+    }
+
+    void DrainCredits()
+    {
+        NativeQueue<ZombieCreditEvent> queue = entityManager.GetComponentData<ZombieCreditQueue>(singletonEntity).Queue;
+
+        while (queue.TryDequeue(out ZombieCreditEvent creditEvent))
+        {
+            int i = creditEvent.PlayerIndex;
+            Debug.Log($"[ZombiePlayerRegistry] drained credit event playerIndex={i} isKill={creditEvent.IsKill} playersCount={players.Count}");
+            if (i < 0 || i >= players.Count) continue;
+
+            PlayerZombieBridge bridge = players[i];
+            if (bridge == null) continue;
+
+            if (creditEvent.IsKill)
+                bridge.GrantKillGold();
+            else
+                bridge.GrantHitGold();
         }
     }
 }

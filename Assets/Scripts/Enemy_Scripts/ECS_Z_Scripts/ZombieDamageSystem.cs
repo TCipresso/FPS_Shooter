@@ -20,6 +20,7 @@ public partial struct ZombieDamageSystem : ISystem
 
         NativeQueue<ushort> despawnQueue = SystemAPI.GetComponent<ZombieServerDespawnQueue>(singletonEntity).Queue;
         NativeList<Entity> pool = SystemAPI.GetComponent<ZombiePoolSingleton>(singletonEntity).Inactive;
+        NativeQueue<ZombieCreditEvent> creditQueue = SystemAPI.GetComponent<ZombieCreditQueue>(singletonEntity).Queue;
 
         EntityManager em = state.EntityManager;
         int killsThisFrame = 0;
@@ -34,6 +35,11 @@ public partial struct ZombieDamageSystem : ISystem
             ZombieHealth health = em.GetComponentData<ZombieHealth>(damageEvent.Target);
             health.Current -= damageEvent.Amount;
 
+            UnityEngine.Debug.Log($"[ZombieDamageSystem] damage event amount={damageEvent.Amount} playerIndex={damageEvent.PlayerIndex}");
+
+            if (damageEvent.PlayerIndex >= 0)
+                creditQueue.Enqueue(new ZombieCreditEvent { PlayerIndex = damageEvent.PlayerIndex, IsKill = false });
+
             if (health.Current <= 0)
             {
                 if (em.HasComponent<ZombieNetId>(damageEvent.Target))
@@ -42,6 +48,9 @@ public partial struct ZombieDamageSystem : ISystem
                     if (netId != 0)
                         despawnQueue.Enqueue(netId);
                 }
+
+                if (damageEvent.PlayerIndex >= 0)
+                    creditQueue.Enqueue(new ZombieCreditEvent { PlayerIndex = damageEvent.PlayerIndex, IsKill = true });
 
                 ZombiePool.Release(em, pool, damageEvent.Target);
                 killsThisFrame++;

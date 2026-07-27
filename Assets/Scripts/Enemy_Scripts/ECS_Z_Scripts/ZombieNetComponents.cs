@@ -86,6 +86,7 @@ public struct ZombieDamageRequest
 {
     public ushort NetId;
     public int Amount;
+    public int PlayerIndex;
 }
 
 public struct ZombieDamageRequestQueue : IComponentData

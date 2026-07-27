@@ -86,4 +86,5 @@ public struct ZombieDamageRequestMessage : NetworkMessage
 {
     public ushort NetId;
     public int Amount;
+    public int PlayerIndex;
 }

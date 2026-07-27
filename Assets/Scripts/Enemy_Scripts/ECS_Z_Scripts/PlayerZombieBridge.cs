@@ -34,4 +34,16 @@ public class PlayerZombieBridge : MonoBehaviour
         if (stats == null) return;
         stats.TakeDamage(amount);
     }
+
+    public void GrantHitGold()
+    {
+        if (stats == null) return;
+        stats.AddGold(stats.goldOnHit);
+    }
+
+    public void GrantKillGold()
+    {
+        if (stats == null) return;
+        stats.AddGold(stats.goldOnKill);
+    }
 }

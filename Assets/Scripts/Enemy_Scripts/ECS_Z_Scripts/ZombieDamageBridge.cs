@@ -41,7 +41,7 @@ public static class ZombieDamageBridge
         initialized = gridSingletonEntity != Entity.Null && damageQueueSingletonEntity != Entity.Null;
     }
 
-    public static void DamageZombie(Entity target, int amount)
+    public static void DamageZombie(Entity target, int amount, int playerIndex = -1)
     {
         EnsureInitialized();
         if (!initialized)
@@ -56,17 +56,17 @@ public static class ZombieDamageBridge
                 {
                     ushort netId = entityManager.GetComponentData<ZombieNetId>(target).Value;
                     if (netId != 0)
-                        ZombieNetworkManager.SendDamageRequest(netId, amount);
+                        ZombieNetworkManager.SendDamageRequest(netId, amount, playerIndex);
                 }
                 return;
             }
         }
 
         NativeQueue<ZombieDamageEvent> queue = entityManager.GetComponentData<ZombieDamageQueue>(damageQueueSingletonEntity).Queue;
-        queue.Enqueue(new ZombieDamageEvent { Target = target, Amount = amount });
+        queue.Enqueue(new ZombieDamageEvent { Target = target, Amount = amount, PlayerIndex = playerIndex });
     }
 
-    public static int DamageZombiesInRadius(float3 center, float radius, int amount)
+    public static int DamageZombiesInRadius(float3 center, float radius, int amount, int playerIndex = -1)
     {
         EnsureInitialized();
         if (!initialized)
@@ -96,7 +96,7 @@ public static class ZombieDamageBridge
 
                             if (horizontalDist <= radius + entry.Radius)
                             {
-                                DamageZombie(entry.Entity, amount);
+                                DamageZombie(entry.Entity, amount, playerIndex);
                                 hitCount++;
                             }
                         } while (gridSingleton.Grid.TryGetNextValue(out entry, ref iterator));

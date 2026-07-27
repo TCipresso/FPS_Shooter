@@ -307,18 +307,20 @@ public class ZombieNetworkManager : MonoBehaviour
         queue.Enqueue(new ZombieDamageRequest
         {
             NetId = message.NetId,
-            Amount = message.Amount
+            Amount = message.Amount,
+            PlayerIndex = message.PlayerIndex
         });
     }
 
-    public static void SendDamageRequest(ushort netId, int amount)
+    public static void SendDamageRequest(ushort netId, int amount, int playerIndex = -1)
     {
         if (!NetworkClient.active) return;
 
         NetworkClient.Send(new ZombieDamageRequestMessage
         {
             NetId = netId,
-            Amount = amount
+            Amount = amount,
+            PlayerIndex = playerIndex
         }, Channels.Reliable);
     }
 }

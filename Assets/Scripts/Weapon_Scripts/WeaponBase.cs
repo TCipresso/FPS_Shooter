@@ -100,6 +100,8 @@ public abstract class WeaponBase : MonoBehaviour
     protected WeaponRecoil weaponRecoil;
     protected PlayerStats playerStats;
     protected PlayerFpsController fpsController;
+    protected int ownerPlayerIndex = -1;
+    public int OwnerPlayerIndex => ownerPlayerIndex;
 
     private int level1Damage;
     private float level1Range;
@@ -141,6 +143,17 @@ public abstract class WeaponBase : MonoBehaviour
             fpsController = GetComponentInParent<PlayerFpsController>();
         if (mainCamera == null)
             mainCamera = Camera.main;
+
+        if (ownerPlayerIndex < 0)
+        {
+            PlayerZombieBridge bridge = GetComponentInParent<PlayerZombieBridge>();
+            Debug.Log($"[WeaponBase:{gameObject.name}] bridge found: {bridge != null}, registry instance: {ZombiePlayerRegistry.Instance != null}");
+            if (bridge != null && ZombiePlayerRegistry.Instance != null)
+            {
+                ownerPlayerIndex = ZombiePlayerRegistry.Instance.GetIndex(bridge);
+                Debug.Log($"[WeaponBase:{gameObject.name}] resolved ownerPlayerIndex = {ownerPlayerIndex}");
+            }
+        }
     }
 
     Animator FindUniversalAnimatorInOwnHierarchy()
@@ -202,6 +215,9 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected virtual void Update()
     {
+        if (ownerPlayerIndex < 0)
+            ResolveOwningPlayerReferences();
+
         if (playerStats != null)
             rpm = baseRpm * playerStats.attackSpeed;
 
@@ -304,7 +320,7 @@ public abstract class WeaponBase : MonoBehaviour
         if (hitZombie)
         {
             endPoint = (Vector3)zombieHitPos;
-            ZombieDamageBridge.DamageZombie(zombie, ApplyCrit(damage));
+            ZombieDamageBridge.DamageZombie(zombie, ApplyCrit(damage), ownerPlayerIndex);
 
             if (HitMarkerPool.Instance != null)
                 HitMarkerPool.Instance.Spawn(endPoint, false);
@@ -346,7 +362,7 @@ public abstract class WeaponBase : MonoBehaviour
         if (hitZombie)
         {
             endPoint = (Vector3)zombieHitPos;
-            ZombieDamageBridge.DamageZombie(zombie, ApplyCrit(damage));
+            ZombieDamageBridge.DamageZombie(zombie, ApplyCrit(damage), ownerPlayerIndex);
 
             if (HitMarkerPool.Instance != null)
                 HitMarkerPool.Instance.Spawn(endPoint, false);

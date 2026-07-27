@@ -80,6 +80,7 @@ public struct ZombieDamageEvent
 {
     public Entity Target;
     public int Amount;
+    public int PlayerIndex;
 }
 
 public struct PlayerDamageEvent
@@ -96,6 +97,17 @@ public struct ZombieDamageQueue : IComponentData
 public struct PlayerDamageQueue : IComponentData
 {
     public NativeQueue<PlayerDamageEvent> Queue;
+}
+
+public struct ZombieCreditEvent
+{
+    public int PlayerIndex;
+    public bool IsKill;
+}
+
+public struct ZombieCreditQueue : IComponentData
+{
+    public NativeQueue<ZombieCreditEvent> Queue;
 }
 
 public struct ZombieGridEntry

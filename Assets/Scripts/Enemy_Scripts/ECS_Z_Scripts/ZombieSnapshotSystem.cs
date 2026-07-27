@@ -70,7 +70,7 @@ public partial struct ZombieSnapshotSystem : ISystem
             if (!idMap.TryGetValue(request.NetId, out Entity target))
                 continue;
 
-            damageQueue.Enqueue(new ZombieDamageEvent { Target = target, Amount = request.Amount });
+            damageQueue.Enqueue(new ZombieDamageEvent { Target = target, Amount = request.Amount, PlayerIndex = request.PlayerIndex });
         }
     }
 }

@@ -31,6 +31,7 @@ public partial struct ZombieBootstrapSystem : ISystem
 
         state.EntityManager.AddComponentData(singleton, new ZombieDamageQueue { Queue = new NativeQueue<ZombieDamageEvent>(Allocator.Persistent) });
         state.EntityManager.AddComponentData(singleton, new PlayerDamageQueue { Queue = new NativeQueue<PlayerDamageEvent>(Allocator.Persistent) });
+        state.EntityManager.AddComponentData(singleton, new ZombieCreditQueue { Queue = new NativeQueue<ZombieCreditEvent>(Allocator.Persistent) });
 
         state.EntityManager.AddComponentData(singleton, new ZombieSimAuthority { IsNetworked = false, IsServer = true });
         state.EntityManager.AddComponentData(singleton, new ZombieNetIdCounter { Next = 1 });
@@ -56,6 +57,8 @@ public partial struct ZombieBootstrapSystem : ISystem
         foreach (var q in SystemAPI.Query<RefRO<ZombieDamageQueue>>())
             q.ValueRO.Queue.Dispose();
         foreach (var q in SystemAPI.Query<RefRO<PlayerDamageQueue>>())
+            q.ValueRO.Queue.Dispose();
+        foreach (var q in SystemAPI.Query<RefRO<ZombieCreditQueue>>())
             q.ValueRO.Queue.Dispose();
         foreach (var g in SystemAPI.Query<RefRO<ZombieGridSingleton>>())
             g.ValueRO.Grid.Dispose();

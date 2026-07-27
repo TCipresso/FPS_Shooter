@@ -192,7 +192,8 @@ public class ProjectileBase : MonoBehaviour
 
             if (applyDamage)
             {
-                ZombieDamageBridge.DamageZombiesInRadius((float3)point, data.explosionRadius, damage);
+                int explosionOwnerIndex = owner != null ? owner.OwnerPlayerIndex : -1;
+                ZombieDamageBridge.DamageZombiesInRadius((float3)point, data.explosionRadius, damage, explosionOwnerIndex);
                 ApplySelfKnockback(point);
             }
 
@@ -203,7 +204,7 @@ public class ProjectileBase : MonoBehaviour
         {
             if (applyDamage && owner != null)
             {
-                ZombieDamageBridge.DamageZombie(directZombie, owner.ApplyCrit(damage));
+                ZombieDamageBridge.DamageZombie(directZombie, owner.ApplyCrit(damage), owner.OwnerPlayerIndex);
                 if (HitMarkerPool.Instance != null)
                     HitMarkerPool.Instance.Spawn(point, false);
             }
