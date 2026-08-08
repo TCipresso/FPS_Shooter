@@ -21,10 +21,16 @@ public class WeaponInventory : MonoBehaviour
     [Header("Weapons (drag pre-placed, disabled weapon children here)")]
     public List<WeaponEntry> weapons = new List<WeaponEntry>();
 
+    [Header("Off-Hand (drag pre-placed, disabled off-hand children here)")]
+    public List<OffHandEntry> offHandItems = new List<OffHandEntry>();
+
     private readonly WeaponEntry[] slots = new WeaponEntry[SlotCount];
     private Dictionary<WeaponDefinitionSO, WeaponEntry> weaponLookup = new Dictionary<WeaponDefinitionSO, WeaponEntry>();
     private Dictionary<WeaponBase, Material[]> originalMaterialsCache = new Dictionary<WeaponBase, Material[]>();
     private int activeSlot = 0;
+
+    private OffHandEntry activeOffHand;
+    private Dictionary<OffHandDefinitionSO, OffHandEntry> offHandLookup = new Dictionary<OffHandDefinitionSO, OffHandEntry>();
 
     void Awake()
     {
@@ -51,6 +57,20 @@ public class WeaponInventory : MonoBehaviour
                 if (wb.skinRenderer != null && !originalMaterialsCache.ContainsKey(wb))
                     originalMaterialsCache[wb] = (Material[])wb.skinRenderer.sharedMaterials.Clone();
             }
+        }
+
+        offHandLookup.Clear();
+
+        foreach (OffHandEntry entry in offHandItems)
+        {
+            if (entry == null || entry.offHandRoot == null || entry.definition == null
+                || entry.offHandBases == null || entry.offHandBases.Count == 0)
+            {
+                Debug.LogWarning("[WeaponInventory] Skipping invalid OffHandEntry.");
+                continue;
+            }
+
+            offHandLookup[entry.definition] = entry;
         }
 
         if (fireAction != null) fireAction.action.Enable();
@@ -82,6 +102,12 @@ public class WeaponInventory : MonoBehaviour
                     && wb.bulletData.bulletType == BulletType.Projectile && wb.bulletData.projectilePrefab != null)
                     ProjectilePool.Instance.EnsurePoolSize(wb.bulletData.projectilePrefab, 8);
             }
+        }
+
+        foreach (OffHandEntry entry in offHandItems)
+        {
+            if (entry?.offHandRoot == null) continue;
+            entry.offHandRoot.SetActive(false);
         }
 
         InitializeStartingLoadout();
@@ -371,5 +397,63 @@ public class WeaponInventory : MonoBehaviour
     public int GetLevel(WeaponDefinitionSO def)
     {
         return weaponLookup.TryGetValue(def, out WeaponEntry entry) ? entry.level : 0;
+    }
+
+    public bool EquipOffHand(OffHandDefinitionSO def)
+    {
+        if (def == null) return false;
+
+        if (!offHandLookup.TryGetValue(def, out OffHandEntry entry))
+        {
+            Debug.LogWarning($"[WeaponInventory] Cannot equip off-hand, no entry for {def.offHandName}.");
+            return false;
+        }
+
+        SetActiveOffHandEntry(entry);
+        return true;
+    }
+
+    void SetActiveOffHandEntry(OffHandEntry entry)
+    {
+        if (entry?.offHandRoot == null) return;
+
+        if (activeOffHand != null && activeOffHand.offHandRoot != null)
+        {
+            activeOffHand.Primary?.OnUnequip();
+            activeOffHand.offHandRoot.SetActive(false);
+        }
+
+        activeOffHand = entry;
+        entry.offHandRoot.SetActive(true);
+        entry.Primary?.OnEquip();
+    }
+
+    public void UnequipOffHand()
+    {
+        if (activeOffHand == null) return;
+
+        activeOffHand.Primary?.OnUnequip();
+
+        if (activeOffHand.offHandRoot != null)
+            activeOffHand.offHandRoot.SetActive(false);
+
+        activeOffHand = null;
+    }
+
+    public bool HasOffHandEquipped => activeOffHand != null;
+
+    public bool HasOffHand(OffHandDefinitionSO def)
+    {
+        return activeOffHand != null && activeOffHand.definition == def;
+    }
+
+    public OffHandBase GetActiveOffHandBase()
+    {
+        return activeOffHand?.Primary;
+    }
+
+    public OffHandEntry GetActiveOffHandEntry()
+    {
+        return activeOffHand;
     }
 }
