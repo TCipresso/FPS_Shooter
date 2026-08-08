@@ -125,7 +125,7 @@ public class ProjectileBase : MonoBehaviour
 
         if (didHitWorld)
         {
-            DoImpact(worldHit.point, worldHit.normal, false, null);
+            DoImpact(worldHit.point, worldHit.normal, false, null, null, worldHit.collider);
             OnDespawn();
             return true;
         }
@@ -234,7 +234,7 @@ public class ProjectileBase : MonoBehaviour
         ownerController.ApplyImpulse(pushDir * data.explosionSelfKnockback);
     }
 
-    void DoImpact(Vector3 point, Vector3 normal, bool directZombieHit, ZombieBase directZombie, HitBox directHitBox = null)
+    void DoImpact(Vector3 point, Vector3 normal, bool directZombieHit, ZombieBase directZombie, HitBox directHitBox = null, Collider worldCollider = null)
     {
         if (debugLogging)
             Debug.Log($"[PROJ] IMPACT point={point} zombieHit={directZombieHit} explosive={data != null && data.isExplosive} vfx={(data != null && data.explosionEffectPrefab != null)} pool={(ExplosionPool.Instance != null)} applyDamage={applyDamage}");
@@ -279,6 +279,10 @@ public class ProjectileBase : MonoBehaviour
         {
             if (ImpactEffectPool.Instance != null)
                 ImpactEffectPool.Instance.SpawnWorld(point, normal);
+
+            SandboxSpawner spawner = worldCollider != null ? worldCollider.GetComponentInParent<SandboxSpawner>() : null;
+            if (spawner != null)
+                spawner.TriggerSpawn();
         }
     }
 }

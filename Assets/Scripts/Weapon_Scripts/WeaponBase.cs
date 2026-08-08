@@ -328,6 +328,10 @@ public abstract class WeaponBase : MonoBehaviour
         {
             endPoint = hit.point;
             SpawnImpactEffect(hit, false);
+
+            SandboxSpawner spawner = hit.collider.GetComponentInParent<SandboxSpawner>();
+            if (spawner != null)
+                spawner.TriggerSpawn();
         }
         else
         {
