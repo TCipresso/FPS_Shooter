@@ -1,9 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
-using Unity.Entities;
-using Mirror;
-using float3 = Unity.Mathematics.float3;
 
+[RequireComponent(typeof(AudioSource))]
 public abstract class WeaponBase : MonoBehaviour
 {
     [Header("Muzzle")]
@@ -92,6 +90,9 @@ public abstract class WeaponBase : MonoBehaviour
     readonly List<Vector3> shotEndPoints = new List<Vector3>(16);
     readonly List<byte> shotHitTypes = new List<byte>(16);
 
+    const int MaxSwarmHits = 16;
+    readonly RaycastHit[] swarmHitBuffer = new RaycastHit[MaxSwarmHits];
+
     float walkStopTimer = 0f;
     float fireResetTime = 0f;
 
@@ -100,8 +101,7 @@ public abstract class WeaponBase : MonoBehaviour
     protected WeaponRecoil weaponRecoil;
     protected PlayerStats playerStats;
     protected PlayerFpsController fpsController;
-    protected int ownerPlayerIndex = -1;
-    public int OwnerPlayerIndex => ownerPlayerIndex;
+    public PlayerStats OwnerStats => playerStats;
 
     private int level1Damage;
     private float level1Range;
@@ -143,17 +143,6 @@ public abstract class WeaponBase : MonoBehaviour
             fpsController = GetComponentInParent<PlayerFpsController>();
         if (mainCamera == null)
             mainCamera = Camera.main;
-
-        if (ownerPlayerIndex < 0)
-        {
-            PlayerZombieBridge bridge = GetComponentInParent<PlayerZombieBridge>();
-            Debug.Log($"[WeaponBase:{gameObject.name}] bridge found: {bridge != null}, registry instance: {ZombiePlayerRegistry.Instance != null}");
-            if (bridge != null && ZombiePlayerRegistry.Instance != null)
-            {
-                ownerPlayerIndex = ZombiePlayerRegistry.Instance.GetIndex(bridge);
-                Debug.Log($"[WeaponBase:{gameObject.name}] resolved ownerPlayerIndex = {ownerPlayerIndex}");
-            }
-        }
     }
 
     Animator FindUniversalAnimatorInOwnHierarchy()
@@ -168,13 +157,6 @@ public abstract class WeaponBase : MonoBehaviour
         }
 
         return null;
-    }
-
-    bool IsOwnerLocalPlayer()
-    {
-        if (fpsController == null) return true;
-        if (!NetworkClient.active) return true;
-        return fpsController.isLocalPlayer;
     }
 
     protected virtual void OnEnable()
@@ -215,9 +197,6 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected virtual void Update()
     {
-        if (ownerPlayerIndex < 0)
-            ResolveOwningPlayerReferences();
-
         if (playerStats != null)
             rpm = baseRpm * playerStats.attackSpeed;
 
@@ -226,8 +205,6 @@ public abstract class WeaponBase : MonoBehaviour
 
         if (currentBloom > 0f)
             currentBloom = Mathf.Max(0f, currentBloom - bloomDecaySpeed * Time.deltaTime);
-
-        if (!IsOwnerLocalPlayer()) return;
 
         if (fpsController != null && animator != null)
         {
@@ -263,6 +240,41 @@ public abstract class WeaponBase : MonoBehaviour
 
     public virtual void Reload() { }
 
+    bool TryFindNearestZombieAlongRay(Vector3 origin, Vector3 direction, float maxDistance, out ZombieBase zombie, out HitBox hitBox, out Vector3 hitPoint)
+    {
+        int hitCount = Physics.SphereCastNonAlloc(origin, swarmHitRadius, direction, swarmHitBuffer, maxDistance);
+
+        ZombieBase closestZombie = null;
+        HitBox closestHitBox = null;
+        float closestDistance = float.MaxValue;
+        Vector3 closestPoint = default;
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            RaycastHit hit = swarmHitBuffer[i];
+
+            HitBox candidateHitBox = hit.collider.GetComponentInParent<HitBox>();
+            ZombieBase candidate = candidateHitBox != null
+                ? candidateHitBox.zombie
+                : hit.collider.GetComponentInParent<ZombieBase>();
+
+            if (candidate == null || candidate.IsDead) continue;
+
+            if (hit.distance < closestDistance)
+            {
+                closestDistance = hit.distance;
+                closestZombie = candidate;
+                closestHitBox = candidateHitBox;
+                closestPoint = hit.point;
+            }
+        }
+
+        zombie = closestZombie;
+        hitBox = closestHitBox;
+        hitPoint = closestPoint;
+        return closestZombie != null;
+    }
+
     private void FireHitscan(int damage, float range)
     {
         if (bulletData == null) return;
@@ -281,28 +293,37 @@ public abstract class WeaponBase : MonoBehaviour
                     float t = pellets > 1 ? (float)i / (pellets - 1) : 0.5f;
                     spreadX = 0f;
                     spreadY = Mathf.Lerp(-bulletData.pelletSpreadAngle, bulletData.pelletSpreadAngle, t);
-                    FireHitscanPelletExact(pelletDamage, range, spreadX, spreadY);
+                    FireHitscanPellet(pelletDamage, range, spreadX, spreadY, true);
                 }
                 else
                 {
                     spreadX = Random.Range(-bulletData.pelletSpreadAngle, bulletData.pelletSpreadAngle);
                     spreadY = Random.Range(-bulletData.pelletSpreadAngle, bulletData.pelletSpreadAngle);
-                    FireHitscanPellet(pelletDamage, range, spreadX, spreadY);
+                    FireHitscanPellet(pelletDamage, range, spreadX, spreadY, false);
                 }
             }
         }
         else
         {
-            FireHitscanPellet(damage, range, 0f, 0f);
+            FireHitscanPellet(damage, range, 0f, 0f, false);
         }
     }
 
-    private void FireHitscanPelletExact(int damage, float range, float spreadX, float spreadY)
+    private void FireHitscanPellet(int damage, float range, float spreadX, float spreadY, bool exactDirection)
     {
         Vector3 origin = GetAimOrigin();
-        Quaternion spreadRotation = Quaternion.AngleAxis(spreadY, mainCamera.transform.up)
-                                  * Quaternion.AngleAxis(spreadX, mainCamera.transform.right);
-        Vector3 direction = spreadRotation * mainCamera.transform.forward;
+        Vector3 direction;
+
+        if (exactDirection)
+        {
+            Quaternion spreadRotation = Quaternion.AngleAxis(spreadY, mainCamera.transform.up)
+                                      * Quaternion.AngleAxis(spreadX, mainCamera.transform.right);
+            direction = spreadRotation * mainCamera.transform.forward;
+        }
+        else
+        {
+            direction = GetAimDirection(spreadX, spreadY);
+        }
 
         Ray ray = new Ray(origin, direction);
         Vector3 endPoint;
@@ -313,17 +334,24 @@ public abstract class WeaponBase : MonoBehaviour
 
         float searchDistance = didHitWorld ? hit.distance : range;
 
-        bool hitZombie = ZombieDamageBridge.TryFindNearestZombieAlongRay(
-            (float3)origin, (float3)direction, searchDistance, swarmHitRadius,
-            out Entity zombie, out float3 zombieHitPos);
+        bool hitZombie = TryFindNearestZombieAlongRay(origin, direction, searchDistance, out ZombieBase zombie, out HitBox hitBox, out Vector3 zombieHitPos);
 
         if (hitZombie)
         {
-            endPoint = (Vector3)zombieHitPos;
-            ZombieDamageBridge.DamageZombie(zombie, ApplyCrit(damage), ownerPlayerIndex);
+            endPoint = zombieHitPos;
 
-            if (HitMarkerPool.Instance != null)
-                HitMarkerPool.Instance.Spawn(endPoint, false);
+            if (hitBox != null)
+            {
+                hitBox.TakeDamageWithHitPoint(damage, playerStats, this, endPoint, 1f, -direction, ragdollForceMultiplier);
+            }
+            else
+            {
+                zombie.TakeDamage(ApplyCrit(damage), playerStats, 1f, -direction, ragdollForceMultiplier);
+                zombie.hitFlash?.Flash(false);
+
+                if (HitMarkerPool.Instance != null)
+                    HitMarkerPool.Instance.Spawn(endPoint, false);
+            }
 
             if (ImpactEffectPool.Instance != null)
                 ImpactEffectPool.Instance.SpawnZombie(endPoint, -direction);
@@ -337,48 +365,7 @@ public abstract class WeaponBase : MonoBehaviour
         {
             endPoint = origin + direction * range;
         }
-        SpawnTrail(muzzlePoint.position, endPoint);
-        shotEndPoints.Add(endPoint);
-        shotHitTypes.Add(hitZombie ? (byte)2 : didHitWorld ? (byte)1 : (byte)0);
-    }
 
-    private void FireHitscanPellet(int damage, float range, float spreadX, float spreadY)
-    {
-        Vector3 direction = GetAimDirection(spreadX, spreadY);
-        Vector3 origin = GetAimOrigin();
-        Ray ray = new Ray(origin, direction);
-        Vector3 endPoint;
-
-        bool didHitWorld = bulletData.hitMask != 0
-            ? Physics.Raycast(ray, out RaycastHit hit, range, bulletData.hitMask)
-            : Physics.Raycast(ray, out hit, range);
-
-        float searchDistance = didHitWorld ? hit.distance : range;
-
-        bool hitZombie = ZombieDamageBridge.TryFindNearestZombieAlongRay(
-            (float3)origin, (float3)direction, searchDistance, swarmHitRadius,
-            out Entity zombie, out float3 zombieHitPos);
-
-        if (hitZombie)
-        {
-            endPoint = (Vector3)zombieHitPos;
-            ZombieDamageBridge.DamageZombie(zombie, ApplyCrit(damage), ownerPlayerIndex);
-
-            if (HitMarkerPool.Instance != null)
-                HitMarkerPool.Instance.Spawn(endPoint, false);
-
-            if (ImpactEffectPool.Instance != null)
-                ImpactEffectPool.Instance.SpawnZombie(endPoint, -direction);
-        }
-        else if (didHitWorld)
-        {
-            endPoint = hit.point;
-            SpawnImpactEffect(hit, false);
-        }
-        else
-        {
-            endPoint = origin + direction * range;
-        }
         SpawnTrail(muzzlePoint.position, endPoint);
         shotEndPoints.Add(endPoint);
         shotHitTypes.Add(hitZombie ? (byte)2 : didHitWorld ? (byte)1 : (byte)0);
@@ -522,46 +509,6 @@ public abstract class WeaponBase : MonoBehaviour
 
         p.Launch(origin, direction, speed, bulletData.projectileGravityScale,
             life, damage, applyDamage, this, bulletData, swarmHitRadius);
-    }
-
-    public void PlayRemoteProjectile(Vector3 origin, Vector3 direction)
-    {
-        SpawnProjectileVisual(origin, direction, 0, false);
-    }
-
-    public void PlayRemoteFireEffects(Vector3[] endpoints, byte[] hitTypes)
-    {
-        if (!gameObject.activeInHierarchy) return;
-
-        PlayMuzzleFlash();
-        EjectCasing();
-        PlayFireSound();
-
-        if (animator != null)
-            animator.Play(FireClipName, 2, 0f);
-
-        if (endpoints == null) return;
-
-        for (int i = 0; i < endpoints.Length; i++)
-        {
-            Vector3 end = endpoints[i];
-            Vector3 start = muzzlePoint != null ? muzzlePoint.position : end;
-
-            SpawnTrail(start, end);
-
-            byte hitType = hitTypes != null && i < hitTypes.Length ? hitTypes[i] : (byte)0;
-            if (hitType == 0) continue;
-            if (ImpactEffectPool.Instance == null) continue;
-
-            Vector3 dir = (end - start).sqrMagnitude > 0.0001f
-                ? (end - start).normalized
-                : transform.forward;
-
-            if (hitType == 2)
-                ImpactEffectPool.Instance.SpawnZombie(end, -dir);
-            else
-                ImpactEffectPool.Instance.SpawnWorld(end, -dir);
-        }
     }
 
     protected void PlayMuzzleFlash()

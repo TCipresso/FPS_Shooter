@@ -1,8 +1,7 @@
 using UnityEngine;
-using Mirror;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerFpsController : NetworkBehaviour
+public class PlayerFpsController : MonoBehaviour
 {
     [SerializeField] public FPSInput input;
     [SerializeField] private Transform orientation;
@@ -138,22 +137,12 @@ public class PlayerFpsController : NetworkBehaviour
         jumpsRemaining = jumpCount;
         DashCharges = dashCharges;
         dashChargesRemaining = DashCharges;
-    }
 
-    public override void OnStartClient()
-    {
-        if (!isLocalPlayer)
-            controller.enabled = false;
-    }
-
-    public override void OnStartLocalPlayer()
-    {
         controller.enabled = true;
     }
 
     void Update()
     {
-        if (!isLocalPlayer) return;
         if (input == null) return;
         if (!controller.enabled) return;
 
@@ -595,8 +584,6 @@ public class PlayerFpsController : NetworkBehaviour
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (!isLocalPlayer) return;
-
         float angle = Vector3.Angle(Vector3.up, hit.normal);
 
         if (angle < 60f)
@@ -620,7 +607,6 @@ public class PlayerFpsController : NetworkBehaviour
 
     public void ApplyImpulse(Vector3 impulse)
     {
-        if (!isLocalPlayer) return;
         if (IsDowned) return;
 
         if (IsSliding) EndSlide();

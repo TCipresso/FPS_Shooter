@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Mirror;
 
-public class WeaponInventory : NetworkBehaviour
+public class WeaponInventory : MonoBehaviour
 {
     public const int SlotCount = 2;
 
@@ -16,9 +15,6 @@ public class WeaponInventory : NetworkBehaviour
     public InputActionReference fireAction;
     public InputActionReference swapAction;
 
-    [Header("Networking")]
-    public string remoteWeaponLayer = "Default";
-
     [Header("Starting Loadout (element 0 = slot 1, element 1 = slot 2)")]
     public List<WeaponDefinitionSO> startingWeapons = new List<WeaponDefinitionSO>();
 
@@ -29,15 +25,6 @@ public class WeaponInventory : NetworkBehaviour
     private Dictionary<WeaponDefinitionSO, WeaponEntry> weaponLookup = new Dictionary<WeaponDefinitionSO, WeaponEntry>();
     private Dictionary<WeaponBase, Material[]> originalMaterialsCache = new Dictionary<WeaponBase, Material[]>();
     private int activeSlot = 0;
-
-    [SyncVar(hook = nameof(OnActiveWeaponIndexChanged))]
-    private int syncedActiveWeaponIndex = -1;
-
-    [Header("Drop / Pickup")]
-    [Tooltip("Where dropped weapons spawn, relative to the player. Usually a point slightly in front and below the camera.")]
-    public Transform dropOrigin;
-    public float dropForwardOffset = 1.2f;
-    public float dropUpOffset = 0.2f;
 
     void Awake()
     {
@@ -63,38 +50,17 @@ public class WeaponInventory : NetworkBehaviour
                 if (wb == null) continue;
                 if (wb.skinRenderer != null && !originalMaterialsCache.ContainsKey(wb))
                     originalMaterialsCache[wb] = (Material[])wb.skinRenderer.sharedMaterials.Clone();
-
-                wb.onShotFired += HandleShotFired;
-                wb.onProjectileFired += HandleProjectileFired;
             }
         }
+
+        if (fireAction != null) fireAction.action.Enable();
+        if (swapAction != null) swapAction.action.Enable();
     }
 
-    void OnDestroy()
+    void OnDisable()
     {
-        foreach (WeaponEntry entry in weapons)
-        {
-            if (entry?.weaponBases == null) continue;
-
-            foreach (WeaponBase wb in entry.weaponBases)
-            {
-                if (wb != null)
-                {
-                    wb.onShotFired -= HandleShotFired;
-                    wb.onProjectileFired -= HandleProjectileFired;
-                }
-            }
-        }
-    }
-
-    public override void OnStartClient()
-    {
-        if (isLocalPlayer) return;
-        if (weaponHolder == null) return;
-
-        int layer = LayerMask.NameToLayer(remoteWeaponLayer);
-        if (layer >= 0)
-            SetLayerRecursively(weaponHolder, layer);
+        if (fireAction != null) fireAction.action.Disable();
+        if (swapAction != null) swapAction.action.Disable();
     }
 
     void Start()
@@ -118,12 +84,7 @@ public class WeaponInventory : NetworkBehaviour
             }
         }
 
-        bool isLocalOrOffline = !NetworkClient.active || isLocalPlayer;
-
-        if (isLocalOrOffline)
-            InitializeStartingLoadout();
-        else
-            ActivateEntryVisualByIndex(syncedActiveWeaponIndex);
+        InitializeStartingLoadout();
     }
 
     void InitializeStartingLoadout()
@@ -155,23 +116,8 @@ public class WeaponInventory : NetworkBehaviour
         Debug.LogWarning("[WeaponInventory] No starting weapons assigned.");
     }
 
-    public override void OnStartLocalPlayer()
-    {
-        if (fireAction != null) fireAction.action.Enable();
-        if (swapAction != null) swapAction.action.Enable();
-    }
-
-    void OnDisable()
-    {
-        if (!isLocalPlayer) return;
-        if (fireAction != null) fireAction.action.Disable();
-        if (swapAction != null) swapAction.action.Disable();
-    }
-
     void Update()
     {
-        if (NetworkClient.active && !isLocalPlayer) return;
-
         if (swapAction != null && swapAction.action.WasPressedThisFrame())
             SwapWeapon();
 
@@ -195,124 +141,6 @@ public class WeaponInventory : NetworkBehaviour
             foreach (WeaponBase wb in activeBases)
                 wb?.StopRecoil();
         }
-    }
-
-    void HandleShotFired(WeaponBase wb, List<Vector3> endpoints, List<byte> hitTypes)
-    {
-        if (!NetworkClient.active || !isLocalPlayer) return;
-
-        for (int e = 0; e < weapons.Count; e++)
-        {
-            WeaponEntry entry = weapons[e];
-            if (entry?.weaponBases == null) continue;
-
-            int b = entry.weaponBases.IndexOf(wb);
-            if (b >= 0)
-            {
-                CmdFireEffects(e, b, endpoints.ToArray(), hitTypes.ToArray());
-                return;
-            }
-        }
-    }
-
-    [Command]
-    void CmdFireEffects(int entryIndex, int baseIndex, Vector3[] endpoints, byte[] hitTypes)
-    {
-        RpcFireEffects(entryIndex, baseIndex, endpoints, hitTypes);
-    }
-
-    [ClientRpc(includeOwner = false)]
-    void RpcFireEffects(int entryIndex, int baseIndex, Vector3[] endpoints, byte[] hitTypes)
-    {
-        if (isLocalPlayer) return;
-        if (entryIndex < 0 || entryIndex >= weapons.Count) return;
-
-        WeaponEntry entry = weapons[entryIndex];
-        if (entry?.weaponBases == null) return;
-        if (baseIndex < 0 || baseIndex >= entry.weaponBases.Count) return;
-
-        WeaponBase wb = entry.weaponBases[baseIndex];
-        if (wb == null) return;
-
-        wb.PlayRemoteFireEffects(endpoints, hitTypes);
-    }
-
-    void HandleProjectileFired(WeaponBase wb, Vector3 origin, Vector3 direction)
-    {
-        if (!NetworkClient.active || !isLocalPlayer) return;
-
-        for (int e = 0; e < weapons.Count; e++)
-        {
-            WeaponEntry entry = weapons[e];
-            if (entry?.weaponBases == null) continue;
-
-            int b = entry.weaponBases.IndexOf(wb);
-            if (b >= 0)
-            {
-                CmdSpawnProjectile(e, b, origin, direction);
-                return;
-            }
-        }
-    }
-
-    [Command]
-    void CmdSpawnProjectile(int entryIndex, int baseIndex, Vector3 origin, Vector3 direction)
-    {
-        RpcSpawnProjectile(entryIndex, baseIndex, origin, direction);
-    }
-
-    [ClientRpc(includeOwner = false)]
-    void RpcSpawnProjectile(int entryIndex, int baseIndex, Vector3 origin, Vector3 direction)
-    {
-        if (isLocalPlayer) return;
-        if (entryIndex < 0 || entryIndex >= weapons.Count) return;
-
-        WeaponEntry entry = weapons[entryIndex];
-        if (entry?.weaponBases == null) return;
-        if (baseIndex < 0 || baseIndex >= entry.weaponBases.Count) return;
-
-        WeaponBase wb = entry.weaponBases[baseIndex];
-        if (wb == null) return;
-
-        wb.PlayRemoteProjectile(origin, direction);
-    }
-
-    [Command]
-    void CmdSetActiveWeapon(int index)
-    {
-        syncedActiveWeaponIndex = index;
-    }
-
-    void OnActiveWeaponIndexChanged(int oldIndex, int newIndex)
-    {
-        if (isLocalPlayer) return;
-        ActivateEntryVisualByIndex(newIndex);
-    }
-
-    void ActivateEntryVisualByIndex(int index)
-    {
-        if (index < 0 || index >= weapons.Count) return;
-
-        WeaponEntry entry = weapons[index];
-        if (entry?.weaponRoot == null) return;
-
-        foreach (WeaponEntry w in weapons)
-        {
-            if (w?.weaponRoot != null)
-                w.weaponRoot.SetActive(false);
-        }
-
-        entry.weaponRoot.SetActive(true);
-
-        if (ikHandler != null)
-            ikHandler.UpdateIKTargets(entry.weaponRoot);
-    }
-
-    static void SetLayerRecursively(Transform root, int layer)
-    {
-        root.gameObject.layer = layer;
-        for (int i = 0; i < root.childCount; i++)
-            SetLayerRecursively(root.GetChild(i), layer);
     }
 
     public void SwapWeapon()
@@ -453,13 +281,6 @@ public class WeaponInventory : NetworkBehaviour
 
         if (ikHandler != null)
             ikHandler.UpdateIKTargets(entry.weaponRoot);
-
-        if (NetworkClient.active && isLocalPlayer)
-        {
-            int index = weapons.IndexOf(entry);
-            if (index >= 0)
-                CmdSetActiveWeapon(index);
-        }
     }
 
     void ApplyLevel(WeaponEntry entry)
@@ -550,108 +371,5 @@ public class WeaponInventory : NetworkBehaviour
     public int GetLevel(WeaponDefinitionSO def)
     {
         return weaponLookup.TryGetValue(def, out WeaponEntry entry) ? entry.level : 0;
-    }
-
-    public void RequestPickup(WeaponPickup pickup)
-    {
-        if (pickup == null) return;
-        if (!isLocalPlayer) return;
-
-        CmdPickupWeapon(pickup.netId);
-    }
-
-    [Command]
-    void CmdPickupWeapon(uint pickupNetId)
-    {
-        if (!NetworkServer.spawned.TryGetValue(pickupNetId, out NetworkIdentity pickupIdentity))
-            return;
-
-        WeaponPickup pickup = pickupIdentity.GetComponent<WeaponPickup>();
-        if (pickup == null) return;
-
-        WeaponDefinitionSO incomingDef = pickup.definition;
-        if (incomingDef == null) return;
-
-        if (!weaponLookup.TryGetValue(incomingDef, out WeaponEntry incomingEntry))
-            return;
-
-        int incomingIndex = weapons.IndexOf(incomingEntry);
-        if (incomingIndex < 0) return;
-
-        int incomingLevel = pickup.level;
-
-        int targetSlot = activeSlot;
-        WeaponEntry displaced = slots[targetSlot];
-        bool hasDisplaced = displaced != null && displaced.definition != null;
-
-        NetworkServer.Destroy(pickup.gameObject);
-
-        if (hasDisplaced)
-            SpawnPickup(displaced.definition, displaced.level);
-
-        RpcApplyPickup(targetSlot, incomingIndex, incomingLevel);
-    }
-
-    [ClientRpc]
-    void RpcApplyPickup(int slot, int weaponIndex, int level)
-    {
-        if (weaponIndex < 0 || weaponIndex >= weapons.Count) return;
-
-        WeaponEntry entry = weapons[weaponIndex];
-        if (entry == null || entry.definition == null) return;
-
-        entry.level = Mathf.Clamp(level, 1, entry.definition.maxLevel);
-        slots[slot] = entry;
-        EquipSlot(slot);
-    }
-
-    [Server]
-    void SpawnPickup(WeaponDefinitionSO def, int level)
-    {
-        if (def == null || def.dropPrefab == null)
-        {
-            Debug.LogWarning("[WeaponInventory] No dropPrefab assigned for this weapon; cannot drop.");
-            return;
-        }
-
-        Vector3 basePos = dropOrigin != null ? dropOrigin.position : transform.position;
-        Vector3 forward = dropOrigin != null ? dropOrigin.forward : transform.forward;
-        Vector3 spawnPos = basePos + forward * dropForwardOffset + Vector3.up * dropUpOffset;
-
-        GameObject go = Instantiate(def.dropPrefab, spawnPos, Quaternion.identity);
-
-        WeaponPickup pickup = go.GetComponent<WeaponPickup>();
-        if (pickup == null)
-        {
-            Debug.LogWarning("[WeaponInventory] dropPrefab has no WeaponPickup component.");
-            Destroy(go);
-            return;
-        }
-
-        NetworkServer.Spawn(go);
-        pickup.Initialize(level);
-    }
-
-    public void RequestDropActive()
-    {
-        if (!isLocalPlayer) return;
-        CmdDropActive();
-    }
-
-    [Command]
-    void CmdDropActive()
-    {
-        WeaponEntry entry = slots[activeSlot];
-        if (entry == null || entry.definition == null) return;
-
-        SpawnPickup(entry.definition, entry.level);
-
-        RpcClearSlot(activeSlot);
-    }
-
-    [ClientRpc]
-    void RpcClearSlot(int slot)
-    {
-        RemoveWeapon(slot);
     }
 }

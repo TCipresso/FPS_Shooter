@@ -1,9 +1,8 @@
 using UnityEngine;
-using Mirror;
 
-public class PlayerPersistence : NetworkBehaviour
+public class PlayerPersistence : MonoBehaviour
 {
-    public override void OnStartLocalPlayer()
+    void Awake()
     {
         DontDestroyOnLoad(gameObject);
     }

@@ -2,15 +2,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
-using Mirror;
 
-public class PlayerInteract : NetworkBehaviour
+public class PlayerInteract : MonoBehaviour
 {
     [Header("References")]
     public Camera playerCamera;
     public PlayerStats stats;
     public TextMeshProUGUI promptText;
-    public WeaponInventory weaponInventory;
 
     [Header("Interact Settings")]
     public float interactRange = 3f;
@@ -19,12 +17,7 @@ public class PlayerInteract : NetworkBehaviour
     [Header("Interactable Tags")]
     public List<string> interactableTags = new List<string> { "Buyable" };
 
-    [Header("Weapon Pickup")]
-    [Tooltip("Weapon pickups are detected by component, not tag - but they still need to be on a layer the interact ray can hit.")]
-    public bool pickupsUseSeparateTag = false;
-    public string weaponPickupTag = "WeaponPickup";
-
-    public override void OnStartLocalPlayer()
+    void Awake()
     {
         if (interactAction != null)
             interactAction.action.Enable();
@@ -32,15 +25,12 @@ public class PlayerInteract : NetworkBehaviour
 
     void OnDisable()
     {
-        if (!isLocalPlayer) return;
         if (interactAction != null)
             interactAction.action.Disable();
     }
 
     void Update()
     {
-        if (!isLocalPlayer) return;
-
         CheckForInteractable();
 
         if (interactAction != null && interactAction.action.WasPressedThisFrame())
@@ -52,14 +42,6 @@ public class PlayerInteract : NetworkBehaviour
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, interactRange))
         {
-            // Weapon pickups are detected by component, independent of the interactable tag list.
-            WeaponPickup pickup = hit.collider.GetComponentInChildren<WeaponPickup>();
-            if (pickup != null)
-            {
-                ShowPrompt(pickup.BuildPrompt());
-                return;
-            }
-
             if (!IsInteractableTag(hit.collider.tag))
             {
                 ClearPrompt();
@@ -91,15 +73,6 @@ public class PlayerInteract : NetworkBehaviour
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         if (!Physics.Raycast(ray, out RaycastHit hit, interactRange))
             return;
-
-        // Weapon pickup takes priority and bypasses the tag gate.
-        WeaponPickup pickup = hit.collider.GetComponentInChildren<WeaponPickup>();
-        if (pickup != null)
-        {
-            if (weaponInventory != null)
-                weaponInventory.RequestPickup(pickup);
-            return;
-        }
 
         if (!IsInteractableTag(hit.collider.tag))
             return;

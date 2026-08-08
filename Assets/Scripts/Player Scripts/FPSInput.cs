@@ -1,8 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Mirror;
 
-public class FPSInput : NetworkBehaviour
+public class FPSInput : MonoBehaviour
 {
     public InputActionReference moveAction;
     public InputActionReference lookAction;
@@ -25,18 +24,16 @@ public class FPSInput : NetworkBehaviour
     public bool ManeuverPressed { get; private set; }
 
     float jumpBufferCounter;
-
     public bool JumpBuffered => jumpBufferCounter > 0f;
 
-    public override void OnStartLocalPlayer()
+    void Awake()
     {
         EnableActions();
     }
 
     void OnDisable()
     {
-        if (isLocalPlayer)
-            DisableActions();
+        DisableActions();
     }
 
     void EnableActions()
@@ -63,8 +60,6 @@ public class FPSInput : NetworkBehaviour
 
     void Update()
     {
-        if (!isLocalPlayer) return;
-
         Move = moveAction ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
         Look = lookAction ? lookAction.action.ReadValue<Vector2>() : Vector2.zero;
         Move = Vector2.ClampMagnitude(Move, 1f);

@@ -1,6 +1,5 @@
 using UnityEngine;
-using Unity.Entities;
-using float3 = Unity.Mathematics.float3;
+using System.Collections.Generic;
 
 public class ProjectileBase : MonoBehaviour
 {
@@ -21,6 +20,9 @@ public class ProjectileBase : MonoBehaviour
     BulletDataSO data;
 
     static readonly RaycastHit[] hitBuffer = new RaycastHit[16];
+    static readonly RaycastHit[] zombieHitBuffer = new RaycastHit[16];
+    static readonly Collider[] explosionOverlapBuffer = new Collider[32];
+    static readonly HashSet<ZombieBase> explosionHitSet = new HashSet<ZombieBase>();
     const float castRadius = 0.15f;
 
     public static bool debugLogging = false;
@@ -112,22 +114,18 @@ public class ProjectileBase : MonoBehaviour
 
         float searchDist = didHitWorld ? worldHit.distance : stepDist;
 
-        Entity zombie = Entity.Null;
-        float3 zombieHitPos = float3.zero;
-        bool hitZombie = ZombieDamageBridge.TryFindNearestZombieAlongRay(
-            (float3)position, (float3)dir, searchDist, radius,
-            out zombie, out zombieHitPos);
+        bool hitZombie = TryFindNearestZombieAlongRay(position, dir, searchDist, out ZombieBase zombie, out HitBox hitBox, out Vector3 zombieHitPos);
 
         if (hitZombie)
         {
-            DoImpact((Vector3)zombieHitPos, -dir, true, zombie);
+            DoImpact(zombieHitPos, -dir, true, zombie, hitBox);
             OnDespawn();
             return true;
         }
 
         if (didHitWorld)
         {
-            DoImpact(worldHit.point, worldHit.normal, false, Entity.Null);
+            DoImpact(worldHit.point, worldHit.normal, false, null);
             OnDespawn();
             return true;
         }
@@ -146,6 +144,63 @@ public class ProjectileBase : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+    bool TryFindNearestZombieAlongRay(Vector3 origin, Vector3 direction, float maxDistance, out ZombieBase zombie, out HitBox hitBox, out Vector3 hitPoint)
+    {
+        int hitCount = Physics.SphereCastNonAlloc(origin, radius, direction, zombieHitBuffer, maxDistance);
+
+        ZombieBase closestZombie = null;
+        HitBox closestHitBox = null;
+        float closestDistance = float.MaxValue;
+        Vector3 closestPoint = default;
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            RaycastHit hit = zombieHitBuffer[i];
+
+            HitBox candidateHitBox = hit.collider.GetComponentInParent<HitBox>();
+            ZombieBase candidate = candidateHitBox != null
+                ? candidateHitBox.zombie
+                : hit.collider.GetComponentInParent<ZombieBase>();
+
+            if (candidate == null || candidate.IsDead) continue;
+
+            if (hit.distance < closestDistance)
+            {
+                closestDistance = hit.distance;
+                closestZombie = candidate;
+                closestHitBox = candidateHitBox;
+                closestPoint = hit.point;
+            }
+        }
+
+        zombie = closestZombie;
+        hitBox = closestHitBox;
+        hitPoint = closestPoint;
+        return closestZombie != null;
+    }
+
+    void DamageZombiesInRadius(Vector3 center, float explosionRadius, int amount)
+    {
+        int count = Physics.OverlapSphereNonAlloc(center, explosionRadius, explosionOverlapBuffer);
+        explosionHitSet.Clear();
+
+        for (int i = 0; i < count; i++)
+        {
+            Collider col = explosionOverlapBuffer[i];
+            if (col == null) continue;
+
+            ZombieBase zombie = col.GetComponentInParent<ZombieBase>();
+            if (zombie == null || zombie.IsDead) continue;
+            if (!explosionHitSet.Add(zombie)) continue;
+
+            Vector3 toZombie = zombie.transform.position - center;
+            Vector3 hitDir = toZombie.sqrMagnitude > 0.0001f ? toZombie.normalized : Vector3.up;
+
+            zombie.TakeDamage(amount, owner != null ? owner.OwnerStats : null, 1f, hitDir, 1f);
+            zombie.hitFlash?.Flash(false);
+        }
     }
 
     void OnDespawn()
@@ -179,7 +234,7 @@ public class ProjectileBase : MonoBehaviour
         ownerController.ApplyImpulse(pushDir * data.explosionSelfKnockback);
     }
 
-    void DoImpact(Vector3 point, Vector3 normal, bool directZombieHit, Entity directZombie)
+    void DoImpact(Vector3 point, Vector3 normal, bool directZombieHit, ZombieBase directZombie, HitBox directHitBox = null)
     {
         if (debugLogging)
             Debug.Log($"[PROJ] IMPACT point={point} zombieHit={directZombieHit} explosive={data != null && data.isExplosive} vfx={(data != null && data.explosionEffectPrefab != null)} pool={(ExplosionPool.Instance != null)} applyDamage={applyDamage}");
@@ -192,8 +247,7 @@ public class ProjectileBase : MonoBehaviour
 
             if (applyDamage)
             {
-                int explosionOwnerIndex = owner != null ? owner.OwnerPlayerIndex : -1;
-                ZombieDamageBridge.DamageZombiesInRadius((float3)point, data.explosionRadius, damage, explosionOwnerIndex);
+                DamageZombiesInRadius(point, data.explosionRadius, damage);
                 ApplySelfKnockback(point);
             }
 
@@ -204,9 +258,18 @@ public class ProjectileBase : MonoBehaviour
         {
             if (applyDamage && owner != null)
             {
-                ZombieDamageBridge.DamageZombie(directZombie, owner.ApplyCrit(damage), owner.OwnerPlayerIndex);
-                if (HitMarkerPool.Instance != null)
-                    HitMarkerPool.Instance.Spawn(point, false);
+                if (directHitBox != null)
+                {
+                    directHitBox.TakeDamageWithHitPoint(damage, owner.OwnerStats, owner, point, 1f, normal, 1f);
+                }
+                else
+                {
+                    directZombie.TakeDamage(owner.ApplyCrit(damage), owner.OwnerStats, 1f, normal, 1f);
+                    directZombie.hitFlash?.Flash(false);
+
+                    if (HitMarkerPool.Instance != null)
+                        HitMarkerPool.Instance.Spawn(point, false);
+                }
             }
 
             if (ImpactEffectPool.Instance != null)
