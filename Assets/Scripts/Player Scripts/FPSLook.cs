@@ -18,11 +18,8 @@ public class FPSLook : MonoBehaviour
     public float maxTiltZ = 5f;
     public float tiltSpeed = 8f;
 
-    [Header("ADS Sensitivity")]
-    public WeaponInventory weaponInventory;
-    [Range(0f, 1f)] public float adsSensitivityMultiplier = 0.6f;
+    [Header("Movement FOV")]
     public PlayerFpsController fpsController;
-    [Range(0f, 50f)] public float sprintFOVPercent = 10f;
     [Range(0f, 50f)] public float slideFOVPercent = 15f;
     public float fovTransitionSpeed = 6f;
 
@@ -75,21 +72,8 @@ public class FPSLook : MonoBehaviour
     {
         if (!CanLook || input == null) return;
 
-        float sensScale = 1f;
-
-        if (weaponInventory != null)
-        {
-            WeaponBase weapon = weaponInventory.GetActiveWeaponBase();
-            if (weapon != null && weapon.isAiming)
-            {
-                float aimFOV = baseFOV * (1f - weapon.adsFOVReduction / 100f);
-                float fovRatio = aimFOV / baseFOV;
-                sensScale = fovRatio * adsSensitivityMultiplier;
-            }
-        }
-
-        float mouseX = input.Look.x * lookSpeed * sensScale;
-        float mouseY = input.Look.y * lookSpeed * sensScale;
+        float mouseX = input.Look.x * lookSpeed;
+        float mouseY = input.Look.y * lookSpeed;
 
         rotationX -= mouseY;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
@@ -119,17 +103,10 @@ public class FPSLook : MonoBehaviour
     {
         if (playerCamera == null || fpsController == null) return;
 
-        WeaponBase weapon = weaponInventory != null ? weaponInventory.GetActiveWeaponBase() : null;
-        bool isAiming = weapon != null && weapon.isAiming;
-
         float targetFOV;
 
-        if (isAiming)
-            targetFOV = baseFOV * (1f - weapon.adsFOVReduction / 100f);
-        else if (fpsController.IsSliding || fpsController.IsSlideJumping)
+        if (fpsController.IsSliding || fpsController.IsSlideJumping)
             targetFOV = baseFOV * (1f + slideFOVPercent / 100f);
-        else if (fpsController.IsSprinting)
-            targetFOV = baseFOV * (1f + sprintFOVPercent / 100f);
         else
             targetFOV = baseFOV;
 

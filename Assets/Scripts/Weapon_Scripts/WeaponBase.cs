@@ -32,21 +32,13 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Ragdoll")]
     public float ragdollForceMultiplier = 1f;
 
-    [Header("Weapon Recoil - Hip Fire")]
+    [Header("Weapon Recoil")]
     public float kickRotationX = 2f;
     public float kickRotationY = 2f;
     public float kickRotationZ = 5f;
     public float kickPositionZ = -0.1f;
     public float kickPositionY = 0.05f;
     public float kickPositionX = 0.02f;
-
-    [Header("Weapon Recoil - ADS")]
-    public float adsKickRotationX = 1f;
-    public float adsKickRotationY = 1f;
-    public float adsKickRotationZ = 2f;
-    public float adsKickPositionZ = -0.05f;
-    public float adsKickPositionY = 0.02f;
-    public float adsKickPositionX = 0.01f;
 
     [Header("Fire Mode")]
     public bool isAutomatic = false;
@@ -58,22 +50,12 @@ public abstract class WeaponBase : MonoBehaviour
     [Range(0f, 1f)] public float critChance = 0.1f;
     public float critMultiplier = 2f;
 
-    [Header("Accuracy - Hip Fire")]
+    [Header("Accuracy")]
     public float baseAccuracy = 1f;
     public float bloomPerShot = 0.5f;
     public float maxBloom = 4f;
     public float bloomDecaySpeed = 3f;
     [HideInInspector] public float currentBloom = 0f;
-
-    [Header("Accuracy - ADS")]
-    public float adsBloomPerShot = 0.15f;
-    public float adsMaxBloom = 1f;
-
-    [Header("ADS")]
-    public float adsFOVReduction = 15f;
-    public float adsTransitionSpeed = 10f;
-    public bool hideCrosshairAds = false;
-    [HideInInspector] public bool isAiming = false;
 
     [Header("Animation")]
     public Animator animator;
@@ -161,7 +143,6 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected virtual void OnEnable()
     {
-        isAiming = false;
         isCocking = false;
         isFiring = false;
         currentBloom = 0f;
@@ -178,8 +159,6 @@ public abstract class WeaponBase : MonoBehaviour
             animator.Update(0f);
 
             animator.SetBool("IsWalking", false);
-            animator.SetBool("IsSprinting", false);
-            animator.SetBool("IsAiming", false);
             animator.ResetTrigger("Cock");
             animator.Play("Idle", 0, 0f);
         }
@@ -188,7 +167,6 @@ public abstract class WeaponBase : MonoBehaviour
     protected virtual void OnDisable()
     {
         StopAllCoroutines();
-        isAiming = false;
         isCocking = false;
         isFiring = false;
         currentBloom = 0f;
@@ -208,11 +186,7 @@ public abstract class WeaponBase : MonoBehaviour
 
         if (fpsController != null && animator != null)
         {
-            isAiming = fpsController.input.AimHeld;
-            currentBloom = Mathf.Min(currentBloom, isAiming ? adsMaxBloom : maxBloom);
-
-            if (isAiming)
-                fpsController.IsSprinting = false;
+            currentBloom = Mathf.Min(currentBloom, maxBloom);
 
             bool isWalking = !isCocking && fpsController.input.Move.sqrMagnitude > 0.01f;
 
@@ -221,18 +195,12 @@ public abstract class WeaponBase : MonoBehaviour
             else if (walkStopTimer > 0f)
                 walkStopTimer -= Time.deltaTime;
 
-            bool showWalking = !isAiming && (isWalking || walkStopTimer > 0f);
-            bool showSprinting = !isAiming && fpsController.IsSprinting && !fpsController.IsSprintingSuppressed;
+            bool showWalking = isWalking || walkStopTimer > 0f;
 
             animator.SetBool("IsWalking", showWalking);
-            animator.SetBool("IsSprinting", showSprinting);
-            animator.SetBool("IsAiming", isAiming);
 
             if (universalAnimator != null)
-            {
                 universalAnimator.SetBool("IsWalking", showWalking);
-                universalAnimator.SetBool("IsSprinting", showSprinting);
-            }
         }
     }
 
@@ -386,7 +354,6 @@ public abstract class WeaponBase : MonoBehaviour
     {
         StopAllCoroutines();
         isCocking = false;
-        isAiming = false;
         isFiring = false;
         currentBloom = 0f;
         walkStopTimer = 0f;
@@ -397,8 +364,6 @@ public abstract class WeaponBase : MonoBehaviour
             animator.Update(0f);
 
             animator.SetBool("IsWalking", false);
-            animator.SetBool("IsSprinting", false);
-            animator.SetBool("IsAiming", false);
             animator.ResetTrigger("Cock");
             animator.Play("Idle", 0, 0f);
         }
@@ -565,12 +530,8 @@ public abstract class WeaponBase : MonoBehaviour
 
         if (weaponRecoil != null)
         {
-            if (isAiming)
-                weaponRecoil.LoadValues(adsKickRotationX, adsKickRotationY, adsKickRotationZ,
-                    adsKickPositionZ, adsKickPositionY, adsKickPositionX);
-            else
-                weaponRecoil.LoadValues(kickRotationX, kickRotationY, kickRotationZ,
-                    kickPositionZ, kickPositionY, kickPositionX);
+            weaponRecoil.LoadValues(kickRotationX, kickRotationY, kickRotationZ,
+                kickPositionZ, kickPositionY, kickPositionX);
 
             weaponRecoil.Kick();
         }
@@ -621,10 +582,7 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected void AddBloom()
     {
-        if (isAiming)
-            currentBloom = Mathf.Min(currentBloom + adsBloomPerShot, adsMaxBloom);
-        else
-            currentBloom = Mathf.Min(currentBloom + bloomPerShot, maxBloom);
+        currentBloom = Mathf.Min(currentBloom + bloomPerShot, maxBloom);
     }
 
     protected void TriggerCockAnimation()
@@ -638,11 +596,6 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (animator == null) return;
         isFiring = true;
-        if (fpsController != null)
-        {
-            fpsController.IsSprinting = false;
-            fpsController.SuppressSprintOnShoot(0.3f);
-        }
         animator.Play(FireClipName, 2, 0f);
         fireResetTime = Time.time + animator.GetCurrentAnimatorStateInfo(0).length;
     }

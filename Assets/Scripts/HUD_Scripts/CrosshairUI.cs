@@ -13,17 +13,8 @@ public class CrosshairUI : MonoBehaviour
     public float bloomSpreadMultiplier = 10f;
     public float spreadLerpSpeed = 10f;
 
-    [Header("ADS Settings")]
-    public float adsAlpha = 0f;
-
-    [Header("ADS Crosshair Swap")]
-    public Image adsCrosshair;
-    public float adsSwapFadeSpeed = 10f;
-
-
     [Header("Color")]
     public Color normalColor = Color.white;
-    public Color adsColor = Color.white;
 
     [Header("Weapon Reference")]
     public WeaponInventory weaponInventory;
@@ -37,7 +28,6 @@ public class CrosshairUI : MonoBehaviour
     // Runtime
     float _currentSpread;
     Vector2 _reticleOffset;
-    bool _fadeToNothing = false;
 
     RectTransform[] _lineRTs = new RectTransform[4];
     Image[] _lineImgs = new Image[4];
@@ -45,13 +35,6 @@ public class CrosshairUI : MonoBehaviour
     void Awake()
     {
         BuildLines();
-
-        if (adsCrosshair != null)
-        {
-            Color c = adsCrosshair.color;
-            c.a = 0f;
-            adsCrosshair.color = c;
-        }
     }
 
     void BuildLines()
@@ -68,32 +51,12 @@ public class CrosshairUI : MonoBehaviour
         }
     }
 
-    public void SetReticle(Sprite sprite, Color color, float scale, bool fadeToNothing)
-    {
-        _fadeToNothing = fadeToNothing;
-        if (adsCrosshair != null)
-        {
-            adsCrosshair.sprite = sprite;
-            adsCrosshair.color = new Color(color.r, color.g, color.b, 0f);
-            adsCrosshair.rectTransform.localScale = Vector3.one * scale;
-        }
-    }
-
-    public void ClearReticle()
-    {
-        _fadeToNothing = false;
-        if (adsCrosshair != null)
-            adsCrosshair.sprite = null;
-    }
-
     void Update()
     {
         if (weaponInventory == null) return;
         WeaponBase activeWeapon = weaponInventory.GetActiveWeaponBase();
         if (activeWeapon == null) return;
 
-        bool isAiming = activeWeapon.isAiming;
-        bool adsActiveForCrosshair = isAiming && activeWeapon.hideCrosshairAds;
         float bloom = activeWeapon.currentBloom;
 
         float targetSpread = Mathf.Max(baseSpread + bloom * bloomSpreadMultiplier, minSpread);
@@ -123,29 +86,11 @@ public class CrosshairUI : MonoBehaviour
         }
         _reticleOffset = Vector2.Lerp(_reticleOffset, targetOffset, recoilReturnSpeed * Time.deltaTime);
 
-        // Alpha - fades out only if this weapon wants ADS to hide the crosshair. Otherwise always fully visible, exactly like hip-fire.
-        float targetLineAlpha = adsActiveForCrosshair ? 0f : 1f;
-
-        Color targetColor = adsActiveForCrosshair ? adsColor : normalColor;
-        targetColor.a = targetLineAlpha;
-
         foreach (Image img in _lineImgs)
-            img.color = Color.Lerp(img.color, targetColor, spreadLerpSpeed * Time.deltaTime);
+            img.color = Color.Lerp(img.color, normalColor, spreadLerpSpeed * Time.deltaTime);
 
-        if (adsCrosshair != null)
-        {
-            float targetAdsAlpha = adsActiveForCrosshair && !_fadeToNothing && adsCrosshair.sprite != null ? 1f : 0f;
-            Color ac = adsCrosshair.color;
-            ac.a = Mathf.Lerp(ac.a, targetAdsAlpha, adsSwapFadeSpeed * Time.deltaTime);
-            adsCrosshair.color = ac;
-            adsCrosshair.rectTransform.anchoredPosition = _reticleOffset;
-        }
-
-        if (adsActiveForCrosshair)
-        {
-            foreach (RectTransform rt in _lineRTs)
-                rt.anchoredPosition += _reticleOffset;
-        }
+        foreach (RectTransform rt in _lineRTs)
+            rt.anchoredPosition += _reticleOffset;
     }
 
     void ApplyLayout(float spread)

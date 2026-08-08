@@ -8,10 +8,8 @@ public class PlayerFpsController : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private float walkSpeed = 6f;
-    [SerializeField] private float sprintSpeed = 9f;
     [SerializeField] private float acceleration = 18f;
     [SerializeField] private float airAcceleration = 6f;
-    [SerializeField] private bool omniDirectionalSprint = false;
 
     [Header("Air Momentum")]
     [SerializeField] private float maxAirSpeed = 12f;
@@ -65,12 +63,10 @@ public class PlayerFpsController : MonoBehaviour
 
     private Vector3 cameraDefaultLocalPos;
 
-    public bool IsSprinting { get; set; }
     public bool IsSliding { get; private set; }
     public bool IsSlideJumping { get; private set; }
     public bool IsDashing { get; private set; }
     public bool IsKnockedBack { get; private set; }
-    public bool IsSprintingSuppressed => sprintSuppressTimer > 0f || (IsSlideJumping && !IsGrounded);
     public bool IsGrounded => controller != null && controller.isGrounded;
 
     public int JumpCount
@@ -91,7 +87,6 @@ public class PlayerFpsController : MonoBehaviour
     private Vector3 horizontalVelocity;
     private float verticalVelocity;
     private float coyoteCounter;
-    private float sprintSuppressTimer;
 
     private float slideCooldownTimer;
     private float slideGroundedBuffer;
@@ -187,7 +182,6 @@ public class PlayerFpsController : MonoBehaviour
         if (!input.CrouchHeld)
             slideEndedWhileHeld = false;
 
-        UpdateSprintState();
         HandleDash();
 
         if (!IsDashing)
@@ -246,7 +240,6 @@ public class PlayerFpsController : MonoBehaviour
 
     void TickTimers()
     {
-        if (sprintSuppressTimer > 0f) sprintSuppressTimer -= Time.deltaTime;
         if (slideCooldownTimer > 0f) slideCooldownTimer -= Time.deltaTime;
         if (slideGroundedBuffer > 0f) slideGroundedBuffer -= Time.deltaTime;
 
@@ -309,19 +302,6 @@ public class PlayerFpsController : MonoBehaviour
             dashChargesRemaining--;
             dashCooldownTimer = dashCooldown * DashCooldownMultiplier;
         }
-    }
-
-    void UpdateSprintState()
-    {
-        bool moving = input.Move.sqrMagnitude > 0.01f;
-        bool forwardEnough = input.Move.y > 0f;
-        bool sprintAllowed = omniDirectionalSprint ? moving : forwardEnough;
-
-        IsSprinting = input.SprintHeld &&
-                      sprintAllowed &&
-                      !input.AimHeld &&
-                      !IsSprintingSuppressed &&
-                      !IsSliding;
     }
 
     void UpdateSlideGrounding()
@@ -519,18 +499,16 @@ public class PlayerFpsController : MonoBehaviour
         Vector3 wishDirection = orientation.right * input.Move.x + orientation.forward * input.Move.y;
         wishDirection = Vector3.ClampMagnitude(wishDirection, 1f);
 
-        float targetSpeed = IsSprinting ? sprintSpeed : walkSpeed;
-
         if (grounded)
         {
-            Vector3 targetVelocity = wishDirection * targetSpeed;
+            Vector3 targetVelocity = wishDirection * walkSpeed;
             horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, targetVelocity, acceleration * Time.deltaTime);
         }
         else
         {
             if (wishDirection.sqrMagnitude > 0.01f)
             {
-                Vector3 targetVelocity = wishDirection * Mathf.Max(targetSpeed, horizontalVelocity.magnitude);
+                Vector3 targetVelocity = wishDirection * Mathf.Max(walkSpeed, horizontalVelocity.magnitude);
                 horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, targetVelocity, airAcceleration * Time.deltaTime);
 
                 if (horizontalVelocity.magnitude > maxAirSpeed && !IsSlideJumping && !IsKnockedBack)
@@ -592,12 +570,6 @@ public class PlayerFpsController : MonoBehaviour
             hasGroundNormal = true;
             jumpsRemaining = jumpCount;
         }
-    }
-
-    public void SuppressSprintOnShoot(float duration)
-    {
-        if (duration > sprintSuppressTimer)
-            sprintSuppressTimer = duration;
     }
 
     public void SetHorizontalVelocity(Vector3 velocity)
