@@ -40,6 +40,11 @@ public abstract class WeaponBase : MonoBehaviour
     public float kickPositionY = 0.05f;
     public float kickPositionX = 0.02f;
 
+    [Header("Screen Shake")]
+    public float shakeMagnitude = 0.05f;
+    public float shakeDuration = 0.08f;
+    public float shakeFrequency = 30f;
+
     [Header("Fire Mode")]
     public bool isAutomatic = false;
     public float rpm = 300f;
@@ -425,6 +430,13 @@ public abstract class WeaponBase : MonoBehaviour
         }
 
         onShotFired?.Invoke(this, shotEndPoints, shotHitTypes);
+        ApplyScreenShake();
+    }
+
+    protected void ApplyScreenShake()
+    {
+        if (ScreenShake.Instance != null)
+            ScreenShake.Instance.Shake(shakeMagnitude, shakeDuration, shakeFrequency);
     }
 
     private void FireProjectile(int damage)

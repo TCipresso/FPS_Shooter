@@ -4613,6 +4613,7 @@ GameObject:
   - component: {fileID: 5019949365886161125}
   - component: {fileID: 622422442460734634}
   - component: {fileID: 8191169939142920129}
+  - component: {fileID: 5438623158205544092}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -4739,6 +4740,18 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &5438623158205544092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5245381343357696368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 847704760b46abd4ca90b3296e541d6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScreenShake
 --- !u!1 &5286498518126246246
 GameObject:
   m_ObjectHideFlags: 0
@@ -7882,6 +7895,34 @@ PrefabInstance:
     - target: {fileID: 599789496030739723, guid: 308e9186332778f41be8bc9bd44479b5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577504174040812282, guid: 308e9186332778f41be8bc9bd44479b5, type: 3}
+      propertyPath: bloomPerShot
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577504174040812282, guid: 308e9186332778f41be8bc9bd44479b5, type: 3}
+      propertyPath: kickPositionY
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577504174040812282, guid: 308e9186332778f41be8bc9bd44479b5, type: 3}
+      propertyPath: kickPositionZ
+      value: -0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577504174040812282, guid: 308e9186332778f41be8bc9bd44479b5, type: 3}
+      propertyPath: kickRotationX
+      value: -2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577504174040812282, guid: 308e9186332778f41be8bc9bd44479b5, type: 3}
+      propertyPath: shakeDuration
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577504174040812282, guid: 308e9186332778f41be8bc9bd44479b5, type: 3}
+      propertyPath: shakeFrequency
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577504174040812282, guid: 308e9186332778f41be8bc9bd44479b5, type: 3}
+      propertyPath: shakeMagnitude
+      value: 0.2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
