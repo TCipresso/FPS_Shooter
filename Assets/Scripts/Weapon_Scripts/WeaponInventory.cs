@@ -15,6 +15,7 @@ public class WeaponInventory : MonoBehaviour
 
     [Header("Starting Loadout")]
     public List<WeaponDefinitionSO> startingWeapons = new List<WeaponDefinitionSO>();
+    public OffHandDefinitionSO startingOffHand;
 
     [Header("Weapons (drag pre-placed, disabled weapon children here)")]
     public List<WeaponEntry> weapons = new List<WeaponEntry>();
@@ -134,6 +135,9 @@ public class WeaponInventory : MonoBehaviour
             EquipIndex(0);
         else
             Debug.LogWarning("[WeaponInventory] No starting weapons assigned.");
+
+        if (startingOffHand != null)
+            EquipOffHand(startingOffHand);
     }
 
     void Update()
