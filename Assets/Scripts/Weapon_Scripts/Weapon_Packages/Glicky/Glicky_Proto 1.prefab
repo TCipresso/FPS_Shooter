@@ -11275,7 +11275,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 6eb990875d02210458c32adef724a421, type: 2}
+  - {fileID: 2100000, guid: ddca6ed209587e4469109e9844d6af81, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -11736,6 +11736,7 @@ GameObject:
   - component: {fileID: 6065174775650937748}
   - component: {fileID: 5097012958477789975}
   - component: {fileID: 4726189122929158326}
+  - component: {fileID: 4975422998262779053}
   m_Layer: 7
   m_Name: Glicky
   m_TagString: Untagged
@@ -11783,13 +11784,13 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 19d4e21d881e37948a89c36b1b687693, type: 2}
-  - {fileID: 2100000, guid: 7b8933ddd1b58c1479b0ecbd4ff6d561, type: 2}
-  - {fileID: 2100000, guid: 7b8933ddd1b58c1479b0ecbd4ff6d561, type: 2}
-  - {fileID: -6087771358165109452, guid: 443f2ed6864ccec429ee29e3a0c5c1c4, type: 3}
-  - {fileID: 2100000, guid: e29f4aaa8d8af774499283613789a318, type: 2}
+  - {fileID: 2100000, guid: 9498d45f175001a4faa26b5bc14037dc, type: 2}
+  - {fileID: 2100000, guid: 9498d45f175001a4faa26b5bc14037dc, type: 2}
+  - {fileID: 2100000, guid: 9498d45f175001a4faa26b5bc14037dc, type: 2}
+  - {fileID: 2100000, guid: 9498d45f175001a4faa26b5bc14037dc, type: 2}
+  - {fileID: 2100000, guid: 0eff55e17c1592e47bf7d85524e225f3, type: 2}
   - {fileID: 2100000, guid: 3ff4d5e64ebdf6043b9d89da3f49fcdf, type: 2}
-  - {fileID: 2100000, guid: e29f4aaa8d8af774499283613789a318, type: 2}
+  - {fileID: 2100000, guid: 0eff55e17c1592e47bf7d85524e225f3, type: 2}
   - {fileID: 2100000, guid: a6b0fec446286d0498f06c477b3be1cb, type: 2}
   - {fileID: -3846018093981099296, guid: 443f2ed6864ccec429ee29e3a0c5c1c4, type: 3}
   - {fileID: 6699446615349125189, guid: 443f2ed6864ccec429ee29e3a0c5c1c4, type: 3}
@@ -11890,6 +11891,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Pistol
   muzzlePoint: {fileID: 1192061725494769116}
+  skinRenderer: {fileID: 0}
   muzzleFlash: {fileID: 6510583251458803333}
   casingEject: {fileID: 8000601392472019987}
   bulletData: {fileID: 11400000, guid: 5bb6425b3383d22408b5e8d13fc0b5a9, type: 2}
@@ -11901,7 +11903,8 @@ MonoBehaviour:
   - name: Glicky_Cocked
     clip: {fileID: 8300000, guid: 277d1e280567f7c4cbea4669849def27, type: 3}
   damage: 25
-  range: 150
+  range: 9999
+  swarmHitRadius: 0.4
   ragdollForceMultiplier: 1
   kickRotationX: -30
   kickRotationY: 5
@@ -11909,27 +11912,16 @@ MonoBehaviour:
   kickPositionZ: -0.5
   kickPositionY: 0.1
   kickPositionX: 0.1
-  adsKickRotationX: -1
-  adsKickRotationY: 1
-  adsKickRotationZ: 1
-  adsKickPositionZ: -0.25
-  adsKickPositionY: 0
-  adsKickPositionX: 0.03
   isAutomatic: 1
-  rpm: 600
+  rpm: 300
   baseRpm: 0
   critChance: 0.1
   critMultiplier: 2
   baseAccuracy: 1
   bloomPerShot: 0.1
-  bloomDecaySpeed: 3
   maxBloom: 2
+  bloomDecaySpeed: 3
   currentBloom: 0
-  adsFOVReduction: 15
-  adsBloomMultiplier: 0.25
-  adsTransitionSpeed: 10
-  adsFadeCrosshair: 0
-  isAiming: 0
   animator: {fileID: 3489303027546256033}
   walkStopDelay: 0.1
   FireClipName: Fire
@@ -11981,6 +11973,103 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 424124291f997494c9542988415babb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldAlignedAnchor
+--- !u!82 &4975422998262779053
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5983536388521535902}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &6225438718851869532
 GameObject:
   m_ObjectHideFlags: 0

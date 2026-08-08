@@ -4,8 +4,6 @@ using UnityEngine.InputSystem;
 
 public class WeaponInventory : MonoBehaviour
 {
-    public const int SlotCount = 2;
-
     [Header("References")]
     public Transform weaponHolder;
     public PlayerStats playerStats;
@@ -15,7 +13,7 @@ public class WeaponInventory : MonoBehaviour
     public InputActionReference fireAction;
     public InputActionReference swapAction;
 
-    [Header("Starting Loadout (element 0 = slot 1, element 1 = slot 2)")]
+    [Header("Starting Loadout")]
     public List<WeaponDefinitionSO> startingWeapons = new List<WeaponDefinitionSO>();
 
     [Header("Weapons (drag pre-placed, disabled weapon children here)")]
@@ -24,10 +22,10 @@ public class WeaponInventory : MonoBehaviour
     [Header("Off-Hand (drag pre-placed, disabled off-hand children here)")]
     public List<OffHandEntry> offHandItems = new List<OffHandEntry>();
 
-    private readonly WeaponEntry[] slots = new WeaponEntry[SlotCount];
+    private readonly List<WeaponEntry> equippedWeapons = new List<WeaponEntry>();
     private Dictionary<WeaponDefinitionSO, WeaponEntry> weaponLookup = new Dictionary<WeaponDefinitionSO, WeaponEntry>();
     private Dictionary<WeaponBase, Material[]> originalMaterialsCache = new Dictionary<WeaponBase, Material[]>();
-    private int activeSlot = 0;
+    private int activeIndex = -1;
 
     private OffHandEntry activeOffHand;
     private Dictionary<OffHandDefinitionSO, OffHandEntry> offHandLookup = new Dictionary<OffHandDefinitionSO, OffHandEntry>();
@@ -115,12 +113,11 @@ public class WeaponInventory : MonoBehaviour
 
     void InitializeStartingLoadout()
     {
-        for (int i = 0; i < SlotCount; i++)
-            slots[i] = null;
+        equippedWeapons.Clear();
+        activeIndex = -1;
 
-        for (int i = 0; i < SlotCount && i < startingWeapons.Count; i++)
+        foreach (WeaponDefinitionSO def in startingWeapons)
         {
-            WeaponDefinitionSO def = startingWeapons[i];
             if (def == null) continue;
 
             if (!weaponLookup.TryGetValue(def, out WeaponEntry entry))
@@ -129,17 +126,14 @@ public class WeaponInventory : MonoBehaviour
                 continue;
             }
 
-            slots[i] = entry;
+            if (!equippedWeapons.Contains(entry))
+                equippedWeapons.Add(entry);
         }
 
-        for (int i = 0; i < SlotCount; i++)
-        {
-            if (slots[i] == null) continue;
-            EquipSlot(i);
-            return;
-        }
-
-        Debug.LogWarning("[WeaponInventory] No starting weapons assigned.");
+        if (equippedWeapons.Count > 0)
+            EquipIndex(0);
+        else
+            Debug.LogWarning("[WeaponInventory] No starting weapons assigned.");
     }
 
     void Update()
@@ -171,18 +165,18 @@ public class WeaponInventory : MonoBehaviour
 
     public void SwapWeapon()
     {
-        int next = (activeSlot + 1) % SlotCount;
-        if (slots[next] == null) return;
-        EquipSlot(next);
+        if (equippedWeapons.Count <= 1) return;
+
+        int next = (activeIndex + 1) % equippedWeapons.Count;
+        EquipIndex(next);
     }
 
-    public void EquipSlot(int slot)
+    public void EquipIndex(int index)
     {
-        if (slot < 0 || slot >= SlotCount) return;
-        if (slots[slot] == null) return;
+        if (index < 0 || index >= equippedWeapons.Count) return;
 
-        activeSlot = slot;
-        SetActiveEntry(slots[slot]);
+        activeIndex = index;
+        SetActiveEntry(equippedWeapons[index]);
     }
 
     public int AddWeapon(WeaponDefinitionSO def)
@@ -209,60 +203,62 @@ public class WeaponInventory : MonoBehaviour
         return AddEntry(weapons[index]);
     }
 
-    public bool AddWeaponToSlot(WeaponDefinitionSO def, int slot)
-    {
-        if (def == null) return false;
-        if (slot < 0 || slot >= SlotCount) return false;
-
-        if (!weaponLookup.TryGetValue(def, out WeaponEntry entry))
-        {
-            Debug.LogWarning($"[WeaponInventory] Cannot add weapon, no entry for {def.weaponName}.");
-            return false;
-        }
-
-        slots[slot] = entry;
-        EquipSlot(slot);
-        return true;
-    }
-
     int AddEntry(WeaponEntry entry)
     {
         if (entry?.weaponRoot == null || entry.definition == null) return -1;
 
-        for (int i = 0; i < SlotCount; i++)
+        int existingIndex = equippedWeapons.IndexOf(entry);
+        if (existingIndex >= 0)
         {
-            if (slots[i] != entry) continue;
-            EquipSlot(i);
-            return i;
+            EquipIndex(existingIndex);
+            return existingIndex;
         }
 
-        for (int i = 0; i < SlotCount; i++)
-        {
-            if (slots[i] != null) continue;
-            slots[i] = entry;
-            EquipSlot(i);
-            return i;
-        }
-
-        slots[activeSlot] = entry;
-        EquipSlot(activeSlot);
-        return activeSlot;
+        equippedWeapons.Add(entry);
+        int newIndex = equippedWeapons.Count - 1;
+        EquipIndex(newIndex);
+        return newIndex;
     }
 
-    public void RemoveWeapon(int slot)
+    public void RemoveWeapon(WeaponDefinitionSO def)
     {
-        if (slot < 0 || slot >= SlotCount) return;
-        if (slots[slot] == null) return;
+        if (def == null) return;
+        if (!weaponLookup.TryGetValue(def, out WeaponEntry entry)) return;
+        RemoveEntry(entry);
+    }
 
-        slots[slot] = null;
+    public void RemoveWeaponAt(int index)
+    {
+        if (index < 0 || index >= equippedWeapons.Count) return;
+        RemoveEntry(equippedWeapons[index]);
+    }
 
-        if (slot != activeSlot) return;
+    void RemoveEntry(WeaponEntry entry)
+    {
+        int index = equippedWeapons.IndexOf(entry);
+        if (index < 0) return;
 
-        int other = (slot + 1) % SlotCount;
-        if (slots[other] != null)
-            EquipSlot(other);
-        else if (slots[slot] == null && slots[other] == null)
-            SetAllWeaponsInactive();
+        bool wasActive = index == activeIndex;
+        equippedWeapons.RemoveAt(index);
+
+        if (entry.weaponRoot != null)
+            entry.weaponRoot.SetActive(false);
+
+        if (equippedWeapons.Count == 0)
+        {
+            activeIndex = -1;
+            return;
+        }
+
+        if (wasActive)
+        {
+            int newIndex = Mathf.Clamp(index, 0, equippedWeapons.Count - 1);
+            EquipIndex(newIndex);
+        }
+        else if (index < activeIndex)
+        {
+            activeIndex--;
+        }
     }
 
     void SetAllWeaponsInactive()
@@ -284,7 +280,7 @@ public class WeaponInventory : MonoBehaviour
 
         entry.level = Mathf.Min(entry.level + 1, entry.definition.maxLevel);
 
-        if (slots[activeSlot] == entry)
+        if (activeIndex >= 0 && activeIndex < equippedWeapons.Count && equippedWeapons[activeIndex] == entry)
             ApplyLevel(entry);
     }
 
@@ -365,33 +361,38 @@ public class WeaponInventory : MonoBehaviour
         }
     }
 
-    public int ActiveSlot => activeSlot;
+    public int ActiveIndex => activeIndex;
+    public int EquippedCount => equippedWeapons.Count;
 
-    public WeaponEntry GetSlot(int slot)
+    public WeaponEntry GetEquippedAt(int index)
     {
-        if (slot < 0 || slot >= SlotCount) return null;
-        return slots[slot];
+        if (index < 0 || index >= equippedWeapons.Count) return null;
+        return equippedWeapons[index];
     }
 
     public bool HasWeapon(WeaponDefinitionSO def)
     {
         if (def == null) return false;
-        for (int i = 0; i < SlotCount; i++)
+
+        foreach (WeaponEntry entry in equippedWeapons)
         {
-            if (slots[i] != null && slots[i].definition == def)
+            if (entry != null && entry.definition == def)
                 return true;
         }
+
         return false;
     }
 
     public WeaponBase GetActiveWeaponBase()
     {
-        return slots[activeSlot]?.Primary;
+        if (activeIndex < 0 || activeIndex >= equippedWeapons.Count) return null;
+        return equippedWeapons[activeIndex]?.Primary;
     }
 
     public List<WeaponBase> GetActiveWeaponBases()
     {
-        return slots[activeSlot]?.weaponBases;
+        if (activeIndex < 0 || activeIndex >= equippedWeapons.Count) return null;
+        return equippedWeapons[activeIndex]?.weaponBases;
     }
 
     public int GetLevel(WeaponDefinitionSO def)
