@@ -124,9 +124,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Swap_Weapon",
+                    "name": "Nex_Weapon",
                     "type": "Value",
                     "id": "60cff06c-9780-4dc2-b2b0-9bfde0fce0d4",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Prev_Weapon",
+                    "type": "Value",
+                    "id": "e4ba9e29-9e23-4e35-bc53-8dd8d7ca1dc4",
                     "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": "",
@@ -615,11 +624,11 @@
                 {
                     "name": "",
                     "id": "d3f1a9ba-b872-405a-b5bc-7743e5ebed11",
-                    "path": "<Mouse>/scroll/y",
+                    "path": "<Mouse>/scroll/up",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Swap_Weapon",
+                    "action": "Nex_Weapon",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -653,6 +662,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Melee",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "28c9a758-25c2-4217-802d-23fd6ef4153b",
+                    "path": "<Mouse>/scroll/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Prev_Weapon",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -12,7 +12,8 @@ public class WeaponInventory : MonoBehaviour
 
     [Header("Input")]
     public InputActionReference fireAction;
-    public InputActionReference swapAction;
+    public InputActionReference nextWeaponAction;
+    public InputActionReference previousWeaponAction;
 
     [Header("Starting Loadout")]
     public List<WeaponDefinitionSO> startingWeapons = new List<WeaponDefinitionSO>();
@@ -74,13 +75,15 @@ public class WeaponInventory : MonoBehaviour
         }
 
         if (fireAction != null) fireAction.action.Enable();
-        if (swapAction != null) swapAction.action.Enable();
+        if (nextWeaponAction != null) nextWeaponAction.action.Enable();
+        if (previousWeaponAction != null) previousWeaponAction.action.Enable();
     }
 
     void OnDisable()
     {
         if (fireAction != null) fireAction.action.Disable();
-        if (swapAction != null) swapAction.action.Disable();
+        if (nextWeaponAction != null) nextWeaponAction.action.Disable();
+        if (previousWeaponAction != null) previousWeaponAction.action.Disable();
     }
 
     void Start()
@@ -143,8 +146,11 @@ public class WeaponInventory : MonoBehaviour
 
     void Update()
     {
-        if (swapAction != null && swapAction.action.WasPressedThisFrame())
-            SwapWeapon();
+        if (nextWeaponAction != null && nextWeaponAction.action.WasPressedThisFrame())
+            SwapNext();
+
+        if (previousWeaponAction != null && previousWeaponAction.action.WasPressedThisFrame())
+            SwapPrevious();
 
         if (input != null && input.MeleePressed)
             GetActiveOffHandBase()?.Melee();
@@ -173,10 +179,23 @@ public class WeaponInventory : MonoBehaviour
 
     public void SwapWeapon()
     {
+        SwapNext();
+    }
+
+    public void SwapNext()
+    {
         if (equippedWeapons.Count <= 1) return;
 
         int next = (activeIndex + 1) % equippedWeapons.Count;
         EquipIndex(next);
+    }
+
+    public void SwapPrevious()
+    {
+        if (equippedWeapons.Count <= 1) return;
+
+        int previous = (activeIndex - 1 + equippedWeapons.Count) % equippedWeapons.Count;
+        EquipIndex(previous);
     }
 
     public void EquipIndex(int index)
