@@ -14,7 +14,12 @@ public abstract class OffHandBase : MonoBehaviour
 
     [Header("Animation")]
     public Animator animator;
-    public string meleeClipName = "Melee";
+    public string meleeTriggerName = "Melee";
+
+    [Header("Melee Screen Shake")]
+    public float meleeShakeMagnitude = 0.08f;
+    public float meleeShakeDuration = 0.1f;
+    public float meleeShakeFrequency = 30f;
 
     [HideInInspector] public bool isSwinging = false;
 
@@ -157,7 +162,19 @@ public abstract class OffHandBase : MonoBehaviour
     protected void TriggerMeleeAnimation()
     {
         if (animator == null) return;
-        animator.Play(meleeClipName, 0, 0f);
+        animator.SetTrigger(meleeTriggerName);
+    }
+
+    public void ApplyMeleeScreenShake()
+    {
+        if (ScreenShake.Instance != null)
+            ScreenShake.Instance.Shake(meleeShakeMagnitude, meleeShakeDuration, meleeShakeFrequency);
+    }
+
+    protected virtual void Update()
+    {
+        if (isSwinging && Time.time >= nextMeleeTime)
+            isSwinging = false;
     }
 
     public virtual void OnMeleeAnimationComplete()
