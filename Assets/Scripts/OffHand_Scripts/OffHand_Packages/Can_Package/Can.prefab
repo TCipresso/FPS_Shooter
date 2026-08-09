@@ -542,6 +542,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0793b8fe086ba04e959a915349ce696, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Can
+  maxHealth: 5
+  currentHealth: 0
+  meleeDamage: 15
+  meleeRange: 2
+  meleeRadius: 0.4
+  meleeCooldown: 0.5
+  animator: {fileID: 0}
+  meleeTriggerName: Melee
+  meleeShakeMagnitude: 0.08
+  meleeShakeDuration: 0.1
+  meleeShakeFrequency: 30
+  isSwinging: 0
 --- !u!1 &3357267064140863197
 GameObject:
   m_ObjectHideFlags: 0
