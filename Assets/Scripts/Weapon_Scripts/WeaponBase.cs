@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-[RequireComponent(typeof(AudioSource))]
+
 public abstract class WeaponBase : MonoBehaviour
 {
     [Header("Muzzle")]

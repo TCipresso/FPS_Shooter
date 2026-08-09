@@ -16,7 +16,7 @@ MonoBehaviour:
   isShotgun: 1
   pelletCount: 8
   pelletSpreadAngle: 10
-  flatSpread: 1
+  flatSpread: 0
   trailPrefab: {fileID: 7533938775617344793, guid: 5fdbe00ae02ad624bb45ad9bdb2038fe, type: 3}
   trailPoolKey: BulletTrail
   trailPoolSize: 10
@@ -27,3 +27,9 @@ MonoBehaviour:
   projectilePrefab: {fileID: 0}
   projectileSpeed: 40
   projectileGravityScale: 0
+  isExplosive: 0
+  explosionRadius: 4
+  explosionEffectPrefab: {fileID: 0}
+  explosionEffectDuration: 2
+  explosionSelfKnockback: 18
+  explosionKnockbackUpBias: 0.6
