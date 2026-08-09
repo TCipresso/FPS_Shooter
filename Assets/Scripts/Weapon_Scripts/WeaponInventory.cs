@@ -8,6 +8,7 @@ public class WeaponInventory : MonoBehaviour
     public Transform weaponHolder;
     public PlayerStats playerStats;
     public IKWeaponHandler ikHandler;
+    public FPSInput input;
 
     [Header("Input")]
     public InputActionReference fireAction;
@@ -144,6 +145,9 @@ public class WeaponInventory : MonoBehaviour
     {
         if (swapAction != null && swapAction.action.WasPressedThisFrame())
             SwapWeapon();
+
+        if (input != null && input.MeleePressed)
+            GetActiveOffHandBase()?.Melee();
 
         if (fireAction == null) return;
 
