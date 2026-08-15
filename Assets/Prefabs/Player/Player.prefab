@@ -3421,6 +3421,13 @@ MonoBehaviour:
   groundedStickForce: -4
   coyoteTime: 0.25
   jumpCount: 1
+  wallJumpCount: 1
+  wallJumpUpSpeed: 45
+  wallJumpAwaySpeed: 25
+  wallContactBuffer: 0.15
+  wallJumpCooldown: 0.25
+  wallMinAngle: 60
+  wallMaxAngle: 120
   slideBoostSpeed: 50
   slideFriction: 10
   downhillFrictionScale: 0.01
