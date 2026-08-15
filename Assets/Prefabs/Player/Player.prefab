@@ -2113,7 +2113,7 @@ MonoBehaviour:
   lookSpeed: 0.07
   lookXLimit: 90
   CanLook: 1
-  maxTiltZ: 1
+  maxTiltZ: 1.5
   tiltSpeed: 10
   fpsController: {fileID: 362184917326460930}
   slideFOVPercent: 20
@@ -3305,7 +3305,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8b057809788b6ec4a81778b0670d1bc1, type: 2}
   - {fileID: 11400000, guid: 70e69f58da8342644943f5c0d3dc3487, type: 2}
   - {fileID: 11400000, guid: 9893a1614cd866d4dbff8faaa41af4b8, type: 2}
-  startingOffHand: {fileID: 11400000, guid: 45b714e19e2df574fabbf0f5aae75728, type: 2}
+  startingOffHand: {fileID: 0}
   weapons:
   - definition: {fileID: 11400000, guid: 8b057809788b6ec4a81778b0670d1bc1, type: 2}
     weaponRoot: {fileID: 3843107763361408209}

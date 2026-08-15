@@ -1,28 +1,31 @@
 using UnityEngine;
-
 [RequireComponent(typeof(CharacterController))]
 public class PlayerFpsController : MonoBehaviour
 {
     [SerializeField] public FPSInput input;
     [SerializeField] private Transform orientation;
-
     [Header("Movement")]
     [SerializeField] private float walkSpeed = 6f;
     [SerializeField] private float acceleration = 18f;
     [SerializeField] private float airAcceleration = 6f;
-
     [Header("Air Momentum")]
     [SerializeField] private float maxAirSpeed = 12f;
     [SerializeField] private bool conserveAirMomentum = true;
     public float VerticalVelocity => verticalVelocity;
-
     [Header("Jump")]
     [SerializeField] private float jumpHeight = 1.4f;
     [SerializeField] private float gravity = -28f;
     [SerializeField] private float groundedStickForce = -4f;
     [SerializeField] private float coyoteTime = 0.12f;
     [SerializeField] private int jumpCount = 1;
-
+    [Header("Wall Jump")]
+    [SerializeField] private int wallJumpCount = 1;
+    [SerializeField] private float wallJumpUpSpeed = 9f;
+    [SerializeField] private float wallJumpAwaySpeed = 8f;
+    [SerializeField] private float wallContactBuffer = 0.15f;
+    [SerializeField] private float wallJumpCooldown = 0.25f;
+    [SerializeField] private float wallMinAngle = 60f;
+    [SerializeField] private float wallMaxAngle = 120f;
     [Header("Slide")]
     [SerializeField] private float slideBoostSpeed = 14f;
     [SerializeField] private float slideFriction = 5f;
@@ -41,34 +44,27 @@ public class PlayerFpsController : MonoBehaviour
     [SerializeField] private float slideStickForce = 10f;
     [SerializeField] private float slideLedgeLaunchBoost = 6f;
     [SerializeField] private float slideBufferTime = 0.2f;
-
     [Header("Dash")]
     [SerializeField] private float dashSpeed = 32f;
     [SerializeField] private float dashDuration = 0.15f;
     [SerializeField] private float dashCooldown = 1f;
     [SerializeField] private float dashSteerStrength = 8f;
     [SerializeField] private int dashCharges = 1;
-
     [Header("Camera Slide Dip")]
     [SerializeField] private Transform cameraHolder;
     [SerializeField] private float slideCameraDrop = 0.8f;
     [SerializeField] private float cameraLerpSpeed = 12f;
-
     [Header("Downed")]
     [SerializeField] private float downedCameraDrop = 1.2f;
     public bool IsDowned { get; set; }
-
     [Header("Audio")]
     [SerializeField] private PlayerMovementAudio movementAudio;
-
     private Vector3 cameraDefaultLocalPos;
-
     public bool IsSliding { get; private set; }
     public bool IsSlideJumping { get; private set; }
     public bool IsDashing { get; private set; }
     public bool IsKnockedBack { get; private set; }
     public bool IsGrounded => controller != null && controller.isGrounded;
-
     public int JumpCount
     {
         get => jumpCount;
@@ -78,90 +74,83 @@ public class PlayerFpsController : MonoBehaviour
             jumpsRemaining = jumpCount;
         }
     }
-
+    private int baseWallJumpCount;
+    public int BaseWallJumpCount => baseWallJumpCount;
+    public int WallJumpCount
+    {
+        get => wallJumpCount;
+        set => wallJumpCount = Mathf.Max(0, value);
+    }
     public float DashSpeedMultiplier { get; set; } = 1f;
     public float DashCooldownMultiplier { get; set; } = 1f;
     public int DashCharges { get; set; } = 1;
-
     private CharacterController controller;
     private Vector3 horizontalVelocity;
     private float verticalVelocity;
     private float coyoteCounter;
-
+    private int wallJumpsRemaining;
+    private bool onWall;
+    private Vector3 wallNormal;
+    private float wallContactTimer;
+    private float wallJumpCooldownTimer;
     private float slideCooldownTimer;
     private float slideGroundedBuffer;
     private float slideBufferCounter;
     private float defaultHeight;
     private Vector3 defaultCenter;
-
     private Vector3 groundNormal = Vector3.up;
     private bool hasGroundNormal = false;
     private bool slideGrounded = false;
     private bool wasSlideGroundedLastFrame = false;
     private bool slideLaunchBoostApplied = false;
     private Vector3 slideVelocity;
-
     private bool slideEndedWhileHeld = false;
-
     private int jumpsRemaining;
-
     private float dashTimer;
     private float dashCooldownTimer;
     private int dashChargesRemaining;
     private Vector3 dashDirection;
     private Vector3 preDashHorizontalVelocity;
     private float preDashVerticalVelocity;
-
     void Awake()
     {
         controller = GetComponent<CharacterController>();
-
         if (input == null)
             input = GetComponent<FPSInput>();
-
         if (orientation == null)
             orientation = transform;
-
         if (cameraHolder != null)
             cameraDefaultLocalPos = cameraHolder.localPosition;
-
         verticalVelocity = groundedStickForce;
         defaultHeight = controller.height;
         defaultCenter = controller.center;
-
         jumpsRemaining = jumpCount;
+        wallJumpsRemaining = wallJumpCount;
+        baseWallJumpCount = wallJumpCount;
         DashCharges = dashCharges;
         dashChargesRemaining = DashCharges;
-
         controller.enabled = true;
     }
-
     void Update()
     {
         if (input == null) return;
         if (!controller.enabled) return;
-
         if (IsDowned)
         {
             horizontalVelocity = Vector3.zero;
-
             if (controller.isGrounded)
                 verticalVelocity = groundedStickForce;
             else
                 verticalVelocity += gravity * Time.deltaTime;
-
             controller.Move(new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime);
             UpdateCameraSlideDip();
             return;
         }
-
         TickTimers();
-
+        UpdateWallContact();
         bool grounded = controller.isGrounded;
-
         if (grounded && verticalVelocity < 0f && !IsSlideJumping)
             verticalVelocity = groundedStickForce;
-
         if (grounded)
         {
             coyoteCounter = coyoteTime;
@@ -172,23 +161,17 @@ public class PlayerFpsController : MonoBehaviour
         {
             coyoteCounter -= Time.deltaTime;
         }
-
         if (!grounded)
         {
             groundNormal = Vector3.up;
             hasGroundNormal = false;
         }
-
         if (!input.CrouchHeld)
             slideEndedWhileHeld = false;
-
         HandleDash();
-
         if (!IsDashing)
             UpdateSlideState(grounded);
-
         UpdateSlideGrounding();
-
         if (IsSliding)
         {
             if (slideGrounded)
@@ -198,10 +181,8 @@ public class PlayerFpsController : MonoBehaviour
             else if (wasSlideGroundedLastFrame)
             {
                 movementAudio?.StopSlide();
-
                 horizontalVelocity = new Vector3(slideVelocity.x, 0f, slideVelocity.z);
                 verticalVelocity = slideVelocity.y;
-
                 if (!slideLaunchBoostApplied)
                 {
                     horizontalVelocity += horizontalVelocity.normalized * slideLedgeLaunchBoost;
@@ -209,17 +190,12 @@ public class PlayerFpsController : MonoBehaviour
                 }
             }
         }
-
         wasSlideGroundedLastFrame = slideGrounded;
-
         UpdateCapsuleHeight();
         ApplyHorizontalMovement(grounded);
         HandleJump(grounded);
-
         verticalVelocity += gravity * Time.deltaTime;
-
         Vector3 finalVelocity;
-
         if (IsSliding && slideGrounded)
         {
             finalVelocity = slideVelocity + (-groundNormal * slideStickForce);
@@ -229,25 +205,20 @@ public class PlayerFpsController : MonoBehaviour
             finalVelocity = horizontalVelocity;
             finalVelocity.y = verticalVelocity;
         }
-
         UpdateCameraSlideDip();
-
         CollisionFlags flags = controller.Move(finalVelocity * Time.deltaTime);
-
         if ((flags & CollisionFlags.Above) != 0 && verticalVelocity > 0f)
             verticalVelocity = 0f;
     }
-
     void TickTimers()
     {
+        if (wallJumpCooldownTimer > 0f) wallJumpCooldownTimer -= Time.deltaTime;
         if (slideCooldownTimer > 0f) slideCooldownTimer -= Time.deltaTime;
         if (slideGroundedBuffer > 0f) slideGroundedBuffer -= Time.deltaTime;
-
         if (input.CrouchPressed)
             slideBufferCounter = slideBufferTime;
         else if (slideBufferCounter > 0f)
             slideBufferCounter -= Time.deltaTime;
-
         if (dashTimer > 0f)
         {
             dashTimer -= Time.deltaTime;
@@ -257,7 +228,6 @@ public class PlayerFpsController : MonoBehaviour
                 horizontalVelocity = preDashHorizontalVelocity;
             }
         }
-
         if (dashCooldownTimer > 0f)
         {
             dashCooldownTimer -= Time.deltaTime;
@@ -269,16 +239,20 @@ public class PlayerFpsController : MonoBehaviour
             }
         }
     }
-
+    void UpdateWallContact()
+    {
+        if (wallContactTimer > 0f)
+            wallContactTimer -= Time.deltaTime;
+        else
+            onWall = false;
+    }
     void HandleDash()
     {
         if (input.ManeuverPressed && dashChargesRemaining > 0)
         {
             if (IsSliding) EndSlide();
-
             preDashHorizontalVelocity = horizontalVelocity;
             preDashVerticalVelocity = verticalVelocity;
-
             Vector2 moveInput = input.Move;
             if (moveInput.sqrMagnitude > 0.01f)
             {
@@ -292,10 +266,8 @@ public class PlayerFpsController : MonoBehaviour
                 dashDirection.y = 0f;
                 dashDirection.Normalize();
             }
-
             horizontalVelocity = dashDirection * dashSpeed * DashSpeedMultiplier;
             verticalVelocity = 0f;
-
             movementAudio?.PlayDash();
             IsDashing = true;
             dashTimer = dashDuration;
@@ -303,16 +275,12 @@ public class PlayerFpsController : MonoBehaviour
             dashCooldownTimer = dashCooldown * DashCooldownMultiplier;
         }
     }
-
     void UpdateSlideGrounding()
     {
         slideGrounded = false;
-
         if (!IsSliding) return;
-
         Vector3 origin = transform.position + controller.center;
         float castDistance = controller.height * 0.5f + slideGroundSnapDistance;
-
         if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, castDistance))
         {
             if (Vector3.Angle(Vector3.up, hit.normal) < 60f)
@@ -323,107 +291,83 @@ public class PlayerFpsController : MonoBehaviour
             }
         }
     }
-
     void UpdateSlideState(bool grounded)
     {
         if (grounded)
             slideGroundedBuffer = 0.15f;
-
         bool moving = input.Move.sqrMagnitude > 0.01f;
-
         bool wantsToSlide = (input.CrouchHeld && !slideEndedWhileHeld) || slideBufferCounter > 0f;
         if (!IsSliding && !IsSlideJumping && wantsToSlide && moving && slideGroundedBuffer > 0f && slideCooldownTimer <= 0f)
         {
             StartSlide();
             slideBufferCounter = 0f;
         }
-
         if (IsSliding && !input.CrouchHeld)
             EndSlide();
     }
-
     bool IsDownhill()
     {
         return IsSliding && slideGrounded && slideVelocity.y < -0.1f;
     }
-
     void StartSlide()
     {
         IsSliding = true;
         verticalVelocity = groundedStickForce;
         slideLaunchBoostApplied = false;
-
         Vector3 fwd = orientation.forward;
         Vector3 side = orientation.right;
         Vector2 m = input.Move;
-
         Vector3 slideDir = fwd * m.y + side * m.x;
-
         if (slideDir.sqrMagnitude < 0.01f)
             slideDir = fwd;
-
         slideDir.y = 0f;
         slideDir.Normalize();
-
         float currentSpeed = horizontalVelocity.magnitude;
         float finalSlideSpeed = Mathf.Max(slideBoostSpeed, currentSpeed);
-
         horizontalVelocity = slideDir * finalSlideSpeed;
         slideVelocity = horizontalVelocity;
-
         movementAudio?.PlaySlide();
     }
-
     void EndSlide()
     {
         IsSliding = false;
         slideCooldownTimer = slideCooldown;
         movementAudio?.StopSlide();
     }
-
     void UpdateCapsuleHeight()
     {
         float targetHeight = IsSliding ? slideHeight : defaultHeight;
-
         controller.height = Mathf.Lerp(
             controller.height,
             targetHeight,
             slideHeightLerpSpeed * Time.deltaTime
         );
-
         float heightDelta = (defaultHeight - controller.height) * 0.5f;
-
         controller.center = new Vector3(
             defaultCenter.x,
             defaultCenter.y - heightDelta,
             defaultCenter.z
         );
     }
-
     void UpdateCameraSlideDip()
     {
         if (cameraHolder == null) return;
-
         Vector3 targetPos = cameraDefaultLocalPos;
-
         if (IsDowned)
             targetPos.y -= downedCameraDrop;
         else if (IsSliding)
             targetPos.y -= slideCameraDrop;
-
         cameraHolder.localPosition = Vector3.Lerp(
             cameraHolder.localPosition,
             targetPos,
             cameraLerpSpeed * Time.deltaTime
         );
     }
-
     void ApplyHorizontalMovement(bool grounded)
     {
         if (IsDashing)
         {
             verticalVelocity = 0f;
-
             Vector2 moveInput = input.Move;
             if (moveInput.sqrMagnitude > 0.01f)
             {
@@ -438,26 +382,18 @@ public class PlayerFpsController : MonoBehaviour
             }
             return;
         }
-
         if (IsSliding)
         {
             if (!slideGrounded)
                 return;
-
             verticalVelocity = groundedStickForce;
-
             slideVelocity = Vector3.ProjectOnPlane(slideVelocity, groundNormal);
-
             Vector3 slopeAccel = Vector3.ProjectOnPlane(Vector3.down, groundNormal) * slideGravityScale;
             bool onSlope = slopeAccel.sqrMagnitude > 0.001f;
-
             Vector3 preAccelDir = slideVelocity.sqrMagnitude > 0.01f ? slideVelocity.normalized : Vector3.zero;
-
             slideVelocity += slopeAccel * Time.deltaTime;
-
             if (preAccelDir != Vector3.zero && Vector3.Dot(slideVelocity, preAccelDir) < 0f)
                 slideVelocity = Vector3.zero;
-
             Vector2 moveInput = input.Move;
             if (moveInput.sqrMagnitude > 0.01f && slideVelocity.sqrMagnitude > 0.01f)
             {
@@ -473,7 +409,6 @@ public class PlayerFpsController : MonoBehaviour
                     );
                 }
             }
-
             float frictionScale;
             if (slideVelocity.y < -0.1f)
                 frictionScale = downhillFrictionScale;
@@ -481,24 +416,18 @@ public class PlayerFpsController : MonoBehaviour
                 frictionScale = uphillSlideFriction;
             else
                 frictionScale = 1f;
-
             Vector3 frictionDelta = slideVelocity.normalized * slideFriction * frictionScale * Time.deltaTime;
             if (frictionDelta.magnitude < slideVelocity.magnitude)
                 slideVelocity -= frictionDelta;
             else
                 slideVelocity = Vector3.zero;
-
             if (slideVelocity.magnitude > maxSlideSpeed)
                 slideVelocity = slideVelocity.normalized * maxSlideSpeed;
-
             horizontalVelocity = new Vector3(slideVelocity.x, 0f, slideVelocity.z);
-
             return;
         }
-
         Vector3 wishDirection = orientation.right * input.Move.x + orientation.forward * input.Move.y;
         wishDirection = Vector3.ClampMagnitude(wishDirection, 1f);
-
         if (grounded)
         {
             Vector3 targetVelocity = wishDirection * walkSpeed;
@@ -510,7 +439,6 @@ public class PlayerFpsController : MonoBehaviour
             {
                 Vector3 targetVelocity = wishDirection * Mathf.Max(walkSpeed, horizontalVelocity.magnitude);
                 horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, targetVelocity, airAcceleration * Time.deltaTime);
-
                 if (horizontalVelocity.magnitude > maxAirSpeed && !IsSlideJumping && !IsKnockedBack)
                     horizontalVelocity = horizontalVelocity.normalized * maxAirSpeed;
             }
@@ -520,17 +448,14 @@ public class PlayerFpsController : MonoBehaviour
             }
         }
     }
-
     void HandleJump(bool grounded)
     {
         if (!input.JumpBuffered) return;
-
         if (IsSliding && (grounded || slideGrounded))
         {
             Vector3 slideDir = horizontalVelocity.normalized;
             horizontalVelocity += slideDir * slideJumpForwardBoost;
             verticalVelocity = slideJumpUpSpeed;
-
             IsSlideJumping = true;
             EndSlide();
             slideEndedWhileHeld = false;
@@ -538,7 +463,19 @@ public class PlayerFpsController : MonoBehaviour
             input.ConsumeJump();
             return;
         }
-
+        if (!grounded && onWall && wallJumpCooldownTimer <= 0f && wallJumpsRemaining > 0)
+        {
+            horizontalVelocity = new Vector3(wallNormal.x, 0f, wallNormal.z).normalized * wallJumpAwaySpeed;
+            verticalVelocity = wallJumpUpSpeed;
+            wallJumpsRemaining--;
+            onWall = false;
+            wallContactTimer = 0f;
+            wallJumpCooldownTimer = wallJumpCooldown;
+            slideEndedWhileHeld = false;
+            movementAudio?.PlayJump();
+            input.ConsumeJump();
+            return;
+        }
         if (coyoteCounter > 0f)
         {
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
@@ -549,7 +486,6 @@ public class PlayerFpsController : MonoBehaviour
             input.ConsumeJump();
             return;
         }
-
         if (jumpsRemaining > 0)
         {
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
@@ -559,42 +495,42 @@ public class PlayerFpsController : MonoBehaviour
             input.ConsumeJump();
         }
     }
-
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
         float angle = Vector3.Angle(Vector3.up, hit.normal);
-
-        if (angle < 60f)
+        if (angle < wallMinAngle)
         {
             groundNormal = hit.normal;
             hasGroundNormal = true;
             jumpsRemaining = jumpCount;
+            wallJumpsRemaining = wallJumpCount;
+            return;
+        }
+        if (!controller.isGrounded && angle >= wallMinAngle && angle < wallMaxAngle)
+        {
+            onWall = true;
+            wallNormal = hit.normal;
+            wallContactTimer = wallContactBuffer;
         }
     }
-
     public void SetHorizontalVelocity(Vector3 velocity)
     {
         horizontalVelocity = velocity;
     }
-
     public void ApplyImpulse(Vector3 impulse)
     {
         if (IsDowned) return;
-
         if (IsSliding) EndSlide();
         if (IsDashing)
         {
             IsDashing = false;
             dashTimer = 0f;
         }
-
         horizontalVelocity += new Vector3(impulse.x, 0f, impulse.z);
-
         if (impulse.y > 0f)
             verticalVelocity = Mathf.Max(verticalVelocity, 0f) + impulse.y;
         else
             verticalVelocity += impulse.y;
-
         IsKnockedBack = true;
         IsSlideJumping = false;
     }
