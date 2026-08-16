@@ -26,6 +26,8 @@ public class PlayerFpsController : MonoBehaviour
     [SerializeField] private float wallJumpCooldown = 0.25f;
     [SerializeField] private float wallMinAngle = 60f;
     [SerializeField] private float wallMaxAngle = 120f;
+    [Header("Launch")]
+    [SerializeField] private float launchControlLockDuration = 0.5f;
     [Header("Slide")]
     [SerializeField] private float slideBoostSpeed = 14f;
     [SerializeField] private float slideFriction = 5f;
@@ -64,6 +66,7 @@ public class PlayerFpsController : MonoBehaviour
     public bool IsSlideJumping { get; private set; }
     public bool IsDashing { get; private set; }
     public bool IsKnockedBack { get; private set; }
+    public bool IsLaunching => launchGraceTimer > 0f;
     public bool IsGrounded => controller != null && controller.isGrounded;
     public int JumpCount
     {
@@ -93,6 +96,7 @@ public class PlayerFpsController : MonoBehaviour
     private Vector3 wallNormal;
     private float wallContactTimer;
     private float wallJumpCooldownTimer;
+    private float launchGraceTimer;
     private float slideCooldownTimer;
     private float slideGroundedBuffer;
     private float slideBufferCounter;
@@ -213,6 +217,7 @@ public class PlayerFpsController : MonoBehaviour
     void TickTimers()
     {
         if (wallJumpCooldownTimer > 0f) wallJumpCooldownTimer -= Time.deltaTime;
+        if (launchGraceTimer > 0f) launchGraceTimer -= Time.deltaTime;
         if (slideCooldownTimer > 0f) slideCooldownTimer -= Time.deltaTime;
         if (slideGroundedBuffer > 0f) slideGroundedBuffer -= Time.deltaTime;
         if (input.CrouchPressed)
@@ -297,7 +302,7 @@ public class PlayerFpsController : MonoBehaviour
             slideGroundedBuffer = 0.15f;
         bool moving = input.Move.sqrMagnitude > 0.01f;
         bool wantsToSlide = (input.CrouchHeld && !slideEndedWhileHeld) || slideBufferCounter > 0f;
-        if (!IsSliding && !IsSlideJumping && wantsToSlide && moving && slideGroundedBuffer > 0f && slideCooldownTimer <= 0f)
+        if (!IsSliding && !IsSlideJumping && !IsLaunching && wantsToSlide && moving && slideGroundedBuffer > 0f && slideCooldownTimer <= 0f)
         {
             StartSlide();
             slideBufferCounter = 0f;
@@ -439,7 +444,7 @@ public class PlayerFpsController : MonoBehaviour
             {
                 Vector3 targetVelocity = wishDirection * Mathf.Max(walkSpeed, horizontalVelocity.magnitude);
                 horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, targetVelocity, airAcceleration * Time.deltaTime);
-                if (horizontalVelocity.magnitude > maxAirSpeed && !IsSlideJumping && !IsKnockedBack)
+                if (horizontalVelocity.magnitude > maxAirSpeed && !IsSlideJumping && !IsKnockedBack && !IsLaunching)
                     horizontalVelocity = horizontalVelocity.normalized * maxAirSpeed;
             }
             else if (!conserveAirMomentum)
@@ -478,7 +483,7 @@ public class PlayerFpsController : MonoBehaviour
         }
         if (coyoteCounter > 0f)
         {
-            verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            verticalVelocity = Mathf.Max(verticalVelocity, Mathf.Sqrt(jumpHeight * -2f * gravity));
             coyoteCounter = 0f;
             jumpsRemaining = Mathf.Max(0, jumpsRemaining - 1);
             slideEndedWhileHeld = false;
@@ -488,7 +493,7 @@ public class PlayerFpsController : MonoBehaviour
         }
         if (jumpsRemaining > 0)
         {
-            verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            verticalVelocity = Mathf.Max(verticalVelocity, Mathf.Sqrt(jumpHeight * -2f * gravity));
             jumpsRemaining--;
             slideEndedWhileHeld = false;
             movementAudio?.PlayJump();
@@ -533,5 +538,25 @@ public class PlayerFpsController : MonoBehaviour
             verticalVelocity += impulse.y;
         IsKnockedBack = true;
         IsSlideJumping = false;
+    }
+    public void Launch(Vector3 velocity, bool overrideHorizontal = true, float maxHorizontalSpeed = -1f)
+    {
+        if (IsDowned) return;
+        if (IsSliding) EndSlide();
+        if (IsDashing)
+        {
+            IsDashing = false;
+            dashTimer = 0f;
+        }
+        if (overrideHorizontal)
+            horizontalVelocity = new Vector3(velocity.x, 0f, velocity.z);
+        else
+            horizontalVelocity += new Vector3(velocity.x, 0f, velocity.z);
+        if (maxHorizontalSpeed >= 0f && horizontalVelocity.magnitude > maxHorizontalSpeed)
+            horizontalVelocity = horizontalVelocity.normalized * maxHorizontalSpeed;
+        verticalVelocity = velocity.y;
+        IsKnockedBack = false;
+        IsSlideJumping = false;
+        launchGraceTimer = launchControlLockDuration;
     }
 }
