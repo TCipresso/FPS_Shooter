@@ -7,11 +7,12 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Toon_Gen 53
-  m_Shader: {fileID: 4800000, guid: 0e32a9fa8e6a8894098943bf466889ab, type: 3}
+  m_Name: Toon_Gen 64
+  m_Shader: {fileID: 4800000, guid: 4193de86117fd2942a7542872d9be9f8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _RECEIVE_SHADOWS_ON
   - _TOON_SHADING
   m_InvalidKeywords:
   - _USE_RAMP_TEX
@@ -27,7 +28,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 1b3158a26f280e441bb7e9ce874dea18, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -66,10 +67,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _ShapeTex:
-        m_Texture: {fileID: 2800000, guid: 1b3158a26f280e441bb7e9ce874dea18, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -95,8 +92,6 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _BaseMetallic: 0
-    - _BaseSmoothness: 0
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -117,44 +112,39 @@ Material:
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _OutlineConstScreenSize: 1
-    - _OutlineMaxDist: 60
-    - _OutlineWidth: 0.03
+    - _OutlineFadeStart: 0.8
+    - _OutlineMaxDist: 100
+    - _OutlineWidth: 0.048
     - _Parallax: 0.005
     - _QueueOffset: 0
-    - _ReceiveShadows: 0
-    - _RimIntensity: 0
-    - _RimThreshold: 1
-    - _ShapeContrast: 1.5
-    - _ShapeEmission: 2.62
-    - _ShapeMetallic: 0.3
-    - _ShapeOpacity: 0.685
-    - _ShapeScale: 0.01
-    - _ShapeSmoothness: 0.9
+    - _ReceiveShadows: 1
+    - _RimIntensity: 0.37
+    - _RimThreshold: 0.641
+    - _ShadowReceiveBias: 0.02
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _SpecularToonSize: 0.071
-    - _SpecularToonSmoothness: 0.062
+    - _SpecularToonSize: 0
+    - _SpecularToonSmoothness: 0.141
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
-    - _ToonRampSmoothness: 0.7
-    - _ToonSteps: 2.96
+    - _ToonRampSmoothness: 0
+    - _ToonSteps: 8
     - _UseRampTexture: 1
     - _UseToonShading: 1
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0, g: 0.6981132, b: 0.008213137, a: 1}
+    - _BaseColor: {r: 1, g: 0.20968111, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
-    - _RimColor: {r: 0.4811321, g: 0.4811321, b: 0.4811321, a: 1}
-    - _ShadowTint: {r: 0.1792453, g: 0.1792453, b: 0.1792453, a: 1}
-    - _ShapeColor: {r: 0, g: 0, b: 0, a: 1}
+    - _RimColor: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
+    - _ShadowTint: {r: 0.3679245, g: 0.3679245, b: 0.3679245, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _SpecularColor: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 1}
+    - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &3715100166348574328
