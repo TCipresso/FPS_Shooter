@@ -15,11 +15,39 @@ MonoBehaviour:
   weaponName: Mini Macs
   category: 1
   dropPrefab: {fileID: 6777996846194819660, guid: ebfe5555a2c8e4e40a0dd878bafe5306, type: 3}
+  damage: 25
+  range: 9999
+  swarmHitRadius: 0.4
+  isAutomatic: 1
+  rpm: 900
+  critChance: 0.1
+  critMultiplier: 1.5
+  isShotgun: 0
+  pelletCount: 8
+  pelletSpreadAngle: 5
+  flatSpread: 0
+  baseAccuracy: 1
+  bloomPerShot: 0.5
+  maxBloom: 4
+  bloomDecaySpeed: 3
+  bulletType: 0
+  trailPrefab: {fileID: 7533938775617344793, guid: 5fdbe00ae02ad624bb45ad9bdb2038fe, type: 3}
+  trailPoolKey: BulletTrail
+  trailPoolSize: 30
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 15359
+  impactEffectOverride: {fileID: 379087086293945372, guid: 00df2626230093c478373a5f1dc23aa6, type: 3}
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 40
+  projectileGravityScale: 0
+  isExplosive: 0
+  explosionRadius: 4
+  explosionEffectPrefab: {fileID: 0}
+  explosionEffectDuration: 2
+  explosionSelfKnockback: 18
+  explosionKnockbackUpBias: 0.6
   maxLevel: 5
-  damageGrowthPerLevel: 0.1
-  rpmGrowthPerLevel: 0.1
-  rangeGrowthPerLevel: 0.1
-  powerUpDurationPerLevel: 10
   packedMaterial: {fileID: 2100000, guid: 0eff55e17c1592e47bf7d85524e225f3, type: 2}
   levelTintColors:
   - {r: 1, g: 0, b: 0, a: 0}

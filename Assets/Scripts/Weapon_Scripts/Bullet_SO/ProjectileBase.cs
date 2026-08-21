@@ -1,10 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
-
 public class ProjectileBase : MonoBehaviour
 {
     [HideInInspector] public GameObject pool;
-
     Vector3 position;
     Vector3 velocity;
     float gravityScale;
@@ -17,22 +15,18 @@ public class ProjectileBase : MonoBehaviour
     Transform ownerRoot;
     PlayerFpsController ownerController;
     bool firedAirborne;
-    BulletDataSO data;
-
+    WeaponDefinitionSO data;
     static readonly RaycastHit[] hitBuffer = new RaycastHit[16];
     static readonly RaycastHit[] zombieHitBuffer = new RaycastHit[16];
     static readonly Collider[] explosionOverlapBuffer = new Collider[32];
     static readonly HashSet<ZombieBase> explosionHitSet = new HashSet<ZombieBase>();
     const float castRadius = 0.15f;
-
     public static bool debugLogging = false;
     int tickCount;
-
     TrailRenderer trail;
     bool trailCached;
-
     public void Launch(Vector3 origin, Vector3 direction, float speed, float gravityScale,
-        float life, int damage, bool applyDamage, WeaponBase owner, BulletDataSO data, float radius)
+        float life, int damage, bool applyDamage, WeaponBase owner, WeaponDefinitionSO data, float radius)
     {
         this.position = origin;
         this.velocity = direction.normalized * speed;
@@ -48,14 +42,11 @@ public class ProjectileBase : MonoBehaviour
         this.radius = radius;
         this.hitMask = data != null && data.hitMask != 0 ? data.hitMask : ~0;
         this.tickCount = 0;
-
         if (debugLogging)
             Debug.Log($"[PROJ] LAUNCH origin={origin} dir={direction.normalized} speed={speed} mask={(int)this.hitMask} life={life}");
-
         transform.position = origin;
         if (velocity.sqrMagnitude > 0.0001f)
             transform.rotation = Quaternion.LookRotation(velocity);
-
         if (!trailCached)
         {
             trail = GetComponentInChildren<TrailRenderer>();
@@ -64,17 +55,13 @@ public class ProjectileBase : MonoBehaviour
         if (trail != null)
             trail.Clear();
     }
-
     public bool Tick(float dt)
     {
         if (dt <= 0f) return false;
-
         float speed = velocity.magnitude;
         Vector3 dir = speed > 0.0001f ? velocity / speed : transform.forward;
         float stepDist = speed * dt;
-
         int hitCount = Physics.SphereCastNonAlloc(position, castRadius, dir, hitBuffer, stepDist, hitMask);
-
         if (debugLogging && tickCount < 10)
         {
             Debug.Log($"[PROJ] tick={tickCount} pos={position} dir={dir} step={stepDist:F3} hits={hitCount}");
@@ -88,11 +75,9 @@ public class ProjectileBase : MonoBehaviour
             }
         }
         tickCount++;
-
         bool didHitWorld = false;
         RaycastHit worldHit = default;
         float closestDist = stepDist;
-
         for (int i = 0; i < hitCount; i++)
         {
             RaycastHit h = hitBuffer[i];
@@ -105,38 +90,30 @@ public class ProjectileBase : MonoBehaviour
                 didHitWorld = true;
             }
         }
-
         if (didHitWorld && worldHit.distance <= 0f)
         {
             worldHit.point = position;
             worldHit.normal = -dir;
         }
-
         float searchDist = didHitWorld ? worldHit.distance : stepDist;
-
         bool hitZombie = TryFindNearestZombieAlongRay(position, dir, searchDist, out ZombieBase zombie, out HitBox hitBox, out Vector3 zombieHitPos);
-
         if (hitZombie)
         {
             DoImpact(zombieHitPos, -dir, true, zombie, hitBox);
             OnDespawn();
             return true;
         }
-
         if (didHitWorld)
         {
             DoImpact(worldHit.point, worldHit.normal, false, null, null, worldHit.collider);
             OnDespawn();
             return true;
         }
-
         position += velocity * dt;
         velocity += Vector3.down * (9.81f * gravityScale) * dt;
-
         transform.position = position;
         if (velocity.sqrMagnitude > 0.0001f)
             transform.rotation = Quaternion.LookRotation(velocity);
-
         life -= dt;
         if (life <= 0f)
         {
@@ -145,27 +122,21 @@ public class ProjectileBase : MonoBehaviour
         }
         return false;
     }
-
     bool TryFindNearestZombieAlongRay(Vector3 origin, Vector3 direction, float maxDistance, out ZombieBase zombie, out HitBox hitBox, out Vector3 hitPoint)
     {
         int hitCount = Physics.SphereCastNonAlloc(origin, radius, direction, zombieHitBuffer, maxDistance);
-
         ZombieBase closestZombie = null;
         HitBox closestHitBox = null;
         float closestDistance = float.MaxValue;
         Vector3 closestPoint = default;
-
         for (int i = 0; i < hitCount; i++)
         {
             RaycastHit hit = zombieHitBuffer[i];
-
             HitBox candidateHitBox = hit.collider.GetComponentInParent<HitBox>();
             ZombieBase candidate = candidateHitBox != null
                 ? candidateHitBox.zombie
                 : hit.collider.GetComponentInParent<ZombieBase>();
-
             if (candidate == null || candidate.IsDead) continue;
-
             if (hit.distance < closestDistance)
             {
                 closestDistance = hit.distance;
@@ -174,86 +145,68 @@ public class ProjectileBase : MonoBehaviour
                 closestPoint = hit.point;
             }
         }
-
         zombie = closestZombie;
         hitBox = closestHitBox;
         hitPoint = closestPoint;
         return closestZombie != null;
     }
-
     void DamageZombiesInRadius(Vector3 center, float explosionRadius, int amount)
     {
         int count = Physics.OverlapSphereNonAlloc(center, explosionRadius, explosionOverlapBuffer);
         explosionHitSet.Clear();
-
         for (int i = 0; i < count; i++)
         {
             Collider col = explosionOverlapBuffer[i];
             if (col == null) continue;
-
             ZombieBase zombie = col.GetComponentInParent<ZombieBase>();
             if (zombie == null || zombie.IsDead) continue;
             if (!explosionHitSet.Add(zombie)) continue;
-
             Vector3 toZombie = zombie.transform.position - center;
             Vector3 hitDir = toZombie.sqrMagnitude > 0.0001f ? toZombie.normalized : Vector3.up;
-
             zombie.TakeDamage(amount, owner != null ? owner.OwnerStats : null, 1f, hitDir, 1f);
             zombie.hitFlash?.Flash(false);
         }
     }
-
     void OnDespawn()
     {
         if (trail != null)
             trail.Clear();
     }
-
     void ApplySelfKnockback(Vector3 explosionPoint)
     {
         if (ownerController == null || data == null) return;
         if (data.explosionSelfKnockback <= 0f) return;
         if (ownerController.IsGrounded && !firedAirborne) return;
-
         Vector3 playerPos = ownerController.transform.position;
         Vector3 toPlayer = playerPos - explosionPoint;
         float dist = toPlayer.magnitude;
         if (dist > data.explosionRadius) return;
-
         Vector3 pushDir = dist > 0.05f ? toPlayer / dist : Vector3.up;
-
         Vector3 moveDir = ownerController.transform.forward;
         Vector3 horizontal = new Vector3(pushDir.x, 0f, pushDir.z);
         if (horizontal.sqrMagnitude < 0.01f)
             horizontal = new Vector3(moveDir.x, 0f, moveDir.z).normalized;
         else
             horizontal.Normalize();
-
         pushDir = (horizontal + Vector3.up * data.explosionKnockbackUpBias).normalized;
-
         ownerController.ApplyImpulse(pushDir * data.explosionSelfKnockback);
     }
-
     void DoImpact(Vector3 point, Vector3 normal, bool directZombieHit, ZombieBase directZombie, HitBox directHitBox = null, Collider worldCollider = null)
     {
         if (debugLogging)
             Debug.Log($"[PROJ] IMPACT point={point} zombieHit={directZombieHit} explosive={data != null && data.isExplosive} vfx={(data != null && data.explosionEffectPrefab != null)} pool={(ExplosionPool.Instance != null)} applyDamage={applyDamage}");
-
         if (data != null && data.isExplosive)
         {
             if (ExplosionPool.Instance != null && data.explosionEffectPrefab != null)
                 ExplosionPool.Instance.Spawn(data.explosionEffectPrefab, point + normal * 0.3f,
                     Quaternion.FromToRotation(Vector3.up, normal), data.explosionEffectDuration);
-
             if (applyDamage)
             {
                 DamageZombiesInRadius(point, data.explosionRadius, damage);
                 ApplySelfKnockback(point);
             }
-
             return;
         }
-
         if (directZombieHit)
         {
             if (applyDamage && owner != null)
@@ -266,12 +219,10 @@ public class ProjectileBase : MonoBehaviour
                 {
                     directZombie.TakeDamage(owner.ApplyCrit(damage), owner.OwnerStats, 1f, normal, 1f);
                     directZombie.hitFlash?.Flash(false);
-
                     if (HitMarkerPool.Instance != null)
                         HitMarkerPool.Instance.Spawn(point, false);
                 }
             }
-
             if (ImpactEffectPool.Instance != null)
                 ImpactEffectPool.Instance.SpawnZombie(point, normal);
         }
@@ -279,7 +230,6 @@ public class ProjectileBase : MonoBehaviour
         {
             if (ImpactEffectPool.Instance != null)
                 ImpactEffectPool.Instance.SpawnWorld(point, normal);
-
             SandboxSpawner spawner = worldCollider != null ? worldCollider.GetComponentInParent<SandboxSpawner>() : null;
             if (spawner != null)
                 spawner.TriggerSpawn();

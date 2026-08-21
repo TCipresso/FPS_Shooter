@@ -1,11 +1,11 @@
 using UnityEngine;
 
-public enum BulletType { Hitscan, Projectile }
+//public enum BulletType { Hitscan, Projectile }
 
 [CreateAssetMenu(fileName = "BulletData", menuName = "Zarcade/Bullet Data")]
 public class BulletDataSO : ScriptableObject
 {
-    [Header("Type")]
+    /*[Header("Type")]
     public BulletType bulletType = BulletType.Hitscan;
 
     [Header("Shotgun")]
@@ -43,5 +43,5 @@ public class BulletDataSO : ScriptableObject
     [Tooltip("Impulse applied to the firing player when caught in their own explosion. 0 = no rocket jump.")]
     public float explosionSelfKnockback = 18f;
     [Tooltip("Upward bias mixed into the knockback direction so ground shots launch you up, not just sideways.")]
-    public float explosionKnockbackUpBias = 0.6f;
+    public float explosionKnockbackUpBias = 0.6f;*/
 }

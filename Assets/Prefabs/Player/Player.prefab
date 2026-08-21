@@ -2059,7 +2059,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4231661515928117997
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4060,7 +4060,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   look: {fileID: 3533895333255542454}
   fpsController: {fileID: 362184917326460930}
-  weaponInventory: {fileID: 5863405062406140053}
   gameOverScreen: {fileID: 2024030361712665751}
   damageMultiplier: 1
   attackSpeed: 1
@@ -9519,7 +9518,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7923173790734117521
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9876,6 +9875,10 @@ PrefabInstance:
       propertyPath: shakeMagnitude
       value: 0.2
       objectReference: {fileID: 0}
+    - target: {fileID: 1577504174040812282, guid: 308e9186332778f41be8bc9bd44479b5, type: 3}
+      propertyPath: weaponDefinition
+      value: 
+      objectReference: {fileID: 11400000, guid: 9893a1614cd866d4dbff8faaa41af4b8, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 2231734070620780624, guid: 308e9186332778f41be8bc9bd44479b5, type: 3}
