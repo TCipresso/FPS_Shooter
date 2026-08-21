@@ -54,6 +54,9 @@ public class RadiusEnemySpawner : MonoBehaviour
 
     void TrySpawnOne()
     {
+        if (EnemyPopulationManager.Instance != null && !EnemyPopulationManager.Instance.HasRoomForMoreEnemies())
+            return;
+
         string enemyId = PickEnemyIdWithRoom();
         if (enemyId == null)
             return;
@@ -73,8 +76,13 @@ public class RadiusEnemySpawner : MonoBehaviour
                 continue;
 
             GameObject enemy = EnemySpawnManager.Instance.SpawnEnemy(enemyId, hit.point, Quaternion.identity);
-            if (enemy != null && EnemyDifficultyHandler.Instance != null)
-                EnemyDifficultyHandler.Instance.ApplyScaling(enemy);
+            if (enemy != null)
+            {
+                if (EnemyDifficultyHandler.Instance != null)
+                    EnemyDifficultyHandler.Instance.ApplyScaling(enemy);
+                if (EnemyPopulationManager.Instance != null)
+                    EnemyPopulationManager.Instance.RegisterSpawn(enemyId, enemy);
+            }
             return;
         }
     }

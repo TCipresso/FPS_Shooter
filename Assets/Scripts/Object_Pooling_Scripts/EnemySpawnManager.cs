@@ -1,10 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
-
 public class EnemySpawnManager : MonoBehaviour
 {
     public static EnemySpawnManager Instance { get; private set; }
-
     [System.Serializable]
     public class EnemyPool
     {
@@ -13,12 +11,9 @@ public class EnemySpawnManager : MonoBehaviour
         public int poolSize = 20;
         [HideInInspector] public Queue<GameObject> enemyQueue = new Queue<GameObject>();
     }
-
     [Header("Enemy Pools")]
     public List<EnemyPool> enemyPools = new List<EnemyPool>();
-
     Dictionary<string, EnemyPool> poolLookup = new Dictionary<string, EnemyPool>();
-
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -26,7 +21,6 @@ public class EnemySpawnManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         InitializePools();
     }
-
     void InitializePools()
     {
         foreach (EnemyPool pool in enemyPools)
@@ -41,7 +35,6 @@ public class EnemySpawnManager : MonoBehaviour
             }
         }
     }
-
     GameObject SpawnEnemyInternal(string enemyId, Vector3 position, Quaternion rotation)
     {
         if (!poolLookup.TryGetValue(enemyId, out EnemyPool pool))
@@ -58,7 +51,6 @@ public class EnemySpawnManager : MonoBehaviour
         enemy.SetActive(true);
         return enemy;
     }
-
     public GameObject SpawnEnemy(string enemyId, Transform spawnPoint)
     {
         GameObject enemy = SpawnEnemyInternal(enemyId, spawnPoint.position, spawnPoint.rotation);
@@ -73,7 +65,6 @@ public class EnemySpawnManager : MonoBehaviour
         }
         return enemy;
     }
-
     public GameObject SpawnEnemy(string enemyId, Vector3 position, Quaternion rotation)
     {
         GameObject enemy = SpawnEnemyInternal(enemyId, position, rotation);
@@ -87,7 +78,6 @@ public class EnemySpawnManager : MonoBehaviour
         }
         return enemy;
     }
-
     public void DebugSpawnNearPlayer(string enemyId, int count, float radius = 5f)
     {
         PlayerStats player = FindFirstObjectByType<PlayerStats>();
@@ -99,8 +89,7 @@ public class EnemySpawnManager : MonoBehaviour
             SpawnEnemy(enemyId, spawnPos, Quaternion.identity);
         }
     }
-
-    void ReturnEnemy(string enemyId, GameObject enemy)
+    public void ReturnEnemy(string enemyId, GameObject enemy)
     {
         if (!poolLookup.TryGetValue(enemyId, out EnemyPool pool)) return;
         enemy.SetActive(false);
