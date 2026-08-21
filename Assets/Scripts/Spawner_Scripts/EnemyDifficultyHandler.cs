@@ -4,14 +4,15 @@ public class EnemyDifficultyHandler : MonoBehaviour
 {
     public static EnemyDifficultyHandler Instance { get; private set; }
 
+    [Header("Difficulty Interval (shared by spawn rate + stats)")]
+    public float difficultyInterval = 15f;
+
     [Header("Spawn Rate")]
     public float baseSpawnRate = 0.5f;
     public float maxSpawnRate = 3f;
     public float spawnRateGrowthAmount = 0.1f;
-    public float spawnRateGrowthInterval = 15f;
 
     [Header("Stat Scaling")]
-    public float statScalingInterval = 60f;
     public float healthMultiplierPerInterval = 1.05f;
     public float damageMultiplierPerInterval = 1.04f;
     public float speedMultiplierPerInterval = 1.02f;
@@ -33,7 +34,7 @@ public class EnemyDifficultyHandler : MonoBehaviour
     public float GetSpawnInterval()
     {
         float elapsed = Time.time - startTime;
-        int growthSteps = Mathf.FloorToInt(elapsed / spawnRateGrowthInterval);
+        int growthSteps = Mathf.FloorToInt(elapsed / Mathf.Max(difficultyInterval, 0.01f));
         float currentRate = Mathf.Min(baseSpawnRate + growthSteps * spawnRateGrowthAmount, maxSpawnRate);
         return 1f / Mathf.Max(currentRate, 0.01f);
     }
@@ -44,7 +45,7 @@ public class EnemyDifficultyHandler : MonoBehaviour
         if (zombie == null)
             return;
 
-        float steps = (Time.time - startTime) / Mathf.Max(statScalingInterval, 0.01f);
+        float steps = (Time.time - startTime) / Mathf.Max(difficultyInterval, 0.01f);
 
         float healthMult = Mathf.Min(Mathf.Pow(healthMultiplierPerInterval, steps), maxStatMultiplier);
         float damageMult = Mathf.Min(Mathf.Pow(damageMultiplierPerInterval, steps), maxStatMultiplier);
