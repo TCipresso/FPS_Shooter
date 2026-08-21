@@ -1,48 +1,32 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-// Spawns enemies from your EnemySpawnManager pool in a ring around the
-// player, picking from a list of enemy types instead of just one. Two
-// things keep this cheap:
-//
-// 1. It only checks anything on a timer (spawnInterval), not every frame.
-// 2. Before doing any raycasting, it checks which enemy types still have
-//    room in their pool (pool.enemyQueue.Count > 0) and only picks among
-//    those. If every pool is already maxed out, it skips the whole spawn
-//    attempt instantly - no raycasts, no work. Each pool's size is
-//    naturally the cap on how many of that enemy can exist at once.
-//
-// Height correctness works the same way the props do: raycast straight
-// down from above the candidate point onto the ground layer and use the
-// hit point. Since the terrain is a heightmap (one Y per X,Z, no overhangs
-// or caves), that always finds the real surface - never spawns under a hill.
 public class RadiusEnemySpawner : MonoBehaviour
 {
     [System.Serializable]
     public class SpawnableEnemy
     {
-        public string enemyId;   // must match an enemyId in EnemySpawnManager's Enemy Pools list
+        public string enemyId;
         [Min(0f)]
-        public float weight = 1f; // relative chance vs other entries in this list - doesn't need to sum to anything
+        public float weight = 1f;
     }
 
     [Header("Who To Spawn")]
     public List<SpawnableEnemy> enemies = new List<SpawnableEnemy>();
 
     [Header("Where (ring around player)")]
-    public float minRadius = 15f;   // don't spawn closer than this - keeps them out of the player's face
-    public float maxRadius = 30f;   // don't spawn farther than this - keeps them relevant
-    public LayerMask groundLayerMask; // set this to your Ground layer (the same one HillMesh uses)
-    public float raycastHeight = 200f; // start point above ground for the downward raycast
+    public float minRadius = 15f;
+    public float maxRadius = 30f;
+    public LayerMask groundLayerMask;
+    public float raycastHeight = 200f;
 
-    [Header("Pacing")]
-    public float spawnInterval = 2f; // seconds between spawn attempts - this is the main frame-cost lever
-    public int spawnsPerTick = 1;    // how many to try each interval
+    [Header("Spawn Batching")]
+    public int spawnsPerTick = 1;
 
     [Header("Placement Rules")]
     [Range(0f, 90f)]
-    public float maxSlopeDegrees = 40f; // skip spots too steep to stand on
-    public int maxAttemptsPerSpawn = 5; // retries if a ring point misses the ground or is too steep
+    public float maxSlopeDegrees = 40f;
+    public int maxAttemptsPerSpawn = 5;
 
     Transform player;
     float timer;
@@ -56,8 +40,11 @@ public class RadiusEnemySpawner : MonoBehaviour
             return;
         }
 
+        if (EnemyDifficultyHandler.Instance == null)
+            return;
+
         timer += Time.deltaTime;
-        if (timer < spawnInterval)
+        if (timer < EnemyDifficultyHandler.Instance.GetSpawnInterval())
             return;
         timer = 0f;
 
@@ -69,7 +56,7 @@ public class RadiusEnemySpawner : MonoBehaviour
     {
         string enemyId = PickEnemyIdWithRoom();
         if (enemyId == null)
-            return; // every pool is already full of active enemies - nothing to do
+            return;
 
         for (int attempt = 0; attempt < maxAttemptsPerSpawn; attempt++)
         {
@@ -80,18 +67,18 @@ public class RadiusEnemySpawner : MonoBehaviour
 
             Vector3 rayStart = new Vector3(x, player.position.y + raycastHeight, z);
             if (!Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, raycastHeight * 2f, groundLayerMask))
-                continue; // missed the ground entirely (shouldn't happen on this terrain, but cheap to guard)
+                continue;
 
             if (Vector3.Angle(hit.normal, Vector3.up) > maxSlopeDegrees)
-                continue; // too steep here, try another ring point
+                continue;
 
-            EnemySpawnManager.Instance.SpawnEnemy(enemyId, hit.point, Quaternion.identity);
+            GameObject enemy = EnemySpawnManager.Instance.SpawnEnemy(enemyId, hit.point, Quaternion.identity);
+            if (enemy != null && EnemyDifficultyHandler.Instance != null)
+                EnemyDifficultyHandler.Instance.ApplyScaling(enemy);
             return;
         }
     }
 
-    // Weighted-random pick, but only among enemy types whose pool currently
-    // has a free instance. Returns null if nothing is spawnable right now.
     string PickEnemyIdWithRoom()
     {
         float totalWeight = 0f;
