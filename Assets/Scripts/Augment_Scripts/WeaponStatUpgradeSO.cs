@@ -4,7 +4,9 @@ public enum WeaponUpgradeStatType
     Damage,
     AttackSpeed,
     CritChance,
-    CritMultiplier
+    CritMultiplier,
+    PelletCount,
+    Accuracy
 }
 [CreateAssetMenu(fileName = "NewWeaponStatUpgrade", menuName = "Zarcade/Weapon Stat Upgrade")]
 public class WeaponStatUpgradeSO : ScriptableObject
@@ -32,7 +34,9 @@ public class WeaponStatUpgradeSO : ScriptableObject
         { WeaponUpgradeStatType.Damage, "Damage" },
         { WeaponUpgradeStatType.AttackSpeed, "Attack Speed" },
         { WeaponUpgradeStatType.CritChance, "Crit Chance" },
-        { WeaponUpgradeStatType.CritMultiplier, "Crit Multiplier" }
+        { WeaponUpgradeStatType.CritMultiplier, "Crit Multiplier" },
+        { WeaponUpgradeStatType.PelletCount, "Pellet Count" },
+        { WeaponUpgradeStatType.Accuracy, "Accuracy" }
     };
     public string GetRolledDescription(float percent)
     {
@@ -55,6 +59,12 @@ public class WeaponStatUpgradeSO : ScriptableObject
                 break;
             case WeaponUpgradeStatType.CritMultiplier:
                 def.critMultiplier = def.critMultiplier * (1f + percent);
+                break;
+            case WeaponUpgradeStatType.PelletCount:
+                def.pelletCount = Mathf.Max(1, Mathf.RoundToInt(def.pelletCount * (1f + percent)));
+                break;
+            case WeaponUpgradeStatType.Accuracy:
+                def.maxBloom = Mathf.Max(0f, def.maxBloom * (1f - percent));
                 break;
         }
     }

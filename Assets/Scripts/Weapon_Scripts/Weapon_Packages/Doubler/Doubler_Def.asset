@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b5cb4844a83ccf945bcb4bc288bfd193, type: 3}
-  m_Name: Doubler_Weapon_Def
+  m_Name: Doubler_Def
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinitionSO
   weaponName: Doubler
   category: 3
   dropPrefab: {fileID: 0}
   damage: 500
-  range: 50
+  range: 99999
   swarmHitRadius: 0.4
-  isAutomatic: 0
+  isAutomatic: 1
   rpm: 300
   critChance: 0.1
   critMultiplier: 2
@@ -52,6 +52,8 @@ MonoBehaviour:
   currentXP: 0
   baseXPRequired: 100
   xpGrowthRate: 1.25
+  evolutionInterval: 20
+  evolutionPool: []
   packedMaterial: {fileID: 2100000, guid: c1d0524384fed3a41b49a0f41bdd18ac, type: 2}
   tintPropertyName: _GlowColor
   tintHueCycleLength: 100
