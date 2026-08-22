@@ -13,18 +13,47 @@ MonoBehaviour:
   m_Name: Glicky_Def
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinitionSO
   weaponName: Glicky
-  weaponType: 0
-  prefab: {fileID: 915437539126507199, guid: e4aead514c6885a429626110644547b2, type: 3}
-  positionOffset: {x: -0.37, y: -0.09, z: -2.03}
-  rotationOffset: {x: 0, y: 0, z: 0}
-  bulletData: {fileID: 11400000, guid: 5bb6425b3383d22408b5e8d13fc0b5a9, type: 2}
-  baseDamage: 19
-  baseRpm: 300
-  baseMagSize: 15
-  baseReserveAmmo: 120
-  baseRange: 200
-  baseReloadTime: 2
-  rareBonus: 0.05
-  epicBonus: 0.1
-  legendaryBonus: 0.15
-  contrabandBonus: 0.25
+  category: 0
+  dropPrefab: {fileID: 0}
+  damage: 25
+  range: 50
+  swarmHitRadius: 0.4
+  isAutomatic: 1
+  rpm: 200
+  critChance: 0.1
+  critMultiplier: 2
+  isShotgun: 0
+  pelletCount: 8
+  pelletSpreadAngle: 5
+  flatSpread: 0
+  baseAccuracy: 0.5
+  bloomPerShot: 0.25
+  maxBloom: 3
+  bloomDecaySpeed: 5
+  bulletType: 0
+  trailPrefab: {fileID: 7533938775617344793, guid: 5fdbe00ae02ad624bb45ad9bdb2038fe, type: 3}
+  trailPoolKey: BulletTrail
+  trailPoolSize: 50
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 15359
+  impactEffectOverride: {fileID: 6350203987023523720, guid: 1d1898ccac54b1147baf916f234e27a6, type: 3}
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 40
+  projectileGravityScale: 0
+  isExplosive: 0
+  explosionRadius: 4
+  explosionEffectPrefab: {fileID: 0}
+  explosionEffectDuration: 2
+  explosionSelfKnockback: 18
+  explosionKnockbackUpBias: 0.6
+  maxLevel: 100
+  level: 1
+  currentXP: 0
+  baseXPRequired: 100
+  xpGrowthRate: 1.25
+  packedMaterial: {fileID: 2100000, guid: 0eff55e17c1592e47bf7d85524e225f3, type: 2}
+  tintPropertyName: _BaseColor
+  tintHueCycleLength: 10
+  tintSaturation: 0.85
+  tintValue: 1

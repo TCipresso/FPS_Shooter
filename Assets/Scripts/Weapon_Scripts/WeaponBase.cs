@@ -44,6 +44,9 @@ public abstract class WeaponBase : MonoBehaviour
     float fireResetTime = 0f;
     float currentRpm;
     bool definitionCloned = false;
+    Material[] cachedOriginalMaterials;
+    bool originalMaterialsCached = false;
+    static MaterialPropertyBlock sharedSkinPropertyBlock;
     protected FPSLook fpsLook;
     protected Camera mainCamera;
     protected WeaponRecoil weaponRecoil;
@@ -233,7 +236,7 @@ public abstract class WeaponBase : MonoBehaviour
             }
             else
             {
-                zombie.TakeDamage(ApplyCrit(damage), playerStats, 1f, -direction, 1f);
+                zombie.TakeDamage(ApplyCrit(damage), playerStats, 1f, -direction, 1f, "", this);
                 zombie.hitFlash?.Flash(false);
                 if (HitMarkerPool.Instance != null)
                     HitMarkerPool.Instance.Spawn(endPoint, false);
@@ -426,7 +429,7 @@ public abstract class WeaponBase : MonoBehaviour
         }
     }
     public void StopRecoil() { }
-    public void ApplyLevel(WeaponDefinitionSO def, int level)
+    public void ApplyLevel(WeaponDefinitionSO def)
     {
         if (def == null) return;
         if (!definitionCloned)
@@ -434,6 +437,34 @@ public abstract class WeaponBase : MonoBehaviour
             weaponDefinition = Instantiate(def);
             definitionCloned = true;
         }
+        RefreshWeaponSkin();
+    }
+    public void RefreshWeaponSkin()
+    {
+        if (skinRenderer == null || weaponDefinition == null) return;
+        if (!originalMaterialsCached)
+        {
+            cachedOriginalMaterials = (Material[])skinRenderer.sharedMaterials.Clone();
+            originalMaterialsCached = true;
+        }
+        if (weaponDefinition.level <= 1 || weaponDefinition.packedMaterial == null)
+        {
+            skinRenderer.sharedMaterials = cachedOriginalMaterials;
+            skinRenderer.SetPropertyBlock(null);
+            return;
+        }
+        int slotCount = cachedOriginalMaterials.Length;
+        Material[] packedSet = new Material[slotCount];
+        for (int i = 0; i < slotCount; i++)
+            packedSet[i] = weaponDefinition.packedMaterial;
+        skinRenderer.sharedMaterials = packedSet;
+        float hue = Mathf.Repeat((weaponDefinition.level - 1) / Mathf.Max(1f, weaponDefinition.tintHueCycleLength), 1f);
+        Color tint = Color.HSVToRGB(hue, weaponDefinition.tintSaturation, weaponDefinition.tintValue);
+        if (sharedSkinPropertyBlock == null)
+            sharedSkinPropertyBlock = new MaterialPropertyBlock();
+        skinRenderer.GetPropertyBlock(sharedSkinPropertyBlock);
+        sharedSkinPropertyBlock.SetColor(weaponDefinition.tintPropertyName, tint);
+        skinRenderer.SetPropertyBlock(sharedSkinPropertyBlock);
     }
     protected Vector3 GetAimDirection(float spreadX, float spreadY)
     {

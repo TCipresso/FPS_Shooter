@@ -21,14 +21,12 @@ public class WeaponInventory : MonoBehaviour
     public List<OffHandEntry> offHandItems = new List<OffHandEntry>();
     private readonly List<WeaponEntry> equippedWeapons = new List<WeaponEntry>();
     private Dictionary<WeaponDefinitionSO, WeaponEntry> weaponLookup = new Dictionary<WeaponDefinitionSO, WeaponEntry>();
-    private Dictionary<WeaponBase, Material[]> originalMaterialsCache = new Dictionary<WeaponBase, Material[]>();
     private int activeIndex = -1;
     private OffHandEntry activeOffHand;
     private Dictionary<OffHandDefinitionSO, OffHandEntry> offHandLookup = new Dictionary<OffHandDefinitionSO, OffHandEntry>();
     void Awake()
     {
         weaponLookup.Clear();
-        originalMaterialsCache.Clear();
         foreach (WeaponEntry entry in weapons)
         {
             if (entry == null || entry.weaponRoot == null || entry.definition == null
@@ -38,14 +36,6 @@ public class WeaponInventory : MonoBehaviour
                 continue;
             }
             weaponLookup[entry.definition] = entry;
-            if (entry.level <= 0)
-                entry.level = 1;
-            foreach (WeaponBase wb in entry.weaponBases)
-            {
-                if (wb == null) continue;
-                if (wb.skinRenderer != null && !originalMaterialsCache.ContainsKey(wb))
-                    originalMaterialsCache[wb] = (Material[])wb.skinRenderer.sharedMaterials.Clone();
-            }
         }
         offHandLookup.Clear();
         foreach (OffHandEntry entry in offHandItems)
@@ -243,9 +233,11 @@ public class WeaponInventory : MonoBehaviour
             Debug.LogWarning($"[WeaponInventory] Cannot level up, no entry for {def?.weaponName}.");
             return;
         }
-        entry.level = Mathf.Min(entry.level + 1, entry.definition.maxLevel);
-        if (activeIndex >= 0 && activeIndex < equippedWeapons.Count && equippedWeapons[activeIndex] == entry)
-            ApplyLevel(entry);
+        WeaponDefinitionSO liveDef = entry.Primary != null ? entry.Primary.weaponDefinition : null;
+        if (liveDef == null) return;
+        liveDef.level = Mathf.Min(liveDef.level + 1, liveDef.maxLevel);
+        foreach (WeaponBase wb in entry.weaponBases)
+            wb?.RefreshWeaponSkin();
     }
     void SetActiveEntry(WeaponEntry entry)
     {
@@ -269,40 +261,7 @@ public class WeaponInventory : MonoBehaviour
         foreach (WeaponBase wb in entry.weaponBases)
         {
             if (wb == null) continue;
-            wb.ApplyLevel(entry.definition, entry.level);
-        }
-        ApplyWeaponSkin(entry);
-    }
-    static MaterialPropertyBlock sharedPropertyBlock;
-    void ApplyWeaponSkin(WeaponEntry entry)
-    {
-        WeaponDefinitionSO def = entry.definition;
-        foreach (WeaponBase wb in entry.weaponBases)
-        {
-            if (wb == null) continue;
-            Renderer renderer = wb.skinRenderer;
-            if (renderer == null) continue;
-            if (entry.level <= 1 || def.packedMaterial == null)
-            {
-                if (originalMaterialsCache.TryGetValue(wb, out Material[] original))
-                    renderer.sharedMaterials = original;
-                renderer.SetPropertyBlock(null);
-                continue;
-            }
-            int slotCount = renderer.sharedMaterials.Length;
-            Material[] packedSet = new Material[slotCount];
-            for (int i = 0; i < slotCount; i++)
-                packedSet[i] = def.packedMaterial;
-            renderer.sharedMaterials = packedSet;
-            if (sharedPropertyBlock == null)
-                sharedPropertyBlock = new MaterialPropertyBlock();
-            renderer.GetPropertyBlock(sharedPropertyBlock);
-            int tintIndex = entry.level - 2;
-            Color tint = (def.levelTintColors != null && tintIndex >= 0 && tintIndex < def.levelTintColors.Length)
-                ? def.levelTintColors[tintIndex]
-                : Color.white;
-            sharedPropertyBlock.SetColor(def.tintPropertyName, tint);
-            renderer.SetPropertyBlock(sharedPropertyBlock);
+            wb.ApplyLevel(entry.definition);
         }
     }
     public int ActiveIndex => activeIndex;
@@ -334,7 +293,8 @@ public class WeaponInventory : MonoBehaviour
     }
     public int GetLevel(WeaponDefinitionSO def)
     {
-        return weaponLookup.TryGetValue(def, out WeaponEntry entry) ? entry.level : 0;
+        if (!weaponLookup.TryGetValue(def, out WeaponEntry entry)) return 0;
+        return entry.Primary != null && entry.Primary.weaponDefinition != null ? entry.Primary.weaponDefinition.level : 0;
     }
     public bool EquipOffHand(OffHandDefinitionSO def)
     {

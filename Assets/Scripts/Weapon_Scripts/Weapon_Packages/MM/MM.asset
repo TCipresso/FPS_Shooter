@@ -29,7 +29,7 @@ MonoBehaviour:
   baseAccuracy: 1
   bloomPerShot: 0.5
   maxBloom: 4
-  bloomDecaySpeed: 3
+  bloomDecaySpeed: 5
   bulletType: 0
   trailPrefab: {fileID: 7533938775617344793, guid: 5fdbe00ae02ad624bb45ad9bdb2038fe, type: 3}
   trailPoolKey: BulletTrail
@@ -47,11 +47,13 @@ MonoBehaviour:
   explosionEffectDuration: 2
   explosionSelfKnockback: 18
   explosionKnockbackUpBias: 0.6
-  maxLevel: 5
+  maxLevel: 100
+  level: 1
+  currentXP: 0
+  baseXPRequired: 100
+  xpGrowthRate: 1.25
   packedMaterial: {fileID: 2100000, guid: 0eff55e17c1592e47bf7d85524e225f3, type: 2}
-  levelTintColors:
-  - {r: 1, g: 0, b: 0, a: 0}
-  - {r: 0.06568074, g: 1, b: 0, a: 0}
-  - {r: 0.9278021, g: 0, b: 1, a: 0}
-  - {r: 0.082006454, g: 0, b: 1, a: 0}
   tintPropertyName: _BaseColor
+  tintHueCycleLength: 10
+  tintSaturation: 0.85
+  tintValue: 1

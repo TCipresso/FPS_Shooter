@@ -217,7 +217,7 @@ public class ProjectileBase : MonoBehaviour
                 }
                 else
                 {
-                    directZombie.TakeDamage(owner.ApplyCrit(damage), owner.OwnerStats, 1f, normal, 1f);
+                    directZombie.TakeDamage(owner.ApplyCrit(damage), owner.OwnerStats, 1f, normal, 1f, "", owner);
                     directZombie.hitFlash?.Flash(false);
                     if (HitMarkerPool.Instance != null)
                         HitMarkerPool.Instance.Spawn(point, false);

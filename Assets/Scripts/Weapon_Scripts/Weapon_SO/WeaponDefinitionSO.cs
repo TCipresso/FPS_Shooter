@@ -72,7 +72,28 @@ public class WeaponDefinitionSO : ScriptableObject
     public float explosionKnockbackUpBias = 0.6f;
 
     [Header("Leveling")]
-    public int maxLevel = 5;
+    public int maxLevel = 100;
+    public int level = 1;
+    public float currentXP = 0f;
+    public float baseXPRequired = 100f;
+    public float xpGrowthRate = 1.25f;
+
+    public void AddXP(float amount)
+    {
+        if (level >= maxLevel) return;
+        currentXP += amount;
+        while (currentXP >= GetXPToNextLevel() && level < maxLevel)
+        {
+            currentXP -= GetXPToNextLevel();
+            level++;
+            Debug.Log($"[{weaponName}] Leveled up! Now level {level}/{maxLevel}");
+        }
+    }
+
+    public float GetXPToNextLevel()
+    {
+        return baseXPRequired * Mathf.Pow(xpGrowthRate, level - 1);
+    }
 
     /*
     [Header("Leveling (Pack-a-Punch style)")]
@@ -89,7 +110,9 @@ public class WeaponDefinitionSO : ScriptableObject
     [Header("Skin (Level 2+)")]
     [Tooltip("Applied to every material slot on the weapon's skinRenderer once level > 1. Level 1 keeps the original placeholder materials untouched.")]
     public Material packedMaterial;
-    [Tooltip("Index 0 = level 2 tint, index 1 = level 3 tint, etc.")]
-    public Color[] levelTintColors;
     public string tintPropertyName = "_BaseColor";
+    [Tooltip("How many levels it takes to complete one full trip around the color wheel before repeating.")]
+    public float tintHueCycleLength = 100f;
+    [Range(0f, 1f)] public float tintSaturation = 0.85f;
+    [Range(0f, 1f)] public float tintValue = 1f;
 }

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-
 [System.Serializable]
 public class WeaponEntry
 {
@@ -9,6 +8,5 @@ public class WeaponEntry
     public GameObject weaponRoot;
     [Tooltip("Usually just one WeaponBase. For dual-wield weapons (e.g. Mac-10 left + right), add both here - level, stats, and skin apply to all of them together.")]
     public List<WeaponBase> weaponBases = new List<WeaponBase>();
-    [HideInInspector] public int level = 1;
     public WeaponBase Primary => weaponBases.Count > 0 ? weaponBases[0] : null;
 }
