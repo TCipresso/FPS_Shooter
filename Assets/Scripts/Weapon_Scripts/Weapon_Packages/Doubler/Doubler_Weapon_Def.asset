@@ -14,15 +14,46 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinitionSO
   weaponName: Doubler
   category: 3
+  dropPrefab: {fileID: 0}
+  damage: 500
+  range: 50
+  swarmHitRadius: 0.4
+  isAutomatic: 0
+  rpm: 300
+  critChance: 0.1
+  critMultiplier: 2
+  isShotgun: 1
+  pelletCount: 8
+  pelletSpreadAngle: 5
+  flatSpread: 0
+  baseAccuracy: 1
+  bloomPerShot: 0.5
+  maxBloom: 4
+  bloomDecaySpeed: 3
+  bulletType: 0
+  trailPrefab: {fileID: 7533938775617344793, guid: 5fdbe00ae02ad624bb45ad9bdb2038fe, type: 3}
+  trailPoolKey: BulletTrail
+  trailPoolSize: 10
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 15359
+  impactEffectOverride: {fileID: 6350203987023523720, guid: 1d1898ccac54b1147baf916f234e27a6, type: 3}
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 40
+  projectileGravityScale: 0
+  isExplosive: 0
+  explosionRadius: 4
+  explosionEffectPrefab: {fileID: 0}
+  explosionEffectDuration: 2
+  explosionSelfKnockback: 18
+  explosionKnockbackUpBias: 0.6
   maxLevel: 5
-  damageGrowthPerLevel: 0.1
-  rpmGrowthPerLevel: 0.1
-  rangeGrowthPerLevel: 0.1
-  powerUpDurationPerLevel: 10
+  level: 1
+  currentXP: 0
+  baseXPRequired: 100
+  xpGrowthRate: 1.25
   packedMaterial: {fileID: 2100000, guid: c1d0524384fed3a41b49a0f41bdd18ac, type: 2}
-  levelTintColors:
-  - {r: 1, g: 0, b: 0, a: 0}
-  - {r: 0.0126776695, g: 1, b: 0, a: 0}
-  - {r: 0.74963903, g: 0, b: 1, a: 0}
-  - {r: 0, g: 0.20360231, b: 1, a: 0}
   tintPropertyName: _GlowColor
+  tintHueCycleLength: 100
+  tintSaturation: 0.85
+  tintValue: 1

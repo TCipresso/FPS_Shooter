@@ -78,16 +78,30 @@ public class WeaponDefinitionSO : ScriptableObject
     public float baseXPRequired = 100f;
     public float xpGrowthRate = 1.25f;
 
-    public void AddXP(float amount)
+    [Header("Evolutions")]
+    [Tooltip("Every X levels, the draft offers a pick from evolutionPool instead of a normal stat upgrade.")]
+    public int evolutionInterval = 20;
+    public System.Collections.Generic.List<WeaponEvolutionSO> evolutionPool = new System.Collections.Generic.List<WeaponEvolutionSO>();
+    [System.NonSerialized] public System.Collections.Generic.List<WeaponEvolutionSO> usedEvolutions = new System.Collections.Generic.List<WeaponEvolutionSO>();
+
+    public int AddXP(float amount)
     {
-        if (level >= maxLevel) return;
+        if (level >= maxLevel) return 0;
         currentXP += amount;
+        int levelsGained = 0;
         while (currentXP >= GetXPToNextLevel() && level < maxLevel)
         {
             currentXP -= GetXPToNextLevel();
             level++;
+            levelsGained++;
             Debug.Log($"[{weaponName}] Leveled up! Now level {level}/{maxLevel}");
         }
+        return levelsGained;
+    }
+
+    public bool IsEvolutionLevel(int atLevel)
+    {
+        return evolutionInterval > 0 && atLevel % evolutionInterval == 0;
     }
 
     public float GetXPToNextLevel()

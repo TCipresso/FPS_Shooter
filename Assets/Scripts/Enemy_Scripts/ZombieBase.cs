@@ -329,8 +329,10 @@ public abstract class ZombieBase : MonoBehaviour
             int damageDealt = kvp.Value;
             float proportion = (float)damageDealt / maxHealth;
             float xpAwarded = xpBounty * proportion;
-            weapon.weaponDefinition.AddXP(xpAwarded);
+            int levelsGained = weapon.weaponDefinition.AddXP(xpAwarded);
             weapon.RefreshWeaponSkin();
+            if (levelsGained > 0 && WeaponLevelUpDraftUI.Instance != null)
+                WeaponLevelUpDraftUI.Instance.Show(weapon);
         }
         if (verboseLogging) Debug.Log($"[{gameObject.name}] Died.");
         if (KillMarkerPool.Instance != null)

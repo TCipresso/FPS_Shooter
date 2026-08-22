@@ -1,0 +1,231 @@
+using UnityEngine;
+using System.Collections.Generic;
+using System;
+public class WeaponLevelUpDraftUI : MonoBehaviour
+{
+    public static WeaponLevelUpDraftUI Instance { get; private set; }
+    [Header("Setup")]
+    public CanvasGroup panelGroup;
+    public Transform cardParent;
+    public WeaponUpgradeCardUI cardPrefab;
+    public MenuUIHelper menuHelper;
+    [Header("Stat Upgrade Pool")]
+    public List<WeaponStatUpgradeSO> statUpgradePool = new List<WeaponStatUpgradeSO>();
+    [Header("Evolution Visual")]
+    public Color evolutionCardColor = new Color(1f, 0.75f, 0.1f);
+    [Header("Draft")]
+    public int cardsToShow = 3;
+    public bool evolutionsEnabled = false;
+    [Header("Visuals")]
+    public float fadeSpeed = 8f;
+    public float spawnScaleTime = 0.25f;
+    public bool overshootBounce = true;
+    struct DraftCardEntry
+    {
+        public string title;
+        public string description;
+        public Sprite icon;
+        public Color color;
+        public Action onPicked;
+    }
+    readonly List<WeaponUpgradeCardUI> spawned = new List<WeaponUpgradeCardUI>();
+    bool fadingIn, fadingOut, isOpen;
+    Coroutine scaleRoutine;
+    float previousTimeScale = 1f;
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        if (panelGroup)
+        {
+            panelGroup.alpha = 0f;
+            panelGroup.interactable = false;
+            panelGroup.blocksRaycasts = false;
+        }
+    }
+    void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+    public void Show(WeaponBase weapon)
+    {
+        if (!panelGroup || !cardPrefab || !cardParent || weapon == null || weapon.weaponDefinition == null) return;
+        if (isOpen) return;
+        List<DraftCardEntry> picks = evolutionsEnabled && weapon.weaponDefinition.IsEvolutionLevel(weapon.weaponDefinition.level)
+            ? BuildEvolutionDraft(weapon)
+            : BuildStatDraft(weapon);
+        if (picks == null || picks.Count == 0) return;
+        isOpen = true;
+        previousTimeScale = Time.timeScale;
+        Time.timeScale = 0f;
+        if (menuHelper != null) menuHelper.EnterDraftState();
+        fadingOut = false;
+        fadingIn = true;
+        panelGroup.interactable = true;
+        panelGroup.blocksRaycasts = true;
+        ClearCards();
+        for (int i = 0; i < picks.Count; i++)
+        {
+            DraftCardEntry entry = picks[i];
+            WeaponUpgradeCardUI card = Instantiate(cardPrefab, cardParent);
+            card.transform.localScale = Vector3.zero;
+            card.transform.SetSiblingIndex(i);
+            card.Setup(entry.title, entry.description, entry.icon, entry.color, () =>
+            {
+                entry.onPicked?.Invoke();
+                CloseDraft();
+            });
+            spawned.Add(card);
+        }
+        if (scaleRoutine != null) StopCoroutine(scaleRoutine);
+        scaleRoutine = StartCoroutine(ScaleAllCards());
+    }
+    List<DraftCardEntry> BuildStatDraft(WeaponBase weapon)
+    {
+        List<DraftCardEntry> result = new List<DraftCardEntry>(cardsToShow);
+        List<WeaponStatUpgradeSO> temp = new List<WeaponStatUpgradeSO>(statUpgradePool);
+        float luck = PlayerStats.Instance != null ? PlayerStats.Instance.luck : 0f;
+        WeaponDefinitionSO def = weapon.weaponDefinition;
+        for (int i = 0; i < cardsToShow && temp.Count > 0; i++)
+        {
+            int idx = UnityEngine.Random.Range(0, temp.Count);
+            WeaponStatUpgradeSO option = temp[idx];
+            temp.RemoveAt(idx);
+            if (option == null) continue;
+            UpgradeRarity rarity = UpgradeRarityHelper.RollRarity(luck);
+            float percent = option.GetRange(rarity).GetRandom();
+            Color color = UpgradeRarityHelper.GetColor(rarity);
+            string title = $"{option.displayName} +{percent * 100f:F0}%";
+            result.Add(new DraftCardEntry
+            {
+                title = title,
+                description = option.GetRolledDescription(percent),
+                icon = option.icon,
+                color = color,
+                onPicked = () => option.Apply(def, percent)
+            });
+        }
+        return result;
+    }
+    List<DraftCardEntry> BuildEvolutionDraft(WeaponBase weapon)
+    {
+        WeaponDefinitionSO def = weapon.weaponDefinition;
+        List<WeaponEvolutionSO> eligible = new List<WeaponEvolutionSO>();
+        foreach (WeaponEvolutionSO evo in def.evolutionPool)
+        {
+            if (evo != null && !def.usedEvolutions.Contains(evo))
+                eligible.Add(evo);
+        }
+        if (eligible.Count == 0)
+            return BuildStatDraft(weapon);
+        List<DraftCardEntry> result = new List<DraftCardEntry>(cardsToShow);
+        for (int i = 0; i < cardsToShow && eligible.Count > 0; i++)
+        {
+            int idx = UnityEngine.Random.Range(0, eligible.Count);
+            WeaponEvolutionSO evo = eligible[idx];
+            eligible.RemoveAt(idx);
+            result.Add(new DraftCardEntry
+            {
+                title = evo.displayName,
+                description = evo.description,
+                icon = evo.icon,
+                color = evolutionCardColor,
+                onPicked = () =>
+                {
+                    evo.Apply(weapon);
+                    def.usedEvolutions.Add(evo);
+                }
+            });
+        }
+        return result;
+    }
+    public void CloseDraft()
+    {
+        if (!isOpen) return;
+        isOpen = false;
+        Time.timeScale = previousTimeScale;
+        if (menuHelper != null) menuHelper.ExitDraftState();
+        fadingIn = false;
+        fadingOut = true;
+        panelGroup.interactable = false;
+        panelGroup.blocksRaycasts = false;
+        if (scaleRoutine != null)
+        {
+            StopCoroutine(scaleRoutine);
+            scaleRoutine = null;
+        }
+    }
+    void ClearCards()
+    {
+        for (int i = 0; i < spawned.Count; i++)
+        {
+            if (spawned[i] != null)
+                Destroy(spawned[i].gameObject);
+        }
+        spawned.Clear();
+    }
+    void Update()
+    {
+        if (!panelGroup) return;
+        if (fadingIn)
+        {
+            panelGroup.alpha = Mathf.Lerp(panelGroup.alpha, 1f, fadeSpeed * Time.unscaledDeltaTime);
+            if (Mathf.Abs(panelGroup.alpha - 1f) < 0.01f)
+            {
+                panelGroup.alpha = 1f;
+                fadingIn = false;
+            }
+        }
+        else if (fadingOut)
+        {
+            panelGroup.alpha = Mathf.Lerp(panelGroup.alpha, 0f, fadeSpeed * Time.unscaledDeltaTime);
+            if (panelGroup.alpha < 0.01f)
+            {
+                panelGroup.alpha = 0f;
+                fadingOut = false;
+                ClearCards();
+            }
+        }
+    }
+    System.Collections.IEnumerator ScaleAllCards()
+    {
+        float t = 0f;
+        float overshoot = overshootBounce ? 1.06f : 1f;
+        while (t < 1f)
+        {
+            t += Time.unscaledDeltaTime / spawnScaleTime;
+            float s = Mathf.SmoothStep(0f, overshoot, t);
+            for (int i = 0; i < spawned.Count; i++)
+            {
+                if (spawned[i] != null)
+                    spawned[i].transform.localScale = Vector3.one * s;
+            }
+            yield return null;
+        }
+        if (overshootBounce)
+        {
+            float t2 = 0f;
+            while (t2 < 1f)
+            {
+                t2 += Time.unscaledDeltaTime / (spawnScaleTime * 0.6f);
+                float s = Mathf.SmoothStep(overshoot, 1f, t2);
+                for (int i = 0; i < spawned.Count; i++)
+                {
+                    if (spawned[i] != null)
+                        spawned[i].transform.localScale = Vector3.one * s;
+                }
+                yield return null;
+            }
+        }
+        for (int i = 0; i < spawned.Count; i++)
+        {
+            if (spawned[i] != null)
+                spawned[i].transform.localScale = Vector3.one;
+        }
+    }
+}

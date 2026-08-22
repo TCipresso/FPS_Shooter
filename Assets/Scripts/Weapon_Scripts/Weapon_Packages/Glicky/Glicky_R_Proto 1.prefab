@@ -6581,14 +6581,10 @@ MonoBehaviour:
   skinRenderer: {fileID: 7817131199433944132}
   muzzleFlash: {fileID: 6997977252838662778}
   casingEject: {fileID: 6120381729983854655}
-  bulletData: {fileID: 11400000, guid: 5bb6425b3383d22408b5e8d13fc0b5a9, type: 2}
+  weaponDefinition: {fileID: 0}
   audioSource: {fileID: 2652225648688392734}
   fireSound: {fileID: 8300000, guid: f1d018efce553ee41b014ecbb1456d94, type: 3}
   sounds: []
-  damage: 50
-  range: 9999
-  swarmHitRadius: 0.4
-  ragdollForceMultiplier: 1
   kickRotationX: -30
   kickRotationY: 2
   kickRotationZ: 5
@@ -6598,15 +6594,6 @@ MonoBehaviour:
   shakeMagnitude: 0.2
   shakeDuration: 0.08
   shakeFrequency: 30
-  isAutomatic: 1
-  rpm: 250
-  baseRpm: 0
-  critChance: 0.1
-  critMultiplier: 2
-  baseAccuracy: 0
-  bloomPerShot: 0.1
-  maxBloom: 4
-  bloomDecaySpeed: 3
   currentBloom: 0
   animator: {fileID: 4947352907323245095}
   walkStopDelay: 0.1

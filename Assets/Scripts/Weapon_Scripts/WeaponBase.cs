@@ -149,7 +149,7 @@ public abstract class WeaponBase : MonoBehaviour
     public virtual void Reload() { }
     bool TryFindNearestZombieAlongRay(Vector3 origin, Vector3 direction, float maxDistance, out ZombieBase zombie, out HitBox hitBox, out Vector3 hitPoint)
     {
-        float radius = weaponDefinition != null ? weaponDefinition.swarmHitRadius : 0.4f;
+        float radius = weaponDefinition != null ? weaponDefinition.swarmHitRadius : 0.5f;
         int hitCount = Physics.SphereCastNonAlloc(origin, radius, direction, swarmHitBuffer, maxDistance);
         ZombieBase closestZombie = null;
         HitBox closestHitBox = null;
