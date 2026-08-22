@@ -3,7 +3,6 @@ public enum WeaponUpgradeStatType
 {
     Damage,
     AttackSpeed,
-    Range,
     CritChance,
     CritMultiplier
 }
@@ -32,7 +31,6 @@ public class WeaponStatUpgradeSO : ScriptableObject
     {
         { WeaponUpgradeStatType.Damage, "Damage" },
         { WeaponUpgradeStatType.AttackSpeed, "Attack Speed" },
-        { WeaponUpgradeStatType.Range, "Range" },
         { WeaponUpgradeStatType.CritChance, "Crit Chance" },
         { WeaponUpgradeStatType.CritMultiplier, "Crit Multiplier" }
     };
@@ -52,11 +50,8 @@ public class WeaponStatUpgradeSO : ScriptableObject
             case WeaponUpgradeStatType.AttackSpeed:
                 def.rpm = def.rpm * (1f + percent);
                 break;
-            case WeaponUpgradeStatType.Range:
-                def.range = def.range * (1f + percent);
-                break;
             case WeaponUpgradeStatType.CritChance:
-                def.critChance = Mathf.Clamp01(def.critChance * (1f + percent));
+                def.critChance = Mathf.Clamp01(def.critChance + percent);
                 break;
             case WeaponUpgradeStatType.CritMultiplier:
                 def.critMultiplier = def.critMultiplier * (1f + percent);

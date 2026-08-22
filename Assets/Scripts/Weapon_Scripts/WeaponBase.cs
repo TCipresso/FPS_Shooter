@@ -55,7 +55,8 @@ public abstract class WeaponBase : MonoBehaviour
     public PlayerStats OwnerStats => playerStats;
     public int damage => weaponDefinition != null ? weaponDefinition.damage : 0;
     public bool isAutomatic => weaponDefinition != null && weaponDefinition.isAutomatic;
-    public float critMultiplier => playerStats != null ? playerStats.critMultiplier : (weaponDefinition != null ? weaponDefinition.critMultiplier : 1f);
+    public float critMultiplier => (weaponDefinition != null ? weaponDefinition.critMultiplier : 1f) + (playerStats != null ? playerStats.critMultiplier : 0f);
+    public float critChance => (weaponDefinition != null ? weaponDefinition.critChance : 0f) + (playerStats != null ? playerStats.critChance : 0f);
     public float FireInterval => 60f / Mathf.Max(currentRpm, 0.01f);
     protected virtual void Awake()
     {
@@ -149,7 +150,7 @@ public abstract class WeaponBase : MonoBehaviour
     public virtual void Reload() { }
     bool TryFindNearestZombieAlongRay(Vector3 origin, Vector3 direction, float maxDistance, out ZombieBase zombie, out HitBox hitBox, out Vector3 hitPoint)
     {
-        float radius = weaponDefinition != null ? weaponDefinition.swarmHitRadius : 0.5f;
+        float radius = weaponDefinition != null ? weaponDefinition.swarmHitRadius : 0.4f;
         int hitCount = Physics.SphereCastNonAlloc(origin, radius, direction, swarmHitBuffer, maxDistance);
         ZombieBase closestZombie = null;
         HitBox closestHitBox = null;
@@ -482,10 +483,8 @@ public abstract class WeaponBase : MonoBehaviour
     }
     public int ApplyCrit(int damage)
     {
-        float chance = playerStats != null ? playerStats.critChance : (weaponDefinition != null ? weaponDefinition.critChance : 0f);
-        float multiplier = playerStats != null ? playerStats.critMultiplier : (weaponDefinition != null ? weaponDefinition.critMultiplier : 1f);
-        if (Random.value <= chance)
-            return Mathf.RoundToInt(damage * multiplier);
+        if (Random.value <= critChance)
+            return Mathf.RoundToInt(damage * critMultiplier);
         return damage;
     }
     protected void AddBloom()
