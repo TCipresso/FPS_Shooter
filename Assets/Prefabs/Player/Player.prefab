@@ -4283,40 +4283,65 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponInventory
   weaponHolder: {fileID: 4975192303071148699}
   playerStats: {fileID: 40598621636638386}
-  ikHandler: {fileID: 0}
   input: {fileID: 1602806704120901037}
-  fireAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  nextWeaponAction: {fileID: -8062664436889712257, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  previousWeaponAction: {fileID: 2385371421625357174, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  startingWeapons:
-  - {fileID: 11400000, guid: 8b057809788b6ec4a81778b0670d1bc1, type: 2}
-  - {fileID: 11400000, guid: 70e69f58da8342644943f5c0d3dc3487, type: 2}
-  - {fileID: 11400000, guid: 9893a1614cd866d4dbff8faaa41af4b8, type: 2}
-  startingOffHand: {fileID: 0}
-  weapons:
-  - definition: {fileID: 11400000, guid: 8b057809788b6ec4a81778b0670d1bc1, type: 2}
-    weaponRoot: {fileID: 3843107763361408209}
-    weaponBases:
-    - {fileID: 8996368958374790986}
-  - definition: {fileID: 11400000, guid: 70e69f58da8342644943f5c0d3dc3487, type: 2}
-    weaponRoot: {fileID: 8324944651621652212}
-    weaponBases:
-    - {fileID: 3874891481337954684}
-  - definition: {fileID: 11400000, guid: 9893a1614cd866d4dbff8faaa41af4b8, type: 2}
-    weaponRoot: {fileID: 4148413334054088110}
-    weaponBases:
-    - {fileID: 3333029565891492467}
-  offHandItems:
-  - entryName: Can
-    definition: {fileID: 11400000, guid: 45b714e19e2df574fabbf0f5aae75728, type: 2}
-    offHandRoot: {fileID: 9032244197777205385}
-    offHandBases:
-    - {fileID: 970319939610005169}
-  - entryName: CellPhone
-    definition: {fileID: 11400000, guid: c65adfebf32486c4c925164ca5377f8b, type: 2}
-    offHandRoot: {fileID: 216387273021735633}
-    offHandBases:
-    - {fileID: 1769646862644728145}
+  rightFireAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  leftFireAction: {fileID: 0}
+  leftSwapAction: {fileID: 0}
+  rightSwapAction: {fileID: 0}
+  catalog:
+  - displayName: Glicky
+    weaponDefinition: {fileID: 11400000, guid: 8b057809788b6ec4a81778b0670d1bc1, type: 2}
+    offHandDefinition: {fileID: 0}
+    leftRoot: {fileID: 0}
+    leftWeapon: {fileID: 0}
+    leftOffHand: {fileID: 0}
+    rightRoot: {fileID: 3843107763361408209}
+    rightWeapon: {fileID: 8996368958374790986}
+    rightOffHand: {fileID: 0}
+  - displayName: Doubler
+    weaponDefinition: {fileID: 11400000, guid: 70e69f58da8342644943f5c0d3dc3487, type: 2}
+    offHandDefinition: {fileID: 0}
+    leftRoot: {fileID: 0}
+    leftWeapon: {fileID: 0}
+    leftOffHand: {fileID: 0}
+    rightRoot: {fileID: 8324944651621652212}
+    rightWeapon: {fileID: 3874891481337954684}
+    rightOffHand: {fileID: 0}
+  - displayName: Mini Macs
+    weaponDefinition: {fileID: 11400000, guid: 9893a1614cd866d4dbff8faaa41af4b8, type: 2}
+    offHandDefinition: {fileID: 0}
+    leftRoot: {fileID: 0}
+    leftWeapon: {fileID: 0}
+    leftOffHand: {fileID: 0}
+    rightRoot: {fileID: 4148413334054088110}
+    rightWeapon: {fileID: 3333029565891492467}
+    rightOffHand: {fileID: 0}
+  - displayName: Can
+    weaponDefinition: {fileID: 0}
+    offHandDefinition: {fileID: 11400000, guid: 45b714e19e2df574fabbf0f5aae75728, type: 2}
+    leftRoot: {fileID: 9032244197777205385}
+    leftWeapon: {fileID: 0}
+    leftOffHand: {fileID: 970319939610005169}
+    rightRoot: {fileID: 0}
+    rightWeapon: {fileID: 0}
+    rightOffHand: {fileID: 0}
+  - displayName: CellPhone
+    weaponDefinition: {fileID: 0}
+    offHandDefinition: {fileID: 11400000, guid: c65adfebf32486c4c925164ca5377f8b, type: 2}
+    leftRoot: {fileID: 216387273021735633}
+    leftWeapon: {fileID: 0}
+    leftOffHand: {fileID: 1769646862644728145}
+    rightRoot: {fileID: 0}
+    rightWeapon: {fileID: 0}
+    rightOffHand: {fileID: 0}
+  leftHand:
+    slot0: -1
+    slot1: -1
+    activeSlot: 0
+  rightHand:
+    slot0: 0
+    slot1: 1
+    activeSlot: 0
 --- !u!114 &3423140975808738288
 MonoBehaviour:
   m_ObjectHideFlags: 0
