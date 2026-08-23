@@ -1,343 +1,516 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+
 public class WeaponInventory : MonoBehaviour
 {
     [Header("References")]
     public Transform weaponHolder;
     public PlayerStats playerStats;
-    public IKWeaponHandler ikHandler;
     public FPSInput input;
+
     [Header("Input")]
-    public InputActionReference fireAction;
-    public InputActionReference nextWeaponAction;
-    public InputActionReference previousWeaponAction;
-    [Header("Starting Loadout")]
-    public List<WeaponDefinitionSO> startingWeapons = new List<WeaponDefinitionSO>();
-    public OffHandDefinitionSO startingOffHand;
-    [Header("Weapons (drag pre-placed, disabled weapon children here)")]
-    public List<WeaponEntry> weapons = new List<WeaponEntry>();
-    [Header("Off-Hand (drag pre-placed, disabled off-hand children here)")]
-    public List<OffHandEntry> offHandItems = new List<OffHandEntry>();
-    private readonly List<WeaponEntry> equippedWeapons = new List<WeaponEntry>();
-    private Dictionary<WeaponDefinitionSO, WeaponEntry> weaponLookup = new Dictionary<WeaponDefinitionSO, WeaponEntry>();
-    private int activeIndex = -1;
-    private OffHandEntry activeOffHand;
-    private Dictionary<OffHandDefinitionSO, OffHandEntry> offHandLookup = new Dictionary<OffHandDefinitionSO, OffHandEntry>();
+    [Tooltip("Fires the active right-hand item. Typically left click / Attack.")]
+    public InputActionReference rightFireAction;
+    [Tooltip("Fires the active left-hand item. Typically right click.")]
+    public InputActionReference leftFireAction;
+    public InputActionReference leftSwapAction;
+    public InputActionReference rightSwapAction;
+
+    [Header("Catalog (every pre-placed left/right item on the player)")]
+    public List<HandCatalogEntry> catalog = new List<HandCatalogEntry>();
+
+    [Header("Loadouts (catalog indices, -1 = empty). Hard cap: 2 per hand.")]
+    public HandLoadout leftHand = new HandLoadout();
+    public HandLoadout rightHand = new HandLoadout();
+
+    InputAction resolvedRightFire;
+    InputAction resolvedLeftFire;
+    InputAction resolvedLeftSwap;
+    InputAction resolvedRightSwap;
+
     void Awake()
     {
-        weaponLookup.Clear();
-        foreach (WeaponEntry entry in weapons)
-        {
-            if (entry == null || entry.weaponRoot == null || entry.definition == null
-                || entry.weaponBases == null || entry.weaponBases.Count == 0)
-            {
-                Debug.LogWarning("[WeaponInventory] Skipping invalid WeaponEntry.");
-                continue;
-            }
-            weaponLookup[entry.definition] = entry;
-        }
-        offHandLookup.Clear();
-        foreach (OffHandEntry entry in offHandItems)
-        {
-            if (entry == null || entry.offHandRoot == null || entry.definition == null
-                || entry.offHandBases == null || entry.offHandBases.Count == 0)
-            {
-                Debug.LogWarning("[WeaponInventory] Skipping invalid OffHandEntry.");
-                continue;
-            }
-            offHandLookup[entry.definition] = entry;
-        }
-        if (fireAction != null) fireAction.action.Enable();
-        if (nextWeaponAction != null) nextWeaponAction.action.Enable();
-        if (previousWeaponAction != null) previousWeaponAction.action.Enable();
+        resolvedRightFire = ResolveAction(rightFireAction, "Attack");
+        resolvedLeftFire = ResolveAction(leftFireAction, "LeftAttack");
+        resolvedLeftSwap = ResolveAction(leftSwapAction, "LeftSwap");
+        resolvedRightSwap = ResolveAction(rightSwapAction, "RightSwap");
+        resolvedRightFire?.Enable();
+        resolvedLeftFire?.Enable();
+        resolvedLeftSwap?.Enable();
+        resolvedRightSwap?.Enable();
     }
+
     void OnDisable()
     {
-        if (fireAction != null) fireAction.action.Disable();
-        if (nextWeaponAction != null) nextWeaponAction.action.Disable();
-        if (previousWeaponAction != null) previousWeaponAction.action.Disable();
+        resolvedRightFire?.Disable();
+        resolvedLeftFire?.Disable();
+        resolvedLeftSwap?.Disable();
+        resolvedRightSwap?.Disable();
     }
+
     void Start()
     {
-        foreach (WeaponEntry entry in weapons)
-        {
-            if (entry?.weaponRoot == null) continue;
-            entry.weaponRoot.SetActive(false);
-            foreach (WeaponBase wb in entry.weaponBases)
-            {
-                if (wb == null) continue;
-                if (BulletPool.Instance != null && wb.weaponDefinition != null && wb.weaponDefinition.trailPrefab != null)
-                    BulletPool.Instance.EnsurePoolSize(wb.weaponDefinition.trailPoolKey, wb.weaponDefinition.trailPrefab.gameObject, wb.weaponDefinition.trailPoolSize);
-                if (ProjectilePool.Instance != null && wb.weaponDefinition != null
-                    && wb.weaponDefinition.bulletType == BulletType.Projectile && wb.weaponDefinition.projectilePrefab != null)
-                    ProjectilePool.Instance.EnsurePoolSize(wb.weaponDefinition.projectilePrefab, 8);
-            }
-        }
-        foreach (OffHandEntry entry in offHandItems)
-        {
-            if (entry?.offHandRoot == null) continue;
-            entry.offHandRoot.SetActive(false);
-        }
-        InitializeStartingLoadout();
+        DisableAllCatalogRoots();
+        EnsureWeaponPools();
+        ResolveStartingActiveSlot(leftHand, HandSide.Left);
+        ResolveStartingActiveSlot(rightHand, HandSide.Right);
+        EnableActive(leftHand, HandSide.Left);
+        EnableActive(rightHand, HandSide.Right);
     }
-    void InitializeStartingLoadout()
-    {
-        equippedWeapons.Clear();
-        activeIndex = -1;
-        foreach (WeaponDefinitionSO def in startingWeapons)
-        {
-            if (def == null) continue;
-            if (!weaponLookup.TryGetValue(def, out WeaponEntry entry))
-            {
-                Debug.LogWarning($"[WeaponInventory] Starting weapon {def.weaponName} has no matching WeaponEntry.");
-                continue;
-            }
-            if (!equippedWeapons.Contains(entry))
-                equippedWeapons.Add(entry);
-        }
-        if (equippedWeapons.Count > 0)
-            EquipIndex(0);
-        else
-            Debug.LogWarning("[WeaponInventory] No starting weapons assigned.");
-        if (startingOffHand != null)
-            EquipOffHand(startingOffHand);
-    }
+
     void Update()
     {
-        if (nextWeaponAction != null && nextWeaponAction.action.WasPressedThisFrame())
-            SwapNext();
-        if (previousWeaponAction != null && previousWeaponAction.action.WasPressedThisFrame())
-            SwapPrevious();
-        if (input != null && input.MeleePressed)
-            GetActiveOffHandBase()?.Melee();
-        if (fireAction == null) return;
-        List<WeaponBase> activeBases = GetActiveWeaponBases();
-        if (activeBases == null || activeBases.Count == 0) return;
-        WeaponBase primary = activeBases[0];
-        bool shouldFire = primary != null && primary.isAutomatic
-            ? fireAction.action.IsPressed()
-            : fireAction.action.WasPressedThisFrame();
-        if (shouldFire)
-        {
-            foreach (WeaponBase wb in activeBases)
-                wb?.Shoot();
-        }
-        else if (fireAction.action.WasReleasedThisFrame())
-        {
-            foreach (WeaponBase wb in activeBases)
-                wb?.StopRecoil();
-        }
+        if (WasPressed(resolvedLeftSwap))
+            SwapHand(leftHand, HandSide.Left);
+        if (WasPressed(resolvedRightSwap))
+            SwapHand(rightHand, HandSide.Right);
+
+        TickFire(resolvedRightFire, HandSide.Right);
+        TickFire(resolvedLeftFire, HandSide.Left);
     }
+
+    public void SwapLeft()
+    {
+        SwapHand(leftHand, HandSide.Left);
+    }
+
+    public void SwapRight()
+    {
+        SwapHand(rightHand, HandSide.Right);
+    }
+
     public void SwapWeapon()
     {
-        SwapNext();
+        SwapRight();
     }
-    public void SwapNext()
+
+    void SwapHand(HandLoadout hand, HandSide side)
     {
-        if (equippedWeapons.Count <= 1) return;
-        int next = (activeIndex + 1) % equippedWeapons.Count;
-        EquipIndex(next);
+        if (hand == null) return;
+        int otherSlot = 1 - hand.activeSlot;
+        if (!IsSlotUsable(hand, hand.activeSlot, side)) return;
+        if (!IsSlotUsable(hand, otherSlot, side)) return;
+
+        DisableActive(hand, side);
+        hand.activeSlot = otherSlot;
+        EnableActive(hand, side);
     }
-    public void SwapPrevious()
+
+    void TickFire(InputAction action, HandSide side)
     {
-        if (equippedWeapons.Count <= 1) return;
-        int previous = (activeIndex - 1 + equippedWeapons.Count) % equippedWeapons.Count;
-        EquipIndex(previous);
+        if (action == null) return;
+        WeaponBase weapon = GetActiveWeapon(side);
+        if (weapon == null) return;
+
+        bool shouldFire = weapon.isAutomatic
+            ? action.IsPressed()
+            : action.WasPressedThisFrame();
+
+        if (shouldFire)
+            weapon.Shoot();
+        else if (action.WasReleasedThisFrame())
+            weapon.StopRecoil();
     }
-    public void EquipIndex(int index)
+
+    void ResolveStartingActiveSlot(HandLoadout hand, HandSide side)
     {
-        if (index < 0 || index >= equippedWeapons.Count) return;
-        activeIndex = index;
-        SetActiveEntry(equippedWeapons[index]);
+        if (IsSlotUsable(hand, hand.activeSlot, side)) return;
+        if (IsSlotUsable(hand, 0, side))
+        {
+            hand.activeSlot = 0;
+            return;
+        }
+        if (IsSlotUsable(hand, 1, side))
+        {
+            hand.activeSlot = 1;
+            return;
+        }
+        hand.activeSlot = 0;
     }
-    public int AddWeapon(WeaponDefinitionSO def)
+
+    bool IsSlotUsable(HandLoadout hand, int slotIndex, HandSide side)
+    {
+        if (hand == null) return false;
+        return IsCatalogUsable(hand.GetSlot(slotIndex), side);
+    }
+
+    bool IsCatalogUsable(int catalogIndex, HandSide side)
+    {
+        HandCatalogEntry entry = GetCatalogEntry(catalogIndex);
+        return entry != null && entry.HasSide(side);
+    }
+
+    public HandCatalogEntry GetCatalogEntry(int index)
+    {
+        if (index < 0 || index >= catalog.Count) return null;
+        return catalog[index];
+    }
+
+    public int FindCatalogIndex(WeaponDefinitionSO def)
     {
         if (def == null) return -1;
-        if (!weaponLookup.TryGetValue(def, out WeaponEntry entry))
+        for (int i = 0; i < catalog.Count; i++)
         {
-            Debug.LogWarning($"[WeaponInventory] Cannot add weapon, no entry for {def.weaponName}.");
-            return -1;
+            if (catalog[i] != null && catalog[i].weaponDefinition == def)
+                return i;
         }
-        return AddEntry(entry);
+        return -1;
     }
-    public int AddWeaponByIndex(int index)
+
+    public int FindCatalogIndex(OffHandDefinitionSO def)
     {
-        if (index < 0 || index >= weapons.Count)
+        if (def == null) return -1;
+        for (int i = 0; i < catalog.Count; i++)
         {
-            Debug.LogWarning($"[WeaponInventory] AddWeaponByIndex: index {index} out of range.");
-            return -1;
+            if (catalog[i] != null && catalog[i].offHandDefinition == def)
+                return i;
         }
-        return AddEntry(weapons[index]);
+        return -1;
     }
-    int AddEntry(WeaponEntry entry)
+
+    public bool TryAssignToHand(int catalogIndex, HandSide side)
     {
-        if (entry?.weaponRoot == null || entry.definition == null) return -1;
-        int existingIndex = equippedWeapons.IndexOf(entry);
-        if (existingIndex >= 0)
+        if (!IsCatalogUsable(catalogIndex, side)) return false;
+        HandLoadout hand = GetHand(side);
+        if (HandContains(hand, catalogIndex)) return true;
+
+        int empty = FirstEmptySlot(hand);
+        if (empty < 0) return false;
+
+        bool wasEmpty = !IsSlotUsable(hand, hand.activeSlot, side);
+        hand.SetSlot(empty, catalogIndex);
+        if (wasEmpty)
         {
-            EquipIndex(existingIndex);
-            return existingIndex;
+            hand.activeSlot = empty;
+            EnableActive(hand, side);
         }
-        equippedWeapons.Add(entry);
-        int newIndex = equippedWeapons.Count - 1;
-        EquipIndex(newIndex);
-        return newIndex;
-    }
-    public void RemoveWeapon(WeaponDefinitionSO def)
-    {
-        if (def == null) return;
-        if (!weaponLookup.TryGetValue(def, out WeaponEntry entry)) return;
-        RemoveEntry(entry);
-    }
-    public void RemoveWeaponAt(int index)
-    {
-        if (index < 0 || index >= equippedWeapons.Count) return;
-        RemoveEntry(equippedWeapons[index]);
-    }
-    void RemoveEntry(WeaponEntry entry)
-    {
-        int index = equippedWeapons.IndexOf(entry);
-        if (index < 0) return;
-        bool wasActive = index == activeIndex;
-        equippedWeapons.RemoveAt(index);
-        if (entry.weaponRoot != null)
-            entry.weaponRoot.SetActive(false);
-        if (equippedWeapons.Count == 0)
-        {
-            activeIndex = -1;
-            return;
-        }
-        if (wasActive)
-        {
-            int newIndex = Mathf.Clamp(index, 0, equippedWeapons.Count - 1);
-            EquipIndex(newIndex);
-        }
-        else if (index < activeIndex)
-        {
-            activeIndex--;
-        }
-    }
-    void SetAllWeaponsInactive()
-    {
-        foreach (WeaponEntry w in weapons)
-        {
-            if (w?.weaponRoot != null)
-                w.weaponRoot.SetActive(false);
-        }
-    }
-    public void LevelUpWeapon(WeaponDefinitionSO def)
-    {
-        if (!weaponLookup.TryGetValue(def, out WeaponEntry entry))
-        {
-            Debug.LogWarning($"[WeaponInventory] Cannot level up, no entry for {def?.weaponName}.");
-            return;
-        }
-        WeaponDefinitionSO liveDef = entry.Primary != null ? entry.Primary.weaponDefinition : null;
-        if (liveDef == null) return;
-        liveDef.level = Mathf.Min(liveDef.level + 1, liveDef.maxLevel);
-        foreach (WeaponBase wb in entry.weaponBases)
-            wb?.RefreshWeaponSkin();
-    }
-    void SetActiveEntry(WeaponEntry entry)
-    {
-        if (entry?.weaponRoot == null) return;
-        foreach (WeaponEntry w in weapons)
-        {
-            if (w?.weaponRoot != null)
-                w.weaponRoot.SetActive(false);
-        }
-        entry.weaponRoot.SetActive(true);
-        ApplyLevel(entry);
-        WeaponBase primary = entry.Primary;
-        if (primary != null)
-            primary.LoadRecoilValues();
-        if (ikHandler != null)
-            ikHandler.UpdateIKTargets(entry.weaponRoot);
-    }
-    void ApplyLevel(WeaponEntry entry)
-    {
-        if (entry?.weaponBases == null || entry.definition == null) return;
-        foreach (WeaponBase wb in entry.weaponBases)
-        {
-            if (wb == null) continue;
-            wb.ApplyLevel(entry.definition);
-        }
-    }
-    public int ActiveIndex => activeIndex;
-    public int EquippedCount => equippedWeapons.Count;
-    public WeaponEntry GetEquippedAt(int index)
-    {
-        if (index < 0 || index >= equippedWeapons.Count) return null;
-        return equippedWeapons[index];
-    }
-    public bool HasWeapon(WeaponDefinitionSO def)
-    {
-        if (def == null) return false;
-        foreach (WeaponEntry entry in equippedWeapons)
-        {
-            if (entry != null && entry.definition == def)
-                return true;
-        }
-        return false;
-    }
-    public WeaponBase GetActiveWeaponBase()
-    {
-        if (activeIndex < 0 || activeIndex >= equippedWeapons.Count) return null;
-        return equippedWeapons[activeIndex]?.Primary;
-    }
-    public List<WeaponBase> GetActiveWeaponBases()
-    {
-        if (activeIndex < 0 || activeIndex >= equippedWeapons.Count) return null;
-        return equippedWeapons[activeIndex]?.weaponBases;
-    }
-    public int GetLevel(WeaponDefinitionSO def)
-    {
-        if (!weaponLookup.TryGetValue(def, out WeaponEntry entry)) return 0;
-        return entry.Primary != null && entry.Primary.weaponDefinition != null ? entry.Primary.weaponDefinition.level : 0;
-    }
-    public bool EquipOffHand(OffHandDefinitionSO def)
-    {
-        if (def == null) return false;
-        if (!offHandLookup.TryGetValue(def, out OffHandEntry entry))
-        {
-            Debug.LogWarning($"[WeaponInventory] Cannot equip off-hand, no entry for {def.offHandName}.");
-            return false;
-        }
-        SetActiveOffHandEntry(entry);
         return true;
     }
-    void SetActiveOffHandEntry(OffHandEntry entry)
+
+    public int AddWeapon(WeaponDefinitionSO def)
     {
-        if (entry?.offHandRoot == null) return;
-        if (activeOffHand != null && activeOffHand.offHandRoot != null)
+        int catalogIndex = FindCatalogIndex(def);
+        if (catalogIndex < 0)
         {
-            activeOffHand.Primary?.OnUnequip();
-            activeOffHand.offHandRoot.SetActive(false);
+            Debug.LogWarning($"[WeaponInventory] Cannot add weapon, no catalog entry for {def?.weaponName}.");
+            return -1;
         }
-        activeOffHand = entry;
-        entry.offHandRoot.SetActive(true);
-        entry.Primary?.OnEquip();
+        return AddCatalogIndex(catalogIndex);
     }
+
+    public int AddWeaponByIndex(int catalogIndex)
+    {
+        if (catalogIndex < 0 || catalogIndex >= catalog.Count)
+        {
+            Debug.LogWarning($"[WeaponInventory] AddWeaponByIndex: index {catalogIndex} out of range.");
+            return -1;
+        }
+        return AddCatalogIndex(catalogIndex);
+    }
+
+    int AddCatalogIndex(int catalogIndex)
+    {
+        HandCatalogEntry entry = GetCatalogEntry(catalogIndex);
+        if (entry == null) return -1;
+
+        if (entry.HasSide(HandSide.Right) && TryAssignToHand(catalogIndex, HandSide.Right))
+            return catalogIndex;
+        if (entry.HasSide(HandSide.Left) && TryAssignToHand(catalogIndex, HandSide.Left))
+            return catalogIndex;
+
+        Debug.LogWarning("[WeaponInventory] No empty compatible hand slot.");
+        return -1;
+    }
+
+    public void RemoveWeapon(WeaponDefinitionSO def)
+    {
+        int catalogIndex = FindCatalogIndex(def);
+        if (catalogIndex < 0) return;
+        ClearCatalogFromHands(catalogIndex);
+    }
+
+    public void RemoveWeaponAt(int catalogIndex)
+    {
+        ClearCatalogFromHands(catalogIndex);
+    }
+
+    public bool EquipOffHand(OffHandDefinitionSO def)
+    {
+        int catalogIndex = FindCatalogIndex(def);
+        if (catalogIndex < 0)
+        {
+            Debug.LogWarning($"[WeaponInventory] Cannot equip off-hand, no catalog entry for {def?.offHandName}.");
+            return false;
+        }
+        return AddCatalogIndex(catalogIndex) >= 0;
+    }
+
     public void UnequipOffHand()
     {
-        if (activeOffHand == null) return;
-        activeOffHand.Primary?.OnUnequip();
-        if (activeOffHand.offHandRoot != null)
-            activeOffHand.offHandRoot.SetActive(false);
-        activeOffHand = null;
+        UnequipOffHand(GetActiveOffHandBase());
     }
-    public bool HasOffHandEquipped => activeOffHand != null;
+
+    public void UnequipOffHand(OffHandBase instance)
+    {
+        if (instance == null) return;
+        TryUnequipInstance(leftHand, HandSide.Left, instance);
+        TryUnequipInstance(rightHand, HandSide.Right, instance);
+    }
+
+    void TryUnequipInstance(HandLoadout hand, HandSide side, OffHandBase instance)
+    {
+        for (int i = 0; i < HandLoadout.SlotCount; i++)
+        {
+            HandCatalogEntry entry = GetCatalogEntry(hand.GetSlot(i));
+            if (entry == null || entry.GetOffHand(side) != instance) continue;
+            DisableSlot(hand.GetSlot(i), side);
+            hand.SetSlot(i, -1);
+            if (hand.activeSlot == i)
+                EquipFirstUsable(hand, side);
+            return;
+        }
+    }
+
+    void ClearCatalogFromHands(int catalogIndex)
+    {
+        ClearCatalogFromHand(leftHand, HandSide.Left, catalogIndex);
+        ClearCatalogFromHand(rightHand, HandSide.Right, catalogIndex);
+    }
+
+    void ClearCatalogFromHand(HandLoadout hand, HandSide side, int catalogIndex)
+    {
+        bool clearedActive = false;
+        for (int i = 0; i < HandLoadout.SlotCount; i++)
+        {
+            if (hand.GetSlot(i) != catalogIndex) continue;
+            if (hand.activeSlot == i)
+                DisableSlot(catalogIndex, side);
+            hand.SetSlot(i, -1);
+            if (hand.activeSlot == i)
+                clearedActive = true;
+        }
+        if (clearedActive)
+            EquipFirstUsable(hand, side);
+    }
+
+    void EquipFirstUsable(HandLoadout hand, HandSide side)
+    {
+        for (int i = 0; i < HandLoadout.SlotCount; i++)
+        {
+            if (!IsSlotUsable(hand, i, side)) continue;
+            hand.activeSlot = i;
+            EnableActive(hand, side);
+            return;
+        }
+    }
+
+    void DisableAllCatalogRoots()
+    {
+        for (int i = 0; i < catalog.Count; i++)
+        {
+            HandCatalogEntry entry = catalog[i];
+            if (entry == null) continue;
+            if (entry.leftRoot != null)
+                entry.leftRoot.SetActive(false);
+            if (entry.rightRoot != null)
+                entry.rightRoot.SetActive(false);
+        }
+    }
+
+    void EnsureWeaponPools()
+    {
+        for (int i = 0; i < catalog.Count; i++)
+        {
+            HandCatalogEntry entry = catalog[i];
+            if (entry == null) continue;
+            EnsureWeaponPool(entry.leftWeapon);
+            EnsureWeaponPool(entry.rightWeapon);
+        }
+    }
+
+    void EnsureWeaponPool(WeaponBase wb)
+    {
+        if (wb == null || wb.weaponDefinition == null) return;
+        WeaponDefinitionSO def = wb.weaponDefinition;
+        if (BulletPool.Instance != null && def.trailPrefab != null)
+            BulletPool.Instance.EnsurePoolSize(def.trailPoolKey, def.trailPrefab.gameObject, def.trailPoolSize);
+        if (ProjectilePool.Instance != null && def.bulletType == BulletType.Projectile && def.projectilePrefab != null)
+            ProjectilePool.Instance.EnsurePoolSize(def.projectilePrefab, 8);
+    }
+
+    void EnableActive(HandLoadout hand, HandSide side)
+    {
+        if (!IsSlotUsable(hand, hand.activeSlot, side)) return;
+        EnableSlot(hand.GetSlot(hand.activeSlot), side);
+    }
+
+    void DisableActive(HandLoadout hand, HandSide side)
+    {
+        if (!IsSlotUsable(hand, hand.activeSlot, side)) return;
+        DisableSlot(hand.GetSlot(hand.activeSlot), side);
+    }
+
+    void EnableSlot(int catalogIndex, HandSide side)
+    {
+        HandCatalogEntry entry = GetCatalogEntry(catalogIndex);
+        if (entry == null || !entry.HasSide(side)) return;
+
+        if (entry.GetRoot(side) != null)
+            entry.GetRoot(side).SetActive(true);
+
+        WeaponBase weapon = entry.GetWeapon(side);
+        if (weapon != null)
+        {
+            ApplyLevel(weapon, entry.weaponDefinition);
+            weapon.LoadRecoilValues();
+        }
+
+        entry.GetOffHand(side)?.OnEquip();
+    }
+
+    void DisableSlot(int catalogIndex, HandSide side)
+    {
+        HandCatalogEntry entry = GetCatalogEntry(catalogIndex);
+        if (entry == null) return;
+        entry.GetOffHand(side)?.OnUnequip();
+        if (entry.GetRoot(side) != null)
+            entry.GetRoot(side).SetActive(false);
+    }
+
+    void ApplyLevel(WeaponBase weapon, WeaponDefinitionSO def)
+    {
+        if (weapon == null || def == null) return;
+        weapon.ApplyLevel(def);
+    }
+
+    public void LevelUpWeapon(WeaponDefinitionSO def)
+    {
+        int catalogIndex = FindCatalogIndex(def);
+        HandCatalogEntry entry = GetCatalogEntry(catalogIndex);
+        if (entry == null)
+        {
+            Debug.LogWarning($"[WeaponInventory] Cannot level up, no catalog entry for {def?.weaponName}.");
+            return;
+        }
+
+        WeaponDefinitionSO liveDef = entry.rightWeapon != null && entry.rightWeapon.weaponDefinition != null
+            ? entry.rightWeapon.weaponDefinition
+            : entry.leftWeapon != null ? entry.leftWeapon.weaponDefinition : null;
+        if (liveDef == null) return;
+
+        liveDef.level = Mathf.Min(liveDef.level + 1, liveDef.maxLevel);
+        if (entry.leftWeapon != null && entry.leftWeapon.weaponDefinition != null)
+            entry.leftWeapon.weaponDefinition.level = liveDef.level;
+        if (entry.rightWeapon != null && entry.rightWeapon.weaponDefinition != null)
+            entry.rightWeapon.weaponDefinition.level = liveDef.level;
+
+        entry.leftWeapon?.RefreshWeaponSkin();
+        entry.rightWeapon?.RefreshWeaponSkin();
+    }
+
+    public bool HasWeapon(WeaponDefinitionSO def)
+    {
+        int catalogIndex = FindCatalogIndex(def);
+        if (catalogIndex < 0) return false;
+        return HandContains(leftHand, catalogIndex) || HandContains(rightHand, catalogIndex);
+    }
+
+    public bool HasOffHandEquipped => GetActiveOffHandBase() != null;
+
     public bool HasOffHand(OffHandDefinitionSO def)
     {
-        return activeOffHand != null && activeOffHand.definition == def;
+        int catalogIndex = FindCatalogIndex(def);
+        if (catalogIndex < 0) return false;
+        return IsActiveCatalog(leftHand, HandSide.Left, catalogIndex)
+            || IsActiveCatalog(rightHand, HandSide.Right, catalogIndex);
     }
+
+    public WeaponBase GetActiveWeapon(HandSide side)
+    {
+        HandLoadout hand = GetHand(side);
+        HandCatalogEntry entry = GetCatalogEntry(hand.GetSlot(hand.activeSlot));
+        return entry != null ? entry.GetWeapon(side) : null;
+    }
+
+    public OffHandBase GetActiveOffHand(HandSide side)
+    {
+        HandLoadout hand = GetHand(side);
+        HandCatalogEntry entry = GetCatalogEntry(hand.GetSlot(hand.activeSlot));
+        return entry != null ? entry.GetOffHand(side) : null;
+    }
+
+    public WeaponBase GetActiveWeaponBase()
+    {
+        return GetActiveWeapon(HandSide.Right);
+    }
+
+    public List<WeaponBase> GetActiveWeaponBases()
+    {
+        List<WeaponBase> bases = new List<WeaponBase>(2);
+        WeaponBase right = GetActiveWeapon(HandSide.Right);
+        WeaponBase left = GetActiveWeapon(HandSide.Left);
+        if (right != null) bases.Add(right);
+        if (left != null) bases.Add(left);
+        return bases;
+    }
+
     public OffHandBase GetActiveOffHandBase()
     {
-        return activeOffHand?.Primary;
+        OffHandBase left = GetActiveOffHand(HandSide.Left);
+        if (left != null) return left;
+        return GetActiveOffHand(HandSide.Right);
     }
-    public OffHandEntry GetActiveOffHandEntry()
+
+    public int GetLevel(WeaponDefinitionSO def)
     {
-        return activeOffHand;
+        int catalogIndex = FindCatalogIndex(def);
+        HandCatalogEntry entry = GetCatalogEntry(catalogIndex);
+        if (entry == null) return 0;
+        WeaponBase weapon = entry.rightWeapon != null ? entry.rightWeapon : entry.leftWeapon;
+        return weapon != null && weapon.weaponDefinition != null ? weapon.weaponDefinition.level : 0;
+    }
+
+    public HandLoadout GetHand(HandSide side)
+    {
+        return side == HandSide.Left ? leftHand : rightHand;
+    }
+
+    bool HandContains(HandLoadout hand, int catalogIndex)
+    {
+        if (hand == null || catalogIndex < 0) return false;
+        return hand.slot0 == catalogIndex || hand.slot1 == catalogIndex;
+    }
+
+    bool IsActiveCatalog(HandLoadout hand, HandSide side, int catalogIndex)
+    {
+        return IsSlotUsable(hand, hand.activeSlot, side) && hand.GetSlot(hand.activeSlot) == catalogIndex;
+    }
+
+    int FirstEmptySlot(HandLoadout hand)
+    {
+        if (hand.slot0 < 0) return 0;
+        if (hand.slot1 < 0) return 1;
+        return -1;
+    }
+
+    InputAction ResolveAction(InputActionReference pref, string fallbackName)
+    {
+        if (pref != null && pref.action != null)
+            return pref.action;
+
+        InputActionAsset asset = null;
+        if (rightFireAction != null) asset = rightFireAction.asset;
+        else if (leftFireAction != null) asset = leftFireAction.asset;
+        else if (leftSwapAction != null) asset = leftSwapAction.asset;
+        else if (rightSwapAction != null) asset = rightSwapAction.asset;
+        if (asset == null) return null;
+
+        return asset.FindAction(fallbackName, false);
+    }
+
+    static bool WasPressed(InputAction action)
+    {
+        return action != null && action.WasPressedThisFrame();
     }
 }
