@@ -167,6 +167,33 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "leftattack",
+                    "type": "Button",
+                    "id": "79801dd2-3953-406c-9ef3-53b2eea4fac6",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "RightSwap",
+                    "type": "Button",
+                    "id": "34346991-72e1-4a10-81bf-3ca8d12d6e56",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "LeftSwap",
+                    "type": "Button",
+                    "id": "2a0225b0-f1f3-4542-a2cb-1d153f7b9e90",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -673,6 +700,39 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "Prev_Weapon",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "913f36d9-3ff7-4117-83c4-5e11b2939858",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "leftattack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a287d56b-e53f-4a26-b2c0-f7d5eb7efd49",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "RightSwap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3544fe46-16c0-4dc5-903a-3b242b6aed78",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "LeftSwap",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

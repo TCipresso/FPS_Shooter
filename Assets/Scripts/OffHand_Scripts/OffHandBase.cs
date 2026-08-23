@@ -155,8 +155,8 @@ public abstract class OffHandBase : MonoBehaviour
     {
         Debug.Log($"[OffHandBase] {gameObject.name} broke.");
 
-        if (weaponInventory != null)
-            weaponInventory.UnequipOffHand();
+        //if (weaponInventory != null)
+           // weaponInventory.UnequipOffHand();
     }
 
     protected void TriggerMeleeAnimation()

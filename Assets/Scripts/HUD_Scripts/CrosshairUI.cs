@@ -14,99 +14,95 @@ public class CrosshairUI : MonoBehaviour
     public float spreadLerpSpeed = 10f;
 
     [Header("Color")]
-    public Color normalColor = Color.white;
+    public Color rightColor = Color.white; // normal (+) crosshair
+    public Color leftColor = Color.red;    // diagonal (x) crosshair
 
     [Header("Weapon Reference")]
     public WeaponInventory weaponInventory;
 
     [Header("Weapon Recoil Follow")]
-    public WeaponRecoil weaponRecoil;
+    public WeaponRecoil rightWeaponRecoil;
+    public WeaponRecoil leftWeaponRecoil;
     [Range(0f, 1f)] public float recoilFollowStrength = 0.4f;
     public float recoilFollowPixelScale = 120f;
     public float recoilReturnSpeed = 40f;
 
-    // Runtime
-    float _currentSpread;
-    Vector2 _reticleOffset;
+    class CrosshairGroup
+    {
+        public float[] angles;
+        public RectTransform[] lineRTs = new RectTransform[4];
+        public Image[] lineImgs = new Image[4];
+        public float currentSpread;
+        public Vector2 reticleOffset;
+    }
 
-    RectTransform[] _lineRTs = new RectTransform[4];
-    Image[] _lineImgs = new Image[4];
+    // Right hand = normal crosshair (up/down/left/right)
+    readonly CrosshairGroup rightGroup = new CrosshairGroup { angles = new float[] { 0f, 90f, 180f, 270f } };
+    // Left hand = diagonal crosshair (rotated 45 degrees)
+    readonly CrosshairGroup leftGroup = new CrosshairGroup { angles = new float[] { 45f, 135f, 225f, 315f } };
 
     void Awake()
     {
-        BuildLines();
+        BuildGroup(rightGroup, "Right", rightColor);
+        BuildGroup(leftGroup, "Left", leftColor);
     }
 
-    void BuildLines()
+    void BuildGroup(CrosshairGroup group, string label, Color color)
     {
         for (int i = 0; i < 4; i++)
         {
-            GameObject go = new GameObject("CrosshairLine_" + i, typeof(RectTransform), typeof(Image));
+            GameObject go = new GameObject($"Crosshair_{label}_{i}", typeof(RectTransform), typeof(Image));
             go.transform.SetParent(transform, false);
             RectTransform rt = go.GetComponent<RectTransform>();
             rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
-            _lineRTs[i] = rt;
-            _lineImgs[i] = go.GetComponent<Image>();
-            _lineImgs[i].color = normalColor;
+            group.lineRTs[i] = rt;
+            group.lineImgs[i] = go.GetComponent<Image>();
+            group.lineImgs[i].color = color;
         }
     }
 
     void Update()
     {
         if (weaponInventory == null) return;
-        WeaponBase activeWeapon = weaponInventory.GetActiveWeaponBase();
-        if (activeWeapon == null) return;
 
-        float bloom = activeWeapon.currentBloom;
+        UpdateGroup(rightGroup, weaponInventory.GetActiveWeapon(WeaponInventory.Hand.Right), rightColor, rightWeaponRecoil);
+        UpdateGroup(leftGroup, weaponInventory.GetActiveWeapon(WeaponInventory.Hand.Left), leftColor, leftWeaponRecoil);
+    }
 
+    void UpdateGroup(CrosshairGroup group, WeaponBase activeWeapon, Color baseColor, WeaponRecoil recoil)
+    {
+        bool hasWeapon = activeWeapon != null;
+        float bloom = hasWeapon ? activeWeapon.currentBloom : 0f;
         float targetSpread = Mathf.Max(baseSpread + bloom * bloomSpreadMultiplier, minSpread);
+        group.currentSpread = Mathf.Lerp(group.currentSpread, targetSpread, spreadLerpSpeed * Time.deltaTime);
 
-        _currentSpread = Mathf.Lerp(_currentSpread, targetSpread, spreadLerpSpeed * Time.deltaTime);
-
-        ApplyLayout(_currentSpread);
-
-        // Recoil follow
         Vector2 targetOffset = Vector2.zero;
-        if (weaponRecoil != null)
+        if (recoil != null)
         {
-            Vector3 posKick = weaponRecoil.targetPosition - weaponRecoil.originalLocalPosition;
-            Vector2 posOffset = new Vector2(
-                posKick.x * recoilFollowPixelScale,
-                posKick.y * recoilFollowPixelScale
-            ) * recoilFollowStrength;
+            Vector3 posKick = recoil.targetPosition - recoil.originalLocalPosition;
+            Vector2 posOffset = new Vector2(posKick.x, posKick.y) * recoilFollowPixelScale * recoilFollowStrength;
 
-            Quaternion rotDelta = weaponRecoil.targetRotation * Quaternion.Inverse(weaponRecoil.originalLocalRotation);
+            Quaternion rotDelta = recoil.targetRotation * Quaternion.Inverse(recoil.originalLocalRotation);
             Vector3 forwardKicked = rotDelta * Vector3.forward;
-            Vector2 rotOffset = new Vector2(
-                forwardKicked.x * recoilFollowPixelScale,
-                forwardKicked.y * recoilFollowPixelScale
-            ) * recoilFollowStrength;
+            Vector2 rotOffset = new Vector2(forwardKicked.x, forwardKicked.y) * recoilFollowPixelScale * recoilFollowStrength;
 
             targetOffset = posOffset + rotOffset;
         }
-        _reticleOffset = Vector2.Lerp(_reticleOffset, targetOffset, recoilReturnSpeed * Time.deltaTime);
+        group.reticleOffset = Vector2.Lerp(group.reticleOffset, targetOffset, recoilReturnSpeed * Time.deltaTime);
 
-        foreach (Image img in _lineImgs)
-            img.color = Color.Lerp(img.color, normalColor, spreadLerpSpeed * Time.deltaTime);
-
-        foreach (RectTransform rt in _lineRTs)
-            rt.anchoredPosition += _reticleOffset;
-    }
-
-    void ApplyLayout(float spread)
-    {
-        (Vector2 pos, Vector2 size)[] configs =
-        {
-            (new Vector2(0f,  spread + armLength * 0.5f), new Vector2(lineThickness, armLength)),
-            (new Vector2(0f, -spread - armLength * 0.5f), new Vector2(lineThickness, armLength)),
-            (new Vector2(-spread - armLength * 0.5f, 0f), new Vector2(armLength, lineThickness)),
-            (new Vector2( spread + armLength * 0.5f, 0f), new Vector2(armLength, lineThickness)),
-        };
+        // fade out when that hand has no weapon equipped
+        Color targetColor = hasWeapon ? baseColor : new Color(baseColor.r, baseColor.g, baseColor.b, 0f);
 
         for (int i = 0; i < 4; i++)
         {
-            _lineRTs[i].anchoredPosition = configs[i].pos;
-            _lineRTs[i].sizeDelta = configs[i].size;
+            float angle = group.angles[i];
+            Vector2 dir = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
+
+            group.lineRTs[i].anchoredPosition = dir * (group.currentSpread + armLength * 0.5f) + group.reticleOffset;
+            group.lineRTs[i].localRotation = Quaternion.Euler(0f, 0f, angle - 90f);
+            group.lineRTs[i].sizeDelta = new Vector2(lineThickness, armLength);
+
+            group.lineImgs[i].color = Color.Lerp(group.lineImgs[i].color, targetColor, spreadLerpSpeed * Time.deltaTime);
         }
     }
 }

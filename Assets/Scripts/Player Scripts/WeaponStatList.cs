@@ -3,7 +3,7 @@ using TMPro;
 using System.Text;
 public class WeaponStatList : MonoBehaviour
 {
-    [Header("References")]
+    /*[Header("References")]
     public WeaponInventory weaponInventory;
     public TMP_Text statListText;
     StringBuilder sb = new StringBuilder();
@@ -28,5 +28,5 @@ public class WeaponStatList : MonoBehaviour
         sb.AppendLine($"Crit Mult (weapon): {def.critMultiplier:F2}x");
         sb.AppendLine($"Crit Mult (total): {weapon.critMultiplier:F2}x");
         statListText.text = sb.ToString();
-    }
+    }*/
 }
