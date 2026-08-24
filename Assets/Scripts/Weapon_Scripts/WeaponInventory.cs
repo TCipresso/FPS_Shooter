@@ -73,6 +73,8 @@ public class WeaponInventory : MonoBehaviour
                 continue;
             }
 
+            CreateRuntimeDefinition(entry);
+
             entry.weaponRoot.SetActive(false);
 
             Transform weaponTransform = entry.weaponRoot.transform;
@@ -82,9 +84,7 @@ public class WeaponInventory : MonoBehaviour
             {
                 if (rightWeaponLookup.ContainsKey(entry.definition))
                 {
-                    Debug.LogWarning(
-                        $"[WeaponInventory] Duplicate RIGHT weapon definition: {entry.definition.weaponName}"
-                    );
+                    Debug.LogWarning($"[WeaponInventory] Duplicate RIGHT weapon definition: {entry.definition.weaponName}");
                 }
                 else
                 {
@@ -96,9 +96,7 @@ public class WeaponInventory : MonoBehaviour
             {
                 if (leftWeaponLookup.ContainsKey(entry.definition))
                 {
-                    Debug.LogWarning(
-                        $"[WeaponInventory] Duplicate LEFT weapon definition: {entry.definition.weaponName}"
-                    );
+                    Debug.LogWarning($"[WeaponInventory] Duplicate LEFT weapon definition: {entry.definition.weaponName}");
                 }
                 else
                 {
@@ -107,9 +105,7 @@ public class WeaponInventory : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning(
-                    $"[WeaponInventory] {entry.weaponRoot.name} is not under the left or right weapon holder."
-                );
+                Debug.LogWarning($"[WeaponInventory] {entry.weaponRoot.name} is not under the left or right weapon holder.");
             }
         }
 
@@ -130,24 +126,26 @@ public class WeaponInventory : MonoBehaviour
     {
         foreach (WeaponEntry entry in weapons)
         {
-            if (entry == null || entry.definition == null)
+            if (entry == null || entry.runtimeDefinition == null)
                 continue;
 
-            if (BulletPool.Instance != null && entry.definition.trailPrefab != null)
+            WeaponDefinitionSO definition = entry.runtimeDefinition;
+
+            if (BulletPool.Instance != null && definition.trailPrefab != null)
             {
                 BulletPool.Instance.EnsurePoolSize(
-                    entry.definition.trailPoolKey,
-                    entry.definition.trailPrefab.gameObject,
-                    entry.definition.trailPoolSize
+                    definition.trailPoolKey,
+                    definition.trailPrefab.gameObject,
+                    definition.trailPoolSize
                 );
             }
 
             if (ProjectilePool.Instance != null &&
-                entry.definition.bulletType == BulletType.Projectile &&
-                entry.definition.projectilePrefab != null)
+                definition.bulletType == BulletType.Projectile &&
+                definition.projectilePrefab != null)
             {
                 ProjectilePool.Instance.EnsurePoolSize(
-                    entry.definition.projectilePrefab,
+                    definition.projectilePrefab,
                     8
                 );
             }
@@ -183,6 +181,45 @@ public class WeaponInventory : MonoBehaviour
             leftSwapAction.action.Disable();
     }
 
+    void CreateRuntimeDefinition(WeaponEntry entry)
+    {
+        entry.runtimeDefinition = Instantiate(entry.definition);
+
+        entry.runtimeDefinition.level = 1;
+        entry.runtimeDefinition.currentXP = 0f;
+        entry.runtimeDefinition.usedEvolutions.Clear();
+
+        foreach (WeaponBase weaponBase in entry.weaponBases)
+        {
+            if (weaponBase == null)
+                continue;
+
+            weaponBase.weaponDefinition = entry.runtimeDefinition;
+            weaponBase.ApplyLevel(entry.runtimeDefinition);
+            weaponBase.RefreshWeaponSkin();
+        }
+    }
+
+    void ResetWeaponProgress(WeaponEntry entry)
+    {
+        if (entry == null || entry.runtimeDefinition == null)
+            return;
+
+        entry.runtimeDefinition.level = 1;
+        entry.runtimeDefinition.currentXP = 0f;
+        entry.runtimeDefinition.usedEvolutions.Clear();
+
+        foreach (WeaponBase weaponBase in entry.weaponBases)
+        {
+            if (weaponBase == null)
+                continue;
+
+            weaponBase.weaponDefinition = entry.runtimeDefinition;
+            weaponBase.ApplyLevel(entry.runtimeDefinition);
+            weaponBase.RefreshWeaponSkin();
+        }
+    }
+
     void SetupHand(
         HandState hand,
         List<WeaponDefinitionSO> definitions,
@@ -202,17 +239,13 @@ public class WeaponInventory : MonoBehaviour
 
             if (hand.equipped.Count >= MaxPerHand)
             {
-                Debug.LogWarning(
-                    $"[WeaponInventory] {handType} hand already has {MaxPerHand} weapons."
-                );
+                Debug.LogWarning($"[WeaponInventory] {handType} hand already has {MaxPerHand} weapons.");
                 break;
             }
 
             if (!lookup.TryGetValue(definition, out WeaponEntry entry))
             {
-                Debug.LogWarning(
-                    $"[WeaponInventory] Could not find {definition.weaponName} for {handType} hand."
-                );
+                Debug.LogWarning($"[WeaponInventory] Could not find {definition.weaponName} for {handType} hand.");
                 continue;
             }
 
@@ -226,25 +259,17 @@ public class WeaponInventory : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning(
-                $"[WeaponInventory] No starting weapons found for {handType} hand."
-            );
+            Debug.LogWarning($"[WeaponInventory] No starting weapons found for {handType} hand.");
         }
     }
 
     void Update()
     {
-        if (rightSwapAction != null &&
-            rightSwapAction.action.WasPressedThisFrame())
-        {
+        if (rightSwapAction != null && rightSwapAction.action.WasPressedThisFrame())
             SwapHand(rightHand);
-        }
 
-        if (leftSwapAction != null &&
-            leftSwapAction.action.WasPressedThisFrame())
-        {
+        if (leftSwapAction != null && leftSwapAction.action.WasPressedThisFrame())
             SwapHand(leftHand);
-        }
 
         HandleFire(rightHand, rightFireAction);
         HandleFire(leftHand, leftFireAction);
@@ -259,9 +284,7 @@ public class WeaponInventory : MonoBehaviour
         EquipIndexCore(hand, next);
     }
 
-    void HandleFire(
-        HandState hand,
-        InputActionReference fireAction)
+    void HandleFire(HandState hand, InputActionReference fireAction)
     {
         if (fireAction == null)
             return;
@@ -276,10 +299,9 @@ public class WeaponInventory : MonoBehaviour
             if (weaponBase == null)
                 continue;
 
-            bool shouldFire =
-                weaponBase.isAutomatic
-                    ? fireAction.action.IsPressed()
-                    : fireAction.action.WasPressedThisFrame();
+            bool shouldFire = weaponBase.isAutomatic
+                ? fireAction.action.IsPressed()
+                : fireAction.action.WasPressedThisFrame();
 
             if (shouldFire)
             {
@@ -292,9 +314,7 @@ public class WeaponInventory : MonoBehaviour
         }
     }
 
-    void EquipIndexCore(
-        HandState hand,
-        int index)
+    void EquipIndexCore(HandState hand, int index)
     {
         if (index < 0 || index >= hand.equipped.Count)
             return;
@@ -318,26 +338,18 @@ public class WeaponInventory : MonoBehaviour
             if (weaponBase == null)
                 continue;
 
-            weaponBase.weaponDefinition = next.definition;
-
-            if (next.definition != null)
-                weaponBase.ApplyLevel(next.definition);
-
+            weaponBase.weaponDefinition = next.runtimeDefinition;
             weaponBase.LoadRecoilValues();
+            weaponBase.RefreshWeaponSkin();
         }
 
         if (ikHandler != null)
             ikHandler.UpdateIKTargets(next.weaponRoot);
     }
 
-    public void EquipIndex(
-        Hand hand,
-        int index)
+    public void EquipIndex(Hand hand, int index)
     {
-        EquipIndexCore(
-            GetHand(hand),
-            index
-        );
+        EquipIndexCore(GetHand(hand), index);
     }
 
     public void Swap(Hand hand)
@@ -345,146 +357,112 @@ public class WeaponInventory : MonoBehaviour
         SwapHand(GetHand(hand));
     }
 
-    public int AddWeapon(
-        WeaponDefinitionSO definition,
-        Hand hand)
+    public int AddWeapon(WeaponDefinitionSO definition, Hand hand)
     {
         if (definition == null)
             return -1;
 
-        Dictionary<WeaponDefinitionSO, WeaponEntry> lookup =
-            GetLookup(hand);
+        Dictionary<WeaponDefinitionSO, WeaponEntry> lookup = GetLookup(hand);
 
         if (!lookup.TryGetValue(definition, out WeaponEntry entry))
         {
-            Debug.LogWarning(
-                $"[WeaponInventory] Cannot add {definition.weaponName} to {hand} hand."
-            );
+            Debug.LogWarning($"[WeaponInventory] Cannot add {definition.weaponName} to {hand} hand.");
             return -1;
         }
 
-        return AddEntry(
-            GetHand(hand),
-            entry
-        );
+        return AddEntry(GetHand(hand), entry);
     }
 
-    public int AddWeaponByIndex(
-        int index,
-        Hand hand)
+    public int AddWeaponByIndex(int index, Hand hand)
     {
-        Dictionary<WeaponDefinitionSO, WeaponEntry> lookup =
-            GetLookup(hand);
-
-        List<WeaponEntry> handWeapons =
-            new List<WeaponEntry>(lookup.Values);
+        Dictionary<WeaponDefinitionSO, WeaponEntry> lookup = GetLookup(hand);
+        List<WeaponEntry> handWeapons = new List<WeaponEntry>(lookup.Values);
 
         if (index < 0 || index >= handWeapons.Count)
         {
-            Debug.LogWarning(
-                $"[WeaponInventory] AddWeaponByIndex index {index} out of range."
-            );
+            Debug.LogWarning($"[WeaponInventory] AddWeaponByIndex index {index} out of range.");
             return -1;
         }
 
-        return AddEntry(
-            GetHand(hand),
-            handWeapons[index]
-        );
+        return AddEntry(GetHand(hand), handWeapons[index]);
     }
 
-    int AddEntry(
-        HandState hand,
-        WeaponEntry entry)
+    int AddEntry(HandState hand, WeaponEntry entry)
     {
         if (entry == null || entry.weaponRoot == null)
             return -1;
 
-        int existingIndex =
-            hand.equipped.IndexOf(entry);
+        int existingIndex = hand.equipped.IndexOf(entry);
 
         if (existingIndex >= 0)
         {
-            EquipIndexCore(
-                hand,
-                existingIndex
-            );
+            EquipIndexCore(hand, existingIndex);
             return existingIndex;
         }
 
         if (hand.equipped.Count >= MaxPerHand)
         {
-            Debug.LogWarning(
-                $"[WeaponInventory] Hand is full."
-            );
+            Debug.LogWarning("[WeaponInventory] Hand is full.");
             return -1;
         }
 
         hand.equipped.Add(entry);
 
-        int newIndex =
-            hand.equipped.Count - 1;
+        foreach (WeaponBase weaponBase in entry.weaponBases)
+        {
+            if (weaponBase == null)
+                continue;
 
-        EquipIndexCore(
-            hand,
-            newIndex
-        );
+            weaponBase.weaponDefinition = entry.runtimeDefinition;
+            weaponBase.ApplyLevel(entry.runtimeDefinition);
+            weaponBase.RefreshWeaponSkin();
+        }
+
+        int newIndex = hand.equipped.Count - 1;
+
+        EquipIndexCore(hand, newIndex);
 
         return newIndex;
     }
 
-    public void RemoveWeapon(
-        WeaponDefinitionSO definition,
-        Hand hand)
+    public void RemoveWeapon(WeaponDefinitionSO definition, Hand hand)
     {
         if (definition == null)
             return;
 
-        Dictionary<WeaponDefinitionSO, WeaponEntry> lookup =
-            GetLookup(hand);
+        Dictionary<WeaponDefinitionSO, WeaponEntry> lookup = GetLookup(hand);
 
         if (!lookup.TryGetValue(definition, out WeaponEntry entry))
             return;
 
-        RemoveEntry(
-            GetHand(hand),
-            entry
-        );
+        RemoveEntry(GetHand(hand), entry);
     }
 
-    public void RemoveWeaponAt(
-        int index,
-        Hand hand)
+    public void RemoveWeaponAt(int index, Hand hand)
     {
-        HandState state =
-            GetHand(hand);
+        HandState state = GetHand(hand);
 
         if (index < 0 || index >= state.equipped.Count)
             return;
 
-        RemoveEntry(
-            state,
-            state.equipped[index]
-        );
+        RemoveEntry(state, state.equipped[index]);
     }
 
-    void RemoveEntry(
-        HandState hand,
-        WeaponEntry entry)
+    void RemoveEntry(HandState hand, WeaponEntry entry)
     {
-        int index =
-            hand.equipped.IndexOf(entry);
+        int index = hand.equipped.IndexOf(entry);
 
         if (index < 0)
             return;
 
-        bool wasActive =
-            index == hand.activeIndex;
+        bool wasActive = index == hand.activeIndex;
 
         if (entry.weaponRoot != null)
             entry.weaponRoot.SetActive(false);
 
         hand.equipped.RemoveAt(index);
+
+        ResetWeaponProgress(entry);
 
         if (hand.equipped.Count == 0)
         {
@@ -494,17 +472,8 @@ public class WeaponInventory : MonoBehaviour
 
         if (wasActive)
         {
-            int newIndex =
-                Mathf.Clamp(
-                    index,
-                    0,
-                    hand.equipped.Count - 1
-                );
-
-            EquipIndexCore(
-                hand,
-                newIndex
-            );
+            int newIndex = Mathf.Clamp(index, 0, hand.equipped.Count - 1);
+            EquipIndexCore(hand, newIndex);
         }
         else if (index < hand.activeIndex)
         {
@@ -512,37 +481,38 @@ public class WeaponInventory : MonoBehaviour
         }
     }
 
-    public void LevelUpWeapon(
-        WeaponDefinitionSO definition)
+    public void LevelUpWeapon(WeaponDefinitionSO definition, Hand hand)
     {
         if (definition == null)
             return;
 
-        WeaponEntry entry = null;
+        Dictionary<WeaponDefinitionSO, WeaponEntry> lookup = GetLookup(hand);
 
-        if (!rightWeaponLookup.TryGetValue(definition, out entry))
-            leftWeaponLookup.TryGetValue(definition, out entry);
-
-        if (entry == null)
+        if (!lookup.TryGetValue(definition, out WeaponEntry entry))
         {
-            Debug.LogWarning(
-                $"[WeaponInventory] Cannot level up {definition.weaponName}."
-            );
+            Debug.LogWarning($"[WeaponInventory] Cannot level up {definition.weaponName} in {hand} hand.");
             return;
         }
 
-        definition.level =
-            Mathf.Min(
-                definition.level + 1,
-                definition.maxLevel
-            );
+        if (!GetHand(hand).equipped.Contains(entry))
+        {
+            Debug.LogWarning($"[WeaponInventory] {definition.weaponName} is not equipped in {hand} hand.");
+            return;
+        }
+
+        WeaponDefinitionSO runtimeDefinition = entry.runtimeDefinition;
+
+        runtimeDefinition.level = Mathf.Min(
+            runtimeDefinition.level + 1,
+            runtimeDefinition.maxLevel
+        );
 
         foreach (WeaponBase weaponBase in entry.weaponBases)
         {
             if (weaponBase == null)
                 continue;
 
-            weaponBase.ApplyLevel(definition);
+            weaponBase.ApplyLevel(runtimeDefinition);
             weaponBase.RefreshWeaponSkin();
         }
     }
@@ -557,12 +527,9 @@ public class WeaponInventory : MonoBehaviour
         return GetHand(hand).equipped.Count;
     }
 
-    public WeaponBase GetEquippedAt(
-        Hand hand,
-        int index)
+    public WeaponBase GetEquippedAt(Hand hand, int index)
     {
-        HandState state =
-            GetHand(hand);
+        HandState state = GetHand(hand);
 
         if (index < 0 || index >= state.equipped.Count)
             return null;
@@ -570,44 +537,50 @@ public class WeaponInventory : MonoBehaviour
         return state.equipped[index].Primary;
     }
 
-    public bool HasWeapon(
-        WeaponDefinitionSO definition,
-        Hand hand)
+    public bool HasWeapon(WeaponDefinitionSO definition, Hand hand)
     {
         if (definition == null)
             return false;
 
         foreach (WeaponEntry entry in GetHand(hand).equipped)
         {
-            if (entry != null &&
-                entry.definition == definition)
-            {
+            if (entry != null && entry.definition == definition)
                 return true;
-            }
         }
 
         return false;
     }
 
-    public bool HasWeapon(
-        WeaponDefinitionSO definition)
+    public bool HasWeapon(WeaponDefinitionSO definition)
     {
         return HasWeapon(definition, Hand.Left) ||
                HasWeapon(definition, Hand.Right);
     }
 
-    public WeaponBase GetActiveWeapon(
-        Hand hand)
+    public WeaponBase GetActiveWeapon(Hand hand)
     {
         return GetHand(hand).ActiveWeaponBase;
     }
 
-    public int GetLevel(
-        WeaponDefinitionSO definition)
+    public int GetLevel(WeaponDefinitionSO definition, Hand hand)
     {
-        if (definition == null)
+        Dictionary<WeaponDefinitionSO, WeaponEntry> lookup = GetLookup(hand);
+
+        if (!lookup.TryGetValue(definition, out WeaponEntry entry))
             return 0;
 
-        return definition.level;
+        return entry.runtimeDefinition != null
+            ? entry.runtimeDefinition.level
+            : 0;
+    }
+
+    public WeaponDefinitionSO GetRuntimeDefinition(Hand hand)
+    {
+        WeaponEntry entry = GetHand(hand).ActiveEntry;
+
+        if (entry == null)
+            return null;
+
+        return entry.runtimeDefinition;
     }
 }

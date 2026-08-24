@@ -15,15 +15,15 @@ MonoBehaviour:
   weaponName: Doubler
   category: 3
   dropPrefab: {fileID: 0}
-  damage: 500
+  damage: 549
   range: 99999
   swarmHitRadius: 0.4
   isAutomatic: 1
-  rpm: 300
+  rpm: 100
   critChance: 0.1
-  critMultiplier: 2
+  critMultiplier: 2.5356684
   isShotgun: 1
-  pelletCount: 8
+  pelletCount: 11
   pelletSpreadAngle: 5
   flatSpread: 0
   baseAccuracy: 1
@@ -47,15 +47,15 @@ MonoBehaviour:
   explosionEffectDuration: 2
   explosionSelfKnockback: 18
   explosionKnockbackUpBias: 0.6
-  maxLevel: 5
+  maxLevel: 100
   level: 1
-  currentXP: 0
+  currentXP: 3.4375
   baseXPRequired: 100
   xpGrowthRate: 1.25
   evolutionInterval: 20
   evolutionPool: []
-  packedMaterial: {fileID: 2100000, guid: c1d0524384fed3a41b49a0f41bdd18ac, type: 2}
-  tintPropertyName: _GlowColor
-  tintHueCycleLength: 100
+  packedMaterial: {fileID: 2100000, guid: 0eff55e17c1592e47bf7d85524e225f3, type: 2}
+  tintPropertyName: _BaseColor
+  tintHueCycleLength: 10
   tintSaturation: 0.85
   tintValue: 1

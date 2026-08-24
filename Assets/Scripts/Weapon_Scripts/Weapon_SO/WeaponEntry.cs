@@ -8,11 +8,12 @@ public class WeaponEntry
 
     public GameObject weaponRoot;
 
-    public List<WeaponBase> weaponBases =
-        new List<WeaponBase>();
+    public List<WeaponBase> weaponBases = new List<WeaponBase>();
 
-    public WeaponBase Primary =>
-        weaponBases.Count > 0
-            ? weaponBases[0]
-            : null;
+    [System.NonSerialized]
+    public WeaponDefinitionSO runtimeDefinition;
+
+    public WeaponBase Primary => weaponBases.Count > 0 ? weaponBases[0] : null;
+
+    public WeaponDefinitionSO RuntimeDefinition => runtimeDefinition != null ? runtimeDefinition : definition;
 }
