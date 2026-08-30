@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5cb4844a83ccf945bcb4bc288bfd193, type: 3}
+  m_Name: Beer_Def
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinitionSO
+  weaponName: Beer
+  category: 6
+  dropPrefab: {fileID: 0}
+  damage: 50
+  range: 999999
+  swarmHitRadius: 0.4
+  isAutomatic: 1
+  rpm: 100
+  critChance: 0.1
+  critMultiplier: 2
+  isShotgun: 0
+  pelletCount: 8
+  pelletSpreadAngle: 5
+  flatSpread: 0
+  baseAccuracy: 1
+  bloomPerShot: 0.5
+  maxBloom: 4
+  bloomDecaySpeed: 3
+  bulletType: 1
+  trailPrefab: {fileID: 0}
+  trailPoolKey: BulletTrail
+  trailPoolSize: 10
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 15359
+  impactEffectOverride: {fileID: 0}
+  projectilePrefab: {fileID: 6473194848375008525, guid: 2c98b089e5770414fa2e21e1c8cfc015, type: 3}
+  projectileSpeed: 100
+  projectileGravityScale: 3
+  isExplosive: 1
+  explosionRadius: 10
+  explosionEffectPrefab: {fileID: 761256758112122888, guid: 56217c59411e1224c8f56a8172c371b1, type: 3}
+  explosionEffectDuration: 2
+  explosionSelfKnockback: 70
+  explosionKnockbackUpBias: 0.6
+  maxLevel: 100
+  level: 1
+  currentXP: 0
+  baseXPRequired: 100
+  xpGrowthRate: 1.25
+  evolutionInterval: 20
+  evolutionPool: []
+  packedMaterial: {fileID: 2100000, guid: 34ef2f54ff6dfc4448bf6c38ec0b2504, type: 2}
+  tintPropertyName: _BaseColor
+  tintHueCycleLength: 10
+  tintSaturation: 0.85
+  tintValue: 1
