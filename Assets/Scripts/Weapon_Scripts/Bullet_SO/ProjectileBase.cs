@@ -26,6 +26,7 @@ public class ProjectileBase : MonoBehaviour
     int tickCount;
     TrailRenderer trail;
     bool trailCached;
+    bool hasSpawnedHitMarker; // Track if we've already spawned a hit marker for this projectile
 
     public void Launch(Vector3 origin, Vector3 direction, float speed, float gravityScale,
         float life, int damage, bool applyDamage, WeaponBase owner, WeaponDefinitionSO data, float radius)
@@ -44,6 +45,7 @@ public class ProjectileBase : MonoBehaviour
         this.radius = radius;
         this.hitMask = data != null && data.hitMask != 0 ? data.hitMask : ~0;
         this.tickCount = 0;
+        this.hasSpawnedHitMarker = false; // Reset hit marker flag
 
         if (debugLogging)
             Debug.Log($"[PROJ] LAUNCH origin={origin} dir={direction.normalized} speed={speed} mask={(int)this.hitMask} life={life}");
@@ -179,6 +181,7 @@ public class ProjectileBase : MonoBehaviour
     {
         int count = Physics.OverlapSphereNonAlloc(center, explosionRadius, explosionOverlapBuffer);
         explosionHitSet.Clear();
+        bool anyZombieHit = false;
 
         for (int i = 0; i < count; i++)
         {
@@ -195,8 +198,35 @@ public class ProjectileBase : MonoBehaviour
 
             // Apply crit and pass weapon reference for XP tracking
             int finalDamage = owner != null ? owner.ApplyCrit(amount) : amount;
+            bool isCrit = finalDamage != amount;
             zombie.TakeDamage(finalDamage, owner != null ? owner.OwnerStats : null, 1f, hitDir, 1f, "", owner);
             zombie.hitFlash?.Flash(false);
+            anyZombieHit = true;
+        }
+
+        // Spawn ONE hit marker for explosive hits (not per zombie)
+        if (anyZombieHit && HitMarkerPool.Instance != null)
+        {
+            // Check if any zombie was crit for the hit marker color
+            bool anyCrit = false;
+            // Re-check which zombies were hit to determine if any were crit
+            for (int i = 0; i < count; i++)
+            {
+                Collider col = explosionOverlapBuffer[i];
+                if (col == null) continue;
+                ZombieBase zombie = col.GetComponentInParent<ZombieBase>();
+                if (zombie == null || zombie.IsDead) continue;
+                if (explosionHitSet.Contains(zombie))
+                {
+                    int finalDamage = owner != null ? owner.ApplyCrit(amount) : amount;
+                    if (finalDamage != amount)
+                    {
+                        anyCrit = true;
+                        break;
+                    }
+                }
+            }
+            HitMarkerPool.Instance.Spawn(center, anyCrit);
         }
     }
 
@@ -256,6 +286,7 @@ public class ProjectileBase : MonoBehaviour
             {
                 // Apply crit chance
                 int finalDamage = owner.ApplyCrit(damage);
+                bool isCrit = finalDamage != damage;
 
                 if (directHitBox != null)
                 {
@@ -267,8 +298,13 @@ public class ProjectileBase : MonoBehaviour
                     // Pass weapon reference for XP tracking
                     directZombie.TakeDamage(finalDamage, owner.OwnerStats, 1f, normal, 1f, "", owner);
                     directZombie.hitFlash?.Flash(false);
-                    if (HitMarkerPool.Instance != null)
-                        HitMarkerPool.Instance.Spawn(point, false);
+                }
+
+                // Spawn hit marker for direct hits (only once per projectile)
+                if (!hasSpawnedHitMarker && HitMarkerPool.Instance != null)
+                {
+                    HitMarkerPool.Instance.Spawn(point, isCrit);
+                    hasSpawnedHitMarker = true;
                 }
             }
 
