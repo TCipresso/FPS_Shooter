@@ -30,6 +30,13 @@ public class TEST_SHOTGUN_anim_bridge : MonoBehaviour
             weapon.OnCockComplete();
     }
 
+    public void OnReloadComplete()
+    {
+        Debug.Log("[WeaponAnimBridge] OnReloadComplete fired on: " + gameObject.name);
+        if (weapon != null)
+            weapon.OnReloadComplete();
+    }
+
     public void EjectCasing()
     {
         if (weapon != null)

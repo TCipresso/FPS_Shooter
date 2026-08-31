@@ -225,12 +225,14 @@ MonoBehaviour:
   shakeDuration: 0.08
   shakeFrequency: 30
   currentBloom: 0
-  animator: {fileID: 0}
+  animator: {fileID: 6256982303307708250}
   walkStopDelay: 0.1
   FireClipName: Fire
   universalAnimator: {fileID: 0}
   isCocking: 0
   isFiring: 0
+  isReloading: 0
+  currentAmmo: 0
 --- !u!1 &867839974380250027
 GameObject:
   m_ObjectHideFlags: 0
