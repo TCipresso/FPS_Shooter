@@ -26,6 +26,8 @@ MonoBehaviour:
   pelletCount: 11
   pelletSpreadAngle: 5
   flatSpread: 0
+  magazineSize: 2
+  reloadSpeed: 1
   baseAccuracy: 1
   bloomPerShot: 0.5
   maxBloom: 4
@@ -47,6 +49,7 @@ MonoBehaviour:
   explosionEffectDuration: 2
   explosionSelfKnockback: 18
   explosionKnockbackUpBias: 0.6
+  auraRadius: 3
   maxLevel: 100
   level: 1
   currentXP: 3.4375
