@@ -299,34 +299,33 @@ public abstract class WeaponBase : MonoBehaviour
         return closestZombie != null;
     }
 
+    // ============= FIRING METHODS =============
+
     private void FireHitscan(int damage, float range)
     {
         if (weaponDefinition == null) return;
-        if (weaponDefinition.isShotgun)
+
+        // Get actual pellet count (rounded down)
+        int pellets = weaponDefinition.GetActualPelletCount();
+
+        for (int i = 0; i < pellets; i++)
         {
-            int pellets = Mathf.Max(1, weaponDefinition.pelletCount);
-            int pelletDamage = Mathf.Max(1, damage / pellets);
-            for (int i = 0; i < pellets; i++)
+            float spreadX, spreadY;
+            if (weaponDefinition.flatSpread && pellets > 1)
             {
-                float spreadX, spreadY;
-                if (weaponDefinition.flatSpread)
-                {
-                    float t = pellets > 1 ? (float)i / (pellets - 1) : 0.5f;
-                    spreadX = 0f;
-                    spreadY = Mathf.Lerp(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle, t);
-                    FireHitscanPellet(pelletDamage, range, spreadX, spreadY, true);
-                }
-                else
-                {
-                    spreadX = Random.Range(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle);
-                    spreadY = Random.Range(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle);
-                    FireHitscanPellet(pelletDamage, range, spreadX, spreadY, false);
-                }
+                // Flat line spread
+                float t = pellets > 1 ? (float)i / (pellets - 1) : 0.5f;
+                spreadX = 0f;
+                spreadY = Mathf.Lerp(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle, t);
+                FireHitscanPellet(damage, range, spreadX, spreadY, true);
             }
-        }
-        else
-        {
-            FireHitscanPellet(damage, range, 0f, 0f, false);
+            else
+            {
+                // Circular spread
+                spreadX = Random.Range(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle);
+                spreadY = Random.Range(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle);
+                FireHitscanPellet(damage, range, spreadX, spreadY, false);
+            }
         }
     }
 
@@ -383,6 +382,71 @@ public abstract class WeaponBase : MonoBehaviour
         SpawnTrail(muzzlePoint.position, endPoint);
         shotEndPoints.Add(endPoint);
         shotHitTypes.Add(hitZombie ? (byte)2 : didHitWorld ? (byte)1 : (byte)0);
+    }
+
+    private void FireProjectile(int damage)
+    {
+        if (weaponDefinition == null || weaponDefinition.projectilePrefab == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] No projectilePrefab assigned on WeaponDefinitionSO.");
+            return;
+        }
+
+        // Get actual pellet count (rounded down)
+        int pellets = weaponDefinition.GetActualPelletCount();
+
+        for (int i = 0; i < pellets; i++)
+        {
+            float spreadX, spreadY;
+            if (weaponDefinition.flatSpread && pellets > 1)
+            {
+                // Flat line spread
+                float t = pellets > 1 ? (float)i / (pellets - 1) : 0.5f;
+                spreadX = 0f;
+                spreadY = Mathf.Lerp(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle, t);
+            }
+            else
+            {
+                // Circular spread
+                spreadX = Random.Range(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle);
+                spreadY = Random.Range(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle);
+            }
+
+            Vector3 origin;
+            Vector3 direction = GetProjectileLaunch(out origin, spreadX, spreadY);
+            SpawnProjectileVisual(origin, direction, damage, true);
+            onProjectileFired?.Invoke(this, origin, direction);
+        }
+    }
+
+    Vector3 GetProjectileLaunch(out Vector3 origin, float spreadX = 0f, float spreadY = 0f)
+    {
+        origin = muzzlePoint != null ? muzzlePoint.position : GetAimOrigin();
+        Vector3 camOrigin = GetAimOrigin();
+        Vector3 camDir = GetAimDirection(spreadX, spreadY);
+        LayerMask mask = weaponDefinition.hitMask != 0 ? weaponDefinition.hitMask : (LayerMask)(~0);
+        Vector3 aimPoint = Physics.Raycast(camOrigin, camDir, out RaycastHit hit, weaponDefinition.range, mask)
+            ? hit.point
+            : camOrigin + camDir * weaponDefinition.range;
+        float muzzleForwardOffset = Vector3.Dot(origin - camOrigin, camDir);
+        float aimPointForwardDistance = Vector3.Dot(aimPoint - camOrigin, camDir);
+        if (aimPointForwardDistance <= muzzleForwardOffset + 0.75f)
+            return camDir;
+        Vector3 dir = aimPoint - origin;
+        return dir.sqrMagnitude > 0.0001f ? dir.normalized : camDir;
+    }
+
+    void SpawnProjectileVisual(Vector3 origin, Vector3 direction, int damage, bool applyDamage)
+    {
+        if (ProjectilePool.Instance == null || weaponDefinition == null || weaponDefinition.projectilePrefab == null)
+            return;
+        ProjectileBase p = ProjectilePool.Instance.Get(
+            weaponDefinition.projectilePrefab, origin, Quaternion.LookRotation(direction));
+        if (p == null) return;
+        float speed = weaponDefinition.projectileSpeed;
+        float life = speed > 0.01f ? weaponDefinition.range / speed : 3f;
+        p.Launch(origin, direction, speed, weaponDefinition.projectileGravityScale,
+            life, damage, applyDamage, this, weaponDefinition, weaponDefinition.swarmHitRadius);
     }
 
     public void ApplyAttackSpeed(float attackSpeed)
@@ -468,6 +532,7 @@ public abstract class WeaponBase : MonoBehaviour
         int scaledDamage = playerStats != null
             ? Mathf.RoundToInt(damage * playerStats.damageMultiplier)
             : damage;
+
         switch (weaponDefinition.bulletType)
         {
             case BulletType.Hitscan:
@@ -477,6 +542,7 @@ public abstract class WeaponBase : MonoBehaviour
                 FireProjectile(scaledDamage);
                 break;
         }
+
         onShotFired?.Invoke(this, shotEndPoints, shotHitTypes);
         ApplyScreenShake();
         AddBloom();
@@ -492,49 +558,6 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (ScreenShake.Instance != null)
             ScreenShake.Instance.Shake(shakeMagnitude, shakeDuration, shakeFrequency);
-    }
-
-    private void FireProjectile(int damage)
-    {
-        if (weaponDefinition == null || weaponDefinition.projectilePrefab == null)
-        {
-            Debug.LogWarning($"[{gameObject.name}] No projectilePrefab assigned on WeaponDefinitionSO.");
-            return;
-        }
-        Vector3 origin;
-        Vector3 direction = GetProjectileLaunch(out origin);
-        SpawnProjectileVisual(origin, direction, damage, true);
-        onProjectileFired?.Invoke(this, origin, direction);
-    }
-
-    Vector3 GetProjectileLaunch(out Vector3 origin)
-    {
-        origin = muzzlePoint != null ? muzzlePoint.position : GetAimOrigin();
-        Vector3 camOrigin = GetAimOrigin();
-        Vector3 camDir = GetAimDirection(0f, 0f);
-        LayerMask mask = weaponDefinition.hitMask != 0 ? weaponDefinition.hitMask : (LayerMask)(~0);
-        Vector3 aimPoint = Physics.Raycast(camOrigin, camDir, out RaycastHit hit, weaponDefinition.range, mask)
-            ? hit.point
-            : camOrigin + camDir * weaponDefinition.range;
-        float muzzleForwardOffset = Vector3.Dot(origin - camOrigin, camDir);
-        float aimPointForwardDistance = Vector3.Dot(aimPoint - camOrigin, camDir);
-        if (aimPointForwardDistance <= muzzleForwardOffset + 0.75f)
-            return camDir;
-        Vector3 dir = aimPoint - origin;
-        return dir.sqrMagnitude > 0.0001f ? dir.normalized : camDir;
-    }
-
-    void SpawnProjectileVisual(Vector3 origin, Vector3 direction, int damage, bool applyDamage)
-    {
-        if (ProjectilePool.Instance == null || weaponDefinition == null || weaponDefinition.projectilePrefab == null)
-            return;
-        ProjectileBase p = ProjectilePool.Instance.Get(
-            weaponDefinition.projectilePrefab, origin, Quaternion.LookRotation(direction));
-        if (p == null) return;
-        float speed = weaponDefinition.projectileSpeed;
-        float life = speed > 0.01f ? weaponDefinition.range / speed : 3f;
-        p.Launch(origin, direction, speed, weaponDefinition.projectileGravityScale,
-            life, damage, applyDamage, this, weaponDefinition, weaponDefinition.swarmHitRadius);
     }
 
     protected void PlayMuzzleFlash()
@@ -680,8 +703,6 @@ public abstract class WeaponBase : MonoBehaviour
         animator.Play(FireClipName, 2, 0f);
         fireResetTime = Time.time + animator.GetCurrentAnimatorStateInfo(0).length;
     }
-
-
 }
 
 [System.Serializable]

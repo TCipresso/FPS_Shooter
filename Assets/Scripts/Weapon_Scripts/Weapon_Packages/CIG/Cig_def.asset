@@ -15,17 +15,16 @@ MonoBehaviour:
   weaponName: Cig
   category: 6
   dropPrefab: {fileID: 0}
-  damage: 300
+  damage: 20
   range: 99999
   swarmHitRadius: 0.4
   isAutomatic: 1
   rpm: 200
   critChance: 0.1
   critMultiplier: 2
-  isShotgun: 1
-  pelletCount: 8
+  pelletCount: 3
   pelletSpreadAngle: 5
-  flatSpread: 0
+  flatSpread: 1
   magazineSize: 8
   reloadSpeed: 0.5
   baseAccuracy: 1

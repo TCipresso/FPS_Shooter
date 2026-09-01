@@ -33,9 +33,13 @@ public class WeaponDefinitionSO : ScriptableObject
     public float rpm = 300f;
     [Range(0f, 1f)] public float critChance = 0.1f;
     public float critMultiplier = 2f;
-    public bool isShotgun = false;
-    public int pelletCount = 8;
+
+    [Header("Pellet System")]
+    [Tooltip("Base number of pellets. Can be decimal, will be rounded down at runtime.")]
+    public float pelletCount = 1f;
+    [Tooltip("Spread angle in degrees. 0 = perfect accuracy.")]
     public float pelletSpreadAngle = 5f;
+    [Tooltip("If true, pellets spread in a flat line. If false, spread in a circle.")]
     public bool flatSpread = false;
 
     [Header("Magazine & Reload")]
@@ -99,6 +103,12 @@ public class WeaponDefinitionSO : ScriptableObject
     public int evolutionInterval = 20;
     public List<WeaponEvolutionSO> evolutionPool = new List<WeaponEvolutionSO>();
     [System.NonSerialized] public List<WeaponEvolutionSO> usedEvolutions = new List<WeaponEvolutionSO>();
+
+    // Helper method to get actual pellet count (rounded down)
+    public int GetActualPelletCount()
+    {
+        return Mathf.Max(1, Mathf.FloorToInt(pelletCount));
+    }
 
     public int AddXP(float amount)
     {
