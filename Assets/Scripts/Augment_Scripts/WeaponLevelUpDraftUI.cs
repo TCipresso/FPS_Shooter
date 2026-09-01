@@ -1,25 +1,31 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+
 public class WeaponLevelUpDraftUI : MonoBehaviour
 {
     public static WeaponLevelUpDraftUI Instance { get; private set; }
+
     [Header("Setup")]
     public CanvasGroup panelGroup;
     public Transform cardParent;
     public WeaponUpgradeCardUI cardPrefab;
     public MenuUIHelper menuHelper;
-    [Header("Stat Upgrade Pool")]
-    public List<WeaponStatUpgradeSO> statUpgradePool = new List<WeaponStatUpgradeSO>();
+
     [Header("Evolution Visual")]
     public Color evolutionCardColor = new Color(1f, 0.75f, 0.1f);
+
     [Header("Draft")]
     public int cardsToShow = 3;
     public bool evolutionsEnabled = false;
+
     [Header("Visuals")]
     public float fadeSpeed = 8f;
     public float spawnScaleTime = 0.25f;
     public bool overshootBounce = true;
+
+    // REMOVED: statUpgradePool - now each weapon has its own pool in WeaponDefinitionSO
+
     struct DraftCardEntry
     {
         public string title;
@@ -28,10 +34,13 @@ public class WeaponLevelUpDraftUI : MonoBehaviour
         public Color color;
         public Action onPicked;
     }
+
     readonly List<WeaponUpgradeCardUI> spawned = new List<WeaponUpgradeCardUI>();
     bool fadingIn, fadingOut, isOpen;
     Coroutine scaleRoutine;
     float previousTimeScale = 1f;
+    WeaponBase currentWeapon; // Track which weapon is being upgraded
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -47,28 +56,46 @@ public class WeaponLevelUpDraftUI : MonoBehaviour
             panelGroup.blocksRaycasts = false;
         }
     }
+
     void OnDestroy()
     {
         if (Instance == this)
             Instance = null;
     }
+
     public void Show(WeaponBase weapon)
     {
         if (!panelGroup || !cardPrefab || !cardParent || weapon == null || weapon.weaponDefinition == null) return;
         if (isOpen) return;
-        List<DraftCardEntry> picks = evolutionsEnabled && weapon.weaponDefinition.IsEvolutionLevel(weapon.weaponDefinition.level)
+
+        currentWeapon = weapon;
+        WeaponDefinitionSO def = weapon.weaponDefinition;
+
+        // Check if we have any upgrades available
+        if (def.upgradePool == null || def.upgradePool.Count == 0)
+        {
+            Debug.LogWarning($"[WeaponLevelUpDraftUI] No upgrade pool defined for {def.weaponName}");
+            return;
+        }
+
+        List<DraftCardEntry> picks = evolutionsEnabled && def.IsEvolutionLevel(def.level)
             ? BuildEvolutionDraft(weapon)
             : BuildStatDraft(weapon);
+
         if (picks == null || picks.Count == 0) return;
+
         isOpen = true;
         previousTimeScale = Time.timeScale;
         Time.timeScale = 0f;
         if (menuHelper != null) menuHelper.EnterDraftState();
+
         fadingOut = false;
         fadingIn = true;
         panelGroup.interactable = true;
         panelGroup.blocksRaycasts = true;
+
         ClearCards();
+
         for (int i = 0; i < picks.Count; i++)
         {
             DraftCardEntry entry = picks[i];
@@ -82,25 +109,44 @@ public class WeaponLevelUpDraftUI : MonoBehaviour
             });
             spawned.Add(card);
         }
+
         if (scaleRoutine != null) StopCoroutine(scaleRoutine);
         scaleRoutine = StartCoroutine(ScaleAllCards());
     }
+
     List<DraftCardEntry> BuildStatDraft(WeaponBase weapon)
     {
-        List<DraftCardEntry> result = new List<DraftCardEntry>(cardsToShow);
-        List<WeaponStatUpgradeSO> temp = new List<WeaponStatUpgradeSO>(statUpgradePool);
-        float luck = PlayerStats.Instance != null ? PlayerStats.Instance.luck : 0f;
         WeaponDefinitionSO def = weapon.weaponDefinition;
-        for (int i = 0; i < cardsToShow && temp.Count > 0; i++)
+
+        // Use the weapon's specific upgrade pool
+        List<WeaponStatUpgradeSO> availableUpgrades = new List<WeaponStatUpgradeSO>(def.upgradePool);
+
+        if (availableUpgrades.Count == 0) return null;
+
+        List<DraftCardEntry> result = new List<DraftCardEntry>(cardsToShow);
+        float luck = PlayerStats.Instance != null ? PlayerStats.Instance.luck : 0f;
+
+        // Shuffle the available upgrades
+        for (int i = availableUpgrades.Count - 1; i > 0; i--)
         {
-            int idx = UnityEngine.Random.Range(0, temp.Count);
-            WeaponStatUpgradeSO option = temp[idx];
-            temp.RemoveAt(idx);
+            int j = UnityEngine.Random.Range(0, i + 1);
+            WeaponStatUpgradeSO temp = availableUpgrades[i];
+            availableUpgrades[i] = availableUpgrades[j];
+            availableUpgrades[j] = temp;
+        }
+
+        // Pick up to cardsToShow from the shuffled list
+        int count = Mathf.Min(cardsToShow, availableUpgrades.Count);
+        for (int i = 0; i < count; i++)
+        {
+            WeaponStatUpgradeSO option = availableUpgrades[i];
             if (option == null) continue;
+
             UpgradeRarity rarity = UpgradeRarityHelper.RollRarity(luck);
             float percent = option.GetRange(rarity).GetRandom();
             Color color = UpgradeRarityHelper.GetColor(rarity);
             string title = $"{option.displayName} +{percent * 100f:F0}%";
+
             result.Add(new DraftCardEntry
             {
                 title = title,
@@ -110,25 +156,39 @@ public class WeaponLevelUpDraftUI : MonoBehaviour
                 onPicked = () => option.Apply(def, percent)
             });
         }
+
         return result;
     }
+
     List<DraftCardEntry> BuildEvolutionDraft(WeaponBase weapon)
     {
         WeaponDefinitionSO def = weapon.weaponDefinition;
         List<WeaponEvolutionSO> eligible = new List<WeaponEvolutionSO>();
+
         foreach (WeaponEvolutionSO evo in def.evolutionPool)
         {
             if (evo != null && !def.usedEvolutions.Contains(evo))
                 eligible.Add(evo);
         }
+
         if (eligible.Count == 0)
             return BuildStatDraft(weapon);
+
         List<DraftCardEntry> result = new List<DraftCardEntry>(cardsToShow);
-        for (int i = 0; i < cardsToShow && eligible.Count > 0; i++)
+
+        // Shuffle eligible evolutions
+        for (int i = eligible.Count - 1; i > 0; i--)
         {
-            int idx = UnityEngine.Random.Range(0, eligible.Count);
-            WeaponEvolutionSO evo = eligible[idx];
-            eligible.RemoveAt(idx);
+            int j = UnityEngine.Random.Range(0, i + 1);
+            WeaponEvolutionSO temp = eligible[i];
+            eligible[i] = eligible[j];
+            eligible[j] = temp;
+        }
+
+        int count = Mathf.Min(cardsToShow, eligible.Count);
+        for (int i = 0; i < count; i++)
+        {
+            WeaponEvolutionSO evo = eligible[i];
             result.Add(new DraftCardEntry
             {
                 title = evo.displayName,
@@ -142,8 +202,10 @@ public class WeaponLevelUpDraftUI : MonoBehaviour
                 }
             });
         }
+
         return result;
     }
+
     public void CloseDraft()
     {
         if (!isOpen) return;
@@ -159,7 +221,9 @@ public class WeaponLevelUpDraftUI : MonoBehaviour
             StopCoroutine(scaleRoutine);
             scaleRoutine = null;
         }
+        currentWeapon = null;
     }
+
     void ClearCards()
     {
         for (int i = 0; i < spawned.Count; i++)
@@ -169,6 +233,7 @@ public class WeaponLevelUpDraftUI : MonoBehaviour
         }
         spawned.Clear();
     }
+
     void Update()
     {
         if (!panelGroup) return;
@@ -192,6 +257,7 @@ public class WeaponLevelUpDraftUI : MonoBehaviour
             }
         }
     }
+
     System.Collections.IEnumerator ScaleAllCards()
     {
         float t = 0f;

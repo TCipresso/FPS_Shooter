@@ -90,6 +90,10 @@ public class WeaponDefinitionSO : ScriptableObject
     public float baseXPRequired = 100f;
     public float xpGrowthRate = 1.25f;
 
+    [Header("Upgrade Pool")]
+    [Tooltip("List of possible stat upgrades this weapon can get when leveling up.")]
+    public List<WeaponStatUpgradeSO> upgradePool = new List<WeaponStatUpgradeSO>();
+
     [Header("Evolutions")]
     [Tooltip("Every X levels, the draft offers a pick from evolutionPool instead of a normal stat upgrade.")]
     public int evolutionInterval = 20;

@@ -55,6 +55,12 @@ MonoBehaviour:
   currentXP: 0
   baseXPRequired: 100
   xpGrowthRate: 1.25
+  upgradePool:
+  - {fileID: 11400000, guid: eddf0daa9fbe0864cbd867298bea8746, type: 2}
+  - {fileID: 11400000, guid: d8184a1eced471e429729332974ab29a, type: 2}
+  - {fileID: 11400000, guid: 81f2018fb0029f14297cc203cb408d13, type: 2}
+  - {fileID: 11400000, guid: 1a0695ef9f7e9cd41be50dc4c9eddfd1, type: 2}
+  - {fileID: 11400000, guid: 07008c7e93869ea4eae6bf4c744a6d3c, type: 2}
   evolutionInterval: 20
   evolutionPool: []
   packedMaterial: {fileID: 2100000, guid: 0eff55e17c1592e47bf7d85524e225f3, type: 2}
