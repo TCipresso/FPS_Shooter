@@ -7,7 +7,9 @@ public enum WeaponUpgradeStatType
     CritChance,
     CritMultiplier,
     PelletCount,
-    Accuracy
+    Accuracy,
+    ReloadSpeed,    // NEW
+    MagazineSize    // NEW
 }
 
 [CreateAssetMenu(fileName = "NewWeaponStatUpgrade", menuName = "Zarcade/Weapon Stat Upgrade")]
@@ -41,20 +43,27 @@ public class WeaponStatUpgradeSO : ScriptableObject
         { WeaponUpgradeStatType.CritChance, "Crit Chance" },
         { WeaponUpgradeStatType.CritMultiplier, "Crit Multiplier" },
         { WeaponUpgradeStatType.PelletCount, "Pellet Count" },
-        { WeaponUpgradeStatType.Accuracy, "Accuracy" }
+        { WeaponUpgradeStatType.Accuracy, "Accuracy" },
+        { WeaponUpgradeStatType.ReloadSpeed, "Reload Speed" },
+        { WeaponUpgradeStatType.MagazineSize, "Magazine Size" }
     };
 
     public string GetRolledDescription(float percent)
     {
         string label = statLabels.TryGetValue(statType, out string s) ? s : statType.ToString();
 
-        // Special description for pellet count
-        if (statType == WeaponUpgradeStatType.PelletCount)
+        // Special descriptions for specific stats
+        switch (statType)
         {
-            return $"Gain {percent * 100f:F0}% more Pellets";
+            case WeaponUpgradeStatType.PelletCount:
+                return $"Gain {percent * 100f:F0}% more Pellets";
+            case WeaponUpgradeStatType.ReloadSpeed:
+                return $"Reload {percent * 100f:F0}% faster";
+            case WeaponUpgradeStatType.MagazineSize:
+                return $"+{Mathf.RoundToInt(percent * 100f)}% Magazine Size";
+            default:
+                return $"Gain {percent * 100f:F0}% {label}";
         }
-
-        return $"Gain {percent * 100f:F0}% {label}";
     }
 
     public void Apply(WeaponDefinitionSO def, float percent)
@@ -88,6 +97,19 @@ public class WeaponStatUpgradeSO : ScriptableObject
             case WeaponUpgradeStatType.Accuracy:
                 // Lower bloom = more accurate
                 def.maxBloom = Mathf.Max(0f, def.maxBloom * (1f - percent));
+                break;
+
+            case WeaponUpgradeStatType.ReloadSpeed:
+                // Higher reload speed = faster reload
+                def.reloadSpeed = Mathf.Max(0.1f, def.reloadSpeed * (1f + percent));
+                Debug.Log($"[{def.weaponName}] Reload speed: {def.reloadSpeed:F2}x");
+                break;
+
+            case WeaponUpgradeStatType.MagazineSize:
+                // Increase magazine size (round up so player gets at least +1 if percent > 0)
+                int increase = Mathf.Max(1, Mathf.RoundToInt(def.magazineSize * percent));
+                def.magazineSize += increase;
+                Debug.Log($"[{def.weaponName}] Magazine size: {def.magazineSize} (+{increase})");
                 break;
         }
     }
