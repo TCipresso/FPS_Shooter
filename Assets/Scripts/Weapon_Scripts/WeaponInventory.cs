@@ -273,6 +273,9 @@ public class WeaponInventory : MonoBehaviour
 
         HandleFire(rightHand, rightFireAction);
         HandleFire(leftHand, leftFireAction);
+
+        // Handle reload input
+        HandleReload();
     }
 
     void SwapHand(HandState hand)
@@ -311,6 +314,46 @@ public class WeaponInventory : MonoBehaviour
             {
                 weaponBase.StopRecoil();
             }
+        }
+    }
+
+    void HandleReload()
+    {
+        // Check if reload was pressed
+        if (input == null || input.reloadAction == null) return;
+        if (!input.ReloadPressed) return;
+
+        bool anyReloaded = false;
+
+        // Try to reload right hand weapon
+        WeaponBase rightWeapon = rightHand.ActiveWeaponBase;
+        if (rightWeapon != null)
+        {
+            // Only reload if not full and not already reloading
+            if (rightWeapon.currentAmmo < rightWeapon.MaxAmmo && !rightWeapon.IsReloading)
+            {
+                rightWeapon.Reload();
+                anyReloaded = true;
+            }
+        }
+
+        // Try to reload left hand weapon
+        WeaponBase leftWeapon = leftHand.ActiveWeaponBase;
+        if (leftWeapon != null)
+        {
+            // Only reload if not full and not already reloading
+            if (leftWeapon.currentAmmo < leftWeapon.MaxAmmo && !leftWeapon.IsReloading)
+            {
+                leftWeapon.Reload();
+                anyReloaded = true;
+            }
+        }
+
+        // Optional: Play a sound or show feedback if no weapon could reload
+        if (!anyReloaded)
+        {
+            // Both weapons are either full or already reloading
+            // You could play a "click" sound here if desired
         }
     }
 
