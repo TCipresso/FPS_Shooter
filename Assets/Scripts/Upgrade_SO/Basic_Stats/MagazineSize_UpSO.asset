@@ -15,15 +15,16 @@ MonoBehaviour:
   displayName: Mag Size
   icon: {fileID: 0}
   statType: 7
+  scalingType: 1
   commonRange:
-    min: 0.05
-    max: 0.1
+    min: 1
+    max: 2
   rareRange:
-    min: 0.1
-    max: 0.18
+    min: 3
+    max: 4
   epicRange:
-    min: 0.18
-    max: 0.28
+    min: 5
+    max: 6
   extraterrestrialRange:
-    min: 0.28
-    max: 0.45
+    min: 7
+    max: 8

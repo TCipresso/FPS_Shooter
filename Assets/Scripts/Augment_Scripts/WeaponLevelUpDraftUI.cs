@@ -24,8 +24,6 @@ public class WeaponLevelUpDraftUI : MonoBehaviour
     public float spawnScaleTime = 0.25f;
     public bool overshootBounce = true;
 
-    // REMOVED: statUpgradePool - now each weapon has its own pool in WeaponDefinitionSO
-
     struct DraftCardEntry
     {
         public string title;
@@ -39,7 +37,7 @@ public class WeaponLevelUpDraftUI : MonoBehaviour
     bool fadingIn, fadingOut, isOpen;
     Coroutine scaleRoutine;
     float previousTimeScale = 1f;
-    WeaponBase currentWeapon; // Track which weapon is being upgraded
+    WeaponBase currentWeapon;
 
     void Awake()
     {
@@ -71,7 +69,6 @@ public class WeaponLevelUpDraftUI : MonoBehaviour
         currentWeapon = weapon;
         WeaponDefinitionSO def = weapon.weaponDefinition;
 
-        // Check if we have any upgrades available
         if (def.upgradePool == null || def.upgradePool.Count == 0)
         {
             Debug.LogWarning($"[WeaponLevelUpDraftUI] No upgrade pool defined for {def.weaponName}");
@@ -117,8 +114,6 @@ public class WeaponLevelUpDraftUI : MonoBehaviour
     List<DraftCardEntry> BuildStatDraft(WeaponBase weapon)
     {
         WeaponDefinitionSO def = weapon.weaponDefinition;
-
-        // Use the weapon's specific upgrade pool
         List<WeaponStatUpgradeSO> availableUpgrades = new List<WeaponStatUpgradeSO>(def.upgradePool);
 
         if (availableUpgrades.Count == 0) return null;
@@ -135,7 +130,6 @@ public class WeaponLevelUpDraftUI : MonoBehaviour
             availableUpgrades[j] = temp;
         }
 
-        // Pick up to cardsToShow from the shuffled list
         int count = Mathf.Min(cardsToShow, availableUpgrades.Count);
         for (int i = 0; i < count; i++)
         {
@@ -143,17 +137,22 @@ public class WeaponLevelUpDraftUI : MonoBehaviour
             if (option == null) continue;
 
             UpgradeRarity rarity = UpgradeRarityHelper.RollRarity(luck);
-            float percent = option.GetRange(rarity).GetRandom();
+            float value = option.GetRange(rarity).GetRandom();
             Color color = UpgradeRarityHelper.GetColor(rarity);
-            string title = $"{option.displayName} +{percent * 100f:F0}%";
+
+            // TITLE: Just the display name (no values)
+            string title = option.displayName;
+
+            // DESCRIPTION: The full description with the value
+            string description = option.GetRolledDescription(value);
 
             result.Add(new DraftCardEntry
             {
                 title = title,
-                description = option.GetRolledDescription(percent),
+                description = description,
                 icon = option.icon,
                 color = color,
-                onPicked = () => option.Apply(def, percent)
+                onPicked = () => option.Apply(def, value)
             });
         }
 
@@ -176,7 +175,6 @@ public class WeaponLevelUpDraftUI : MonoBehaviour
 
         List<DraftCardEntry> result = new List<DraftCardEntry>(cardsToShow);
 
-        // Shuffle eligible evolutions
         for (int i = eligible.Count - 1; i > 0; i--)
         {
             int j = UnityEngine.Random.Range(0, i + 1);

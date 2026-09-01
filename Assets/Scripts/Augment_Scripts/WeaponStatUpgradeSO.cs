@@ -8,16 +8,30 @@ public enum WeaponUpgradeStatType
     CritMultiplier,
     PelletCount,
     Accuracy,
-    ReloadSpeed,    // NEW
-    MagazineSize    // NEW
+    ReloadSpeed,
+    MagazineSize
+}
+
+public enum UpgradeScalingType
+{
+    Percentage,  // Multiplicative (e.g., +10% damage)
+    Flat         // Additive (e.g., +1 magazine size)
 }
 
 [CreateAssetMenu(fileName = "NewWeaponStatUpgrade", menuName = "Zarcade/Weapon Stat Upgrade")]
 public class WeaponStatUpgradeSO : ScriptableObject
 {
+    [Header("Upgrade Info")]
     public string displayName = "Stat Upgrade";
     public Sprite icon;
     public WeaponUpgradeStatType statType;
+
+    [Header("Scaling Type")]
+    [Tooltip("Percentage = multiplicative (10% more damage). Flat = additive (+1 magazine size).")]
+    public UpgradeScalingType scalingType = UpgradeScalingType.Percentage;
+
+    [Header("Rarity Ranges")]
+    [Tooltip("For Percentage scaling: 0.05 = 5%. For Flat scaling: raw value (e.g., 1 = +1 magazine)")]
     public FloatRange commonRange = new FloatRange { min = 0.05f, max = 0.10f };
     public FloatRange rareRange = new FloatRange { min = 0.10f, max = 0.18f };
     public FloatRange epicRange = new FloatRange { min = 0.18f, max = 0.28f };
@@ -48,68 +62,138 @@ public class WeaponStatUpgradeSO : ScriptableObject
         { WeaponUpgradeStatType.MagazineSize, "Magazine Size" }
     };
 
-    public string GetRolledDescription(float percent)
+    public string GetRolledDescription(float value)
     {
         string label = statLabels.TryGetValue(statType, out string s) ? s : statType.ToString();
+        bool isFlat = scalingType == UpgradeScalingType.Flat;
 
-        // Special descriptions for specific stats
         switch (statType)
         {
             case WeaponUpgradeStatType.PelletCount:
-                return $"Gain {percent * 100f:F0}% more Pellets";
+                if (isFlat)
+                    return $"+{value:F1} {label}";
+                else
+                    return $"+{value * 100f:F0}% {label}";
+
             case WeaponUpgradeStatType.ReloadSpeed:
-                return $"Reload {percent * 100f:F0}% faster";
+                if (isFlat)
+                    return $"+{value:F2}x {label}";
+                else
+                    return $"+{value * 100f:F0}% {label}";
+
             case WeaponUpgradeStatType.MagazineSize:
-                return $"+{Mathf.RoundToInt(percent * 100f)}% Magazine Size";
+                if (isFlat)
+                    return $"+{Mathf.RoundToInt(value)} {label}";
+                else
+                    return $"+{Mathf.RoundToInt(value * 100f)}% {label}";
+
+            case WeaponUpgradeStatType.Damage:
+                if (isFlat)
+                    return $"+{Mathf.RoundToInt(value)} {label}";
+                else
+                    return $"+{value * 100f:F0}% {label}";
+
+            case WeaponUpgradeStatType.AttackSpeed:
+                if (isFlat)
+                    return $"+{value:F0} RPM";
+                else
+                    return $"+{value * 100f:F0}% {label}";
+
+            case WeaponUpgradeStatType.CritChance:
+                // Crit chance is always additive, show as percentage
+                return $"+{value * 100f:F0}% {label}";
+
+            case WeaponUpgradeStatType.CritMultiplier:
+                if (isFlat)
+                    return $"+{value:F1}x {label}";
+                else
+                    return $"+{value * 100f:F0}% {label}";
+
+            case WeaponUpgradeStatType.Accuracy:
+                if (isFlat)
+                    return $"-{value:F1} Bloom";
+                else
+                    return $"-{value * 100f:F0}% Bloom";
+
             default:
-                return $"Gain {percent * 100f:F0}% {label}";
+                if (isFlat)
+                    return $"+{value:F1} {label}";
+                else
+                    return $"+{value * 100f:F0}% {label}";
         }
     }
 
-    public void Apply(WeaponDefinitionSO def, float percent)
+    public void Apply(WeaponDefinitionSO def, float value)
     {
         if (def == null) return;
+
+        bool isFlat = scalingType == UpgradeScalingType.Flat;
 
         switch (statType)
         {
             case WeaponUpgradeStatType.Damage:
-                def.damage = Mathf.Max(1, Mathf.RoundToInt(def.damage * (1f + percent)));
+                if (isFlat)
+                    def.damage = Mathf.Max(1, def.damage + Mathf.RoundToInt(value));
+                else
+                    def.damage = Mathf.Max(1, Mathf.RoundToInt(def.damage * (1f + value)));
                 break;
 
             case WeaponUpgradeStatType.AttackSpeed:
-                def.rpm = def.rpm * (1f + percent);
+                if (isFlat)
+                    def.rpm = Mathf.Max(1f, def.rpm + value);
+                else
+                    def.rpm = def.rpm * (1f + value);
                 break;
 
             case WeaponUpgradeStatType.CritChance:
-                def.critChance = Mathf.Clamp01(def.critChance + percent);
+                // Crit chance is always additive (flat)
+                def.critChance = Mathf.Clamp01(def.critChance + value);
                 break;
 
             case WeaponUpgradeStatType.CritMultiplier:
-                def.critMultiplier = def.critMultiplier * (1f + percent);
+                if (isFlat)
+                    def.critMultiplier = Mathf.Max(1f, def.critMultiplier + value);
+                else
+                    def.critMultiplier = def.critMultiplier * (1f + value);
                 break;
 
             case WeaponUpgradeStatType.PelletCount:
-                // Add to pellet count (can be decimal, will be rounded down at runtime)
-                def.pelletCount = Mathf.Max(1f, def.pelletCount * (1f + percent));
-                Debug.Log($"[{def.weaponName}] Pellet count: {def.pelletCount:F1} (will be rounded down to {def.GetActualPelletCount()} at runtime)");
+                if (isFlat)
+                    def.pelletCount = Mathf.Max(1f, def.pelletCount + value);
+                else
+                    def.pelletCount = Mathf.Max(1f, def.pelletCount * (1f + value));
+                Debug.Log($"[{def.weaponName}] Pellet count: {def.pelletCount:F1} (rounded down to {def.GetActualPelletCount()})");
                 break;
 
             case WeaponUpgradeStatType.Accuracy:
                 // Lower bloom = more accurate
-                def.maxBloom = Mathf.Max(0f, def.maxBloom * (1f - percent));
+                if (isFlat)
+                    def.maxBloom = Mathf.Max(0f, def.maxBloom - value);
+                else
+                    def.maxBloom = Mathf.Max(0f, def.maxBloom * (1f - value));
                 break;
 
             case WeaponUpgradeStatType.ReloadSpeed:
-                // Higher reload speed = faster reload
-                def.reloadSpeed = Mathf.Max(0.1f, def.reloadSpeed * (1f + percent));
+                if (isFlat)
+                    def.reloadSpeed = Mathf.Max(0.1f, def.reloadSpeed + value);
+                else
+                    def.reloadSpeed = Mathf.Max(0.1f, def.reloadSpeed * (1f + value));
                 Debug.Log($"[{def.weaponName}] Reload speed: {def.reloadSpeed:F2}x");
                 break;
 
             case WeaponUpgradeStatType.MagazineSize:
-                // Increase magazine size (round up so player gets at least +1 if percent > 0)
-                int increase = Mathf.Max(1, Mathf.RoundToInt(def.magazineSize * percent));
-                def.magazineSize += increase;
-                Debug.Log($"[{def.weaponName}] Magazine size: {def.magazineSize} (+{increase})");
+                if (isFlat)
+                {
+                    int increase = Mathf.RoundToInt(value);
+                    def.magazineSize = Mathf.Max(1, def.magazineSize + increase);
+                    Debug.Log($"[{def.weaponName}] Magazine size: {def.magazineSize} (+{increase})");
+                }
+                else
+                {
+                    int increase = Mathf.Max(1, Mathf.RoundToInt(def.magazineSize * value));
+                    def.magazineSize += increase;
+                    Debug.Log($"[{def.weaponName}] Magazine size: {def.magazineSize} (+{increase})");
+                }
                 break;
         }
     }
