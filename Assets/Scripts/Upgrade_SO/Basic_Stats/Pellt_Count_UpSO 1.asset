@@ -15,15 +15,16 @@ MonoBehaviour:
   displayName: Pellet Count
   icon: {fileID: 21300014, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}
   statType: 4
+  scalingType: 1
   commonRange:
-    min: 0.05
-    max: 0.1
+    min: 1
+    max: 1
   rareRange:
-    min: 0.11
-    max: 0.18
+    min: 2
+    max: 2
   epicRange:
-    min: 0.19
-    max: 0.28
+    min: 3
+    max: 3
   extraterrestrialRange:
-    min: 0.28
-    max: 0.45
+    min: 4
+    max: 4

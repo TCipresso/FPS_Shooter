@@ -19,10 +19,10 @@ MonoBehaviour:
   range: 99999
   swarmHitRadius: 0.4
   isAutomatic: 1
-  rpm: 200
+  rpm: 150
   critChance: 0.1
   critMultiplier: 2
-  pelletCount: 3
+  pelletCount: 1
   pelletSpreadAngle: 5
   flatSpread: 1
   magazineSize: 8
@@ -39,7 +39,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 15359
   impactEffectOverride: {fileID: 0}
-  projectilePrefab: {fileID: 6473194848375008525, guid: 2c98b089e5770414fa2e21e1c8cfc015, type: 3}
+  projectilePrefab: {fileID: 6473194848375008525, guid: fc402e3a57a82554fb93afbbfc35ddb9, type: 3}
   projectileSpeed: 150
   projectileGravityScale: 0
   isExplosive: 0

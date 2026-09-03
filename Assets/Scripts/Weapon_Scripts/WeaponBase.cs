@@ -310,22 +310,29 @@ public abstract class WeaponBase : MonoBehaviour
 
         for (int i = 0; i < pellets; i++)
         {
-            float spreadX, spreadY;
-            if (weaponDefinition.flatSpread && pellets > 1)
+            float spreadX = 0f;
+            float spreadY = 0f;
+
+            // ONLY apply spread if there are 2 or more pellets
+            if (pellets > 1)
             {
-                // Flat line spread
-                float t = pellets > 1 ? (float)i / (pellets - 1) : 0.5f;
-                spreadX = 0f;
-                spreadY = Mathf.Lerp(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle, t);
-                FireHitscanPellet(damage, range, spreadX, spreadY, true);
+                if (weaponDefinition.flatSpread)
+                {
+                    // Flat line spread
+                    float t = (float)i / (pellets - 1);
+                    spreadX = 0f;
+                    spreadY = Mathf.Lerp(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle, t);
+                }
+                else
+                {
+                    // Circular spread
+                    spreadX = Random.Range(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle);
+                    spreadY = Random.Range(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle);
+                }
             }
-            else
-            {
-                // Circular spread
-                spreadX = Random.Range(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle);
-                spreadY = Random.Range(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle);
-                FireHitscanPellet(damage, range, spreadX, spreadY, false);
-            }
+            // If only 1 pellet, spreadX and spreadY stay 0 (perfect accuracy)
+
+            FireHitscanPellet(damage, range, spreadX, spreadY, pellets > 1 && weaponDefinition.flatSpread);
         }
     }
 
@@ -397,20 +404,27 @@ public abstract class WeaponBase : MonoBehaviour
 
         for (int i = 0; i < pellets; i++)
         {
-            float spreadX, spreadY;
-            if (weaponDefinition.flatSpread && pellets > 1)
+            float spreadX = 0f;
+            float spreadY = 0f;
+
+            // ONLY apply spread if there are 2 or more pellets
+            if (pellets > 1)
             {
-                // Flat line spread
-                float t = pellets > 1 ? (float)i / (pellets - 1) : 0.5f;
-                spreadX = 0f;
-                spreadY = Mathf.Lerp(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle, t);
+                if (weaponDefinition.flatSpread)
+                {
+                    // Flat line spread
+                    float t = (float)i / (pellets - 1);
+                    spreadX = 0f;
+                    spreadY = Mathf.Lerp(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle, t);
+                }
+                else
+                {
+                    // Circular spread
+                    spreadX = Random.Range(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle);
+                    spreadY = Random.Range(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle);
+                }
             }
-            else
-            {
-                // Circular spread
-                spreadX = Random.Range(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle);
-                spreadY = Random.Range(-weaponDefinition.pelletSpreadAngle, weaponDefinition.pelletSpreadAngle);
-            }
+            // If only 1 pellet, spreadX and spreadY stay 0 (perfect accuracy)
 
             Vector3 origin;
             Vector3 direction = GetProjectileLaunch(out origin, spreadX, spreadY);
