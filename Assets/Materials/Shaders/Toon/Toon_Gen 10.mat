@@ -106,7 +106,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DitherCellSize: 0.01
+    - _DitherCellSize: 0.0001
     - _DitherPixelSize: 4
     - _DstBlend: 0
     - _DstBlendAlpha: 0
@@ -117,6 +117,7 @@ Material:
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _OutlineConstScreenSize: 1
+    - _OutlineFadeStart: 0.8
     - _OutlineMaxDist: 300
     - _OutlineWidth: 0.033
     - _Parallax: 0.005
