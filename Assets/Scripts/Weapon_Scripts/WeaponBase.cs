@@ -1,5 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.Entities;
+using Unity.Mathematics;
+using Random = UnityEngine.Random;
 
 public abstract class WeaponBase : MonoBehaviour
 {
@@ -42,8 +45,6 @@ public abstract class WeaponBase : MonoBehaviour
     public System.Action<WeaponBase, Vector3, Vector3> onProjectileFired;
     readonly List<Vector3> shotEndPoints = new List<Vector3>(16);
     readonly List<byte> shotHitTypes = new List<byte>(16);
-    const int MaxSwarmHits = 16;
-    readonly RaycastHit[] swarmHitBuffer = new RaycastHit[MaxSwarmHits];
     float walkStopTimer = 0f;
     float fireResetTime = 0f;
     float currentRpm;
@@ -269,34 +270,17 @@ public abstract class WeaponBase : MonoBehaviour
         }
     }
 
-    bool TryFindNearestZombieAlongRay(Vector3 origin, Vector3 direction, float maxDistance, out ZombieBase zombie, out HitBox hitBox, out Vector3 hitPoint)
+    // Flat XP handed to this weapon by ZombiePlayerRegistry when it lands a killing blow
+    // on an ECS zombie. Replaces the old proportional per-weapon damage tracking.
+    public void GrantKillXp(float amount)
     {
-        float radius = weaponDefinition != null ? weaponDefinition.swarmHitRadius : 0.4f;
-        int hitCount = Physics.SphereCastNonAlloc(origin, radius, direction, swarmHitBuffer, maxDistance);
-        ZombieBase closestZombie = null;
-        HitBox closestHitBox = null;
-        float closestDistance = float.MaxValue;
-        Vector3 closestPoint = default;
-        for (int i = 0; i < hitCount; i++)
-        {
-            RaycastHit hit = swarmHitBuffer[i];
-            HitBox candidateHitBox = hit.collider.GetComponentInParent<HitBox>();
-            ZombieBase candidate = candidateHitBox != null
-                ? candidateHitBox.zombie
-                : hit.collider.GetComponentInParent<ZombieBase>();
-            if (candidate == null || candidate.IsDead) continue;
-            if (hit.distance < closestDistance)
-            {
-                closestDistance = hit.distance;
-                closestZombie = candidate;
-                closestHitBox = candidateHitBox;
-                closestPoint = hit.point;
-            }
-        }
-        zombie = closestZombie;
-        hitBox = closestHitBox;
-        hitPoint = closestPoint;
-        return closestZombie != null;
+        if (weaponDefinition == null || amount <= 0f) return;
+
+        int levelsGained = weaponDefinition.AddXP(amount);
+        RefreshWeaponSkin();
+
+        if (levelsGained > 0 && WeaponLevelUpDraftUI.Instance != null)
+            WeaponLevelUpDraftUI.Instance.Show(this);
     }
 
     // ============= FIRING METHODS =============
@@ -356,21 +340,17 @@ public abstract class WeaponBase : MonoBehaviour
             ? Physics.Raycast(ray, out RaycastHit hit, range, weaponDefinition.hitMask)
             : Physics.Raycast(ray, out hit, range);
         float searchDistance = didHitWorld ? hit.distance : range;
-        bool hitZombie = TryFindNearestZombieAlongRay(origin, direction, searchDistance, out ZombieBase zombie, out HitBox hitBox, out Vector3 zombieHitPos);
+        float swarmRadius = weaponDefinition != null ? weaponDefinition.swarmHitRadius : 0.4f;
+        bool hitZombie = ZombieDamageBridge.TryFindNearestZombieAlongRay(
+            origin, direction, searchDistance, swarmRadius, out Entity zombieEntity, out float3 zombieHitPos);
         if (hitZombie)
         {
-            endPoint = zombieHitPos;
-            if (hitBox != null)
-            {
-                hitBox.TakeDamageWithHitPoint(damage, playerStats, this, endPoint, 1f, -direction, 1f);
-            }
-            else
-            {
-                zombie.TakeDamage(ApplyCrit(damage), playerStats, 1f, -direction, 1f, "", this);
-                zombie.hitFlash?.Flash(false);
-                if (HitMarkerPool.Instance != null)
-                    HitMarkerPool.Instance.Spawn(endPoint, false);
-            }
+            endPoint = (Vector3)zombieHitPos;
+            int finalDamage = ApplyCrit(damage);
+            bool isCrit = finalDamage != damage;
+            ZombieDamageBridge.DamageZombie(zombieEntity, finalDamage, this);
+            if (HitMarkerPool.Instance != null)
+                HitMarkerPool.Instance.Spawn(endPoint, isCrit);
             if (ImpactEffectPool.Instance != null)
                 ImpactEffectPool.Instance.SpawnZombie(endPoint, -direction);
         }
