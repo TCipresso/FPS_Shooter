@@ -161,8 +161,27 @@ public partial struct ZombieSpawnSystem : ISystem
         if (em.HasComponent<ZombieGroundOffset>(entity))
             groundOffset = em.GetComponentData<ZombieGroundOffset>(entity).Value;
 
+        float groundY = spawnPos.y + groundOffset;
+
+        // Spawn emergence: start the zombie buried and let the movement system raise it.
+        float startY = groundY;
+        if (em.HasComponent<ZombieEmerge>(entity))
+        {
+            ZombieEmerge emerge = em.GetComponentData<ZombieEmerge>(entity);
+            if (emerge.RiseDistance > 0f)
+            {
+                startY = groundY - emerge.RiseDistance;
+                emerge.RemainingRise = emerge.RiseDistance;
+            }
+            else
+            {
+                emerge.RemainingRise = 0f;
+            }
+            em.SetComponentData(entity, emerge);
+        }
+
         LocalTransform transform = em.GetComponentData<LocalTransform>(entity);
-        LocalTransform placed = transform.WithPosition(new float3(spawnPos.x, spawnPos.y + groundOffset, spawnPos.z));
+        LocalTransform placed = transform.WithPosition(new float3(spawnPos.x, startY, spawnPos.z));
         em.SetComponentData(entity, placed);
         // A freshly Instantiated entity still carries the prefab's LocalToWorld (origin) until
         // TransformSystemGroup rebuilds it - which can be a frame later. Write it now so the

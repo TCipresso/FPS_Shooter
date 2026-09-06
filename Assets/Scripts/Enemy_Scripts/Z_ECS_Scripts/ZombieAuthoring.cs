@@ -12,6 +12,12 @@ public class ZombieAuthoring : MonoBehaviour
     public float hitboxRadius = 0.5f;
     public float groundOffset = 0.9f;
 
+    [Header("Spawn Emergence")]
+    [Tooltip("How far below the ground the zombie starts when it spawns. 0 = no emergence, spawns on the surface.")]
+    public float emergeRiseDistance = 2f;
+    [Tooltip("How fast it claws up out of the ground, m/s.")]
+    public float emergeRiseSpeed = 3f;
+
     class Baker : Baker<ZombieAuthoring>
     {
         public override void Bake(ZombieAuthoring authoring)
@@ -37,6 +43,12 @@ public class ZombieAuthoring : MonoBehaviour
             AddComponent(entity, new ZombieTarget { Index = -1, Position = float3.zero, HasTarget = false, RecheckTimer = 0f });
             // Assigned by the spawner per weighted entry; baked default is entry 0.
             AddComponent(entity, new ZombiePrefabIndex { Value = 0 });
+            AddComponent(entity, new ZombieEmerge
+            {
+                RemainingRise = 0f,
+                RiseDistance = authoring.emergeRiseDistance,
+                Speed = authoring.emergeRiseSpeed
+            });
         }
     }
 }

@@ -364,9 +364,32 @@ partial struct ZombieApplyMovementJob : IJobEntity
     public float ClimbSpeed;
     public float LedgeLaunchSpeed;
 
-    void Execute([EntityIndexInQuery] int index, ref LocalTransform transform, in ZombieMoveSpeed moveSpeed, ref ZombieContactCooldown cooldown, ref ZombieVerticalVelocity verticalVelocity, ref ZombieClimbState climbState, in ZombieGroundOffset groundOffset, in ZombieTarget target, in ZombieContactDamage contactDamage)
+    void Execute([EntityIndexInQuery] int index, ref LocalTransform transform, in ZombieMoveSpeed moveSpeed, ref ZombieContactCooldown cooldown, ref ZombieVerticalVelocity verticalVelocity, ref ZombieClimbState climbState, in ZombieGroundOffset groundOffset, in ZombieTarget target, in ZombieContactDamage contactDamage, ref ZombieEmerge emerge)
     {
         float3 position = transform.Position;
+
+        // Spawn emergence: rise straight up out of the ground, no walking / gravity / contact
+        // until fully out. Independent of the climb logic below.
+        if (emerge.RemainingRise > 0f)
+        {
+            float rise = math.min(emerge.Speed * DeltaTime, emerge.RemainingRise);
+            emerge.RemainingRise -= rise;
+            verticalVelocity.Value = 0f;
+            climbState.WasBlocked = false;
+            climbState.WasWallBlocked = false;
+            transform.Position = new float3(position.x, position.y + rise, position.z);
+
+            float3 toPlayerFlat = target.HasTarget ? target.Position - position : float3.zero;
+            toPlayerFlat.y = 0f;
+            float faceDist = math.length(toPlayerFlat);
+            if (faceDist > 0.0001f)
+            {
+                quaternion faceRot = quaternion.LookRotationSafe(toPlayerFlat / faceDist, math.up());
+                transform.Rotation = math.slerp(transform.Rotation, faceRot, DeltaTime * 6f);
+            }
+            return;
+        }
+
         float3 moveDir = DesiredMoveDirections[index];
         RaycastHit wallHit = WallResults[index];
         RaycastHit groundHit = GroundResults[index];

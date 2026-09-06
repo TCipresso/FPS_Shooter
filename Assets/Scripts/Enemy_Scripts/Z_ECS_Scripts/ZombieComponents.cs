@@ -23,6 +23,16 @@ public struct ZombieContactDamage : IComponentData
     public int Value;
 }
 
+// Spawn emergence. RemainingRise > 0 means the zombie is still clawing up out of the ground:
+// it rises straight up at Speed and does not walk/fall until RemainingRise hits 0.
+// Always present (baked with RemainingRise = 0); the spawner sets it, no structural changes.
+public struct ZombieEmerge : IComponentData
+{
+    public float RemainingRise;
+    public float RiseDistance;  // how far underground the zombie starts
+    public float Speed;         // rise speed, m/s
+}
+
 public struct ZombieHealth : IComponentData
 {
     public int Current;
