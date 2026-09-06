@@ -91,9 +91,10 @@ public static class ZombieDamageBridge
 
         ZombieGridSingleton gridSingleton = entityManager.GetComponentData<ZombieGridSingleton>(gridSingletonEntity);
         float cellSize = gridSingleton.CellSize;
+        // Grid is XZ-only (see BuildGridJob) - one column bucket holds every height.
         int3 centerCell = (int3)math.floor(center / cellSize);
+        centerCell.y = 0;
         int cellRange = (int)math.ceil(radius / cellSize);
-        int yRange = cellRange + 2;
 
         int hitCount = 0;
 
@@ -101,23 +102,20 @@ public static class ZombieDamageBridge
         {
             for (int dz = -cellRange; dz <= cellRange; dz++)
             {
-                for (int dy = -yRange; dy <= yRange; dy++)
+                int3 neighborCell = centerCell + new int3(dx, 0, dz);
+                if (gridSingleton.Grid.TryGetFirstValue(neighborCell, out ZombieGridEntry entry, out var iterator))
                 {
-                    int3 neighborCell = centerCell + new int3(dx, dy, dz);
-                    if (gridSingleton.Grid.TryGetFirstValue(neighborCell, out ZombieGridEntry entry, out var iterator))
+                    do
                     {
-                        do
-                        {
-                            float2 horizontalDelta = new float2(center.x - entry.Position.x, center.z - entry.Position.z);
-                            float horizontalDist = math.length(horizontalDelta);
+                        float2 horizontalDelta = new float2(center.x - entry.Position.x, center.z - entry.Position.z);
+                        float horizontalDist = math.length(horizontalDelta);
 
-                            if (horizontalDist <= radius + entry.Radius)
-                            {
-                                DamageZombie(entry.Entity, amount, weapon, playerIndex);
-                                hitCount++;
-                            }
-                        } while (gridSingleton.Grid.TryGetNextValue(out entry, ref iterator));
-                    }
+                        if (horizontalDist <= radius + entry.Radius)
+                        {
+                            DamageZombie(entry.Entity, amount, weapon, playerIndex);
+                            hitCount++;
+                        }
+                    } while (gridSingleton.Grid.TryGetNextValue(out entry, ref iterator));
                 }
             }
         }
@@ -150,8 +148,9 @@ public static class ZombieDamageBridge
             float t = math.min(s * step, maxDistance);
             float3 samplePos = origin + dir * t;
             int3 sampleCell = (int3)math.floor(samplePos / cellSize);
+            sampleCell.y = 0; // grid is XZ-only
 
-            if (sampleCell.x != lastCell.x || sampleCell.y != lastCell.y || sampleCell.z != lastCell.z)
+            if (sampleCell.x != lastCell.x || sampleCell.z != lastCell.z)
             {
                 lastCell = sampleCell;
 
@@ -206,6 +205,7 @@ public static class ZombieDamageBridge
         ZombieGridSingleton gridSingleton = entityManager.GetComponentData<ZombieGridSingleton>(gridSingletonEntity);
         float cellSize = gridSingleton.CellSize;
         int3 cell = (int3)math.floor(worldPosition / cellSize);
+        cell.y = 0; // grid is XZ-only
 
         float closestDist = radius;
         bool found = false;

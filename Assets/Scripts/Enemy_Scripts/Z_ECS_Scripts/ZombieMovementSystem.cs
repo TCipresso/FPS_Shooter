@@ -163,7 +163,10 @@ partial struct BuildGridJob : IJobEntity
 
     void Execute(Entity entity, in LocalTransform transform, in ZombieHitboxHeight hitboxHeight, in ZombieHitboxRadius hitboxRadius, in ZombieGroundOffset groundOffset)
     {
-        int3 cell = (int3)math.floor(transform.Position / CellSize);
+        // XZ-only binning: every zombie in a column shares a cell regardless of height.
+        // Vertical filtering happens in the per-pair math, so stacked/climbing zombies are
+        // never missed by a seam between height buckets (movement, separation, hit-reg).
+        int3 cell = new int3((int)math.floor(transform.Position.x / CellSize), 0, (int)math.floor(transform.Position.z / CellSize));
         GridWriter.Add(cell, new ZombieGridEntry { Entity = entity, Position = transform.Position, Height = hitboxHeight.Value, Radius = hitboxRadius.Value, GroundOffset = groundOffset.Value });
     }
 }
@@ -262,6 +265,7 @@ partial struct ZombieDesiredMoveJob : IJobEntity
         float closestBlockerDist = ZombieClimbDistance;
         float zombieStandHeight = float.NegativeInfinity;
         int3 cell = (int3)math.floor(position / CellSize);
+        cell.y = 0; // grid is XZ-only (see BuildGridJob)
         int cellRadius = (int)math.ceil(SeparationRadius / CellSize);
         for (int dx = -cellRadius; dx <= cellRadius; dx++)
         {
