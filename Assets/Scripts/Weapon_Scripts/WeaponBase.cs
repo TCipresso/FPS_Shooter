@@ -30,6 +30,9 @@ public abstract class WeaponBase : MonoBehaviour
     public float shakeMagnitude = 0.05f;
     public float shakeDuration = 0.08f;
     public float shakeFrequency = 30f;
+    [Header("Perf")]
+    [Tooltip("Cap on bullet trails spawned per shot. Multi-pellet weapons don't need a trail per pellet.")]
+    public int maxTrailsPerShot = 4;
     [HideInInspector] public float currentBloom = 0f;
     [Header("Animation")]
     public Animator animator;
@@ -58,6 +61,8 @@ public abstract class WeaponBase : MonoBehaviour
     protected PlayerStats playerStats;
     protected PlayerFpsController fpsController;
 
+    public int WeaponId { get; private set; }
+
     public PlayerStats OwnerStats => playerStats;
     public int damage => weaponDefinition != null ? weaponDefinition.damage : 0;
     public bool isAutomatic => weaponDefinition != null && weaponDefinition.isAutomatic;
@@ -70,6 +75,7 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected virtual void Awake()
     {
+        WeaponId = ZombieDamageBridge.RegisterWeapon(this);
         ResolveOwningPlayerReferences();
         if (fpsLook == null)
             Debug.LogWarning($"[{gameObject.name}] FPSLook not found on owning player.");
@@ -141,6 +147,11 @@ public abstract class WeaponBase : MonoBehaviour
         isReloading = false;
         currentBloom = 0f;
         walkStopTimer = 0f;
+    }
+
+    protected virtual void OnDestroy()
+    {
+        ZombieDamageBridge.UnregisterWeapon(WeaponId);
     }
 
     protected virtual void Update()
@@ -316,11 +327,14 @@ public abstract class WeaponBase : MonoBehaviour
             }
             // If only 1 pellet, spreadX and spreadY stay 0 (perfect accuracy)
 
-            FireHitscanPellet(damage, range, spreadX, spreadY, pellets > 1 && weaponDefinition.flatSpread);
+            FireHitscanPellet(damage, range, spreadX, spreadY, pellets > 1 && weaponDefinition.flatSpread, i < maxTrailsPerShot);
         }
     }
 
-    private void FireHitscanPellet(int damage, float range, float spreadX, float spreadY, bool exactDirection)
+    // Per pellet this only does: one world raycast (static geometry, for the trail end +
+    // wall decal) and a struct submit. The zombie hit is marched in a batched Burst job
+    // and the impact/hitmarker VFX are emitted once per frame by WeaponHitscanRunner.
+    private void FireHitscanPellet(int damage, float range, float spreadX, float spreadY, bool exactDirection, bool allowTrail)
     {
         Vector3 origin = GetAimOrigin();
         Vector3 direction;
@@ -334,41 +348,45 @@ public abstract class WeaponBase : MonoBehaviour
         {
             direction = GetAimDirection(spreadX, spreadY);
         }
-        Ray ray = new Ray(origin, direction);
-        Vector3 endPoint;
+
         bool didHitWorld = weaponDefinition.hitMask != 0
-            ? Physics.Raycast(ray, out RaycastHit hit, range, weaponDefinition.hitMask)
-            : Physics.Raycast(ray, out hit, range);
-        float searchDistance = didHitWorld ? hit.distance : range;
-        float swarmRadius = weaponDefinition != null ? weaponDefinition.swarmHitRadius : 0.4f;
-        bool hitZombie = ZombieDamageBridge.TryFindNearestZombieAlongRay(
-            origin, direction, searchDistance, swarmRadius, out Entity zombieEntity, out float3 zombieHitPos);
-        if (hitZombie)
+            ? Physics.Raycast(origin, direction, out RaycastHit hit, range, weaponDefinition.hitMask)
+            : Physics.Raycast(origin, direction, out hit, range);
+        float worldDist = didHitWorld ? hit.distance : range;
+        Vector3 endPoint = didHitWorld ? hit.point : origin + direction * range;
+
+        int finalDamage = ApplyCrit(damage);
+        ZombieHitscanBridge.Submit(new PelletRayRequest
         {
-            endPoint = (Vector3)zombieHitPos;
-            int finalDamage = ApplyCrit(damage);
-            bool isCrit = finalDamage != damage;
-            ZombieDamageBridge.DamageZombie(zombieEntity, finalDamage, this);
-            if (HitMarkerPool.Instance != null)
-                HitMarkerPool.Instance.Spawn(endPoint, isCrit);
-            if (ImpactEffectPool.Instance != null)
-                ImpactEffectPool.Instance.SpawnZombie(endPoint, -direction);
-        }
-        else if (didHitWorld)
+            Origin = origin,
+            Direction = direction,
+            MaxDistance = worldDist,
+            SwarmRadius = weaponDefinition != null ? weaponDefinition.swarmHitRadius : 0.4f,
+            Damage = finalDamage,
+            IsCrit = (byte)(finalDamage != damage ? 1 : 0),
+            WeaponId = WeaponId,
+            HasWorldHit = (byte)(didHitWorld ? 1 : 0),
+            WorldHitPoint = didHitWorld ? hit.point : Vector3.zero,
+            WorldHitNormal = didHitWorld ? hit.normal : Vector3.up
+        });
+
+        // The impact puff is emitted by WeaponHitscanRunner (so a zombie in front of the
+        // wall suppresses the wall puff). SandboxSpawner still needs the collider here.
+        if (didHitWorld)
         {
-            endPoint = hit.point;
-            SpawnImpactEffect(hit, false);
             SandboxSpawner spawner = hit.collider.GetComponentInParent<SandboxSpawner>();
             if (spawner != null)
                 spawner.TriggerSpawn();
         }
-        else
+
+        if (allowTrail)
+            SpawnTrail(muzzlePoint.position, endPoint);
+
+        if (onShotFired != null)
         {
-            endPoint = origin + direction * range;
+            shotEndPoints.Add(endPoint);
+            shotHitTypes.Add(didHitWorld ? (byte)1 : (byte)0);
         }
-        SpawnTrail(muzzlePoint.position, endPoint);
-        shotEndPoints.Add(endPoint);
-        shotHitTypes.Add(hitZombie ? (byte)2 : didHitWorld ? (byte)1 : (byte)0);
     }
 
     private void FireProjectile(int damage)
@@ -581,9 +599,7 @@ public abstract class WeaponBase : MonoBehaviour
     protected void SpawnTrail(Vector3 start, Vector3 end)
     {
         if (weaponDefinition == null || BulletPool.Instance == null) return;
-        GameObject obj = BulletPool.Instance.Get(weaponDefinition.trailPoolKey, start, Quaternion.identity);
-        if (obj == null) return;
-        BulletTrail trail = obj.GetComponent<BulletTrail>();
+        BulletTrail trail = BulletPool.Instance.GetTrail(weaponDefinition.trailPoolKey, start, Quaternion.identity);
         if (trail != null) trail.Fire(start, end);
     }
 

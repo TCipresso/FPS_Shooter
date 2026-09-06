@@ -7,6 +7,13 @@ using Unity.Burst;
 using Unity.Jobs;
 using UnityEngine;
 
+// Set each frame to the grid-build job handle so main-thread readers (weapon hitscan)
+// can complete just the cheap grid build instead of the whole zombie movement sim.
+public static class ZombieSimGate
+{
+    public static JobHandle GridBuild;
+}
+
 public partial struct ZombieMovementSystem : ISystem
 {
     public void OnUpdate(ref SystemState state)
@@ -43,6 +50,8 @@ public partial struct ZombieMovementSystem : ISystem
             GridWriter = gridSingleton.Grid.AsParallelWriter(),
             CellSize = cellSize
         }.ScheduleParallel(state.Dependency);
+
+        ZombieSimGate.GridBuild = buildHandle;
 
         int wallLayerMask = 0;
         float wallCheckDistance = 0.6f;

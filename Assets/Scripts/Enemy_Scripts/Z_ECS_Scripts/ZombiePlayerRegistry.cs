@@ -127,12 +127,10 @@ public class ZombiePlayerRegistry : MonoBehaviour
 
         while (queue.TryDequeue(out ZombieCreditEvent creditEvent))
         {
-            // Always resolve the ticket (even for PlayerIndex < 0 cleanup events) so the
-            // managed dictionary in ZombieDamageBridge doesn't leak.
-            WeaponBase weapon = ZombieDamageBridge.ConsumeWeaponTicket(creditEvent.WeaponTicket);
-
             int i = creditEvent.PlayerIndex;
             if (i < 0 || i >= players.Count) continue;
+
+            WeaponBase weapon = ZombieDamageBridge.ResolveWeapon(creditEvent.WeaponTicket);
 
             PlayerZombieBridge bridge = players[i];
             if (bridge == null) continue;

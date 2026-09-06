@@ -16,7 +16,7 @@ MonoBehaviour:
   category: 0
   dropPrefab: {fileID: 0}
   damage: 25
-  range: 99999
+  range: 100
   swarmHitRadius: 0.1
   isAutomatic: 1
   rpm: 200
@@ -38,7 +38,7 @@ MonoBehaviour:
   hitMask:
     serializedVersion: 2
     m_Bits: 15359
-  impactEffectOverride: {fileID: 6350203987023523720, guid: 1d1898ccac54b1147baf916f234e27a6, type: 3}
+  impactEffectOverride: {fileID: 0}
   projectilePrefab: {fileID: 0}
   projectileSpeed: 40
   projectileGravityScale: 0

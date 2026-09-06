@@ -25,12 +25,7 @@ public partial struct ZombieDamageSystem : ISystem
         while (queue.TryDequeue(out ZombieDamageEvent damageEvent))
         {
             if (!em.Exists(damageEvent.Target) || !em.HasComponent<ZombieHealth>(damageEvent.Target))
-            {
-                // Target already gone (e.g. two shots the same frame) - drop the weapon ticket.
-                if (damageEvent.WeaponTicket != 0)
-                    creditQueue.Enqueue(new ZombieCreditEvent { PlayerIndex = -1, IsKill = false, WeaponTicket = damageEvent.WeaponTicket, XpAmount = 0f });
-                continue;
-            }
+                continue; // target already gone (e.g. two shots the same frame)
 
             ZombieHealth health = em.GetComponentData<ZombieHealth>(damageEvent.Target);
             health.Current -= damageEvent.Amount;

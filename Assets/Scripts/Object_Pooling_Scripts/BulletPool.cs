@@ -62,6 +62,17 @@ public class BulletPool : MonoBehaviour
         return item;
     }
 
+    // Trail-typed getter - reuses the cached IPoolable (BulletTrail implements it) instead
+    // of a GetComponent per shot.
+    public BulletTrail GetTrail(string key, Vector3 position, Quaternion rotation)
+    {
+        GameObject go = Get(key, position, rotation);
+        if (go == null) return null;
+        if (itemLookup.TryGetValue(go, out PooledItem item) && item.Poolable is BulletTrail cached)
+            return cached;
+        return go.GetComponent<BulletTrail>();
+    }
+
     public GameObject Get(string key, Vector3 position, Quaternion rotation)
     {
         if (!pools.TryGetValue(key, out Queue<PooledItem> pool))

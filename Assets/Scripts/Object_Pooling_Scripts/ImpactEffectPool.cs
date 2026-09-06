@@ -88,8 +88,10 @@ public class ImpactEffectPool : MonoBehaviour
 
         t.SetPositionAndRotation(point, Quaternion.LookRotation(normal));
 
-        ps.gameObject.SetActive(true);
-        ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        // Avoid the expensive Stop(withChildren, StopEmittingAndClear) + activation churn per
+        // hit. The ring buffer has cycled by the time we wrap; a few stray particles is invisible.
+        if (!ps.gameObject.activeSelf)
+            ps.gameObject.SetActive(true);
         ps.Play();
 
         deactivateAt[index] = Time.time + duration;

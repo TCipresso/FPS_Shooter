@@ -12,29 +12,43 @@ public static class ZombieDamageBridge
     static bool initialized;
 
     // Managed weapon references can't ride inside a burst NativeQueue, so damage events
-    // carry an int ticket and the real WeaponBase lives here until the credit is drained.
-    static readonly Dictionary<int, WeaponBase> weaponTickets = new Dictionary<int, WeaponBase>();
-    static int nextWeaponTicket = 1;
+    // carry a stable int id. Registered once per weapon instance (Awake) and looked up
+    // without removal when a kill credit is drained - no per-hit dictionary churn.
+    static readonly Dictionary<int, WeaponBase> weapons = new Dictionary<int, WeaponBase>();
+    static int nextWeaponId = 1;
 
-    public static int RegisterWeaponTicket(WeaponBase weapon)
+    [UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatics()
+    {
+        weapons.Clear();
+        nextWeaponId = 1;
+        cachedWorld = null;
+        initialized = false;
+        gridSingletonEntity = Entity.Null;
+        damageQueueSingletonEntity = Entity.Null;
+    }
+
+    public static int RegisterWeapon(WeaponBase weapon)
     {
         if (weapon == null)
             return 0;
 
-        int ticket = nextWeaponTicket++;
-        if (nextWeaponTicket == 0) nextWeaponTicket = 1;
-        weaponTickets[ticket] = weapon;
-        return ticket;
+        int id = nextWeaponId++;
+        if (nextWeaponId == 0) nextWeaponId = 1;
+        weapons[id] = weapon;
+        return id;
     }
 
-    public static WeaponBase ConsumeWeaponTicket(int ticket)
+    public static void UnregisterWeapon(int weaponId)
     {
-        if (ticket == 0) return null;
-        if (weaponTickets.TryGetValue(ticket, out WeaponBase weapon))
-        {
-            weaponTickets.Remove(ticket);
+        if (weaponId != 0)
+            weapons.Remove(weaponId);
+    }
+
+    public static WeaponBase ResolveWeapon(int weaponId)
+    {
+        if (weaponId != 0 && weapons.TryGetValue(weaponId, out WeaponBase weapon))
             return weapon;
-        }
         return null;
     }
 
@@ -48,8 +62,9 @@ public static class ZombieDamageBridge
             initialized = false;
             gridSingletonEntity = Entity.Null;
             damageQueueSingletonEntity = Entity.Null;
-            weaponTickets.Clear();
-            nextWeaponTicket = 1;
+            // Do NOT clear `weapons` here - weapons register in their own Awake (often before
+            // this first runs) and unregister in OnDestroy. Their lifetime is the scene, not
+            // the ECS world. ResetStatics() handles domain reload.
         }
 
         if (initialized)
@@ -71,16 +86,34 @@ public static class ZombieDamageBridge
         initialized = gridSingletonEntity != Entity.Null && damageQueueSingletonEntity != Entity.Null;
     }
 
-    public static void DamageZombie(Entity target, int amount, WeaponBase weapon = null, int playerIndex = 0)
+    public static bool TryGetGrid(out NativeParallelMultiHashMap<int3, ZombieGridEntry> grid, out float cellSize)
+    {
+        grid = default;
+        cellSize = 0f;
+
+        EnsureInitialized();
+        if (!initialized)
+            return false;
+
+        ZombieGridSingleton g = entityManager.GetComponentData<ZombieGridSingleton>(gridSingletonEntity);
+        grid = g.Grid;
+        cellSize = g.CellSize;
+        return true;
+    }
+
+    public static void DamageZombie(Entity target, int amount, WeaponBase weapon, int playerIndex = 0)
+    {
+        DamageZombie(target, amount, weapon != null ? weapon.WeaponId : 0, playerIndex);
+    }
+
+    public static void DamageZombie(Entity target, int amount, int weaponId = 0, int playerIndex = 0)
     {
         EnsureInitialized();
         if (!initialized)
             return;
 
-        int ticket = RegisterWeaponTicket(weapon);
-
         NativeQueue<ZombieDamageEvent> queue = entityManager.GetComponentData<ZombieDamageQueue>(damageQueueSingletonEntity).Queue;
-        queue.Enqueue(new ZombieDamageEvent { Target = target, Amount = amount, PlayerIndex = playerIndex, WeaponTicket = ticket });
+        queue.Enqueue(new ZombieDamageEvent { Target = target, Amount = amount, PlayerIndex = playerIndex, WeaponTicket = weaponId });
     }
 
     public static int DamageZombiesInRadius(float3 center, float radius, int amount, WeaponBase weapon = null, int playerIndex = 0)

@@ -214,7 +214,7 @@ MonoBehaviour:
   zombies:
   - prefab: {fileID: 1599928745066559140, guid: 1346426a53680834eb079066c98422f7, type: 3}
     weight: 1
-  maxAlive: 10000
+  maxAlive: 1000
   difficultyInterval: 15
   baseSpawnRate: 0.5
   maxSpawnRate: 3
@@ -223,8 +223,8 @@ MonoBehaviour:
   damageMultiplierPerInterval: 1.04
   speedMultiplierPerInterval: 1.02
   maxStatMultiplier: 5
-  minRadius: 15
-  maxRadius: 30
+  minRadius: 30
+  maxRadius: 100
   raycastHeight: 200
   maxSlopeDegrees: 40
   maxAttemptsPerSpawn: 5
@@ -233,8 +233,8 @@ MonoBehaviour:
   recycleRadiusMin: 75
   recycleRadiusMax: 100
   recycleChecksPerFrame: 15
-  debugStressTest: 1
-  debugTargetCount: 1
+  debugStressTest: 0
+  debugTargetCount: 100
   debugSpawnPerFrame: 100
 --- !u!4 &729287731
 Transform:
