@@ -98,11 +98,32 @@ public static class ZombieHitscanBridge
 
         pending.Clear();
 
+        // Fold every pellet that hit the same zombie into ONE damage event. Multiple lethal
+        // events for one entity in the same drain = double pool-release = visible jitter.
         for (int i = 0; i < count; i++)
         {
             PelletHitResult r = results[i];
             if (r.Hit == 0) continue;
-            ZombieDamageBridge.DamageZombie(r.Zombie, r.Damage, r.WeaponId);
+
+            bool firstForThisZombie = true;
+            for (int k = 0; k < i; k++)
+            {
+                if (results[k].Hit == 1 && results[k].Zombie == r.Zombie)
+                {
+                    firstForThisZombie = false;
+                    break;
+                }
+            }
+            if (!firstForThisZombie) continue;
+
+            int total = r.Damage;
+            for (int j = i + 1; j < count; j++)
+            {
+                if (results[j].Hit == 1 && results[j].Zombie == r.Zombie)
+                    total += results[j].Damage;
+            }
+
+            ZombieDamageBridge.DamageZombie(r.Zombie, total, r.WeaponId);
         }
 
         return results;

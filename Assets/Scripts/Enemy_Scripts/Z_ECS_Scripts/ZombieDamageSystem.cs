@@ -25,7 +25,13 @@ public partial struct ZombieDamageSystem : ISystem
         while (queue.TryDequeue(out ZombieDamageEvent damageEvent))
         {
             if (!em.Exists(damageEvent.Target) || !em.HasComponent<ZombieHealth>(damageEvent.Target))
-                continue; // target already gone (e.g. two shots the same frame)
+                continue;
+
+            // Already dead this frame (another pellet of the same shot got the kill).
+            // Disabled entities keep their components, so we must skip them explicitly -
+            // otherwise they get "killed" again: double credit, double pool release.
+            if (em.HasComponent<Disabled>(damageEvent.Target))
+                continue;
 
             ZombieHealth health = em.GetComponentData<ZombieHealth>(damageEvent.Target);
             health.Current -= damageEvent.Amount;

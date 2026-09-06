@@ -217,8 +217,8 @@ MonoBehaviour:
   maxAlive: 1000
   difficultyInterval: 15
   baseSpawnRate: 0.5
-  maxSpawnRate: 3
-  spawnRateGrowthAmount: 0.1
+  maxSpawnRate: 10
+  spawnRateGrowthAmount: 0.5
   healthMultiplierPerInterval: 1.05
   damageMultiplierPerInterval: 1.04
   speedMultiplierPerInterval: 1.02
@@ -229,7 +229,7 @@ MonoBehaviour:
   maxSlopeDegrees: 40
   maxAttemptsPerSpawn: 5
   spawnsPerTick: 1
-  recycleDistance: 10000
+  recycleDistance: 300
   recycleRadiusMin: 75
   recycleRadiusMax: 100
   recycleChecksPerFrame: 15

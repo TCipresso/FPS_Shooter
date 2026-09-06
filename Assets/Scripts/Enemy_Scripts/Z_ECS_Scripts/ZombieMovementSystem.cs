@@ -14,6 +14,7 @@ public static class ZombieSimGate
     public static JobHandle GridBuild;
 }
 
+[UpdateBefore(typeof(TransformSystemGroup))]
 public partial struct ZombieMovementSystem : ISystem
 {
     public void OnUpdate(ref SystemState state)

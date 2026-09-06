@@ -43,6 +43,12 @@ public static class ZombiePool
         if (!em.Exists(entity))
             return;
 
+        // Already released (e.g. a second lethal damage event from another pellet of the
+        // same shot). Never add the same entity to the pool twice - that hands one entity
+        // to two Acquire calls and the "alive" one visibly teleports.
+        if (em.HasComponent<Disabled>(entity))
+            return;
+
         em.SetEnabled(entity, false);
         pool.Add(entity);
     }

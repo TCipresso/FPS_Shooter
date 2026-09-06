@@ -8,6 +8,7 @@ using Random = Unity.Mathematics.Random;
 // Continuous radius spawner. ECS port of RadiusEnemySpawner + EnemyDifficultyHandler
 // (population cap from EnemyPopulationManager; recycling lives in ZombieRecycleSystem).
 [UpdateAfter(typeof(ZombieBootstrapSystem))]
+[UpdateBefore(typeof(TransformSystemGroup))]
 public partial struct ZombieSpawnSystem : ISystem
 {
     Random random;
@@ -161,7 +162,13 @@ public partial struct ZombieSpawnSystem : ISystem
             groundOffset = em.GetComponentData<ZombieGroundOffset>(entity).Value;
 
         LocalTransform transform = em.GetComponentData<LocalTransform>(entity);
-        em.SetComponentData(entity, transform.WithPosition(new float3(spawnPos.x, spawnPos.y + groundOffset, spawnPos.z)));
+        LocalTransform placed = transform.WithPosition(new float3(spawnPos.x, spawnPos.y + groundOffset, spawnPos.z));
+        em.SetComponentData(entity, placed);
+        // A freshly Instantiated entity still carries the prefab's LocalToWorld (origin) until
+        // TransformSystemGroup rebuilds it - which can be a frame later. Write it now so the
+        // zombie never renders at the world origin for a frame ("flicker then teleport").
+        if (em.HasComponent<LocalToWorld>(entity))
+            em.SetComponentData(entity, new LocalToWorld { Value = float4x4.TRS(placed.Position, placed.Rotation, new float3(placed.Scale)) });
 
         int baseMaxHealth = 0;
         float baseSpeed = 0f;

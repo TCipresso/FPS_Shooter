@@ -39,9 +39,10 @@ public class ZombieSpawnAuthoring : MonoBehaviour
     public int spawnsPerTick = 1;
 
     [Header("Recycling (EnemyPopulationManager)")]
-    public float recycleDistance = 70f;
-    public float recycleRadiusMin = 15f;
-    public float recycleRadiusMax = 30f;
+    [Tooltip("A zombie is only recycled if it's THIS far from the player AND off-screen. Keep it large - recycling is for when the player outruns the horde, not for zombies that wander a bit.")]
+    public float recycleDistance = 120f;
+    public float recycleRadiusMin = 25f;
+    public float recycleRadiusMax = 45f;
     public int recycleChecksPerFrame = 15;
 
     [Header("Debug / Stress Test")]

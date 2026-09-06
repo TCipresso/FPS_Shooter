@@ -7,11 +7,14 @@ using Random = Unity.Mathematics.Random;
 
 // ECS port of EnemyPopulationManager's recycling: zombies that wander too far from the
 // player are teleported back into a ring around the player instead of being destroyed.
-// Round-robins a fixed budget of entities per frame.
+// Round-robins a fixed budget of entities per frame, and NEVER moves a zombie the camera
+// can see - so the player never witnesses a pop.
 [UpdateAfter(typeof(ZombieSpawnSystem))]
+[UpdateBefore(typeof(TransformSystemGroup))]
 public partial struct ZombieRecycleSystem : ISystem
 {
     Random random;
+    static readonly Plane[] FrustumPlanes = new Plane[6];
 
     public void OnCreate(ref SystemState state)
     {
@@ -58,9 +61,19 @@ public partial struct ZombieRecycleSystem : ISystem
         if (SystemAPI.TryGetSingleton<ZombieWallConfig>(out ZombieWallConfig wallConfig))
             groundMask = wallConfig.GroundLayerMask;
 
-        float recycleSqr = config.RecycleDistance * config.RecycleDistance;
+        // Clamp so recycling can never trigger anywhere near the spawn / recycle rings -
+        // otherwise a zombie recycled into the ring immediately re-qualifies and ping-pongs.
+        float minSafe = math.max(config.MaxRadius, config.RecycleRadiusMax) + 60f;
+        float recycleDistance = math.max(config.RecycleDistance, minSafe);
+        float recycleSqr = recycleDistance * recycleDistance;
         float rayHeight = math.max(1f, config.RaycastHeight);
         int budget = math.min(math.max(1, config.RecycleChecksPerFrame), zombies.Length);
+
+        // Frustum of the player's camera - a far zombie inside it is never recycled.
+        Camera cam = Camera.main;
+        bool haveFrustum = cam != null;
+        if (haveFrustum)
+            GeometryUtility.CalculateFrustumPlanes(cam, FrustumPlanes);
 
         int cursor = spawnState.RecycleCursor;
         for (int n = 0; n < budget; n++)
@@ -76,13 +89,25 @@ public partial struct ZombieRecycleSystem : ISystem
             if (math.lengthsq(flatDelta) <= recycleSqr)
                 continue;
 
+            // Far, but on screen -> leave it. Never pop something the player is looking at.
+            if (haveFrustum)
+            {
+                Bounds b = new Bounds((Vector3)transform.Position, new Vector3(4f, 5f, 4f));
+                if (GeometryUtility.TestPlanesAABB(FrustumPlanes, b))
+                    continue;
+            }
+
             if (TryFindRecyclePoint(anchor, config, groundMask, rayHeight, out float3 dest))
             {
                 float groundOffset = em.HasComponent<ZombieGroundOffset>(zombie)
                     ? em.GetComponentData<ZombieGroundOffset>(zombie).Value
                     : 0f;
 
-                em.SetComponentData(zombie, transform.WithPosition(new float3(dest.x, dest.y + groundOffset, dest.z)));
+                LocalTransform moved = transform.WithPosition(new float3(dest.x, dest.y + groundOffset, dest.z));
+                em.SetComponentData(zombie, moved);
+                // Keep the render matrix in sync this frame, not next - avoids a 1-frame pop.
+                if (em.HasComponent<LocalToWorld>(zombie))
+                    em.SetComponentData(zombie, new LocalToWorld { Value = float4x4.TRS(moved.Position, moved.Rotation, new float3(moved.Scale)) });
 
                 if (em.HasComponent<ZombieVerticalVelocity>(zombie))
                     em.SetComponentData(zombie, new ZombieVerticalVelocity { Value = 0f });
