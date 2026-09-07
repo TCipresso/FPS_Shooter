@@ -19,6 +19,7 @@ public class WeaponAttachmentSO : ScriptableObject
     public string displayName = "Attachment";
     public Sprite icon;
     [TextArea] public string description;
+    public UpgradeRarity rarity = UpgradeRarity.Common;
 
     [Header("Compatibility")]
     [Tooltip("Weapon categories this can attach to. Empty = fits any weapon.")]

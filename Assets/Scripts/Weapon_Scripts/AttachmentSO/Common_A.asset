@@ -10,16 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 655ddaddea11d2045b07e7def4accb4a, type: 3}
-  m_Name: Silencer
+  m_Name: Common_A
   m_EditorClassIdentifier: Assembly-CSharp::WeaponAttachmentSO
-  displayName: Silencer
-  icon: {fileID: 0}
-  description: 
+  displayName: Common Attachment
+  icon: {fileID: 21300000, guid: 16c5d56f427df374aa48a43c3e59e94b, type: 3}
+  description: This is a common
   rarity: 0
   compatibleCategories: 
-  visualSlots:
-  - Silencer
-  statMods:
-  - stat: 4
-    scaling: 1
-    value: 5
+  visualSlots: []
+  statMods: []

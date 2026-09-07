@@ -10,16 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 655ddaddea11d2045b07e7def4accb4a, type: 3}
-  m_Name: Silencer
+  m_Name: Legendary_A
   m_EditorClassIdentifier: Assembly-CSharp::WeaponAttachmentSO
-  displayName: Silencer
-  icon: {fileID: 0}
-  description: 
-  rarity: 0
+  displayName: Legendary Attachment
+  icon: {fileID: 21300000, guid: ed16a32703245264a96aa17d29e10bdb, type: 3}
+  description: 'This is a Legendary
+
+'
+  rarity: 3
   compatibleCategories: 
-  visualSlots:
-  - Silencer
-  statMods:
-  - stat: 4
-    scaling: 1
-    value: 5
+  visualSlots: []
+  statMods: []
