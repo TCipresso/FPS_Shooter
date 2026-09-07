@@ -189,6 +189,10 @@ public class WeaponInventory : MonoBehaviour
         entry.runtimeDefinition.currentXP = 0f;
         entry.runtimeDefinition.usedEvolutions.Clear();
 
+        // Attachment engine: bake the weapon's equipped attachments into the per-run clone
+        // + enable their visual parts. Level-up picks stack on top of this during the run.
+        WeaponAttachmentService.Apply(entry);
+
         foreach (WeaponBase weaponBase in entry.weaponBases)
         {
             if (weaponBase == null)
@@ -197,6 +201,7 @@ public class WeaponInventory : MonoBehaviour
             weaponBase.weaponDefinition = entry.runtimeDefinition;
             weaponBase.ApplyLevel(entry.runtimeDefinition);
             weaponBase.RefreshWeaponSkin();
+            weaponBase.Refill(); // match starting ammo to the post-attachment magazine size
         }
     }
 

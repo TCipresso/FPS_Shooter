@@ -9,7 +9,15 @@ public enum WeaponUpgradeStatType
     PelletCount,
     Accuracy,
     ReloadSpeed,
-    MagazineSize
+    MagazineSize,
+
+    // Shared with the attachment engine. Level-ups only offer these if a weapon's
+    // upgradePool includes an upgrade SO set to one of them.
+    Range,
+    SpreadAngle,
+    ProjectileSpeed,
+    ExplosionRadius,
+    SwarmHitRadius
 }
 
 public enum UpgradeScalingType
@@ -125,76 +133,7 @@ public class WeaponStatUpgradeSO : ScriptableObject
 
     public void Apply(WeaponDefinitionSO def, float value)
     {
-        if (def == null) return;
-
-        bool isFlat = scalingType == UpgradeScalingType.Flat;
-
-        switch (statType)
-        {
-            case WeaponUpgradeStatType.Damage:
-                if (isFlat)
-                    def.damage = Mathf.Max(1, def.damage + Mathf.RoundToInt(value));
-                else
-                    def.damage = Mathf.Max(1, Mathf.RoundToInt(def.damage * (1f + value)));
-                break;
-
-            case WeaponUpgradeStatType.AttackSpeed:
-                if (isFlat)
-                    def.rpm = Mathf.Max(1f, def.rpm + value);
-                else
-                    def.rpm = def.rpm * (1f + value);
-                break;
-
-            case WeaponUpgradeStatType.CritChance:
-                // Crit chance is always additive (flat)
-                def.critChance = Mathf.Clamp01(def.critChance + value);
-                break;
-
-            case WeaponUpgradeStatType.CritMultiplier:
-                if (isFlat)
-                    def.critMultiplier = Mathf.Max(1f, def.critMultiplier + value);
-                else
-                    def.critMultiplier = def.critMultiplier * (1f + value);
-                break;
-
-            case WeaponUpgradeStatType.PelletCount:
-                if (isFlat)
-                    def.pelletCount = Mathf.Max(1f, def.pelletCount + value);
-                else
-                    def.pelletCount = Mathf.Max(1f, def.pelletCount * (1f + value));
-                Debug.Log($"[{def.weaponName}] Pellet count: {def.pelletCount:F1} (rounded down to {def.GetActualPelletCount()})");
-                break;
-
-            case WeaponUpgradeStatType.Accuracy:
-                // Lower bloom = more accurate
-                if (isFlat)
-                    def.maxBloom = Mathf.Max(0f, def.maxBloom - value);
-                else
-                    def.maxBloom = Mathf.Max(0f, def.maxBloom * (1f - value));
-                break;
-
-            case WeaponUpgradeStatType.ReloadSpeed:
-                if (isFlat)
-                    def.reloadSpeed = Mathf.Max(0.1f, def.reloadSpeed + value);
-                else
-                    def.reloadSpeed = Mathf.Max(0.1f, def.reloadSpeed * (1f + value));
-                Debug.Log($"[{def.weaponName}] Reload speed: {def.reloadSpeed:F2}x");
-                break;
-
-            case WeaponUpgradeStatType.MagazineSize:
-                if (isFlat)
-                {
-                    int increase = Mathf.RoundToInt(value);
-                    def.magazineSize = Mathf.Max(1, def.magazineSize + increase);
-                    Debug.Log($"[{def.weaponName}] Magazine size: {def.magazineSize} (+{increase})");
-                }
-                else
-                {
-                    int increase = Mathf.Max(1, Mathf.RoundToInt(def.magazineSize * value));
-                    def.magazineSize += increase;
-                    Debug.Log($"[{def.weaponName}] Magazine size: {def.magazineSize} (+{increase})");
-                }
-                break;
-        }
+        // Shared mutation core - see WeaponStatMath (also used by WeaponAttachmentSO).
+        WeaponStatMath.Apply(def, statType, scalingType, value);
     }
 }

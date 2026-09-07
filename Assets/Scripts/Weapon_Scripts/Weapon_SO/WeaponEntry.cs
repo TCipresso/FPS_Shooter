@@ -10,6 +10,10 @@ public class WeaponEntry
 
     public List<WeaponBase> weaponBases = new List<WeaponBase>();
 
+    [Header("Attachments (per weapon)")]
+    [Tooltip("Curated attachments equipped on this weapon. Applied to runtimeDefinition on setup.")]
+    public List<WeaponAttachmentSO> attachments = new List<WeaponAttachmentSO>();
+
     [System.NonSerialized]
     public WeaponDefinitionSO runtimeDefinition;
 
