@@ -631,4 +631,11 @@ public class WeaponInventory : MonoBehaviour
 
         return entry.runtimeDefinition;
     }
+
+    // The WeaponEntry currently equipped in a hand. Used by the loot chest to grant an
+    // attachment to the weapon the player chose.
+    public WeaponEntry GetActiveEntry(Hand hand)
+    {
+        return GetHand(hand).ActiveEntry;
+    }
 }

@@ -29,6 +29,10 @@ public class ChestUIDraft : MonoBehaviour
     public float holdAfterArtwork = 0.15f;
     public float buttonsFadeDuration = 0.25f;
 
+    [Header("Grant")]
+    [Tooltip("Auto-found if left empty.")]
+    public WeaponInventory inventory;
+
     [Header("Events (optional)")]
     public UnityEvent onEquipLeft;
     public UnityEvent onEquipRight;
@@ -41,6 +45,10 @@ public class ChestUIDraft : MonoBehaviour
     public void Present(WeaponAttachmentSO attachment)
     {
         Current = attachment;
+        if (attachment == null)
+            Debug.LogWarning("[ChestUIDraft] Present() called with a null attachment - check LootChestBuy.table and that its pool is populated.");
+        else
+            Debug.Log($"[ChestUIDraft] Presenting: {attachment.displayName} ({attachment.rarity})");
         ApplyItemData();
 
         if (!gameObject.activeSelf)
@@ -63,7 +71,8 @@ public class ChestUIDraft : MonoBehaviour
         if (iconImage != null)
         {
             iconImage.sprite = Current.icon;
-            iconImage.enabled = Current.icon != null;
+            if (Current.icon == null)
+                Debug.LogWarning($"[ChestUIDraft] '{Current.displayName}' has no icon sprite assigned.");
         }
         if (nameText != null)
         {
@@ -92,6 +101,9 @@ public class ChestUIDraft : MonoBehaviour
 
     IEnumerator RevealSequence()
     {
+        if (artworkGroup == null)
+            Debug.LogWarning("[ChestUIDraft] artworkGroup is not assigned - the artwork can't fade in.");
+
         if (artworkGroup != null) artworkGroup.alpha = 0f;
         if (buttonsGroup != null)
         {
@@ -141,14 +153,28 @@ public class ChestUIDraft : MonoBehaviour
     public void EquipLeft()
     {
         onEquipLeft?.Invoke();
-        Debug.Log($"[ChestUIDraft] Equip LEFT: {(Current != null ? Current.displayName : "none")}");
-        if (MenuUIHelper.Instance != null) MenuUIHelper.Instance.CloseLootChest();
+        Grant(WeaponInventory.Hand.Left);
     }
 
     public void EquipRight()
     {
         onEquipRight?.Invoke();
-        Debug.Log($"[ChestUIDraft] Equip RIGHT: {(Current != null ? Current.displayName : "none")}");
+        Grant(WeaponInventory.Hand.Right);
+    }
+
+    void Grant(WeaponInventory.Hand hand)
+    {
+        if (Current != null)
+        {
+            if (inventory == null) inventory = FindFirstObjectByType<WeaponInventory>();
+
+            WeaponEntry entry = inventory != null ? inventory.GetActiveEntry(hand) : null;
+            if (entry != null)
+                WeaponAttachmentService.GrantOne(entry, Current);
+            else
+                Debug.LogWarning($"[ChestUIDraft] No active weapon in the {hand} hand - attachment not applied.");
+        }
+
         if (MenuUIHelper.Instance != null) MenuUIHelper.Instance.CloseLootChest();
     }
 }
