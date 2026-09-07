@@ -6,7 +6,12 @@ public struct AttachmentStatMod
 {
     public WeaponUpgradeStatType stat;   // shared enum with the level-up engine
     public UpgradeScalingType scaling;   // Percentage = x(1+v), Flat = +v
-    public float value;                  // fixed - attachments are curated, not rolled
+    public float value;                  // value for ONE copy of this attachment
+
+    [Tooltip("How this row's value grows when the weapon has multiple copies of the attachment.")]
+    public StackMode stackMode;
+    [Tooltip("Capped: the ceiling. DiminishingGeometric: per-stack falloff 0-1. Ignored for other modes.")]
+    public float stackParam;
 }
 
 // A curated weapon attachment (your "Risk of Rain item" for guns). Grants stat buffs and
