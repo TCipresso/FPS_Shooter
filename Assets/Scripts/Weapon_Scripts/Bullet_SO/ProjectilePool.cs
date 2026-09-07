@@ -12,7 +12,6 @@ public class ProjectilePool : MonoBehaviour
     }
 
     Dictionary<GameObject, Pool> pools = new Dictionary<GameObject, Pool>();
-    List<ProjectileBase> active = new List<ProjectileBase>(64);
 
     void Awake()
     {
@@ -64,31 +63,16 @@ public class ProjectilePool : MonoBehaviour
 
         p.transform.SetPositionAndRotation(pos, rot);
         p.gameObject.SetActive(true);
-        active.Add(p);
         return p;
     }
 
-    void Update()
+    // Called by ProjectileSimBridge when a projectile finishes. Stepping is done by
+    // ProjectileRunner / the batched Burst sim, not here.
+    public void Return(ProjectileBase p)
     {
-        float dt = Time.deltaTime;
-
-        for (int i = active.Count - 1; i >= 0; i--)
-        {
-            ProjectileBase p = active[i];
-            if (p == null)
-            {
-                active.RemoveAt(i);
-                continue;
-            }
-
-            if (p.Tick(dt))
-            {
-                active.RemoveAt(i);
-                p.gameObject.SetActive(false);
-
-                if (p.pool != null && pools.TryGetValue(p.pool, out Pool pool))
-                    pool.free.Enqueue(p);
-            }
-        }
+        if (p == null) return;
+        p.gameObject.SetActive(false);
+        if (p.pool != null && pools.TryGetValue(p.pool, out Pool pool))
+            pool.free.Enqueue(p);
     }
 }

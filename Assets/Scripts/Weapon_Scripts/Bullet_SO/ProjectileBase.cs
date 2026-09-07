@@ -1,58 +1,38 @@
+using Unity.Mathematics;
 using UnityEngine;
-using System.Collections.Generic;
 
+// Visual + context holder for a pooled projectile. All movement and collision run in the
+// batched Burst sim (ProjectileSimBridge); this class just follows its state and handles
+// the one-shot impact / explosion feedback when it finishes.
 public class ProjectileBase : MonoBehaviour
 {
     [HideInInspector] public GameObject pool;
-    Vector3 position;
-    Vector3 velocity;
-    float gravityScale;
-    float life;
-    float radius;
-    int damage;
-    bool applyDamage;
-    LayerMask hitMask;
+
     WeaponBase owner;
-    Transform ownerRoot;
+    WeaponDefinitionSO data;
     PlayerFpsController ownerController;
     bool firedAirborne;
-    WeaponDefinitionSO data;
-    static readonly RaycastHit[] hitBuffer = new RaycastHit[16];
-    static readonly RaycastHit[] zombieHitBuffer = new RaycastHit[16];
-    static readonly Collider[] explosionOverlapBuffer = new Collider[32];
-    static readonly HashSet<ZombieBase> explosionHitSet = new HashSet<ZombieBase>();
-    const float castRadius = 0.15f;
-    public static bool debugLogging = false;
-    int tickCount;
+    bool applyDamage;
+
     TrailRenderer trail;
     bool trailCached;
-    bool hasSpawnedHitMarker; // Track if we've already spawned a hit marker for this projectile
 
     public void Launch(Vector3 origin, Vector3 direction, float speed, float gravityScale,
         float life, int damage, bool applyDamage, WeaponBase owner, WeaponDefinitionSO data, float radius)
     {
-        this.position = origin;
-        this.velocity = direction.normalized * speed;
-        this.gravityScale = gravityScale;
-        this.life = life;
-        this.damage = damage;
-        this.applyDamage = applyDamage;
         this.owner = owner;
-        this.ownerRoot = owner != null ? owner.transform.root : null;
+        this.data = data;
+        this.applyDamage = applyDamage;
         this.ownerController = owner != null ? owner.GetComponentInParent<PlayerFpsController>() : null;
         this.firedAirborne = ownerController != null && !ownerController.IsGrounded;
-        this.data = data;
-        this.radius = radius;
-        this.hitMask = data != null && data.hitMask != 0 ? data.hitMask : ~0;
-        this.tickCount = 0;
-        this.hasSpawnedHitMarker = false; // Reset hit marker flag
 
-        if (debugLogging)
-            Debug.Log($"[PROJ] LAUNCH origin={origin} dir={direction.normalized} speed={speed} mask={(int)this.hitMask} life={life}");
+        int finalDamage = applyDamage && owner != null ? owner.ApplyCrit(damage) : damage;
+        byte isCrit = (byte)(finalDamage != damage ? 1 : 0);
 
+        Vector3 vel = direction.sqrMagnitude > 1e-6f ? direction.normalized * speed : Vector3.forward * speed;
         transform.position = origin;
-        if (velocity.sqrMagnitude > 0.0001f)
-            transform.rotation = Quaternion.LookRotation(velocity);
+        if (vel.sqrMagnitude > 1e-4f)
+            transform.rotation = Quaternion.LookRotation(vel);
 
         if (!trailCached)
         {
@@ -61,179 +41,60 @@ public class ProjectileBase : MonoBehaviour
         }
         if (trail != null)
             trail.Clear();
+
+        int mask = (data != null && data.hitMask.value != 0) ? data.hitMask.value : ~0;
+
+        ProjectileSimBridge.Register(this, new ProjectileState
+        {
+            Position = origin,
+            Velocity = vel,
+            GravityScale = gravityScale,
+            Radius = radius,
+            Life = life,
+            ArmDistance = 1.5f,
+            Damage = finalDamage,
+            WeaponId = owner != null ? owner.WeaponId : 0,
+            IsCrit = isCrit,
+            Explosive = (byte)(data != null && data.isExplosive ? 1 : 0),
+            ExplosionRadius = data != null ? data.explosionRadius : 0f,
+            HitMask = mask
+        });
     }
 
-    public bool Tick(float dt)
+    // Called by ProjectileSimBridge each frame for projectiles still in flight.
+    public void OnSimStep(Vector3 position, Vector3 velocity)
     {
-        if (dt <= 0f) return false;
-
-        float speed = velocity.magnitude;
-        Vector3 dir = speed > 0.0001f ? velocity / speed : transform.forward;
-        float stepDist = speed * dt;
-
-        int hitCount = Physics.SphereCastNonAlloc(position, castRadius, dir, hitBuffer, stepDist, hitMask);
-
-        if (debugLogging && tickCount < 10)
-        {
-            Debug.Log($"[PROJ] tick={tickCount} pos={position} dir={dir} step={stepDist:F3} hits={hitCount}");
-            for (int i = 0; i < hitCount; i++)
-            {
-                RaycastHit h = hitBuffer[i];
-                string colName = h.collider != null ? h.collider.name : "NULL";
-                int colLayer = h.collider != null ? h.collider.gameObject.layer : -1;
-                bool isOwner = ownerRoot != null && h.collider != null && h.transform.root == ownerRoot;
-                Debug.Log($"[PROJ]   hit[{i}] col={colName} layer={colLayer} dist={h.distance:F3} point={h.point} owner={isOwner}");
-            }
-        }
-        tickCount++;
-
-        bool didHitWorld = false;
-        RaycastHit worldHit = default;
-        float closestDist = stepDist;
-
-        for (int i = 0; i < hitCount; i++)
-        {
-            RaycastHit h = hitBuffer[i];
-            if (h.collider == null) continue;
-            if (ownerRoot != null && h.transform.root == ownerRoot) continue;
-            if (h.distance < closestDist)
-            {
-                closestDist = h.distance;
-                worldHit = h;
-                didHitWorld = true;
-            }
-        }
-
-        if (didHitWorld && worldHit.distance <= 0f)
-        {
-            worldHit.point = position;
-            worldHit.normal = -dir;
-        }
-
-        float searchDist = didHitWorld ? worldHit.distance : stepDist;
-        bool hitZombie = TryFindNearestZombieAlongRay(position, dir, searchDist, out ZombieBase zombie, out HitBox hitBox, out Vector3 zombieHitPos);
-
-        if (hitZombie)
-        {
-            DoImpact(zombieHitPos, -dir, true, zombie, hitBox);
-            OnDespawn();
-            return true;
-        }
-
-        if (didHitWorld)
-        {
-            DoImpact(worldHit.point, worldHit.normal, false, null, null, worldHit.collider);
-            OnDespawn();
-            return true;
-        }
-
-        position += velocity * dt;
-        velocity += Vector3.down * (9.81f * gravityScale) * dt;
         transform.position = position;
-
-        if (velocity.sqrMagnitude > 0.0001f)
+        if (velocity.sqrMagnitude > 1e-4f)
             transform.rotation = Quaternion.LookRotation(velocity);
-
-        life -= dt;
-        if (life <= 0f)
-        {
-            OnDespawn();
-            return true;
-        }
-
-        return false;
     }
 
-    bool TryFindNearestZombieAlongRay(Vector3 origin, Vector3 direction, float maxDistance, out ZombieBase zombie, out HitBox hitBox, out Vector3 hitPoint)
+    // Called once when the projectile finishes. Damage was already applied by the sim job;
+    // this does gameplay feedback (knockback) + hands VFX to ProjectileRunner + returns to
+    // the pool. outcome: 1 zombie, 2 world, 3 expired.
+    public void Resolve(byte outcome, Vector3 point, Vector3 normal, bool isCrit, bool blastHitZombie)
     {
-        int hitCount = Physics.SphereCastNonAlloc(origin, radius, direction, zombieHitBuffer, maxDistance);
-        ZombieBase closestZombie = null;
-        HitBox closestHitBox = null;
-        float closestDistance = float.MaxValue;
-        Vector3 closestPoint = default;
+        transform.position = point;
 
-        for (int i = 0; i < hitCount; i++)
+        if (outcome != 3)
         {
-            RaycastHit hit = zombieHitBuffer[i];
-            HitBox candidateHitBox = hit.collider.GetComponentInParent<HitBox>();
-            ZombieBase candidate = candidateHitBox != null
-                ? candidateHitBox.zombie
-                : hit.collider.GetComponentInParent<ZombieBase>();
+            bool explosive = data != null && data.isExplosive;
 
-            if (candidate == null || candidate.IsDead) continue;
+            if (explosive && applyDamage)
+                ApplySelfKnockback(point); // gameplay - always
 
-            if (hit.distance < closestDistance)
-            {
-                closestDistance = hit.distance;
-                closestZombie = candidate;
-                closestHitBox = candidateHitBox;
-                closestPoint = hit.point;
-            }
+            ProjectileRunner.EnqueueImpact(outcome, point, normal, isCrit, blastHitZombie, explosive,
+                explosive ? data.explosionEffectPrefab : null,
+                explosive && data != null ? data.explosionEffectDuration : 0f);
         }
 
-        zombie = closestZombie;
-        hitBox = closestHitBox;
-        hitPoint = closestPoint;
-        return closestZombie != null;
-    }
-
-    void DamageZombiesInRadius(Vector3 center, float explosionRadius, int amount)
-    {
-        int count = Physics.OverlapSphereNonAlloc(center, explosionRadius, explosionOverlapBuffer);
-        explosionHitSet.Clear();
-        bool anyZombieHit = false;
-
-        for (int i = 0; i < count; i++)
-        {
-            Collider col = explosionOverlapBuffer[i];
-            if (col == null) continue;
-
-            ZombieBase zombie = col.GetComponentInParent<ZombieBase>();
-            if (zombie == null || zombie.IsDead) continue;
-
-            if (!explosionHitSet.Add(zombie)) continue;
-
-            Vector3 toZombie = zombie.transform.position - center;
-            Vector3 hitDir = toZombie.sqrMagnitude > 0.0001f ? toZombie.normalized : Vector3.up;
-
-            // Apply crit and pass weapon reference for XP tracking
-            int finalDamage = owner != null ? owner.ApplyCrit(amount) : amount;
-            bool isCrit = finalDamage != amount;
-            zombie.TakeDamage(finalDamage, owner != null ? owner.OwnerStats : null, 1f, hitDir, 1f, "", owner);
-            zombie.hitFlash?.Flash(false);
-            anyZombieHit = true;
-        }
-
-        // Spawn ONE hit marker for explosive hits (not per zombie)
-        if (anyZombieHit && HitMarkerPool.Instance != null)
-        {
-            // Check if any zombie was crit for the hit marker color
-            bool anyCrit = false;
-            // Re-check which zombies were hit to determine if any were crit
-            for (int i = 0; i < count; i++)
-            {
-                Collider col = explosionOverlapBuffer[i];
-                if (col == null) continue;
-                ZombieBase zombie = col.GetComponentInParent<ZombieBase>();
-                if (zombie == null || zombie.IsDead) continue;
-                if (explosionHitSet.Contains(zombie))
-                {
-                    int finalDamage = owner != null ? owner.ApplyCrit(amount) : amount;
-                    if (finalDamage != amount)
-                    {
-                        anyCrit = true;
-                        break;
-                    }
-                }
-            }
-            HitMarkerPool.Instance.Spawn(center, anyCrit);
-        }
-    }
-
-    void OnDespawn()
-    {
         if (trail != null)
             trail.Clear();
+
+        if (ProjectilePool.Instance != null)
+            ProjectilePool.Instance.Return(this);
+        else
+            gameObject.SetActive(false);
     }
 
     void ApplySelfKnockback(Vector3 explosionPoint)
@@ -245,80 +106,16 @@ public class ProjectileBase : MonoBehaviour
         Vector3 playerPos = ownerController.transform.position;
         Vector3 toPlayer = playerPos - explosionPoint;
         float dist = toPlayer.magnitude;
-
         if (dist > data.explosionRadius) return;
 
         Vector3 pushDir = dist > 0.05f ? toPlayer / dist : Vector3.up;
-        Vector3 moveDir = ownerController.transform.forward;
         Vector3 horizontal = new Vector3(pushDir.x, 0f, pushDir.z);
-
         if (horizontal.sqrMagnitude < 0.01f)
-            horizontal = new Vector3(moveDir.x, 0f, moveDir.z).normalized;
+            horizontal = new Vector3(ownerController.transform.forward.x, 0f, ownerController.transform.forward.z).normalized;
         else
             horizontal.Normalize();
 
         pushDir = (horizontal + Vector3.up * data.explosionKnockbackUpBias).normalized;
         ownerController.ApplyImpulse(pushDir * data.explosionSelfKnockback);
-    }
-
-    void DoImpact(Vector3 point, Vector3 normal, bool directZombieHit, ZombieBase directZombie, HitBox directHitBox = null, Collider worldCollider = null)
-    {
-        if (debugLogging)
-            Debug.Log($"[PROJ] IMPACT point={point} zombieHit={directZombieHit} explosive={data != null && data.isExplosive} vfx={(data != null && data.explosionEffectPrefab != null)} pool={(ExplosionPool.Instance != null)} applyDamage={applyDamage}");
-
-        if (data != null && data.isExplosive)
-        {
-            if (ExplosionPool.Instance != null && data.explosionEffectPrefab != null)
-                ExplosionPool.Instance.Spawn(data.explosionEffectPrefab, point + normal * 0.3f,
-                    Quaternion.FromToRotation(Vector3.up, normal), data.explosionEffectDuration);
-
-            if (applyDamage)
-            {
-                DamageZombiesInRadius(point, data.explosionRadius, damage);
-                ApplySelfKnockback(point);
-            }
-            return;
-        }
-
-        if (directZombieHit)
-        {
-            if (applyDamage && owner != null)
-            {
-                // Apply crit chance
-                int finalDamage = owner.ApplyCrit(damage);
-                bool isCrit = finalDamage != damage;
-
-                if (directHitBox != null)
-                {
-                    // Pass weapon reference for XP tracking
-                    directHitBox.TakeDamageWithHitPoint(finalDamage, owner.OwnerStats, owner, point, 1f, normal, 1f);
-                }
-                else
-                {
-                    // Pass weapon reference for XP tracking
-                    directZombie.TakeDamage(finalDamage, owner.OwnerStats, 1f, normal, 1f, "", owner);
-                    directZombie.hitFlash?.Flash(false);
-                }
-
-                // Spawn hit marker for direct hits (only once per projectile)
-                if (!hasSpawnedHitMarker && HitMarkerPool.Instance != null)
-                {
-                    HitMarkerPool.Instance.Spawn(point, isCrit);
-                    hasSpawnedHitMarker = true;
-                }
-            }
-
-            if (ImpactEffectPool.Instance != null)
-                ImpactEffectPool.Instance.SpawnZombie(point, normal);
-        }
-        else
-        {
-            if (ImpactEffectPool.Instance != null)
-                ImpactEffectPool.Instance.SpawnWorld(point, normal);
-
-            SandboxSpawner spawner = worldCollider != null ? worldCollider.GetComponentInParent<SandboxSpawner>() : null;
-            if (spawner != null)
-                spawner.TriggerSpawn();
-        }
     }
 }

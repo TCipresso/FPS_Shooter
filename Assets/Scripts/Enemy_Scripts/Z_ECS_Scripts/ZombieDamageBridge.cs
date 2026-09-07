@@ -101,6 +101,18 @@ public static class ZombieDamageBridge
         return true;
     }
 
+    public static bool TryGetDamageQueue(out NativeQueue<ZombieDamageEvent> queue)
+    {
+        queue = default;
+
+        EnsureInitialized();
+        if (!initialized)
+            return false;
+
+        queue = entityManager.GetComponentData<ZombieDamageQueue>(damageQueueSingletonEntity).Queue;
+        return true;
+    }
+
     public static void DamageZombie(Entity target, int amount, WeaponBase weapon, int playerIndex = 0)
     {
         DamageZombie(target, amount, weapon != null ? weapon.WeaponId : 0, playerIndex);

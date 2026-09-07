@@ -17,7 +17,7 @@ MonoBehaviour:
   dropPrefab: {fileID: 0}
   damage: 50
   range: 999999
-  swarmHitRadius: 0.4
+  swarmHitRadius: 0.5
   isAutomatic: 1
   rpm: 100
   critChance: 0.1
@@ -43,7 +43,7 @@ MonoBehaviour:
   projectileSpeed: 100
   projectileGravityScale: 3
   isExplosive: 1
-  explosionRadius: 10
+  explosionRadius: 30
   explosionEffectPrefab: {fileID: 761256758112122888, guid: 56217c59411e1224c8f56a8172c371b1, type: 3}
   explosionEffectDuration: 2
   explosionSelfKnockback: 70
