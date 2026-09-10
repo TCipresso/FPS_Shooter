@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Toon_Gen 26
+  m_Name: Toon_Gen 73
   m_Shader: {fileID: 4800000, guid: 4193de86117fd2942a7542872d9be9f8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -106,7 +106,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DitherCellSize: 0.03
+    - _DitherCellSize: 0.04
     - _DitherPixelSize: 4
     - _DstBlend: 0
     - _DstBlendAlpha: 0
@@ -118,14 +118,14 @@ Material:
     - _OcclusionStrength: 1
     - _OutlineConstScreenSize: 1
     - _OutlineFadeStart: 0.8
-    - _OutlineMaxDist: 60
+    - _OutlineMaxDist: 300
     - _OutlineWidth: 0.033
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 0
     - _RimIntensity: 0
-    - _RimThreshold: 0
-    - _ShadowReceiveBias: 0.1
+    - _RimThreshold: 1
+    - _ShadowReceiveBias: 0
     - _ShapeContrast: 1.5
     - _ShapeEmission: 2.62
     - _ShapeMetallic: 0.3
@@ -148,15 +148,15 @@ Material:
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 1, g: 0.41037738, b: 0.6933999, a: 1}
+    - _BaseColor: {r: 0.4339623, g: 0.31669667, b: 0.2272161, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _RimColor: {r: 1, g: 1, b: 1, a: 1}
-    - _ShadowTint: {r: 0, g: 0, b: 0, a: 1}
+    - _ShadowTint: {r: 0.1792453, g: 0.1792453, b: 0.1792453, a: 1}
     - _ShapeColor: {r: 0.6226415, g: 0.6226415, b: 0.6226415, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _SpecularColor: {r: 0.5754717, g: 0.5754717, b: 0.5754717, a: 1}
+    - _SpecularColor: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &3715100166348574328
