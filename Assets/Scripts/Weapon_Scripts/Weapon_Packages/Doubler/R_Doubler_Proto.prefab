@@ -579,6 +579,8 @@ MonoBehaviour:
   universalAnimator: {fileID: 0}
   isCocking: 0
   isFiring: 0
+  isReloading: 0
+  currentAmmo: 0
 --- !u!1 &4060686207922655053
 GameObject:
   m_ObjectHideFlags: 0
@@ -1467,7 +1469,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e3eda44b75af2f64fbd5d082bcbc16b1, type: 2}
+  - {fileID: 2100000, guid: c67f949b44cb0e24c9945e00f29c1ba5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
