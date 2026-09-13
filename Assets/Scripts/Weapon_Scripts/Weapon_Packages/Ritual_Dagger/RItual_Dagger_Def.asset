@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5cb4844a83ccf945bcb4bc288bfd193, type: 3}
+  m_Name: RItual_Dagger_Def
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinitionSO
+  weaponName: Ritual Dagger
+  category: 0
+  isMelee: 1
+  dropPrefab: {fileID: 0}
+  damage: 25
+  range: 50
+  swarmHitRadius: 0.4
+  isAutomatic: 0
+  rpm: 300
+  critChance: 0.1
+  critMultiplier: 2
+  pelletCount: 1
+  pelletSpreadAngle: 5
+  flatSpread: 0
+  magazineSize: 30
+  reloadSpeed: 1
+  baseAccuracy: 1
+  bloomPerShot: 0.5
+  maxBloom: 4
+  bloomDecaySpeed: 3
+  bulletType: 0
+  trailPrefab: {fileID: 0}
+  trailPoolKey: BulletTrail
+  trailPoolSize: 10
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  impactEffectOverride: {fileID: 0}
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 40
+  projectileGravityScale: 0
+  isExplosive: 0
+  explosionRadius: 4
+  explosionEffectPrefab: {fileID: 0}
+  explosionEffectDuration: 2
+  explosionSelfKnockback: 18
+  explosionKnockbackUpBias: 0.6
+  auraRadius: 3
+  maxLevel: 100
+  level: 1
+  currentXP: 0
+  baseXPRequired: 100
+  xpGrowthRate: 1.25
+  upgradePool: []
+  evolutionInterval: 20
+  evolutionPool: []
+  packedMaterial: {fileID: 0}
+  tintPropertyName: _BaseColor
+  tintHueCycleLength: 100
+  tintSaturation: 0.85
+  tintValue: 1

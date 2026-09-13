@@ -37,6 +37,14 @@ public abstract class WeaponBase : MonoBehaviour
     [HideInInspector] public bool isFiring = false;
     [HideInInspector] public bool isReloading = false;
     [HideInInspector] public int currentAmmo = 0;
+    [HideInInspector] public bool isLowered = false;
+    [Header("Melee")]
+    public string meleeAttackClipName = "Enter Melee Attack Clip Name Here";
+    public string parryClipName = "Enter Parry Clip Name Here";
+    [HideInInspector] public bool isMeleeAttacking = false;
+    [HideInInspector] public bool isParrying = false;
+    float meleeAttackResetTime = 0f;
+    float parryResetTime = 0f;
 
     public System.Action<WeaponBase, List<Vector3>, List<byte>> onShotFired;
     public System.Action<WeaponBase, Vector3, Vector3> onProjectileFired;
@@ -58,6 +66,7 @@ public abstract class WeaponBase : MonoBehaviour
     protected PlayerFpsController fpsController;
 
     public PlayerStats OwnerStats => playerStats;
+    public bool IsMelee => weaponDefinition != null && weaponDefinition.isMelee;
     public int damage => weaponDefinition != null ? weaponDefinition.damage : 0;
     public bool isAutomatic => weaponDefinition != null && weaponDefinition.isAutomatic;
     public float critMultiplier => (weaponDefinition != null ? weaponDefinition.critMultiplier : 1f) + (playerStats != null ? playerStats.critMultiplier : 0f);
@@ -149,6 +158,12 @@ public abstract class WeaponBase : MonoBehaviour
 
         if (isFiring && Time.time >= fireResetTime)
             isFiring = false;
+
+        if (isMeleeAttacking && Time.time >= meleeAttackResetTime)
+            isMeleeAttacking = false;
+
+        if (isParrying && Time.time >= parryResetTime)
+            isParrying = false;
 
         if (currentBloom > 0f)
         {
@@ -471,6 +486,7 @@ public abstract class WeaponBase : MonoBehaviour
 
     public bool CanShoot()
     {
+        if (isLowered) return false;
         if (isCocking) return false;
         if (IsReloading) return false;
         if (!HasAmmo()) return false;
@@ -716,6 +732,32 @@ public abstract class WeaponBase : MonoBehaviour
         isFiring = true;
         animator.Play(FireClipName, 2, 0f);
         fireResetTime = Time.time + animator.GetCurrentAnimatorStateInfo(0).length;
+    }
+
+    public virtual void PlayMeleeAttack()
+    {
+        if (!IsMelee) return;
+        if (isMeleeAttacking || isParrying) return;
+        if (animator == null) return;
+        isMeleeAttacking = true;
+        animator.Play(meleeAttackClipName, 1, 0f);
+        animator.Update(0f);
+        meleeAttackResetTime = Time.time + animator.GetCurrentAnimatorStateInfo(1).length;
+        if (universalAnimator != null)
+            universalAnimator.Play(meleeAttackClipName, 1, 0f);
+    }
+
+    public virtual void PlayParry()
+    {
+        if (!IsMelee) return;
+        if (isMeleeAttacking || isParrying) return;
+        if (animator == null) return;
+        isParrying = true;
+        animator.Play(parryClipName, 2, 0f);
+        animator.Update(0f);
+        parryResetTime = Time.time + animator.GetCurrentAnimatorStateInfo(2).length;
+        if (universalAnimator != null)
+            universalAnimator.Play(parryClipName, 2, 0f);
     }
 }
 

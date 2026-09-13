@@ -12,7 +12,6 @@ public class WeaponInventory : MonoBehaviour
     public Transform rightWeaponHolder;
     public Transform leftWeaponHolder;
     public PlayerStats playerStats;
-    public IKWeaponHandler ikHandler;
     public FPSInput input;
 
     [Header("Input")]
@@ -28,10 +27,20 @@ public class WeaponInventory : MonoBehaviour
     [Header("Weapons")]
     public List<WeaponEntry> weapons = new List<WeaponEntry>();
 
+    [Header("Melee Off-Hand Reaction")]
+    public Transform rightHandParent;
+    public Transform leftHandParent;
+    public float offHandLowerAmount = 0.3f;
+    public float offHandLowerSpeed = 10f;
+
+    private Vector3 rightHandRestPosition;
+    private Vector3 leftHandRestPosition;
+
     private class HandState
     {
         public readonly List<WeaponEntry> equipped = new List<WeaponEntry>();
         public int activeIndex = -1;
+        public bool wasSwinging;
 
         public WeaponEntry ActiveEntry =>
             activeIndex >= 0 && activeIndex < equipped.Count
@@ -62,6 +71,11 @@ public class WeaponInventory : MonoBehaviour
 
     void Awake()
     {
+        if (rightHandParent != null)
+            rightHandRestPosition = rightHandParent.localPosition;
+        if (leftHandParent != null)
+            leftHandRestPosition = leftHandParent.localPosition;
+
         rightWeaponLookup.Clear();
         leftWeaponLookup.Clear();
 
@@ -274,6 +288,12 @@ public class WeaponInventory : MonoBehaviour
         HandleFire(rightHand, rightFireAction);
         HandleFire(leftHand, leftFireAction);
 
+        HandleMelee(rightHand);
+        HandleMelee(leftHand);
+
+        UpdateHandReaction(rightHand, leftHand, rightHandParent, rightHandRestPosition);
+        UpdateHandReaction(leftHand, rightHand, leftHandParent, leftHandRestPosition);
+
         // Handle reload input
         HandleReload();
     }
@@ -302,6 +322,13 @@ public class WeaponInventory : MonoBehaviour
             if (weaponBase == null)
                 continue;
 
+            // Melee weapons are driven by the dedicated attack/parry inputs instead.
+            if (weaponBase.IsMelee)
+                continue;
+
+            if (weaponBase.isLowered)
+                continue;
+
             bool shouldFire = weaponBase.isAutomatic
                 ? fireAction.action.IsPressed()
                 : fireAction.action.WasPressedThisFrame();
@@ -315,6 +342,55 @@ public class WeaponInventory : MonoBehaviour
                 weaponBase.StopRecoil();
             }
         }
+    }
+
+    void HandleMelee(HandState hand)
+    {
+        if (input == null)
+            return;
+
+        WeaponBase weaponBase = hand.ActiveWeaponBase;
+        if (weaponBase == null || !weaponBase.IsMelee)
+            return;
+
+        if (input.MeleePressed)
+            weaponBase.PlayMeleeAttack();
+    }
+
+    void UpdateHandReaction(HandState hand, HandState otherHand, Transform handParent, Vector3 restPosition)
+    {
+        bool ownSwinging = IsSwinging(hand);
+        bool otherSwinging = IsSwinging(otherHand);
+
+        WeaponBase weaponBase = hand.ActiveWeaponBase;
+        if (weaponBase != null)
+            weaponBase.isLowered = otherSwinging;
+
+        if (handParent == null)
+            return;
+
+        if (hand.wasSwinging && !ownSwinging)
+        {
+            // Our own swing just finished off-screen -> snap to the lowered
+            // start point so we rise back into view like the other hand.
+            handParent.localPosition = restPosition + Vector3.down * offHandLowerAmount;
+        }
+        hand.wasSwinging = ownSwinging;
+
+        if (ownSwinging)
+            return;
+
+        Vector3 targetPos = restPosition;
+        if (otherSwinging)
+            targetPos += Vector3.down * offHandLowerAmount;
+
+        handParent.localPosition = Vector3.MoveTowards(handParent.localPosition, targetPos, offHandLowerSpeed * Time.deltaTime);
+    }
+
+    bool IsSwinging(HandState hand)
+    {
+        WeaponBase weaponBase = hand.ActiveWeaponBase;
+        return weaponBase != null && weaponBase.IsMelee && weaponBase.isMeleeAttacking;
     }
 
     void HandleReload()
@@ -386,8 +462,6 @@ public class WeaponInventory : MonoBehaviour
             weaponBase.RefreshWeaponSkin();
         }
 
-        if (ikHandler != null)
-            ikHandler.UpdateIKTargets(next.weaponRoot);
     }
 
     public void EquipIndex(Hand hand, int index)

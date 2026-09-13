@@ -20,6 +20,8 @@ public class WeaponDefinitionSO : ScriptableObject
     [Header("Info (label only, not used as an ID)")]
     public string weaponName = "Weapon";
     public WeaponType category;
+    [Tooltip("Marks this weapon as melee. The system uses this flag to route attack/parry input and animations instead of the normal fire/reload flow.")]
+    public bool isMelee = false;
 
     [Header("Drop Prefab")]
     [Tooltip("This weapon's own hand-built pickup prefab (must have a WeaponPickup component and be registered as a spawnable prefab in the NetworkManager).")]
