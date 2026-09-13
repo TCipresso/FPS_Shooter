@@ -114,8 +114,8 @@ public class PlayerFpsController : MonoBehaviour
     private float dashCooldownTimer;
     private int dashChargesRemaining;
     private Vector3 dashDirection;
-    private Vector3 preDashHorizontalVelocity;
-    private float preDashVerticalVelocity;
+    private float preDashSpeed;
+    private float dashBurstSpeed;
     void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -230,7 +230,8 @@ public class PlayerFpsController : MonoBehaviour
             if (dashTimer <= 0f)
             {
                 IsDashing = false;
-                horizontalVelocity = preDashHorizontalVelocity;
+                Vector3 exitDir = horizontalVelocity.sqrMagnitude > 0.0001f ? horizontalVelocity.normalized : dashDirection;
+                horizontalVelocity = exitDir * preDashSpeed;
             }
         }
         if (dashCooldownTimer > 0f)
@@ -256,8 +257,7 @@ public class PlayerFpsController : MonoBehaviour
         if (input.ManeuverPressed && dashChargesRemaining > 0)
         {
             if (IsSliding) EndSlide();
-            preDashHorizontalVelocity = horizontalVelocity;
-            preDashVerticalVelocity = verticalVelocity;
+            preDashSpeed = horizontalVelocity.magnitude;
             Vector2 moveInput = input.Move;
             if (moveInput.sqrMagnitude > 0.01f)
             {
@@ -271,7 +271,8 @@ public class PlayerFpsController : MonoBehaviour
                 dashDirection.y = 0f;
                 dashDirection.Normalize();
             }
-            horizontalVelocity = dashDirection * dashSpeed * DashSpeedMultiplier;
+            dashBurstSpeed = Mathf.Max(dashSpeed, preDashSpeed) * DashSpeedMultiplier;
+            horizontalVelocity = dashDirection * dashBurstSpeed;
             verticalVelocity = 0f;
             movementAudio?.PlayDash();
             IsDashing = true;
@@ -381,7 +382,7 @@ public class PlayerFpsController : MonoBehaviour
                 wishDir.Normalize();
                 horizontalVelocity = Vector3.MoveTowards(
                     horizontalVelocity,
-                    wishDir * dashSpeed * DashSpeedMultiplier,
+                    wishDir * dashBurstSpeed,
                     dashSteerStrength * Time.deltaTime
                 );
             }
