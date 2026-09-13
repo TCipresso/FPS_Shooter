@@ -578,9 +578,13 @@ MonoBehaviour:
   isFiring: 0
   isReloading: 0
   currentAmmo: 0
+  isLowered: 0
   meleeAttackClipName: Melee
+  meleeAttackAltClipName: Melee_02
+  comboResetWindow: 3
   parryClipName: Parry
   isMeleeAttacking: 0
+  isMeleeComboActive: 0
   isParrying: 0
 --- !u!1 &2583379239538170804
 GameObject:

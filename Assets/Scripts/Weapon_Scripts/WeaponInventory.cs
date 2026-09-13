@@ -369,10 +369,24 @@ public class WeaponInventory : MonoBehaviour
         if (handParent == null)
             return;
 
-        if (hand.wasSwinging && !ownSwinging)
+        if (otherSwinging)
         {
-            // Our own swing just finished off-screen -> snap to the lowered
-            // start point so we rise back into view like the other hand.
+            // Off-hand: pinned lowered for as long as the other hand is swinging,
+            // every frame - can never get caught mid-rise when the next swing starts.
+            handParent.localPosition = restPosition + Vector3.down * offHandLowerAmount;
+            hand.wasSwinging = ownSwinging;
+            return;
+        }
+
+        if (ownSwinging && !hand.wasSwinging)
+        {
+            // A new swing of OUR OWN just started - always play it from the rest
+            // position, even if we were mid-lower/mid-rise from the last one.
+            handParent.localPosition = restPosition;
+        }
+        else if (!ownSwinging && hand.wasSwinging)
+        {
+            // Our own swing just ended - drop to the lowered "waiting" pose.
             handParent.localPosition = restPosition + Vector3.down * offHandLowerAmount;
         }
         hand.wasSwinging = ownSwinging;
@@ -380,17 +394,13 @@ public class WeaponInventory : MonoBehaviour
         if (ownSwinging)
             return;
 
-        Vector3 targetPos = restPosition;
-        if (otherSwinging)
-            targetPos += Vector3.down * offHandLowerAmount;
-
-        handParent.localPosition = Vector3.MoveTowards(handParent.localPosition, targetPos, offHandLowerSpeed * Time.deltaTime);
+        handParent.localPosition = Vector3.MoveTowards(handParent.localPosition, restPosition, offHandLowerSpeed * Time.deltaTime);
     }
 
     bool IsSwinging(HandState hand)
     {
         WeaponBase weaponBase = hand.ActiveWeaponBase;
-        return weaponBase != null && weaponBase.IsMelee && weaponBase.isMeleeAttacking;
+        return weaponBase != null && weaponBase.IsMelee && weaponBase.isMeleeComboActive;
     }
 
     void HandleReload()

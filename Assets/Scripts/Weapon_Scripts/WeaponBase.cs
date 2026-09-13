@@ -40,9 +40,15 @@ public abstract class WeaponBase : MonoBehaviour
     [HideInInspector] public bool isLowered = false;
     [Header("Melee")]
     public string meleeAttackClipName = "Enter Melee Attack Clip Name Here";
+    public string meleeAttackAltClipName = "Enter Alt Melee Attack Clip Name Here";
+    public float comboResetWindow = 0.6f;
     public string parryClipName = "Enter Parry Clip Name Here";
     [HideInInspector] public bool isMeleeAttacking = false;
+    [HideInInspector] public bool isMeleeComboActive = false;
     [HideInInspector] public bool isParrying = false;
+    int meleeComboIndex = 0;
+    bool meleeAttackQueued = false;
+    float comboExpireTime = 0f;
     float meleeAttackResetTime = 0f;
     float parryResetTime = 0f;
 
@@ -160,7 +166,13 @@ public abstract class WeaponBase : MonoBehaviour
             isFiring = false;
 
         if (isMeleeAttacking && Time.time >= meleeAttackResetTime)
+        {
             isMeleeAttacking = false;
+            if (meleeAttackQueued)
+                StartMeleeSwing();
+            else
+                isMeleeComboActive = false;
+        }
 
         if (isParrying && Time.time >= parryResetTime)
             isParrying = false;
@@ -737,14 +749,38 @@ public abstract class WeaponBase : MonoBehaviour
     public virtual void PlayMeleeAttack()
     {
         if (!IsMelee) return;
-        if (isMeleeAttacking || isParrying) return;
+        if (isParrying) return;
         if (animator == null) return;
+
+        if (isMeleeAttacking)
+        {
+            // Already mid-swing: remember the request and chain it the instant
+            // this swing ends, instead of dropping the input.
+            meleeAttackQueued = true;
+            return;
+        }
+
+        StartMeleeSwing();
+    }
+
+    void StartMeleeSwing()
+    {
+        if (Time.time > comboExpireTime)
+            meleeComboIndex = 0;
+
+        string clip = meleeComboIndex == 0 ? meleeAttackClipName : meleeAttackAltClipName;
+
         isMeleeAttacking = true;
-        animator.Play(meleeAttackClipName, 1, 0f);
+        isMeleeComboActive = true;
+        meleeAttackQueued = false;
+        animator.Play(clip, 1, 0f);
         animator.Update(0f);
         meleeAttackResetTime = Time.time + animator.GetCurrentAnimatorStateInfo(1).length;
+        comboExpireTime = meleeAttackResetTime + comboResetWindow;
+        meleeComboIndex = 1 - meleeComboIndex;
+
         if (universalAnimator != null)
-            universalAnimator.Play(meleeAttackClipName, 1, 0f);
+            universalAnimator.Play(clip, 1, 0f);
     }
 
     public virtual void PlayParry()
