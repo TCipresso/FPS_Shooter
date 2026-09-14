@@ -42,6 +42,8 @@ public abstract class WeaponBase : MonoBehaviour
     public string meleeAttackClipName = "Enter Melee Attack Clip Name Here";
     public string meleeAttackAltClipName = "Enter Alt Melee Attack Clip Name Here";
     public float comboResetWindow = 0.6f;
+    public List<AudioClip> meleeSwingSounds = new List<AudioClip>();
+    int lastMeleeSoundIndex = -1;
     public string parryClipName = "Enter Parry Clip Name Here";
     [HideInInspector] public bool isMeleeAttacking = false;
     [HideInInspector] public bool isMeleeComboActive = false;
@@ -781,6 +783,24 @@ public abstract class WeaponBase : MonoBehaviour
 
         if (universalAnimator != null)
             universalAnimator.Play(clip, 1, 0f);
+
+        PlayRandomMeleeSound();
+    }
+
+    void PlayRandomMeleeSound()
+    {
+        if (audioSource == null || meleeSwingSounds.Count == 0) return;
+
+        int index = 0;
+        if (meleeSwingSounds.Count > 1)
+        {
+            do
+            {
+                index = Random.Range(0, meleeSwingSounds.Count);
+            } while (index == lastMeleeSoundIndex);
+        }
+        lastMeleeSoundIndex = index;
+        audioSource.PlayOneShot(meleeSwingSounds[index]);
     }
 
     public virtual void PlayParry()
