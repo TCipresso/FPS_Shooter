@@ -476,7 +476,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 46d8d31f7a2ee5f4fb814dd3f4e1b89c, type: 2}
+  - {fileID: 2100000, guid: 01c49c53703c13a41b7e562f2cb9a05d, type: 2}
   - {fileID: 2100000, guid: 51bd40335fa0bf74d938790a6a77c291, type: 2}
   - {fileID: 2100000, guid: 37b239a99fcfa9d42b45a1f907559b35, type: 2}
   - {fileID: 2100000, guid: 0128f43374bfefb47a994b8a79e55c7d, type: 2}
@@ -567,9 +567,7 @@ MonoBehaviour:
   kickPositionZ: -0.1
   kickPositionY: 0.05
   kickPositionX: 0.02
-  shakeMagnitude: 0.05
-  shakeDuration: 0.08
-  shakeFrequency: 30
+  shotFOVImpulse: 3
   currentBloom: 0
   animator: {fileID: 2325367276718140860}
   walkStopDelay: 0.1

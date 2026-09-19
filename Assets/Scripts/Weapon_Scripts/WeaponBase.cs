@@ -23,10 +23,8 @@ public abstract class WeaponBase : MonoBehaviour
     public float kickPositionZ = -0.1f;
     public float kickPositionY = 0.05f;
     public float kickPositionX = 0.02f;
-    [Header("Screen Shake")]
-    public float shakeMagnitude = 0.05f;
-    public float shakeDuration = 0.08f;
-    public float shakeFrequency = 30f;
+    [Header("Shot FOV")]
+    public float shotFOVImpulse = 3f;
     [HideInInspector] public float currentBloom = 0f;
     [Header("Animation")]
     public Animator animator;
@@ -546,15 +544,15 @@ public abstract class WeaponBase : MonoBehaviour
         }
 
         onShotFired?.Invoke(this, shotEndPoints, shotHitTypes);
-        ApplyScreenShake();
+        ApplyShotFOV();
         AddBloom();
 
     }
 
-    protected void ApplyScreenShake()
+    protected void ApplyShotFOV()
     {
-        if (ScreenShake.Instance != null)
-            ScreenShake.Instance.Shake(shakeMagnitude, shakeDuration, shakeFrequency);
+        if (fpsLook != null)
+            fpsLook.AddShotFOV(shotFOVImpulse);
     }
 
     protected void PlayMuzzleFlash()
