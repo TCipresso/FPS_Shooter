@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[DefaultExecutionOrder(100)]
 public class WeaponInventory : MonoBehaviour
 {
     public enum Hand { Left, Right }
@@ -44,6 +45,7 @@ public class WeaponInventory : MonoBehaviour
 
     private Vector3 rightHandRestPosition;
     private Vector3 leftHandRestPosition;
+    private FPSLook fpsLook;
 
     private class HandState
     {
@@ -80,6 +82,7 @@ public class WeaponInventory : MonoBehaviour
 
     void Awake()
     {
+        fpsLook = GetComponentInParent<FPSLook>();
         if (input == null)
             input = GetComponentInParent<FPSInput>();
         if (aimTransform == null && Camera.main != null)
@@ -304,12 +307,6 @@ public class WeaponInventory : MonoBehaviour
 
     void Update()
     {
-        if (rightThrowAction != null && rightThrowAction.action.WasPressedThisFrame())
-            ThrowWeapon(Hand.Right);
-
-        if (leftThrowAction != null && leftThrowAction.action.WasPressedThisFrame())
-            ThrowWeapon(Hand.Left);
-
         HandleFire(rightHand, rightFireAction);
         HandleFire(leftHand, leftFireAction);
 
@@ -321,6 +318,15 @@ public class WeaponInventory : MonoBehaviour
 
         // Handle reload input
         HandleReload();
+    }
+
+    void LateUpdate()
+    {
+        if (rightThrowAction != null && rightThrowAction.action.WasPressedThisFrame())
+            ThrowWeapon(Hand.Right);
+
+        if (leftThrowAction != null && leftThrowAction.action.WasPressedThisFrame())
+            ThrowWeapon(Hand.Left);
     }
 
     void SwapHand(HandState hand)
@@ -684,13 +690,16 @@ public class WeaponInventory : MonoBehaviour
             return false;
         }
 
-        Transform aim = aimTransform != null ? aimTransform : transform;
+        Transform aim = fpsLook != null && fpsLook.playerCamera != null
+            ? fpsLook.playerCamera.transform
+            : aimTransform != null ? aimTransform : transform;
         Vector3 position = throwOrigin != null ? throwOrigin.position : aim.position;
-        GameObject thrown = Instantiate(prefab, position, aim.rotation);
+        Quaternion rotation = aim.rotation * Quaternion.Euler(prefab.GetComponent<ThrownWeapon>().rotationOffset);
+        GameObject thrown = Instantiate(prefab, position, rotation);
         thrown.SetActive(true);
         thrown.GetComponent<ThrownWeapon>().Launch(
             aim.forward * throwSpeed + Vector3.up * throwUpwardSpeed,
-            aim.right * throwSpin, transform);
+            throwSpin, transform, aim.rotation);
         RemoveEntry(state, entry);
         return true;
     }
