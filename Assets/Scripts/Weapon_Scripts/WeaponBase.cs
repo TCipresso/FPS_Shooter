@@ -63,7 +63,6 @@ public abstract class WeaponBase : MonoBehaviour
     float walkStopTimer = 0f;
     float fireResetTime = 0f;
     float currentRpm;
-    bool definitionCloned = false;
     Material[] cachedOriginalMaterials;
     bool originalMaterialsCached = false;
     static MaterialPropertyBlock sharedSkinPropertyBlock;
@@ -157,6 +156,13 @@ public abstract class WeaponBase : MonoBehaviour
         isReloading = false;
         currentBloom = 0f;
         walkStopTimer = 0f;
+        isLowered = false;
+        isMeleeAttacking = false;
+        isMeleeComboActive = false;
+        isParrying = false;
+        meleeAttackQueued = false;
+        meleeComboIndex = 0;
+        comboExpireTime = 0f;
     }
 
     protected virtual void Update()
@@ -667,11 +673,7 @@ public abstract class WeaponBase : MonoBehaviour
     public void ApplyLevel(WeaponDefinitionSO def)
     {
         if (def == null) return;
-        if (!definitionCloned)
-        {
-            weaponDefinition = Instantiate(def);
-            definitionCloned = true;
-        }
+        weaponDefinition = def;
         RefreshWeaponSkin();
     }
 

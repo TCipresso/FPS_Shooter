@@ -24,8 +24,12 @@ public class WeaponDefinitionSO : ScriptableObject
     public bool isMelee = false;
 
     [Header("Drop Prefab")]
-    [Tooltip("This weapon's own hand-built pickup prefab (must have a WeaponPickup component and be registered as a spawnable prefab in the NetworkManager).")]
+    [Tooltip("World pickup prefab with WeaponPickup, Rigidbody and a non-trigger collider.")]
     public GameObject dropPrefab;
+
+    [Header("Throwable Prefab")]
+    [Tooltip("Separate thrown weapon prefab with ThrownWeapon, Rigidbody and a non-trigger collider. Do not add WeaponPickup.")]
+    public GameObject throwablePrefab;
 
     [Header("Stats")]
     public int damage = 25;

@@ -6,7 +6,7 @@ public class WeaponInventory : MonoBehaviour
 {
     public enum Hand { Left, Right }
 
-    private const int MaxPerHand = 2;
+    private const int MaxPerHand = 1;
 
     [Header("References")]
     public Transform rightWeaponHolder;
@@ -17,8 +17,17 @@ public class WeaponInventory : MonoBehaviour
     [Header("Input")]
     public InputActionReference rightFireAction;
     public InputActionReference leftFireAction;
-    public InputActionReference rightSwapAction;
-    public InputActionReference leftSwapAction;
+    [UnityEngine.Serialization.FormerlySerializedAs("rightSwapAction")]
+    public InputActionReference rightThrowAction;
+    [UnityEngine.Serialization.FormerlySerializedAs("leftSwapAction")]
+    public InputActionReference leftThrowAction;
+
+    [Header("Throw")]
+    public Transform aimTransform;
+    public Transform throwOrigin;
+    public float throwSpeed = 15f;
+    public float throwUpwardSpeed = 2f;
+    public float throwSpin = 8f;
 
     [Header("Starting Loadout")]
     public List<WeaponDefinitionSO> startingRightHandWeapons = new List<WeaponDefinitionSO>();
@@ -71,6 +80,11 @@ public class WeaponInventory : MonoBehaviour
 
     void Awake()
     {
+        if (input == null)
+            input = GetComponentInParent<FPSInput>();
+        if (aimTransform == null && Camera.main != null)
+            aimTransform = Camera.main.transform;
+
         if (rightHandParent != null)
             rightHandRestPosition = rightHandParent.localPosition;
         if (leftHandParent != null)
@@ -87,15 +101,21 @@ public class WeaponInventory : MonoBehaviour
                 continue;
             }
 
-            CreateRuntimeDefinition(entry);
-
             entry.weaponRoot.SetActive(false);
+            if (entry.weaponBases.Count == 0)
+                entry.weaponBases.AddRange(entry.weaponRoot.GetComponentsInChildren<WeaponBase>(true));
+            CreateRuntimeDefinition(entry);
 
             Transform weaponTransform = entry.weaponRoot.transform;
 
             if (rightWeaponHolder != null &&
                 (weaponTransform == rightWeaponHolder || weaponTransform.IsChildOf(rightWeaponHolder)))
             {
+                if (entry.definition.isMelee)
+                {
+                    Debug.LogWarning($"[WeaponInventory] Move {entry.weaponRoot.name} to the left weapon holder.");
+                    continue;
+                }
                 if (rightWeaponLookup.ContainsKey(entry.definition))
                 {
                     Debug.LogWarning($"[WeaponInventory] Duplicate RIGHT weapon definition: {entry.definition.weaponName}");
@@ -108,6 +128,11 @@ public class WeaponInventory : MonoBehaviour
             else if (leftWeaponHolder != null &&
                      (weaponTransform == leftWeaponHolder || weaponTransform.IsChildOf(leftWeaponHolder)))
             {
+                if (!entry.definition.isMelee)
+                {
+                    Debug.LogWarning($"[WeaponInventory] Move {entry.weaponRoot.name} to the right weapon holder.");
+                    continue;
+                }
                 if (leftWeaponLookup.ContainsKey(entry.definition))
                 {
                     Debug.LogWarning($"[WeaponInventory] Duplicate LEFT weapon definition: {entry.definition.weaponName}");
@@ -123,17 +148,21 @@ public class WeaponInventory : MonoBehaviour
             }
         }
 
+    }
+
+    void OnEnable()
+    {
         if (rightFireAction != null)
             rightFireAction.action.Enable();
 
         if (leftFireAction != null)
             leftFireAction.action.Enable();
 
-        if (rightSwapAction != null)
-            rightSwapAction.action.Enable();
+        if (rightThrowAction != null)
+            rightThrowAction.action.Enable();
 
-        if (leftSwapAction != null)
-            leftSwapAction.action.Enable();
+        if (leftThrowAction != null)
+            leftThrowAction.action.Enable();
     }
 
     void Start()
@@ -188,11 +217,11 @@ public class WeaponInventory : MonoBehaviour
         if (leftFireAction != null)
             leftFireAction.action.Disable();
 
-        if (rightSwapAction != null)
-            rightSwapAction.action.Disable();
+        if (rightThrowAction != null)
+            rightThrowAction.action.Disable();
 
-        if (leftSwapAction != null)
-            leftSwapAction.action.Disable();
+        if (leftThrowAction != null)
+            leftThrowAction.action.Disable();
     }
 
     void CreateRuntimeDefinition(WeaponEntry entry)
@@ -271,19 +300,15 @@ public class WeaponInventory : MonoBehaviour
         {
             EquipIndexCore(hand, 0);
         }
-        else
-        {
-            Debug.LogWarning($"[WeaponInventory] No starting weapons found for {handType} hand.");
-        }
     }
 
     void Update()
     {
-        if (rightSwapAction != null && rightSwapAction.action.WasPressedThisFrame())
-            SwapHand(rightHand);
+        if (rightThrowAction != null && rightThrowAction.action.WasPressedThisFrame())
+            ThrowWeapon(Hand.Right);
 
-        if (leftSwapAction != null && leftSwapAction.action.WasPressedThisFrame())
-            SwapHand(leftHand);
+        if (leftThrowAction != null && leftThrowAction.action.WasPressedThisFrame())
+            ThrowWeapon(Hand.Left);
 
         HandleFire(rightHand, rightFireAction);
         HandleFire(leftHand, leftFireAction);
@@ -346,14 +371,12 @@ public class WeaponInventory : MonoBehaviour
 
     void HandleMelee(HandState hand)
     {
-        if (input == null)
-            return;
-
         WeaponBase weaponBase = hand.ActiveWeaponBase;
         if (weaponBase == null || !weaponBase.IsMelee)
             return;
 
-        if (input.MeleePressed)
+        if ((input != null && input.MeleePressed) ||
+            (leftFireAction != null && leftFireAction.action.WasPressedThisFrame()))
             weaponBase.PlayMeleeAttack();
     }
 
@@ -405,41 +428,18 @@ public class WeaponInventory : MonoBehaviour
 
     void HandleReload()
     {
-        // Check if reload was pressed
-        if (input == null || input.reloadAction == null) return;
-        if (!input.ReloadPressed) return;
+        if (input == null || !input.ReloadPressed)
+            return;
 
-        bool anyReloaded = false;
+        WeaponEntry entry = rightHand.ActiveEntry;
+        if (entry == null)
+            return;
 
-        // Try to reload right hand weapon
-        WeaponBase rightWeapon = rightHand.ActiveWeaponBase;
-        if (rightWeapon != null)
+        foreach (WeaponBase weaponBase in entry.weaponBases)
         {
-            // Only reload if not full and not already reloading
-            if (rightWeapon.currentAmmo < rightWeapon.MaxAmmo && !rightWeapon.IsReloading)
-            {
-                rightWeapon.Reload();
-                anyReloaded = true;
-            }
-        }
-
-        // Try to reload left hand weapon
-        WeaponBase leftWeapon = leftHand.ActiveWeaponBase;
-        if (leftWeapon != null)
-        {
-            // Only reload if not full and not already reloading
-            if (leftWeapon.currentAmmo < leftWeapon.MaxAmmo && !leftWeapon.IsReloading)
-            {
-                leftWeapon.Reload();
-                anyReloaded = true;
-            }
-        }
-
-        // Optional: Play a sound or show feedback if no weapon could reload
-        if (!anyReloaded)
-        {
-            // Both weapons are either full or already reloading
-            // You could play a "click" sound here if desired
+            if (weaponBase != null && !weaponBase.IsMelee &&
+                weaponBase.currentAmmo < weaponBase.MaxAmmo && !weaponBase.IsReloading)
+                weaponBase.Reload();
         }
     }
 
@@ -584,6 +584,12 @@ public class WeaponInventory : MonoBehaviour
 
         bool wasActive = index == hand.activeIndex;
 
+        foreach (WeaponBase weaponBase in entry.weaponBases)
+        {
+            if (weaponBase != null)
+                weaponBase.CancelReload();
+        }
+
         if (entry.weaponRoot != null)
             entry.weaponRoot.SetActive(false);
 
@@ -605,6 +611,126 @@ public class WeaponInventory : MonoBehaviour
         else if (index < hand.activeIndex)
         {
             hand.activeIndex--;
+        }
+    }
+
+    public bool TryPickup(WeaponPickup pickup)
+    {
+        if (pickup == null || !pickup.CanPickup || pickup.definition == null)
+            return false;
+
+        Hand handType = pickup.definition.isMelee ? Hand.Left : Hand.Right;
+        if (!GetLookup(handType).TryGetValue(pickup.definition, out WeaponEntry entry) ||
+            entry.weaponRoot == null)
+            return false;
+
+        HandState hand = GetHand(handType);
+        if (hand.ActiveEntry != null)
+            return false;
+
+        Destroy(entry.runtimeDefinition);
+        entry.runtimeDefinition = pickup.CreateRuntimeDefinition();
+        foreach (WeaponBase weaponBase in entry.weaponBases)
+        {
+            if (weaponBase != null)
+                weaponBase.weaponDefinition = entry.runtimeDefinition;
+        }
+
+        if (AddEntry(hand, entry) < 0)
+            return false;
+
+        pickup.RestoreAmmo(entry);
+        pickup.Consume();
+        return true;
+    }
+
+    public bool ThrowWeapon(Hand hand)
+    {
+        HandState state = GetHand(hand);
+        WeaponEntry entry = state.ActiveEntry;
+        if (entry == null)
+            return false;
+
+        GameObject prefab = entry.definition.throwablePrefab;
+        if (prefab == null)
+        {
+            Debug.LogWarning($"[WeaponInventory] {entry.definition.weaponName}: Throwable Prefab is empty on definition {entry.definition.name}.", entry.definition);
+            return false;
+        }
+
+        if (prefab.GetComponent<ThrownWeapon>() == null)
+        {
+            Debug.LogWarning($"[WeaponInventory] {entry.definition.weaponName}: Add ThrownWeapon to the root of throwable prefab {prefab.name}. A component on a child does not count.", prefab);
+            return false;
+        }
+
+        WeaponPickup pickupComponent = prefab.GetComponentInChildren<WeaponPickup>(true);
+        if (pickupComponent != null)
+        {
+            Debug.LogWarning($"[WeaponInventory] {entry.definition.weaponName}: Remove WeaponPickup from {pickupComponent.gameObject.name} inside throwable prefab {prefab.name}.", pickupComponent);
+            return false;
+        }
+
+        if (prefab.GetComponent<Rigidbody>() == null)
+        {
+            Debug.LogWarning($"[WeaponInventory] {entry.definition.weaponName}: Add a Rigidbody to the root of throwable prefab {prefab.name}. A Rigidbody on a child does not count.", prefab);
+            return false;
+        }
+
+        if (!System.Array.Exists(prefab.GetComponentsInChildren<Collider>(true),
+                collider => collider.enabled && !collider.isTrigger))
+        {
+            Debug.LogWarning($"[WeaponInventory] {entry.definition.weaponName}: Throwable prefab {prefab.name} needs an enabled 3D collider with Is Trigger turned off.", prefab);
+            return false;
+        }
+
+        Transform aim = aimTransform != null ? aimTransform : transform;
+        Vector3 position = throwOrigin != null ? throwOrigin.position : aim.position;
+        GameObject thrown = Instantiate(prefab, position, aim.rotation);
+        thrown.SetActive(true);
+        thrown.GetComponent<ThrownWeapon>().Launch(
+            aim.forward * throwSpeed + Vector3.up * throwUpwardSpeed,
+            aim.right * throwSpin, transform);
+        RemoveEntry(state, entry);
+        return true;
+    }
+
+    public bool DropWeapon(Hand handType, bool throwWeapon = false)
+    {
+        if (throwWeapon)
+            return ThrowWeapon(handType);
+
+        HandState hand = GetHand(handType);
+        WeaponEntry entry = hand.ActiveEntry;
+        if (entry == null)
+            return false;
+
+        GameObject prefab = entry.definition.dropPrefab;
+        if (prefab == null || prefab.GetComponent<WeaponPickup>() == null ||
+            prefab.GetComponent<Rigidbody>() == null ||
+            !System.Array.Exists(prefab.GetComponentsInChildren<Collider>(true),
+                collider => collider.enabled && !collider.isTrigger))
+        {
+            Debug.LogWarning($"[WeaponInventory] Assign a drop prefab with WeaponPickup, Rigidbody and a collider for {entry.definition.weaponName}.");
+            return false;
+        }
+
+        Transform aim = aimTransform != null ? aimTransform : transform;
+        Vector3 position = throwOrigin != null ? throwOrigin.position : aim.position;
+        GameObject dropped = Instantiate(prefab, position, aim.rotation);
+        dropped.SetActive(true);
+        WeaponPickup pickup = dropped.GetComponent<WeaponPickup>();
+        pickup.Capture(entry);
+        RemoveEntry(hand, entry);
+        return true;
+    }
+
+    void OnDestroy()
+    {
+        foreach (WeaponEntry entry in weapons)
+        {
+            if (entry != null && entry.runtimeDefinition != null)
+                Destroy(entry.runtimeDefinition);
         }
     }
 

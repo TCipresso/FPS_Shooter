@@ -14,12 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinitionSO
   weaponName: Glicky
   category: 0
-  dropPrefab: {fileID: 0}
+  isMelee: 0
+  dropPrefab: {fileID: 3476713060783481607, guid: 7ee515c4ee094394596fcb1f7903b049, type: 3}
+  throwablePrefab: {fileID: 3476713060783481607, guid: fe8d5d16872b1ee4e8a9eefaac92f5a2, type: 3}
   damage: 25
   range: 99999
   swarmHitRadius: 0.4
-  isAutomatic: 1
-  rpm: 200
+  isAutomatic: 0
+  rpm: 600
   critChance: 0.1
   critMultiplier: 2
   pelletCount: 1
@@ -28,9 +30,9 @@ MonoBehaviour:
   magazineSize: 8
   reloadSpeed: 0.5
   baseAccuracy: 3
-  bloomPerShot: 0.25
+  bloomPerShot: 0.5
   maxBloom: 3
-  bloomDecaySpeed: 5
+  bloomDecaySpeed: 4
   bulletType: 0
   trailPrefab: {fileID: 7533938775617344793, guid: 5fdbe00ae02ad624bb45ad9bdb2038fe, type: 3}
   trailPoolKey: BulletTrail

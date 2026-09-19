@@ -216,10 +216,10 @@ MonoBehaviour:
   fireSound: {fileID: 8300000, guid: f1d018efce553ee41b014ecbb1456d94, type: 3}
   sounds: []
   kickRotationX: -30
-  kickRotationY: 2
+  kickRotationY: 5
   kickRotationZ: 5
   kickPositionZ: -0.35
-  kickPositionY: 0.05
+  kickPositionY: 0.1
   kickPositionX: 0.02
   shakeMagnitude: 0.2
   shakeDuration: 0.08
@@ -233,6 +233,15 @@ MonoBehaviour:
   isFiring: 0
   isReloading: 0
   currentAmmo: 0
+  isLowered: 0
+  meleeAttackClipName: Enter Melee Attack Clip Name Here
+  meleeAttackAltClipName: Enter Alt Melee Attack Clip Name Here
+  comboResetWindow: 0.6
+  meleeSwingSounds: []
+  parryClipName: Enter Parry Clip Name Here
+  isMeleeAttacking: 0
+  isMeleeComboActive: 0
+  isParrying: 0
 --- !u!1 &867839974380250027
 GameObject:
   m_ObjectHideFlags: 0
@@ -664,7 +673,7 @@ AudioSource:
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 0.25
-  m_Pitch: 1.5
+  m_Pitch: 1.15
   Loop: 0
   Mute: 0
   Spatialize: 0
@@ -794,7 +803,7 @@ Animator:
   m_GameObject: {fileID: 3301685114302584742}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 6c7dee6889330234d9d965dd4f7ab2f9, type: 2}
+  m_Controller: {fileID: 9100000, guid: 569faf76152cb5c4fbacffc200dbac22, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -975,13 +984,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5103746769888918973}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.38135654, y: 0.59545547, z: 0.38135645, w: 0.5954555}
+  m_LocalRotation: {x: -0.30037138, y: 0.6401383, z: 0.3003715, w: 0.6401382}
   m_LocalPosition: {x: 0.19581516, y: 0.034666225, z: 0.541393}
   m_LocalScale: {x: 0.055, y: 0.067772515, z: 0.07005332}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4069185263105868491}
-  m_LocalEulerAnglesHint: {x: -47.301, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -50.275, y: 90, z: 0}
 --- !u!198 &3570685681441826668
 ParticleSystem:
   m_ObjectHideFlags: 0
