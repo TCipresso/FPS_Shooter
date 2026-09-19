@@ -316,8 +316,6 @@ public class WeaponInventory : MonoBehaviour
         UpdateHandReaction(rightHand, leftHand, rightHandParent, rightHandRestPosition);
         UpdateHandReaction(leftHand, rightHand, leftHandParent, leftHandRestPosition);
 
-        // Handle reload input
-        HandleReload();
     }
 
     void LateUpdate()
@@ -357,7 +355,7 @@ public class WeaponInventory : MonoBehaviour
             if (weaponBase.IsMelee)
                 continue;
 
-            if (weaponBase.isLowered)
+            if (weaponBase.isLowered || !weaponBase.HasAmmo())
                 continue;
 
             bool shouldFire = weaponBase.isAutomatic
@@ -430,23 +428,6 @@ public class WeaponInventory : MonoBehaviour
     {
         WeaponBase weaponBase = hand.ActiveWeaponBase;
         return weaponBase != null && weaponBase.IsMelee && weaponBase.isMeleeComboActive;
-    }
-
-    void HandleReload()
-    {
-        if (input == null || !input.ReloadPressed)
-            return;
-
-        WeaponEntry entry = rightHand.ActiveEntry;
-        if (entry == null)
-            return;
-
-        foreach (WeaponBase weaponBase in entry.weaponBases)
-        {
-            if (weaponBase != null && !weaponBase.IsMelee &&
-                weaponBase.currentAmmo < weaponBase.MaxAmmo && !weaponBase.IsReloading)
-                weaponBase.Reload();
-        }
     }
 
     void EquipIndexCore(HandState hand, int index)

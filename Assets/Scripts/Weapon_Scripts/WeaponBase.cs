@@ -215,51 +215,12 @@ public abstract class WeaponBase : MonoBehaviour
 
     public virtual void Reload()
     {
-        if (IsReloading) return;
-        if (currentAmmo >= MaxAmmo) return;
-        if (weaponDefinition == null) return;
-
-        isReloading = true;
-
-        // Set reload speed in animator
-        if (animator != null)
-        {
-            animator.SetFloat("ReloadSpeed", ReloadSpeed);
-            animator.SetBool("IsReloading", true);
-            animator.SetTrigger("Reload");
-        }
-
-        if (universalAnimator != null)
-        {
-            universalAnimator.SetFloat("ReloadSpeed", ReloadSpeed);
-            universalAnimator.SetBool("IsReloading", true);
-        }
-
-        Debug.Log($"[{gameObject.name}] Started reloading. {currentAmmo}/{MaxAmmo} (Speed: {ReloadSpeed}x)");
     }
 
-    // Call this from an animation event at the end of the reload animation
     public virtual void OnReloadComplete()
     {
-        if (!isReloading) return;
-
-        currentAmmo = MaxAmmo;
-        isReloading = false;
-
-        if (animator != null)
-        {
-            animator.SetBool("IsReloading", false);
-            animator.ResetTrigger("Reload");
-        }
-
-        if (universalAnimator != null)
-        {
-            universalAnimator.SetBool("IsReloading", false);
-        }
-
-        Debug.Log($"[{gameObject.name}] Reload complete. {currentAmmo}/{MaxAmmo}");
+        CancelReload();
     }
-
     public virtual void CancelReload()
     {
         if (!isReloading) return;
@@ -292,7 +253,6 @@ public abstract class WeaponBase : MonoBehaviour
 
     public void Refill()
     {
-        currentAmmo = MaxAmmo;
     }
 
     public void ApplyExtraMagazine(int extra)
@@ -300,7 +260,7 @@ public abstract class WeaponBase : MonoBehaviour
         if (weaponDefinition != null)
         {
             weaponDefinition.magazineSize += extra;
-            currentAmmo = weaponDefinition.magazineSize;
+            currentAmmo = Mathf.Clamp(currentAmmo, 0, MaxAmmo);
         }
     }
 
@@ -566,16 +526,8 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (weaponDefinition == null) return;
 
-        // Check ammo
         if (!TryUseAmmo())
-        {
-            // Auto-reload if empty
-            if (currentAmmo == 0 && !IsReloading)
-            {
-                Reload();
-            }
             return;
-        }
 
         shotEndPoints.Clear();
         shotHitTypes.Clear();
@@ -597,11 +549,6 @@ public abstract class WeaponBase : MonoBehaviour
         ApplyScreenShake();
         AddBloom();
 
-        // Auto-reload if empty
-        if (currentAmmo == 0 && !IsReloading)
-        {
-            Reload();
-        }
     }
 
     protected void ApplyScreenShake()
