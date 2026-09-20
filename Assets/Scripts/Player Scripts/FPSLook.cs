@@ -31,7 +31,6 @@ public class FPSLook : MonoBehaviour
     [Header("Shot FOV")]
     [Min(0f)] public float maxShotFOV = 8f;
     [Min(0.01f)] public float shotFOVReturnSpeed = 18f;
-    [Range(0f, 1f)] public float weaponShotFOVMultiplier = 1f;
 
     float rotationX = 0f;
     float currentTiltZ = 0f;
@@ -143,6 +142,6 @@ public class FPSLook : MonoBehaviour
     {
         if (!overlayCamera || !playerCamera) return;
         if (overlayCamera.orthographic) return;
-        overlayCamera.fieldOfView = Mathf.Clamp(weaponCameraFOV + shotFOV * weaponShotFOVMultiplier, 1f, 179f);
+        overlayCamera.fieldOfView = weaponCameraFOV;
     }
 }

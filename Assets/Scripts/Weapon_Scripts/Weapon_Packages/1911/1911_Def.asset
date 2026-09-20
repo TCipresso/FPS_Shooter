@@ -10,37 +10,37 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b5cb4844a83ccf945bcb4bc288bfd193, type: 3}
-  m_Name: SMG
+  m_Name: 1911_Def
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinitionSO
-  weaponName: Mini Macs
-  category: 1
+  weaponName: 1911
+  category: 0
   isMelee: 0
-  dropPrefab: {fileID: 6777996846194819660, guid: ebfe5555a2c8e4e40a0dd878bafe5306, type: 3}
-  throwablePrefab: {fileID: 0}
+  dropPrefab: {fileID: 0}
+  throwablePrefab: {fileID: 3476713060783481607, guid: fe8d5d16872b1ee4e8a9eefaac92f5a2, type: 3}
   damage: 25
-  range: 9999
+  range: 99999
   swarmHitRadius: 0.4
-  isAutomatic: 1
-  rpm: 900
+  isAutomatic: 0
+  rpm: 300
   critChance: 0.1
-  critMultiplier: 1.5
+  critMultiplier: 2
   pelletCount: 1
   pelletSpreadAngle: 5
   flatSpread: 0
-  magazineSize: 30
+  magazineSize: 999
   reloadSpeed: 0.5
-  baseAccuracy: 1
+  baseAccuracy: 0
   bloomPerShot: 0.5
-  maxBloom: 4
-  bloomDecaySpeed: 5
+  maxBloom: 3
+  bloomDecaySpeed: 6
   bulletType: 0
   trailPrefab: {fileID: 7533938775617344793, guid: 5fdbe00ae02ad624bb45ad9bdb2038fe, type: 3}
   trailPoolKey: BulletTrail
-  trailPoolSize: 30
+  trailPoolSize: 50
   hitMask:
     serializedVersion: 2
     m_Bits: 15359
-  impactEffectOverride: {fileID: 379087086293945372, guid: 00df2626230093c478373a5f1dc23aa6, type: 3}
+  impactEffectOverride: {fileID: 6350203987023523720, guid: 1d1898ccac54b1147baf916f234e27a6, type: 3}
   projectilePrefab: {fileID: 0}
   projectileSpeed: 40
   projectileGravityScale: 0
